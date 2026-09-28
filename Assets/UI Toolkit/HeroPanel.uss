@@ -1,0 +1,142 @@
+/* Hero Panel - the inspect view that opens on the right when a hero is right-clicked.
+   Palette and radii deliberately match Shop.uss so the two panels read as one UI. */
+
+.hero-panel {
+    background-color: rgba(18, 16, 28, 0.88);
+    border-left-width: 2px;
+    border-left-color: rgba(255, 255, 255, 0.12);
+    padding: 14px 16px;
+    flex-direction: column;
+    align-self: flex-end;
+    width: 100%;
+    max-width: 320px;
+
+    /* max-height, not just height: the row centres its children, so content taller than the
+       row spills equally off the top of the screen and down over the bench. Capping here and
+       scrolling inside is what keeps it inside the play area at any window size. */
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+}
+
+.hero-panel__scroll {
+    flex-grow: 1;
+    min-height: 0;   /* a flex child will not shrink below its content without this */
+}
+
+/* Empty state: nothing selected. The panel keeps its box so the board never reflows when a
+   hero is opened or closed - only the contents swap. */
+.hero-panel--empty {
+    opacity: 0;
+}
+
+.hero-panel__name {
+    color: rgb(232, 230, 240);
+    font-size: 40px;
+    -unity-font-style: bold;
+    white-space: normal;
+    margin-bottom: 2px;
+}
+
+.hero-panel__team {
+    color: rgba(232, 230, 240, 0.55);
+    font-size: 11px;
+    -unity-font-style: bold;
+    margin-bottom: 10px;
+}
+
+/* ---------------- bars ---------------- */
+.bar {
+    height: 16px;
+    margin-bottom: 6px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.16);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* width is set from code as a percentage - the fill sits behind the label */
+.bar__fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+}
+
+.bar__fill--hp {
+    background-color: rgba(86, 176, 106, 0.75);
+}
+
+.bar__fill--mana {
+    background-color: rgba(80, 140, 220, 0.75);
+}
+
+.bar__label {
+    color: rgb(240, 240, 248);
+    font-size: 15px; 
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* ---------------- stat grid ---------------- */
+.stat-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+.stat {
+    /* two per row: half the width minus the gap the margins take out */
+    width: 46%;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-right: 4%;
+    margin-bottom: 4px;
+}
+
+.stat__key {
+    color: rgba(232, 230, 240, 0.55);
+    font-size: 15px;
+}
+
+.stat__value {
+    color: rgb(232, 230, 240);
+    font-size: 15px;
+    -unity-font-style: bold;
+}
+
+/* ---------------- ability ---------------- */
+.section {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top-width: 1px;
+    border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+.section__kicker {
+    color: rgba(232, 230, 240, 0.45);
+    font-size: 10px;
+    -unity-font-style: bold;
+    margin-bottom: 2px;
+}
+
+.section__title {
+    color: rgb(232, 230, 240);
+    font-size: 14px;
+    -unity-font-style: bold;
+    white-space: normal;
+    margin-bottom: 4px;
+}
+
+.section__body {
+    color: rgba(232, 230, 240, 0.8);
+    font-size: 14px;
+    white-space: normal;
+}

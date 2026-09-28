@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b55b0dd9ae9b645ad69373b7cb4ae9, type: 3}
+  m_Name: Sparks
+  m_EditorClassIdentifier: Assembly-CSharp::HeroStat
+  _prefab: {fileID: 2991500760798989720, guid: 42b131f2c8891124fa62944aeaefa7bc, type: 3}
+  _name: Sparks
+  _hp: 500
+  _attack: 40
+  _defend: 20
+  _magic: 40
+  _magicResist: 20
+  _attackSpeed: 1
+  _range: 4
+  _startMana: 0
+  _maxMana: 50
+  _skillId: 15
+  _isDummy: 0

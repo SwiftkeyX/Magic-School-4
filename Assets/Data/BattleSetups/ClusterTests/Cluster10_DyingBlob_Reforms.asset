@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b15591f0aa582343bd08d00a02b4206, type: 3}
+  m_Name: Cluster10_DyingBlob_Reforms
+  m_EditorClassIdentifier: Assembly-CSharp::BattlePlacementSO
+  _heroesPlacement:
+  - dataSO: {fileID: 11400000, guid: a20eb6d6a41e37344b5edc7d44f81e3b, type: 2}
+    hexPlacement:
+      team: 0
+      column: 0
+      row: 3
+  - dataSO: {fileID: 11400000, guid: c3237b4146516bf40a06b803ad07500f, type: 2}
+    hexPlacement:
+      team: 1
+      column: 2
+      row: 0
+  - dataSO: {fileID: 11400000, guid: c3237b4146516bf40a06b803ad07500f, type: 2}
+    hexPlacement:
+      team: 1
+      column: 2
+      row: 1
+  - dataSO: {fileID: 11400000, guid: c3237b4146516bf40a06b803ad07500f, type: 2}
+    hexPlacement:
+      team: 1
+      column: 3
+      row: 0
+  - dataSO: {fileID: 11400000, guid: c3237b4146516bf40a06b803ad07500f, type: 2}
+    hexPlacement:
+      team: 1
+      column: 3
+      row: 1
+  - dataSO: {fileID: 11400000, guid: 374c72dcb09b46c5ae6604af3ec59b79, type: 2}
+    hexPlacement:
+      team: 1
+      column: 0
+      row: 5
+  - dataSO: {fileID: 11400000, guid: 374c72dcb09b46c5ae6604af3ec59b79, type: 2}
+    hexPlacement:
+      team: 1
+      column: 0
+      row: 6

@@ -1,0 +1,16 @@
+{
+    "name": "MagicSchool.CombatRecording",
+    "rootNamespace": "MagicSchool",
+    "references": [
+        "GUID:f48b491f9a3d1ee41b83e0e3c16f6360"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

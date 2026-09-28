@@ -1,0 +1,188 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <!-- The real bars are built in ScoreboardController, not here: every bar's segment widths
+         are a percentage of the longest bar in its track, which is only known once the round's
+         numbers are in. One track list in code drives the heading, the legend and the bars.
+
+         The rows below are a PLACEHOLDER so this is not an empty box in UI Builder. They never
+         reach the game: ShowScores() calls ScoreTable.Clear() before it renders, and the panel
+         starts hidden and is only shown by that same call - so there is no path where these are
+         on screen. Edit them freely; they are here to be looked at, not read.
+
+         Their classes mirror exactly what the controller generates, so what you style here is
+         what you get. The inline widths on .seg are the one thing the controller sets in code
+         instead of in USS. If you add a track or a segment in code, add one here too or the
+         preview will lie.
+         NOTE: UI Builder deletes every comment in a file it saves - see CLAUDE.md. It has
+         already eaten this block once; these lines were restored from git. -->
+    <Style src="project://database/Assets/UI%20Toolkit/Scoreboard.uss?fileID=7433441132597879392&amp;guid=abcae9c2a13001c43aa3397740a39c8e&amp;type=3#Scoreboard"/>
+    <ui:VisualElement name="ScoreboardPanel" class="scoreboard-layer">
+        <ui:VisualElement name="Scoreboard" class="scoreboard" style="min-height: 60%; max-width: 60%; width: 100%;">
+            <ui:Label name="Title" text="ROUND SCOREBOARD" class="scoreboard__title"/>
+            <ui:Label name="Subtitle" text="every bar shares one scale, so any two are comparable - this round only" class="scoreboard__subtitle"/>
+            <ui:VisualElement name="ScoreTable">
+                <ui:VisualElement class="row row--header">
+                    <ui:Label text="HERO" class="cell cell--name cell--header"/>
+                    <ui:VisualElement class="cell column track-head">
+                            <ui:VisualElement class="track-head__block">
+                            <ui:Label text="DAMAGE DEALT" class="track-head__title"/>
+                            <ui:VisualElement class="track-head__legend">
+                                <ui:VisualElement class="key">
+                                    <ui:VisualElement class="key__swatch seg--auto"/>
+                                    <ui:Label text="auto" class="key__label"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="key">
+                                    <ui:VisualElement class="key__swatch seg--skill"/>
+                                    <ui:Label text="skill" class="key__label"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="key">
+                                    <ui:VisualElement class="key__swatch seg--ghost"/>
+                                    <ui:Label text="overkill" class="key__label"/>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track-head__block">
+                            <ui:Label text="DAMAGE TAKEN" class="track-head__title"/>
+                            <ui:VisualElement class="track-head__legend">
+                                <ui:VisualElement class="key">
+                                    <ui:VisualElement class="key__swatch seg--taken"/>
+                                    <ui:Label text="taken" class="key__label"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="key">
+                                    <ui:VisualElement class="key__swatch seg--ghost"/>
+                                    <ui:Label text="blocked" class="key__label"/>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track-head__block">
+                            <ui:Label text="HEALING DONE" class="track-head__title"/>
+                            <ui:VisualElement class="track-head__legend">
+                                <ui:VisualElement class="key">
+                                    <ui:VisualElement class="key__swatch seg--healed"/>
+                                    <ui:Label text="healed" class="key__label"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="key">
+                                    <ui:VisualElement class="key__swatch seg--ghost"/>
+                                    <ui:Label text="overheal" class="key__label"/>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track-head__block">
+                            <ui:Label text="HEALING TAKEN" class="track-head__title"/>
+                            <ui:VisualElement class="track-head__legend">
+                                <ui:VisualElement class="key">
+                                    <ui:VisualElement class="key__swatch seg--received"/>
+                                    <ui:Label text="received" class="key__label"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="key">
+                                    <ui:VisualElement class="key__swatch seg--ghost"/>
+                                    <ui:Label text="wound" class="key__label"/>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="row">
+                    <ui:VisualElement class="cell cell--name">
+                        <ui:VisualElement class="hero hero--blue">
+                            <ui:Label text="Vharn" class="hero__name"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="cell column">
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail">
+                                <ui:VisualElement class="seg seg--auto" style="width: 48%;"/>
+                                <ui:VisualElement class="seg seg--skill" style="width: 51%;"/>
+                                <ui:VisualElement class="seg seg--ghost seg--end" style="width: 6%;"/>
+                            </ui:VisualElement>
+                            <ui:Label text="2,480" class="track__value"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail">
+                                <ui:VisualElement class="seg seg--taken" style="width: 76%;"/>
+                                <ui:VisualElement class="seg seg--ghost seg--end" style="width: 24%;"/>
+                            </ui:VisualElement>
+                            <ui:Label text="1,890" class="track__value"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail"/>
+                            <ui:Label text="0" class="track__value track__value--zero"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail">
+                                <ui:VisualElement class="seg seg--received seg--end" style="width: 28%;"/>
+                            </ui:VisualElement>
+                            <ui:Label text="340" class="track__value"/>
+                            </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="row row--stripe">
+                    <ui:VisualElement class="cell cell--name">
+                        <ui:VisualElement class="hero hero--red hero--dead">
+                            <ui:Label text="Sithra" class="hero__name"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="cell column">
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail">
+                                <ui:VisualElement class="seg seg--auto" style="width: 25%;"/>
+                                <ui:VisualElement class="seg seg--skill seg--end" style="width: 53%;"/>
+                            </ui:VisualElement>
+                            <ui:Label text="1,975" class="track__value"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail">
+                                <ui:VisualElement class="seg seg--taken" style="width: 85%;"/>
+                                <ui:VisualElement class="seg seg--ghost seg--end" style="width: 15%;"/>
+                            </ui:VisualElement>
+                            <ui:Label text="2,310" class="track__value"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail"/>
+                            <ui:Label text="0" class="track__value track__value--zero"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail"/>
+                            <ui:Label text="0" class="track__value track__value--zero"/>
+                            </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="row">
+                    <ui:VisualElement class="cell cell--name">
+                        <ui:VisualElement class="hero hero--blue">
+                            <ui:Label text="Solace" class="hero__name"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="cell column">
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail">
+                                <ui:VisualElement class="seg seg--auto seg--end" style="width: 17%;"/>
+                            </ui:VisualElement>
+                            <ui:Label text="430" class="track__value"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail">
+                                <ui:VisualElement class="seg seg--taken" style="width: 31%;"/>
+                                <ui:VisualElement class="seg seg--ghost seg--end" style="width: 10%;"/>
+                            </ui:VisualElement>
+                            <ui:Label text="760" class="track__value"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail">
+                                <ui:VisualElement class="seg seg--healed" style="width: 80%;"/>
+                                <ui:VisualElement class="seg seg--ghost seg--end" style="width: 20%;"/>
+                            </ui:VisualElement>
+                            <ui:Label text="1,180" class="track__value"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="track">
+                            <ui:VisualElement class="track__rail">
+                                <ui:VisualElement class="seg seg--received" style="width: 10%;"/>
+                                <ui:VisualElement class="seg seg--ghost seg--end" style="width: 5%;"/>
+                            </ui:VisualElement>
+                            <ui:Label text="120" class="track__value"/>
+                            </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

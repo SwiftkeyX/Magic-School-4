@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b55b0dd9ae9b645ad69373b7cb4ae9, type: 3}
+  m_Name: Verity
+  m_EditorClassIdentifier: Assembly-CSharp::HeroStat
+  _prefab: {fileID: 182412447273031416, guid: 2ac8481b026ba8e4fa7e6f2e08387202, type: 3}
+  _name: Verity
+  _hp: 500
+  _attack: 40
+  _defend: 20
+  _magic: 100
+  _magicResist: 20
+  _attackSpeed: 1
+  _range: 1
+  _startMana: 0
+  _maxMana: 50
+  _skillId: 17
+  _isDummy: 0

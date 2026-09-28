@@ -1,0 +1,130 @@
+/* Match status - the hint line, the win banner and the fielded-hero counter.
+   Palette matches Shop.uss and HeroPanel.uss so the three read as one UI. */
+
+/* Fills the StatusPanel overlay, which is itself absolutely positioned over the whole Top
+   row - so percentages here resolve against the play area rather than against a box that
+   collapsed to its own content. The counter is NOT one of these; see .hero-count-layer. */
+.status-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---------------- the hint line ---------------- */
+/* Absolute so it sits at the bottom of the board area without pushing the banner
+   off centre - the two are independent, and both can be on screen at once. */
+.hint {
+    position: absolute;
+    bottom: 10px;
+    color: rgba(232, 230, 240, 0.75);
+    font-size: 20px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    background-color: rgba(18, 16, 28, 0.7);
+    padding: 5px 12px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+/* ---------------- the win banner ---------------- */
+.banner {
+    align-items: center;
+    justify-content: center;
+    padding: 16px 28px;
+    background-color: rgba(18, 16, 28, 0.9);
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.18);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.banner__text {
+    font-size: 30px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    color: rgb(240, 240, 248);
+}
+
+/* Winner colours match the HP and mana bars rather than being new ones. */
+.banner__text--blue {
+    color: rgb(120, 175, 245);
+}
+
+.banner__text--red {
+    color: rgb(232, 120, 120);
+}
+
+.banner__text--draw {
+    color: rgba(232, 230, 240, 0.7);
+}
+
+.banner__hint {
+    font-size: 12px;
+    -unity-text-align: middle-center;
+    color: rgba(232, 230, 240, 0.6);
+    margin-top: 4px;
+}
+
+/* ---------------- the fielded-hero counter ---------------- */
+/* Not a .status-layer, unlike the two above: the counter is no longer laid over the board, it
+   owns #HeroCountPanel, its own box in the Bottom row. So it fills that box in normal flow
+   instead of pinning itself, which is what leaves the slot's own padding free to space it. */
+.hero-count-layer {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+/* In flow, so where it sits is the layer's alignment and the slot's padding - not insets. */
+.hero-count {
+    align-items: center;
+    background-color: rgba(18, 16, 28, 0.7);
+    padding: 4px 14px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.12);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.hero-count__value {
+    font-size: 50px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    color: rgb(232, 230, 240);
+    display: flex;
+}
+
+.hero-count__label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    color: rgba(232, 230, 240, 0.45);
+}
+
+/* At the limit the next hex drop will be refused, so the number says so before it happens.
+   Same red as a lost match rather than a fourth colour in the palette. */
+.hero-count--full .hero-count__value {
+    color: rgb(232, 120, 120);
+}
+
+.hero-count--full {
+    border-color: rgba(232, 120, 120, 0.45);
+}
+
+/* Hidden state. display:none rather than opacity, so a hidden banner cannot sit
+   invisibly over the board eating nothing but still occupying layout. */
+.is-hidden {
+    display: none;
+}

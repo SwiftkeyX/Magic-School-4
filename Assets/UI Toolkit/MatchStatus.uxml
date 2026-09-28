@@ -1,0 +1,13 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/MatchStatus.uss?fileID=7433441132597879392&amp;guid=bb9234fdf8569644d951e869dafaf035&amp;type=3#MatchStatus"/>
+    <ui:VisualElement name="StatusPanel" picking-mode="Ignore" class="status-layer">
+        <ui:VisualElement name="ResultBanner" picking-mode="Ignore" class="banner">
+            <ui:Label name="ResultText" picking-mode="Ignore" text="BLUE WINS" class="banner__text banner__text--blue"/>
+        </ui:VisualElement>
+        <ui:Label name="PhaseHint" picking-mode="Ignore" text="Drag heroes onto your hexes, then press SPACE to fight" class="hint" style="top: 10px; bottom: auto;"/>
+        <ui:VisualElement name="HeroCount" picking-mode="Ignore" class="hero-count">
+            <ui:Label name="HeroCountValue" picking-mode="Ignore" text="0 / 3" class="hero-count__value"/>
+            <ui:Label name="HeroCountLabel" picking-mode="Ignore" text="ON BOARD" class="hero-count__label"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

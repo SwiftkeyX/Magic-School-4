@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b55b0dd9ae9b645ad69373b7cb4ae9, type: 3}
+  m_Name: Lumen
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDataSO
+  _prefab: {fileID: 2730781198573467893, guid: a7cf83061e0265f48a1e68db34a7f202, type: 3}
+  _name: Lumen
+  _hp: 700
+  _attack: 60
+  _defend: 40
+  _magic: 60
+  _magicResist: 20
+  _attackSpeed: 0.6
+  _range: 1
+  _startMana: 0
+  _maxMana: 50
+  _skillId: 13
+  _isDummy: 0

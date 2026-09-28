@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c67d82ebdaac4341baa0ae65c0cbada, type: 3}
+  m_Name: TemplateActionRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::MagicSchool.TemplateActionRegistrySO
+  _entries:
+  - Action: 1
+    Prefab: {fileID: 2553249872288390112, guid: 96c28c228dcc3584b93601bee3fb73b2, type: 3}
+  - Action: 2
+    Prefab: {fileID: 2137041547401538855, guid: 71a88a6e6c19b2440b4390d6ebf9b47e, type: 3}
+  - Action: 15
+    Prefab: {fileID: 2137041547401538855, guid: 50eede2ce463c884e9fbeceb0a4ceace, type: 3}
+  - Action: 4
+    Prefab: {fileID: 2115596131323804181, guid: 33365db968d644e4696d7cf5b18a8f77, type: 3}
+  - Action: 5
+    Prefab: {fileID: 1395724406477609479, guid: 70389d98b9cea2c4d8959d520ca5fc2a, type: 3}
+  - Action: 7
+    Prefab: {fileID: 4979021782531030374, guid: f45373eff00267545bf995a5cd7d6f64, type: 3}
+  - Action: 8
+    Prefab: {fileID: 8198009179562479145, guid: f5699f21fd14aa24c868db5dbc393fd3, type: 3}
+  - Action: 9
+    Prefab: {fileID: 6440614205257948553, guid: c31b480a1c907174b88ef052c8bfc312, type: 3}
+  - Action: 10
+    Prefab: {fileID: 7833928236879553845, guid: 60ff3249ba80ef944bbda97d9c1dff58, type: 3}
+  - Action: 13
+    Prefab: {fileID: -3016799722535468411, guid: 47fb6d1847bc7e747be575faa89eb54f, type: 3}
+  - Action: 17
+    Prefab: {fileID: 2137041547401538855, guid: d88beea7bf0832547941ef313fbdda48, type: 3}
+  - Action: 18
+    Prefab: {fileID: 7575991698492996291, guid: 5a9df2cbfb24dec4e85fc2b4280697bf, type: 3}
+  - Action: 19
+    Prefab: {fileID: 2069741687515492351, guid: bf6660b9adb980d45b211e4048b97134, type: 3}
+  - Action: 20
+    Prefab: {fileID: 8983305943242631009, guid: 08517810857723b49bba8de3cc7e9c3a, type: 3}
+  - Action: 21
+    Prefab: {fileID: 7575991698492996291, guid: 8dd398e3fa6341f4bac3c95451c0b27d, type: 3}

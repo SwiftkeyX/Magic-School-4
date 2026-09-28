@@ -1,0 +1,24 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/RewardPanel.uss?fileID=7433441132597879392&amp;guid=bbe2751f02c14145a153f9fbe4c56382&amp;type=3#RewardPanel"/>
+    <ui:VisualElement name="RewardPanel" class="reward-layer">
+        <ui:VisualElement name="RewardCard" class="reward-card">
+            <ui:Button name="CloseButton" text="X" class="reward-card__close"/>
+            <ui:Label name="RewardTitle" picking-mode="Ignore" text="CHOOSE AN ITEM" class="reward-card__title"/>
+            <ui:Label name="RewardHint" picking-mode="Ignore" text="one of the three is yours - close it and press space to bring it back" class="reward-card__hint"/>
+            <ui:VisualElement name="ItemSlots" class="reward-slots">
+                <ui:VisualElement name="ItemSlot" class="item-slot">
+                    <ui:Label name="ItemName" picking-mode="Ignore" text="Item" class="item-slot__name"/>
+                    <ui:Label name="ItemDescription" picking-mode="Ignore" text="" class="item-slot__description"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="ItemSlot" class="item-slot">
+                    <ui:Label name="ItemName" picking-mode="Ignore" text="Item" class="item-slot__name"/>
+                    <ui:Label name="ItemDescription" picking-mode="Ignore" text="" class="item-slot__description"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="ItemSlot" class="item-slot">
+                    <ui:Label name="ItemName" picking-mode="Ignore" text="Item" class="item-slot__name"/>
+                    <ui:Label name="ItemDescription" picking-mode="Ignore" text="" class="item-slot__description"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

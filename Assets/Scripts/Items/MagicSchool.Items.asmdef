@@ -1,0 +1,19 @@
+{
+    "name": "MagicSchool.Items",
+    "rootNamespace": "MagicSchool",
+    "references": [
+        "GUID:f48b491f9a3d1ee41b83e0e3c16f6360",
+        "GUID:6e0e90d4dc745d24d873fa4ff9a86732",
+        "GUID:65a07aafd796fd848b62837beb7f5de0",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
