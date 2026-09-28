@@ -1,4 +1,4 @@
-# Magic School 3
+# Magic School 4
 
 A Unity auto-chess game. Buy heroes, place them on a hex board, then watch them fight on
 their own.
@@ -15,7 +15,7 @@ Built with **Unity 6000.4** (URP, 2D) and **UI Toolkit**.
 
 ### Getting the project
 
-- **Git clone:** `git clone https://github.com/SwiftkeyX/Magic-School-3.git`
+- **Git clone:** `git clone https://github.com/SwiftkeyX/Magic-School-4.git`
 - **GitHub download:** click the green `Code` button and select 'Download ZIP'
 
 The repository uses no Git LFS, so the ZIP is complete — there are no large files to miss.

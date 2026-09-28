@@ -10,7 +10,7 @@ namespace MagicSchool.Skills
     /// Skills are written in C#, which cannot hold a prefab reference, meaning it can't ref to TemplateAction.
     /// So this class pair enum & TemplateAction. So you could reference the TemplateAction via this class.
     /// </summary>
-    [CreateAssetMenu(fileName = "TemplateActionRegistry", menuName = "Magic School 3/Template Action Registry")]
+    [CreateAssetMenu(fileName = "TemplateActionRegistry", menuName = "Magic School 4/Template Action Registry")]
     public class TemplateActionRegistrySO : ScriptableObject
     {
         [Serializable]

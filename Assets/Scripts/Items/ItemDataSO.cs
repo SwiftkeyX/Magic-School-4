@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MagicSchool.Items
 {
-    [CreateAssetMenu(fileName = "ItemData", menuName = "Magic School 3/Item")]
+    [CreateAssetMenu(fileName = "ItemData", menuName = "Magic School 4/Item")]
     public class ItemDataSO : ScriptableObject
     {
         [SerializeField] private GameObject _prefab;

@@ -8,7 +8,7 @@ namespace MagicSchool.Combat.Heroes
     /// SO for hero.
     /// ONLY use to seed a Hero's runtime state AND SkillSO.
     /// </summary>
-    [CreateAssetMenu(fileName = "HeroStat", menuName = "Magic School 3/Hero Stat")]
+    [CreateAssetMenu(fileName = "HeroStat", menuName = "Magic School 4/Hero Stat")]
     public class HeroDataSO : ScriptableObject
     {
         [SerializeField] private GameObject _prefab;

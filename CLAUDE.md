@@ -1,4 +1,4 @@
-# Magic School 3
+# Magic School 4
 
 Unity auto-chess game: heroes are bought, benched, and placed on a hex board, then auto-battle. Heroes on opposing teams move toward each other and fight; the side with all heroes dead loses. UI is built with **UI Toolkit** (not uGUI).
 
@@ -145,6 +145,6 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
 - Moving script files between folders is safe as long as the `.meta` travels with the `.cs` — scene and prefab references are by GUID, so they survive both the move and a namespace change. Verify in Play mode anyway.
  — but respect explicit "Don't answer" notes on individual steps, those are self-notes rather than questions.
 - VS Code debugging uses the `visualstudiotoolsforunity.vstuc` extension (the current official one, not the deprecated "Debugger for Unity"), with an "Attach to Unity" launch config already in `.vscode/launch.json`.
-- GitHub remote: https://github.com/SwiftkeyX/Magic-School-3.git, branch `main`.
-- **Never commit on your own.** Finish the work and leave it in the working tree — the user reads every diff before it becomes a commit. Only run `git commit` when they ask for it in that turn, in plain words ("commit"). Nothing else counts as permission: not a plan they approved, not an option they picked in a question, not "the change is done and tested", not a long stretch of work that feels like it needs a checkpoint. When they do ask, commit to `main` (solo project, no branches unless they ask for a PR), and split multi-part work into one change per commit. Never push unless asked.
+- GitHub remote: https://github.com/SwiftkeyX/Magic-School-4.git, branch `main`.
+- **Never commit or push.** The user commits and pushes everything themselves - finish the work and leave it in the working tree for them to review. Never add a `Co-Authored-By: Claude` trailer or any other AI attribution to a commit message or PR description: the user does not want Claude showing up as a contributor on GitHub.
 - **Don't stage either.** `git mv`/`git rm` write to the index, which makes work look half-committed; use plain `mv`/`rm` and leave everything in the working tree.
