@@ -1,0 +1,19 @@
+{
+    "name": "MagicSchool.Skills",
+    "rootNamespace": "MagicSchool",
+    "references": [
+        "GUID:f48b491f9a3d1ee41b83e0e3c16f6360",
+        "GUID:65a07aafd796fd848b62837beb7f5de0",
+        "GUID:6e0e90d4dc745d24d873fa4ff9a86732",
+        "GUID:d6cdac12259a42a4b886d8e6a5240b43"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

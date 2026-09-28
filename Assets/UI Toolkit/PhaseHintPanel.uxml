@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/MatchStatus.uss?fileID=7433441132597879392&amp;guid=bb9234fdf8569644d951e869dafaf035&amp;type=3#MatchStatus"/>
+    <ui:VisualElement name="PhaseHintPanel" picking-mode="Ignore" class="status-layer">
+        <ui:Label name="PhaseHint" picking-mode="Ignore" text="Drag heroes onto your hexes, then press SPACE to fight" class="hint" style="top: 10px; bottom: auto;"/>
+    </ui:VisualElement>
+</ui:UXML>

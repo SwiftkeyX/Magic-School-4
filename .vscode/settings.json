@@ -1,0 +1,132 @@
+{
+    "files.exclude": {
+        "**/.DS_Store": true,
+        "**/.git": true,
+        "**/.vs": true,
+        "**/.gitmodules": true,
+        "**/.vsconfig": true,
+        "**/*.booproj": true,
+        "**/*.pidb": true,
+        "**/*.suo": true,
+        "**/*.user": true,
+        "**/*.userprefs": true,
+        "**/*.unityproj": true,
+        "**/*.dll": true,
+        "**/*.exe": true,
+        "**/*.pdf": true,
+        "**/*.mid": true,
+        "**/*.midi": true,
+        "**/*.wav": true,
+        "**/*.gif": true,
+        "**/*.ico": true,
+        "**/*.jpg": true,
+        "**/*.jpeg": true,
+        "**/*.png": true,
+        "**/*.psd": true,
+        "**/*.tga": true,
+        "**/*.tif": true,
+        "**/*.tiff": true,
+        "**/*.3ds": true,
+        "**/*.3DS": true,
+        "**/*.fbx": true,
+        "**/*.FBX": true,
+        "**/*.lxo": true,
+        "**/*.LXO": true,
+        "**/*.ma": true,
+        "**/*.MA": true,
+        "**/*.obj": true,
+        "**/*.OBJ": true,
+        "**/*.asset": true,
+        "**/*.cubemap": true,
+        "**/*.flare": true,
+        "**/*.mat": true,
+        "**/*.meta": true,
+        "**/*.prefab": true,
+        "**/*.unity": true,
+        "build/": true,
+        "Build/": true,
+        "Library/": true,
+        "library/": true,
+        "obj/": true,
+        "Obj/": true,
+        "Logs/": true,
+        "logs/": true,
+        "ProjectSettings/": true,
+        "UserSettings/": true,
+        "temp/": true,
+        "Temp/": true
+    },
+    "files.associations": {
+        "*.asset": "yaml",
+        "*.meta": "yaml",
+        "*.prefab": "yaml",
+        "*.unity": "yaml"
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.sln": "*.csproj",
+        "*.slnx": "*.csproj"
+    },
+    "dotnet.defaultSolution": "Magic School 4.slnx",
+    "dotnet.enableWorkspaceBasedDevelopment": false,
+    "todo-tree.general.tags": [
+        "FIXNOW",
+        "FIXLATER",
+        "BLOCKED",
+        "FLAGGING",
+        "ASKING",
+        "UNSURE"
+    ],
+    "todo-tree.general.tagGroups": {},
+    "todo-tree.highlights.defaultHighlight": {
+        "type": "tag",
+        "gutterIcon": true
+    },
+    "todo-tree.highlights.customHighlight": {
+        "FIXNOW": {
+            "icon": "flame",
+            "foreground": "#ffffff",
+            "background": "#d13438",
+            "iconColour": "#d13438"
+        },
+        "FIXLATER": {
+            "icon": "clock",
+            "foreground": "#1f1f1f",
+            "background": "#e3a008",
+            "iconColour": "#e3a008"
+        },
+        "BLOCKED": {
+            "icon": "lock",
+            "foreground": "#ffffff",
+            "background": "#57606a",
+            "iconColour": "#57606a"
+        },
+        "ASKING": {
+            "icon": "question",
+            "foreground": "#ffffff",
+            "background": "#0078d4",
+            "iconColour": "#0078d4"
+        },
+        "UNSURE": {
+            "icon": "alert",
+            "foreground": "#ffffff",
+            "background": "#8661c5",
+            "iconColour": "#8661c5"
+        },
+        "FLAGGING": {
+            "icon": "shield-check",
+            "foreground": "#ffffff",
+            "background": "#2f7d32",
+            "iconColour": "#2f7d32"
+        }
+    },
+    "todo-tree.filtering.excludeGlobs": [
+        "**/Library/**",
+        "**/Temp/**",
+        "**/Obj/**",
+        "**/Build/**",
+        "**/Logs/**",
+        "**/Assets/TextMesh Pro/**",
+        "**/Packages/**"
+    ]
+}

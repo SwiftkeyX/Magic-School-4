@@ -1,0 +1,17 @@
+{
+    "name": "MagicSchool.Modifiers",
+    "rootNamespace": "MagicSchool",
+    "references": [
+        "GUID:f48b491f9a3d1ee41b83e0e3c16f6360",
+        "GUID:65a07aafd796fd848b62837beb7f5de0"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b55b0dd9ae9b645ad69373b7cb4ae9, type: 3}
+  m_Name: Dummy
+  m_EditorClassIdentifier: Assembly-CSharp::HeroDataSO
+  _prefab: {fileID: 5633529800495504945, guid: 28584df165b90ac499f9124bc544ebff, type: 3}
+  _name: Dummy
+  _hp: 1000
+  _attack: 0
+  _defend: 0
+  _magic: 0
+  _magicResist: 0
+  _attackSpeed: 0.1
+  _range: 1
+  _startMana: 0
+  _maxMana: 50
+  _skill: {fileID: 0}
+  _isDummy: 1

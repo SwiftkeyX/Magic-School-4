@@ -1,0 +1,13 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Style src="Shop.uss" />
+    <!-- The ghost is the card you picked up, so it is built out of the slot's own class rather
+         than a look of its own: .hero-slot paints it and .ghost only lifts it out of the layout.
+         A live VisualElement cannot be copied, nor rendered to a texture at runtime, so sharing
+         the class is what keeps the two from drifting - restyle .hero-slot and the ghost follows.
+
+         UI Builder deletes every comment in this file when it saves it. If they are gone, that
+         is what happened - restore them rather than assuming they were dropped on purpose. -->
+    <ui:VisualElement name="Ghost" picking-mode="Ignore" class="hero-slot ghost">
+        <ui:Label name="GhostLabel" picking-mode="Ignore" class="hero-slot-label" />
+    </ui:VisualElement>
+</ui:UXML>

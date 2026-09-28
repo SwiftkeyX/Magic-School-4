@@ -1,0 +1,41 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="HeroCountPanel" src="project://database/Assets/UI%20Toolkit/HeroCountPanel.uxml?fileID=9197481963319205126&amp;guid=8b90177761b44379aae66b5dc16f5129&amp;type=3#HeroCountPanel"/>
+    <ui:Template name="HeroPanel" src="project://database/Assets/UI%20Toolkit/HeroPanel.uxml?fileID=9197481963319205126&amp;guid=2119a30bf5772f44c8bb20a6f295e7d7&amp;type=3#HeroPanel"/>
+    <ui:Template name="PhaseHintPanel" src="project://database/Assets/UI%20Toolkit/PhaseHintPanel.uxml?fileID=9197481963319205126&amp;guid=fd90bfbc0d324c999ce26fead30dee40&amp;type=3#PhaseHintPanel"/>
+    <ui:Template name="ResultBannerPanel" src="project://database/Assets/UI%20Toolkit/ResultBannerPanel.uxml?fileID=9197481963319205126&amp;guid=657f1d6520de442091bea06ca59336b6&amp;type=3#ResultBannerPanel"/>
+    <ui:Template name="RewardPanel" src="project://database/Assets/UI%20Toolkit/RewardPanel.uxml?fileID=9197481963319205126&amp;guid=9ac73ab5fa3c40c2822192e5b94420eb&amp;type=3#RewardPanel"/>
+    <ui:Template name="Scoreboard" src="project://database/Assets/UI%20Toolkit/Scoreboard.uxml?fileID=9197481963319205126&amp;guid=4bb4fdfd62eed9d4abe0a48b6d6768a5&amp;type=3#Scoreboard"/>
+    <ui:Template name="ShopPanel" src="project://database/Assets/UI%20Toolkit/Shop.uxml?fileID=9197481963319205126&amp;guid=a6ab2bc69608ec746938b3134742beb5&amp;type=3#Shop"/>
+    <ui:VisualElement name="Root" picking-mode="Ignore" style="flex-grow: 1; flex-direction: column; height: 100%; width: 100%;">
+        <ui:VisualElement name="Top" style="flex-grow: 1; height: 85%; flex-direction: column; align-items: stretch; justify-content: space-between; width: 100%;">
+            <ui:VisualElement name="InnerTop" style="flex-grow: 1; flex-direction: row; justify-content: space-between; width: 100%; height: 85%;">
+                <ui:VisualElement name="TraitPanel" style="flex-grow: 1; min-width: 33%; min-height: 100%;"/>
+                <ui:VisualElement name="BoardArea" picking-mode="Ignore" style="flex-grow: 1; min-width: 33%; min-height: 100%;"/>
+                <ui:VisualElement name="HeroPanel" style="flex-grow: 1; top: auto; bottom: auto; flex-direction: column; flex-wrap: nowrap; min-width: 33%; min-height: 100%; max-height: none; flex-shrink: 1; align-items: stretch; align-content: flex-start; align-self: auto; justify-content: flex-start; padding-top: 1%; padding-right: 1%;">
+                    <ui:Instance template="HeroPanel" style="position: relative; left: auto; top: auto; right: auto; bottom: auto; display: flex; flex-grow: 1; align-items: stretch; justify-content: flex-start; align-self: auto; flex-shrink: 1; flex-direction: column; flex-basis: auto; align-content: flex-start; min-width: auto;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="ResultBannerPanel" picking-mode="Ignore" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0;">
+                <ui:Instance template="ResultBannerPanel" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="PhaseHintPanel" picking-mode="Ignore" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0;">
+                <ui:Instance template="PhaseHintPanel" name="TemplateContainer" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; font-size: 20px;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="BenchPanel" style="flex-shrink: 1; flex-grow: 0; flex-direction: row; align-items: auto; justify-content: flex-start; align-self: stretch; flex-wrap: nowrap; align-content: auto; width: 100%; height: 15%;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="Bottom" style="flex-grow: 1; flex-direction: row; align-items: auto; justify-content: space-between; align-self: stretch; height: 15%; width: 100%;">
+            <ui:VisualElement name="HeroCountPanel" picking-mode="Ignore" style="position: relative; left: 0; top: 0; right: 0; bottom: 0; height: 100%; width: 20%; padding-right: 1%; padding-left: 1%; padding-top: 1%; padding-bottom: 1%;">
+                <ui:Instance template="HeroCountPanel" style="flex-grow: 1; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="ShopPanel" style="flex-grow: 1; flex-direction: row; align-self: stretch; align-items: auto; height: 100%; width: 80%;">
+                <ui:Instance template="ShopPanel" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="ScoreboardPanel" picking-mode="Ignore" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0;">
+            <ui:Instance template="Scoreboard" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="RewardPanel" picking-mode="Ignore" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; opacity: 1; display: flex;">
+            <ui:Instance template="RewardPanel" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none; opacity: 1;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

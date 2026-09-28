@@ -1,0 +1,30 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/Shop.uss?fileID=7433441132597879392&amp;guid=27bdd819de86fde489a7b72b7d2837e0&amp;type=3#Shop"/>
+    <ui:VisualElement name="ShopPanel" class="shop-panel" style="height: 100%; flex-grow: 1; flex-direction: row; align-items: center; justify-content: space-between; align-self: stretch; width: 100%;">
+        <ui:VisualElement name="RandomSlot" class="shop-slots-container" style="flex-grow: 1; height: 100%; padding-right: 8px; padding-left: 8px; flex-direction: column; justify-content: flex-start; width: 20%;">
+            <ui:VisualElement class="refresh-slot" style="flex-grow: 1;">
+                <ui:Label text="Lock" class="hero-slot-label"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="refresh-slot" style="flex-grow: 1;">
+                <ui:Label text="Refresh" class="hero-slot-label"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="HeroSlots" class="shop-slots-container" style="position: relative; width: 80%;">
+            <ui:VisualElement name="HeroSlot" class="hero-slot">
+                <ui:Label text="Label" class="hero-slot-label"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="HeroSlot" class="hero-slot">
+                <ui:Label text="Label" class="hero-slot-label"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="HeroSlot" class="hero-slot">
+                <ui:Label text="Label" class="hero-slot-label"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="HeroSlot" class="hero-slot">
+                <ui:Label text="Label" class="hero-slot-label"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="HeroSlot" class="hero-slot">
+                <ui:Label text="Label" class="hero-slot-label"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

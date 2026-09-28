@@ -1,0 +1,32 @@
+{
+  "tft-skill": {
+    "key": "1X5glHjVcgv3yYG4Q2SyV9YJS3sv_wH5XAg3RLOHnUa4",
+    "role": "canonical",
+    "writable": true,
+    "description": "This project's own skill design database - 'Hero Query' tab lays out per-hero skill data in the same Step/Trigger/Action/Effect shape the C# skill system mirrors. Source of truth for authoring/debugging any hero's SkillSO."
+  },
+  "tft-set9": {
+    "key": "1xj6em5XlvIN1gWHTKOPDsssmkgnS3jIsaLnAMjYyPUA",
+    "role": "reference",
+    "writable": true,
+    "description": "TFT Set 9 Champions reference sheet (real ability text/stats this project's kits are adapted from)."
+  },
+  "tft-set9-analysis": {
+    "key": "1pnbDKR55HxXFUExIXKyksJqaUSrNuw53IfnvBEt9zNY",
+    "role": "reference-analysis",
+    "writable": true,
+    "description": "TFT Set 9 Carry and Combat Efficiency Analysis sheet (separated)."
+  },
+  "tft-set10": {
+    "key": "1Eutkil9U8RJ4Lqo3l6wk9pbUeVVH80M4JmcRyMEqa2E",
+    "role": "reference",
+    "writable": true,
+    "description": "TFT Set 10 Champions reference sheet (external)."
+  },
+  "tft-set11": {
+    "key": "1BCFZRFebGd2O41ZvbJcNZ7LdVBWH3ssBliTQGMVN3cI",
+    "role": "reference",
+    "writable": true,
+    "description": "TFT Set 11 Champions reference sheet (external)."
+  }
+}

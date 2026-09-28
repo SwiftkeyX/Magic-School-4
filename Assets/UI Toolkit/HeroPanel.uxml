@@ -1,0 +1,78 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/HeroPanel.uss?fileID=7433441132597879392&amp;guid=dabf92a5884d1e045bc937d0e54fba6b&amp;type=3#HeroPanel"/>
+    <!-- Root is named for the slot it lands in: InspectorController looks up the element of the
+         same name in MainScreen.uxml, exactly as ShopPanelController does.
+
+         EVERYTHING BELOW IS SAMPLE CONTENT, authored so this file can be laid out and restyled
+         in UI Builder rather than opened as a blank rectangle. Every label is overwritten by
+         InspectorController.Show, which also adds the empty modifier class on the first frame
+         to hide the panel, so none of these values are ever seen at runtime. Values are Vharn's
+         real ones, and the two bars are deliberately part-full so the fills can be judged.
+
+         Do not write a double dash in a UXML comment. It is XML, and that is a parse error
+         that silently breaks the whole asset.
+
+         UI Builder deletes every comment in this file when it saves it. If they are gone, that
+         is what happened - restore them rather than assuming they were dropped on purpose. -->
+    <ui:VisualElement name="HeroPanel" class="hero-panel" style="flex-grow: 1; align-items: stretch; max-width: 400px;">
+        <!-- The content is taller than the row it sits in at most window sizes, so it scrolls
+             rather than spilling over the board and the bench. Q() searches descendants, so
+             the controller finds every label through this just the same. -->
+        <ui:ScrollView name="HeroScroll" horizontal-scroller-visibility="Hidden" vertical-scroller-visibility="Hidden" class="hero-panel__scroll">
+            <ui:Label name="HeroName" text="Vharn" class="hero-panel__name"/>
+            <ui:Label name="HeroTeam" text="BLUE" class="hero-panel__team"/>
+            <ui:VisualElement name="HpBar" class="bar">
+                <ui:VisualElement name="HpFill" class="bar__fill bar__fill--hp" style="width: 64%;"/>
+                <ui:Label name="HpLabel" text="320 / 500" class="bar__label"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="ManaBar" class="bar">
+                <ui:VisualElement name="ManaFill" class="bar__fill bar__fill--mana" style="width: 60%;"/>
+                <ui:Label name="ManaLabel" text="30 / 50" class="bar__label"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="StatGrid" class="stat-grid">
+                <ui:VisualElement class="stat">
+                    <ui:Label text="ATK" class="stat__key"/>
+                    <ui:Label name="StatAtk" text="40" class="stat__value"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="stat">
+                    <ui:Label text="DEF" class="stat__key"/>
+                    <ui:Label name="StatDef" text="20" class="stat__value"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="stat">
+                    <ui:Label text="MAG" class="stat__key"/>
+                    <ui:Label name="StatMag" text="40" class="stat__value"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="stat">
+                    <ui:Label text="MR" class="stat__key"/>
+                    <ui:Label name="StatMr" text="20" class="stat__value"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="stat">
+                    <ui:Label text="AS" class="stat__key"/>
+                    <ui:Label name="StatAs" text="1.00" class="stat__value"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="stat">
+                    <ui:Label text="RNG" class="stat__key"/>
+                    <ui:Label name="StatRange" text="1" class="stat__value"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <!-- Shown only when what is being inspected is an item rather than a hero, in which
+                 case the team line, both bars, the stat grid and the two ability sections are all
+                 hidden instead. See InspectorController.ShowItem. -->
+            <ui:VisualElement name="ItemSection" class="section">
+                <ui:Label text="ITEM" class="section__kicker"/>
+                <ui:Label name="ItemBody" text="Grants nothing yet. Right click a hero to see the other half of this panel." class="section__body"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="ActiveSection" class="section">
+                <ui:Label text="ACTIVE" class="section__kicker"/>
+                <ui:Label name="ActiveName" text="Skill" class="section__title"/>
+                <ui:Label name="ActiveBody" text="Transforms for 10 seconds, draining life with every hit he lands and turning his bonus attack speed into raw attack damage." class="section__body"/>
+            </ui:VisualElement>
+            <!-- Only two heroes have a passive, so this is hidden at runtime unless one is actually
+                 there. Left visible here so the section can be styled. -->
+            <ui:VisualElement name="PassiveSection" class="section">
+                <ui:Label text="PASSIVE" class="section__kicker"/>
+                <ui:Label name="PassiveBody" text="While transformed his auto attack becomes a three beat combo - box, then triangle, then circle - and each beat lands harder than the one before it." class="section__body"/>
+            </ui:VisualElement>
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>

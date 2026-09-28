@@ -1,0 +1,20 @@
+{
+    "name": "MagicSchool.Player",
+    "rootNamespace": "MagicSchool",
+    "references": [
+        "GUID:f48b491f9a3d1ee41b83e0e3c16f6360",
+        "GUID:81732514f3d7ca047a47d2b3fe719fcb",
+        "GUID:44bf83f8ef0dd4f4a94766d111613117",
+        "GUID:576dbe49d0fb1794fa50506942daaff6",
+        "GUID:0a78a54caf974f2985102bac0c486516"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

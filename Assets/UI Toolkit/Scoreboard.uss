@@ -1,0 +1,343 @@
+/* The post-combat damage meter. Palette matches MatchStatus.uss and HeroPanel.uss so the
+   three read as one UI.
+
+   NOTE: UI Builder deletes every comment in a file it saves. If you open this there to nudge
+   one number, git diff afterwards and put the prose back. See CLAUDE.md. */
+
+/* Fills the whole screen and dims what is behind, so the bars are read against a flat
+   ground rather than against the board. */
+.scoreboard-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(10, 9, 16, 0.88);
+}
+
+.scoreboard {
+    width: 90%;
+    max-width: 1100px;
+    /* Opaque, not a wash: the bars say things with colour now, and a red hex showing through
+       a row is one more red thing on a line that already has a red bar on it. */
+    background-color: rgb(18, 16, 28);
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.18);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding: 14px 16px;
+}
+
+.scoreboard__title {
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: rgb(240, 240, 248);
+    margin-bottom: 2px;
+}
+
+.scoreboard__subtitle {
+    font-size: 11px;
+    color: rgba(232, 230, 240, 0.5);
+    margin-bottom: 10px;
+}
+
+/* ---------------- rows ---------------- */
+.row {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 0; 
+}
+
+/* The header carries the only horizontal rule. Row separators at this density turn the table
+   into a grid of boxes and make the bars harder to scan, not easier. */
+.row--header {
+    align-items: flex-end;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.18);
+    padding-bottom: 5px;
+    margin-bottom: 3px;
+}
+
+/* Every other row gets a faint wash, so the eye stays on one hero's line all the way across
+   the four tracks. */
+.row--stripe {
+    background-color: rgba(255, 255, 255, 0.035);
+}
+
+/* ---------------- columns ---------------- */
+/* Every cell is a fixed share of the row so the header, the bars and the numbers all line up
+   on the same four column edges. */
+.cell {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 88%;
+    font-size: 12px;
+    color: rgb(232, 230, 240);
+}
+
+/* Holds the portrait box and the name side by side. */
+.cell--name {
+    width: 12%;
+    flex-direction: row;
+    align-items: center;
+    -unity-text-align: middle-left;
+    -unity-font-style: bold;
+    padding-right: 6px;
+    overflow: hidden;
+}
+
+/* ---------------- hero portrait ---------------- */
+/* A placeholder built the way an item is built in the world: a plain white box with the name
+   written on it. No hero has art yet - every prefab still renders the same built-in Unity shape
+   - so a picture here would be 23 identical squares and the names would be gone.
+
+   It is square and 50px because that is roughly the size a portrait will be, and the row height
+   it forces is what every other measurement in this panel is made against. Putting it in now
+   means art can land later without moving anything. When it does: give .hero a background-image
+   and drop the label. */
+.hero {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(228, 228, 234);
+    border-width: 2px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    overflow: hidden;
+}
+
+/* The name written on the box, the way an item wears its own. Dark ink, because the box is
+   light: the team blue and red are light colours and vanish against it, which is why the team
+   rides the border instead. It wraps rather than ellipsing - the longest name here is
+   "Berserker", which takes two lines at this size and still has room to spare in 50px. */
+.hero__name {
+    width: 100%;
+    font-size: 10px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    padding-left: 2px;
+    padding-right: 2px;
+    color: rgb(20, 18, 28);
+}
+
+.cell--header {
+    font-size: 10px;
+    -unity-font-style: bold;
+    color: rgba(232, 230, 240, 0.5);
+    white-space: normal;
+}
+
+/* ---------------- track heading + legend ---------------- */
+/* Each track carries its own legend rather than one shared legend above the table: the same
+   grey means overkill here and blocked one column over, so the names have to sit next to the
+   bars they describe. */
+/* Each stacked bar gets its own title and legend, in the order the bars are drawn below. */
+.track-head__block {
+    margin-bottom: 4px;
+}
+
+.track-head__title {
+    font-size: 10px;
+    -unity-font-style: bold;
+    color: rgba(232, 230, 240, 0.5);
+    margin-bottom: 3px;
+}
+
+.track-head__legend {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.key {
+    flex-direction: row;
+    align-items: center;
+    margin-right: 8px;
+}
+
+.key__swatch {
+    width: 7px;
+    height: 7px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    margin-right: 3px;
+}
+
+/* The swatch carries the colour; the word stays in plain ink. A legend written in its own
+   series colour is unreadable at this size. */
+.key__label {
+    font-size: 9px;
+    color: rgba(232, 230, 240, 0.45);
+}
+
+/* ---------------- bars ---------------- */
+/* A column holds its tracks one above the other. Dealt over taken reads as one hero's fight;
+   the same two bars a column apart read as two unrelated facts. It also buys each bar twice the
+   width, and spends the row height that the 50px portrait opened up. */
+.column {
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 10px;
+}
+
+/* One chart: the rail and the number at its tip. The margins are what put air between two
+   stacked bars, so they read as two readings rather than one thick one. They are on every track
+   rather than on `.track + .track`, because USS has no sibling combinator - it supports only
+   descendant and child - and that rule would be dropped without a word. */
+.track {
+    flex-direction: row;
+    align-items: center;
+    max-height: 15px; 
+}  
+
+/* The rail is the space a bar is drawn in, and it is deliberately invisible: a visible track
+   behind every bar puts four grey blocks on every row, and - worse - an empty track then looks
+   exactly like a bar that is all grey tail. Nothing drawn, nothing to confuse.
+   The padding is headroom: segments are sized in percent of the content box and each carries a
+   2px gap, so the longest bar overflows into it instead of being squeezed. */
+.track__rail {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-direction: row;
+    align-items: center;
+    height: 10px;
+    padding-right: 6px;
+}
+
+/* A 2px gap - not a border - is what separates one segment from the next. A stroke would add
+   ink that is not data, and at 10px tall it would swallow a short segment whole. */
+.seg {
+    flex-grow: 0;
+    flex-shrink: 0;
+    height: 10px;
+    margin-right: 2px;
+}
+
+/* The segment under the pointer. It grows rather than changing colour: every colour in this
+   panel already means something, so a hover tint would read as a sixth series, and at 10px a
+   border would eat most of the fill. Height is not the encoding here - width is - so growing
+   it cannot misstate the number. The rail centres it, and the row's own padding absorbs the
+   extra 2px above and below. */
+.seg--hover {
+    height: 14px;
+}
+
+/* Five series, ordered so no two neighbours collapse under red-green colour blindness
+   (validated: worst adjacent pair ΔE 6.5 protan, and that pair - healed vs taken - never
+   touches, since they live in different tracks). Auto is the physical hue, skill the arcane
+   one, and damage-taken red / healing green follow what the health bars already say. */
+.seg--auto {
+    background-color: rgb(217, 89, 38);
+}
+
+.seg--skill {
+    background-color: rgb(144, 133, 233);
+}
+
+.seg--taken {
+    background-color: rgb(230, 103, 103);
+}
+
+.seg--healed {
+    background-color: rgb(25, 158, 112);
+}
+
+.seg--received {
+    background-color: rgb(201, 133, 0);
+}
+
+/* The tail of every bar: overkill, blocked, overheal, wound. One grey for all four because it
+   always means the same thing - this much did not count - and it must never read as a sixth
+   hero-facing series. */
+.seg--ghost {
+    background-color: rgba(232, 230, 240, 0.22);
+}
+
+/* ---------------- the segment tooltip ---------------- */
+/* The hovered segment's own number, floating over it. Absolute, so it is out of the row's flow
+   and can be drawn over the rows above; the translate carries it left by half its own width and
+   up by its full height, which centres it on the segment and clears the bar without anything
+   having to measure it first. Its ground is a step lighter than the panel so it reads as
+   sitting on top rather than cut into it. */
+.seg-tooltip {
+    position: absolute;
+    translate: -50% -100%;
+    padding: 2px 6px;
+    font-size: 11px;
+    -unity-font-style: bold;
+    color: rgb(240, 240, 248);
+    background-color: rgb(42, 39, 58);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.22);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+/* ---------------- the headline number ---------------- */
+/* The one number per track, at the tip of the bar. Fixed width and right-aligned so the four
+   of them stack into readable columns instead of drifting with each bar's length. */
+.track__value {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 46px;
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+    color: rgb(255, 255, 255);
+}
+
+/* A zero is real information here - "this hero did nothing" - but it should not draw the eye
+   the way a number does. */
+.track__value--zero {
+    -unity-font-style: normal;
+    color: rgba(232, 230, 240, 0.25);
+}
+
+/* ---------------- team colours ---------------- */
+/* Same two colours as the win banner and the HP bars rather than new ones. They ride the box's
+   edge, never its text: both are light colours, and light text on a near-white box is the one
+   place in this panel where team colour costs legibility instead of adding it. A border says
+   "team" from further away than a tinted letter does anyway. The bars are already spending
+   colour on what the numbers mean, so team stays out of them. */
+.hero--blue {
+    border-color: rgb(120, 175, 245);
+}
+
+.hero--red {
+    border-color: rgb(232, 120, 120);
+}
+
+.name--blue {
+    color: rgb(120, 175, 245);
+}
+
+.name--red {
+    color: rgb(232, 120, 120);
+}
+
+.name--dead {
+    opacity: 0.55;
+}
+
+/* A dead hero's row stays fully readable - its damage is the point - so death is marked on the
+   portrait alone, the same way HeroVisuals marks a corpse on the board: by fading it. */
+.hero--dead {
+    opacity: 0.55;
+}
+
+.is-hidden {
+    display: none;
+}
