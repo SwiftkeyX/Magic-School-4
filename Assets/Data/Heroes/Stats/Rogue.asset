@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b55b0dd9ae9b645ad69373b7cb4ae9, type: 3}
+  m_Name: Rogue
+  m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Heroes.HeroDataSO
+  _prefab: {fileID: 2989014565145866073, guid: ea23a238adc7dd34db666d6987798ae0, type: 3}
+  _name: Rogue
+  _tier: 1
+  _role: 5
+  _hp: 550
+  _attack: 60
+  _defend: 20
+  _magic: 100
+  _magicResist: 20
+  _attackSpeed: 0.8
+  _range: 1
+  _startMana: 0
+  _maxMana: 60
+  _skillId: 0
+  _isDummy: 0
