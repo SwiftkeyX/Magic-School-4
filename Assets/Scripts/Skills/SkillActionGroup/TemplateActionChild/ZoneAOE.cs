@@ -9,6 +9,8 @@ namespace MagicSchool.Skills
     /// ZoneAOE are template action that apply effect over time.
     /// Effect here was apply to the recipients on standing in the effect, if they walk out of it, they don't get effect re-apply.
     /// e.g. Orc Blademaster
+    /// 
+    /// NOTE: ZonAOE MUST be pair with (cadence = true) effect. If the effect isn't cadence, the ZoneAOE don't do anything.
     /// </summary>
     internal class ZoneAOE : AOE
     {

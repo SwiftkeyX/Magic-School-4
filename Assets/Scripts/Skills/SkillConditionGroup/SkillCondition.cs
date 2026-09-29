@@ -4,6 +4,8 @@ using MagicSchool.Contracts;
 
 namespace MagicSchool.Skills
 {
+    // FLAGGING: This is unreadable. I will clean up the comment later.
+    
     /// <summary>
     /// A question a skill asks before it does something. One predicate, used in two places that do
     /// different things with the answer:
