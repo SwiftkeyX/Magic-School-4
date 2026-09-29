@@ -105,10 +105,12 @@ namespace MagicSchool.Skills
         public static Tuning Tune(float? castTime = null)
             => new Tuning { CastTime = castTime };
 
-        public static AOETuning TuneAOE(float? castTime = null, float? duration = null, float? size = null,
+        // length / width are world units - a circle 4.5 across is length: 4.5, width: 4.5
+        public static AOETuning TuneAOE(float? castTime = null, float? duration = null,
+                                        float? length = null, float? width = null,
                                         bool? sticky = null, AOEOffsetEnum? offset = null, int? range = null)
-            => new AOETuning { CastTime = castTime, Duration = duration, Size = size, Sticky = sticky,
-                               Offset = offset, Range = range };
+            => new AOETuning { CastTime = castTime, Duration = duration, Length = length, Width = width,
+                               Sticky = sticky, Offset = offset, Range = range };
 
         public static MoveTuning TuneMove(float? castTime = null, int? range = null,
                                           float? duration = null, float? spread = null)
@@ -130,11 +132,5 @@ namespace MagicSchool.Skills
             => new FireTimingRunnerProjectileTuning { Count = count, Mode = mode, Interval = interval,
                                                       InnerTuning = innerTuning, RandomPoolRadius = randomPoolRadius,
                                                       CastTime = castTime };
-
-        // How far a blast of this size actually reaches, in world units.
-        private const float AuthoredRadius = 0.5f;
-        
-        // size of the AOE, etc...
-        public static float Reach(float size) => size * AuthoredRadius;
     }
 }

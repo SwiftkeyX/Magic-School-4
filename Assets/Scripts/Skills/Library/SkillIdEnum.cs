@@ -32,5 +32,8 @@ namespace MagicSchool.Skills
         Bandit = 21,
         FrostWitch = 22,
         Swordsman = 23,
+        Lich = 24,
+        Dragon = 25,
+        Ettin = 26,
     }
 }
