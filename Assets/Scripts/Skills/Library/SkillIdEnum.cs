@@ -1,27 +1,30 @@
+
 namespace MagicSchool.Skills
 {
     // a enum that used to pair a hero SO => with a skill code
-    // e.g. HeroSO contain enum "Vharn" => use the enum to find "VharnSkill.cs"
+    // e.g. HeroSO contain enum "Elf" => use the enum to find "ElfSkill.cs"
+    // Serialized into HeroDataSO assets as a raw int. The numbers were kept when the roster was
+    // renamed (Vesper -> Elf, ...), so never reuse a retired one - an old asset may still hold it.
     public enum SkillIdEnum
     {
         None = 0,
 
-        Vharn = 1,
-        Sithra = 2,
-        Bulwark = 3,
-        Roland = 4,
-        Quatre = 5,
-        Solace = 6,
-        Vesper = 7,
-        Pip = 8,
-        Fang = 9,
-        Lyra = 10,
-        Aldric = 11,
-        Grimm = 12,
-        Lumen = 13,  
-        Reyn = 14,
-        Sparks = 15,
-        Mira = 16,
-        Verity = 17,
+        Werewolf = 1,
+        Naga = 2,
+        ShieldKnight = 3,
+        OrcBlademaster = 4,
+        Ranger = 5,
+        // 6 retired (Solace)
+        Elf = 7,
+        // 8 retired (Pip)
+        DireWolf = 9,
+        Dryad = 10,
+        Knight = 11,
+        Centaur = 12,
+        Dwarf = 13,
+        SkeletonArcher = 14,
+        Imp = 15,
+        Reaper = 16,
+        // 17 retired (Verity)
     }
 }

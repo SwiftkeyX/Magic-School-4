@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class AldricSkill
+    internal static class KnightSkill
     {
         private const float StunDuration = 2f;
         private const float LandingDamage = 200f;
@@ -16,7 +16,7 @@ namespace MagicSchool.Skills
         public static SkillDefinition Build(TemplateActionRegistrySO registry)
         {
             return new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Valiant Leap",
                 activeSteps: new List<SkillStep> { Jump(registry), Landing(registry) },
                 description: "Leaps into the densest part of the enemy formation. The landing deals "
                            + $"{LandingDamage}% AP to everyone caught around him and leaves them stunned for "

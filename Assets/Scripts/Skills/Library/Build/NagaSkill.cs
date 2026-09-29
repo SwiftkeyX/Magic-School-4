@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class SithraSkill
+    internal static class NagaSkill
     {
         private const float DamageRatio = 160f;
         private const float WoundDuration = 5f;

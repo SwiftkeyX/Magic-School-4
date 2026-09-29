@@ -6,7 +6,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class GrimmSkill
+    internal static class CentaurSkill
     {
         private const int ChargeRange = 4;              // hexes he can cross
         private const float HitboxHalfWidth = 1.25f;
@@ -16,7 +16,7 @@ namespace MagicSchool.Skills
         public static SkillDefinition Build(TemplateActionRegistrySO registry)
         {
             return new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Trample",
                 activeSteps: new List<SkillStep> { Move(registry), AOE(registry) },
                 description: $"Charges up to {ChargeRange} hexes straight through the enemy line, dealing "
                            + $"{CollideDamage}% AP to everyone he ploughs into on the way and stunning them.");

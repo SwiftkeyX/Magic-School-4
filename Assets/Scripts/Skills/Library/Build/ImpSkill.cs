@@ -6,15 +6,16 @@ using static MagicSchool.Skills.SkillFactory;
 namespace MagicSchool.Skills
 {
     /// <summary>
-    /// Sparks: fires 5 rockets in sequence, each at a random enemy within 2 hexes of her current
-    /// target - no repeat until every enemy in that pool has been hit once.
+    /// Imp: throws 5 spears in sequence, each at a random enemy within 2 hexes of his current
+    /// target - no repeat until every enemy in that pool has been hit once. Spears, not fireballs:
+    /// he never burns anyone himself (the burn-tick passive on the roster sheet is not built yet).
     ///
     /// Sheet (Hero set 9): "Fire 5 rockets at random enemies within 2 hexes of the current target.
     /// Each rocket deals 150/155/160% Attack Damage + 15/20/35% Ability Power physical damage."
-    /// Star-level scaling (the /155/160 and /20/35 tiers) isn't implemented yet - same as Lyra's
+    /// Star-level scaling (the /155/160 and /20/35 tiers) isn't implemented yet - same as Dryad's
     /// DamageRatio, this takes the 1-star baseline only.
     /// </summary>
-    internal class SparksSkill
+    internal class ImpSkill
     {
         private const float ADDamagePerShot = 150f;   // sheet: 150/155/160% AD
         private const float APDamagePerShot = 15f;    // sheet: 15/20/35% AP
@@ -26,9 +27,9 @@ namespace MagicSchool.Skills
         public static SkillDefinition Build(TemplateActionRegistrySO registry)
         {
             return new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Spear Barrage",
                 activeSteps: new List<SkillStep> { Shoot(registry) },
-                description: $"Fires {ShotCount} rockets one after another at random enemies within {RandomPoolRadius} "
+                description: $"Throws {ShotCount} spears one after another at random enemies within {RandomPoolRadius} "
                            + $"hexes of the current target, each landing for {ADDamagePerShot}% AD + "
                            + $"{APDamagePerShot}% AP, never hitting the same one twice until everyone in range has "
                            + "been caught once.");

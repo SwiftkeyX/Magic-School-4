@@ -4,18 +4,18 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal class ReynSkill
+    internal class SkeletonArcherSkill
     {
         private const float ADDamagePerShot = 125f;
         private const float MGDamagePerShot = 125f;
-        private const int ShotCount = 6;
+        private const int ShotCount = 4;
         private const float IntervalBetweenShot = 0.1f;
         private const float TotalCastTime = IntervalBetweenShot * (ShotCount - 1);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry)
         {
             return new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Bone Barrage",
                 activeSteps: new List<SkillStep> { Shoot(registry) },
                 description: $"Fires {ShotCount} shots in quick succession at the furthest enemy, each one landing for "
                            + $"{ADDamagePerShot}% AD + {MGDamagePerShot}% AP.");

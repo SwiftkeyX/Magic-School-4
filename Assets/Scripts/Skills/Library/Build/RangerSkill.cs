@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class QuatreSkill
+    internal static class RangerSkill
     {
         private const float DamageRatio = 744f;
 
@@ -18,7 +18,7 @@ namespace MagicSchool.Skills
             );
 
             return new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Longshot",
                 activeSteps: new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: shot) },
                 description: $"Fires a shot that carries straight on through the target, dealing {DamageRatio}% AD to "
                              + "every enemy caught along its path.");

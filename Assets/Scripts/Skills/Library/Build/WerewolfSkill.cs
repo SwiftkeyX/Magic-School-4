@@ -5,13 +5,10 @@ using static MagicSchool.Skills.SkillFactory;
 namespace MagicSchool.Skills
 {
     /// <summary>
-    /// Vharn: casting transforms him, and while transformed his auto attack is replaced by a three
+    /// Werewolf: casting transforms him, and while transformed his auto attack is replaced by a three
     /// beat combo - box, then triangle, then circle - each hitting harder than the last.
-    ///
-    /// Ported from Assets/Data/Heroes/Skills/Vharn.asset, which stays as the reference until this is
-    /// verified against it.
     /// </summary>
-    internal static class VharnSkill
+    internal static class WerewolfSkill
     {
         private const int ComboLength = 3;
 
@@ -32,7 +29,7 @@ namespace MagicSchool.Skills
             ComboTracker combo = new ComboTracker(ComboLength);
 
             SkillDefinition skill = new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Moonrage",
                 activeSteps: new List<SkillStep> { Transform(registry) },
                 passiveSteps: new List<SkillStep> { Combo(registry, combo) },
                 description: $"Transforms for {TransformDuration} seconds, draining {OmnivampFromAP}% AP of the damage "
@@ -126,7 +123,7 @@ namespace MagicSchool.Skills
                 target: AimTargetEnum.Current,
                 conditions: conditions,
                 tuning: tuning,
-                // sheet: Vharn is AD
+                // sheet: Werewolf is AD
                 Damage(
                     recipient: EffectRecipientEnum.EnemiesInArea,
                     ratios: (StatEnum.ATK, damage))

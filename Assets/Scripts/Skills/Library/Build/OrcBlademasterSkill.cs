@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class RolandSkill
+    internal static class OrcBlademasterSkill
     {
         private const float DamagePerTick = 80f;
         private const float TickInterval = 0.5f;
@@ -28,7 +28,7 @@ namespace MagicSchool.Skills
             );
 
             return new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Blade Storm",
                 activeSteps: new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: spin) },
                 description: $"Whips up a storm around himself that deals {DamagePerTick}% AD to every enemy standing "
                              + $"in it, split over {Duration} seconds and ticking every {TickInterval} seconds.");

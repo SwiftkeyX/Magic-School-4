@@ -5,7 +5,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal class MiraSkill
+    internal class ReaperSkill
     {
         private const float MGDamagePerSnip = 100f;   // sheet: 100/150/400% AP
         private const int SnipCount = 3;
@@ -15,7 +15,7 @@ namespace MagicSchool.Skills
         public static SkillDefinition Build(TemplateActionRegistrySO registry)
         {
             return new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Harvest",
                 activeSteps: new List<SkillStep> { Snip(registry) },
                 description: $"Snips {SnipCount} times in quick succession, each cut carving a wedge in front of her "
                            + $"that deals {MGDamagePerSnip}% AP to every enemy standing inside it.");

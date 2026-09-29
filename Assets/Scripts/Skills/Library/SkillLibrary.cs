@@ -7,29 +7,26 @@ namespace MagicSchool.Skills
     // this is where the skill was registered in the game.
     public static class SkillLibrary
     {
-        // a pair of HeroEnum & SkillDefinition
+        // a pair of SkillIdEnum & SkillDefinition
         // TemplateAction is a skill prefab used by hero, but hero don't know how this TemplateAction work.
         // How the TemplateAction work was put inside SkillDefinition.
         private static readonly Dictionary<SkillIdEnum, Func<TemplateActionRegistrySO, SkillDefinition>> Builders =
             new Dictionary<SkillIdEnum, Func<TemplateActionRegistrySO, SkillDefinition>>
             {
-                { SkillIdEnum.Vharn  , VharnSkill.Build   },
-                { SkillIdEnum.Sithra , SithraSkill.Build  },
-                { SkillIdEnum.Bulwark, BulwarkSkill.Build },
-                { SkillIdEnum.Roland , RolandSkill.Build  },
-                { SkillIdEnum.Quatre , QuatreSkill.Build  },
-                { SkillIdEnum.Solace , SolaceSkill.Build  },
-                { SkillIdEnum.Vesper , VesperSkill.Build  },
-                { SkillIdEnum.Pip    , PipSkill.Build     },
-                { SkillIdEnum.Fang   , FangSkill.Build    },
-                { SkillIdEnum.Lyra   , LyraSkill.Build    },
-                { SkillIdEnum.Aldric , AldricSkill.Build  },
-                { SkillIdEnum.Grimm  , GrimmSkill.Build   },
-                { SkillIdEnum.Lumen  , LumenSkill.Build   },
-                { SkillIdEnum.Reyn   , ReynSkill.Build    },
-                { SkillIdEnum.Sparks , SparksSkill.Build  },
-                { SkillIdEnum.Mira   , MiraSkill.Build    },
-                { SkillIdEnum.Verity , VeritySkill.Build  },
+                { SkillIdEnum.Werewolf      , WerewolfSkill.Build       },
+                { SkillIdEnum.Naga          , NagaSkill.Build           },
+                { SkillIdEnum.ShieldKnight  , ShieldKnightSkill.Build   },
+                { SkillIdEnum.OrcBlademaster, OrcBlademasterSkill.Build },
+                { SkillIdEnum.Ranger        , RangerSkill.Build         },
+                { SkillIdEnum.Elf           , ElfSkill.Build            },
+                { SkillIdEnum.DireWolf      , DireWolfSkill.Build       },
+                { SkillIdEnum.Dryad         , DryadSkill.Build          },
+                { SkillIdEnum.Knight        , KnightSkill.Build         },
+                { SkillIdEnum.Centaur       , CentaurSkill.Build        },
+                { SkillIdEnum.Dwarf         , DwarfSkill.Build          },
+                { SkillIdEnum.SkeletonArcher, SkeletonArcherSkill.Build },
+                { SkillIdEnum.Imp           , ImpSkill.Build            },
+                { SkillIdEnum.Reaper        , ReaperSkill.Build         },
             };
 
         /// Return a skill that match skillID's TemplateAction.

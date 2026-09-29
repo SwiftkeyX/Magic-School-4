@@ -5,14 +5,12 @@ using static MagicSchool.Skills.SkillFactory;
 namespace MagicSchool.Skills
 {
     /// <summary>
-    /// Bulwark: braces himself - bonus health and healing over a couple of seconds, plus damage
+    /// Shield Knight: braces himself - bonus health and healing over a couple of seconds, plus damage
     /// reduction - and when that wears off, slams the ground for damage around him.
     ///
     /// Two steps: the second one is triggered by the first expiring, not by anything the hero does.
-    ///
-    /// Ported from Assets/Data/Heroes/Skills/Bulwark.asset.
     /// </summary>
-    internal static class BulwarkSkill
+    internal static class ShieldKnightSkill
     {
         // he is braced and locked out of attacking for the same stretch, so it is said once
         private const float BraceDuration = 2f;
@@ -33,7 +31,7 @@ namespace MagicSchool.Skills
                              + $"for {SlamDamage}% AP to every enemy around him.");
         }
 
-        // the cast itself - everything here lands on Bulwark
+        // the cast itself - everything here lands on Shield Knight
         private static SkillStep Brace(TemplateActionRegistrySO registry)
         {
             SkillActionGroup brace = ActionGroup(
@@ -43,7 +41,7 @@ namespace MagicSchool.Skills
                 target: AimTargetEnum.Self,
                 tuning: Tune(castTime: BraceDuration),
 
-                // sheet: Bulwark heals off AP
+                // sheet: Shield Knight heals off AP
                 HealOverTime(
                     recipient: EffectRecipientEnum.Self,
                     duration: BraceDuration,

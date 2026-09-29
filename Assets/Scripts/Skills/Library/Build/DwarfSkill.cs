@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal class LumenSkill
+    internal class DwarfSkill
     {
         private const float ExplodeDmg = 240f;
         private const float BlastSize = 4.5f;
@@ -13,7 +13,7 @@ namespace MagicSchool.Skills
         public static SkillDefinition Build(TemplateActionRegistrySO registry)
         {
             return new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Blast Charge",
                 activeSteps: new List<SkillStep> { Shoot(registry), Explode(registry) },
                 description: "Fires a homing shot into the densest cluster of enemies. "
                            + $"it bursts where it lands, dealing {ExplodeDmg}% AD to everyone inside the blast.");

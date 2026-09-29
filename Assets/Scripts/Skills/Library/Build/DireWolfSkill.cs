@@ -4,14 +4,15 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class FangSkill
+    internal static class DireWolfSkill
     {
         // buff
-        private const float AttackSpeedBuff = 100f;   // +100%
-        private const float BuffDuration = 2.5f;
+        private const float AttackSpeedBuff = 200f;   // +200%
+        private const float BuffDuration = 5f;
 
         // stun
-        private const float StunDuration = 2.5f;
+        // roster sheet: +0.5s for every 5 auto attacks - not built yet, so this is the flat base
+        private const float StunDuration = 0.5f;
 
         // heal on aa
         private const float HealOnAA = 30f;
@@ -19,7 +20,7 @@ namespace MagicSchool.Skills
         public static SkillDefinition Build(TemplateActionRegistrySO registry)
         {
             SkillDefinition skill = new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Frenzy",
                 activeSteps: new List<SkillStep> { Cast(registry), OnCastExpired(registry) },
                 passiveSteps: new List<SkillStep> { OnAttack(registry) },
                 description: $"Works himself into a frenzy for {BuffDuration} seconds, gaining {AttackSpeedBuff}% "
@@ -33,8 +34,7 @@ namespace MagicSchool.Skills
         // ============================== active: the transform ==============================
         private static SkillStep Cast(TemplateActionRegistrySO registry)
         {
-            // increase as + 100%
-            // +100% of his own attack speed - a self-referential ratio, resolved once when it lands
+            // +200% of his own attack speed - a self-referential ratio, resolved once when it lands
             ICustomModifier modifiers = Bundle(
                 duration: BuffDuration,
                 modifiers: Buff(ModifierEnum.AS, (StatEnum.AS, AttackSpeedBuff, ScaleFromEnum.Base))

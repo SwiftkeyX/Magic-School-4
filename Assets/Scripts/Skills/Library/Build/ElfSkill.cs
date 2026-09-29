@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class VesperSkill
+    internal static class ElfSkill
     {
         private const float DamageRatio = 200f;
         private const float ShredDuration = -1f;
@@ -33,7 +33,7 @@ namespace MagicSchool.Skills
             );
 
             return new SkillDefinition(
-                skillName: "Skill",
+                skillName: "Sundering Arrow",
                 activeSteps: new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: shootProjectile) },
                 description: $"Fires a shot at the current target. The first enemy it finds takes {DamageRatio}% AD "
                              + $"and loses {ShredFromAP}% AP worth of armour for the rest of the fight.");
