@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MagicSchool.Contracts;
+using MagicSchool.Modifiers;
 using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
@@ -21,47 +22,23 @@ namespace MagicSchool.Skills
              + "attack speed until the end of the fight.";
 
         // ============================== active ==============================
+        // Steals before the strike
+        public override bool OnCast()
+        {
+            StatSteal.Take(Caster, Caster.FindCurrentTarget(), StealPercent, StealDuration, StatEnum.AS);
+
+            return base.OnCast();
+        }
+
         protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
-            // the target loses 30% of its own attack speed
             SkillActionGroup strike = ActionGroup(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Current,
-                Damage(EffectRecipientEnum.SameToAimTarget, (StatEnum.ATK, DamageRatio)),
-                Apply(
-                    EffectRecipientEnum.SameToAimTarget,
-                    Bundle(
-                        StealDuration,
+                Damage(EffectRecipientEnum.SameToAimTarget, (StatEnum.ATK, DamageRatio)));
 
-                        Debuff(
-                            ModifierEnum.AS,
-                            ScalingSourceEnum.Recipient,
-                            (StatEnum.AS, StealPercent, ScaleFromEnum.Base)
-                )))
-            );
-
-            // FIXLATER: Bandit's buff should be stacked. Now it's not.
-            // and he gains it - as 30% of his own attack speed, since a buff can only read the caster
-            // or the one receiving it, not a third hero. Its own step: a step plays only one group.
-            SkillActionGroup pocket = ActionGroup(registry,
-                source: ActionSourceEnum.Self,
-                action: TemplateActionEnum.Cast,
-                target: AimTargetEnum.Self,
-                Apply(EffectRecipientEnum.Self,
-                      Bundle(
-                        StealDuration, 
-                        Buff(
-                            ModifierEnum.AS, 
-                            (StatEnum.AS, StealPercent, ScaleFromEnum.Base)
-                )))
-            );
-
-            return new List<SkillStep>
-            {
-                Step(trigger: TriggerEnum.OnCast, groups: strike),
-                Step(trigger: TriggerEnum.OnExpired, groups: pocket),
-            };
+            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: strike) };
         }
     }
 }
