@@ -9,11 +9,8 @@ namespace MagicSchool.Skills
     /// SkillDefinition contain list of SkillStep for both passive & active skill.
     /// skill are separated into step, those step are working together in order, to create a actual skill.
     /// </summary>
-    public class SkillDefinition
+    public abstract class SkillDefinition
     {
-        private readonly string _skillName = "";
-        private readonly string _description = "";
-        private readonly string _passiveDescription = "";
         private TemplateActionRegistrySO _registry;
 
         // active skill.
@@ -30,22 +27,10 @@ namespace MagicSchool.Skills
             _registry = registry;
         }
 
-        // FLAGGING: This is for a transition, a skill as plain data, for the builders not yet turned into classes. Goes away - and
-        // SkillDefinition becomes abstract - once the last one is converted.
-        public SkillDefinition(string skillName, List<SkillStep> activeSteps = null, List<SkillStep> passiveSteps = null,
-            string description = "", string passiveDescription = "")
-        {
-            _skillName = skillName;
-            ActiveSteps = activeSteps ?? new List<SkillStep>();
-            PassiveSteps = passiveSteps ?? new List<SkillStep>();
-            _description = description;
-            _passiveDescription = passiveDescription;
-        }
-
         // ============================================== init ==============================================
         /// Active and Passive skill of the hero
         /// Called once from Init
-        protected virtual List<SkillStep> Active(TemplateActionRegistrySO registry) => new List<SkillStep>();
+        protected abstract List<SkillStep> Active(TemplateActionRegistrySO registry);
         protected virtual List<SkillStep> Passive(TemplateActionRegistrySO registry) => new List<SkillStep>();
 
         public virtual void Init(ICombatant caster)
@@ -67,8 +52,8 @@ namespace MagicSchool.Skills
         }
 
         // ============================================== virtual ==============================================
-        public virtual string SkillName => "";
-        public virtual string Description => "";
+        public abstract string SkillName { get; }
+        public abstract string Description { get; }
         public virtual string PassiveDescription => "";
         public virtual bool HasActive => ActiveSteps.Count > 0;
         public virtual bool HasPassive => PassiveSteps.Count > 0;
