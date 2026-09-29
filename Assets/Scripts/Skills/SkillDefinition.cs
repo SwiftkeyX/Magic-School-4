@@ -11,42 +11,69 @@ namespace MagicSchool.Skills
     /// </summary>
     public class SkillDefinition
     {
-        public string SkillName { get; }
-        public string Description { get; }
-        public string PassiveDescription { get; }
+        private readonly string _skillName = "";
+        private readonly string _description = "";
+        private readonly string _passiveDescription = "";
+        private TemplateActionRegistrySO _registry;
 
-        // active skill.  
-        public IReadOnlyList<SkillStep> ActiveSteps { get; }
+        // active skill.
+        public IReadOnlyList<SkillStep> ActiveSteps { get; private set; } = new List<SkillStep>();
 
         // passive skill.
-        public IReadOnlyList<SkillStep> PassiveSteps { get; }
+        public IReadOnlyList<SkillStep> PassiveSteps { get; private set; } = new List<SkillStep>();
 
         protected ICombatant Caster { get; private set; }   // owner of this skill
         public float CastTime { get; private set; } // the animation's duration to play this specific skill
 
-        public virtual bool HasActive => ActiveSteps.Count > 0;
-        public virtual bool HasPassive => PassiveSteps.Count > 0;
+        protected SkillDefinition(TemplateActionRegistrySO registry)
+        {
+            _registry = registry;
+        }
 
+        // FLAGGING: This is for a transition, a skill as plain data, for the builders not yet turned into classes. Goes away - and
+        // SkillDefinition becomes abstract - once the last one is converted.
         public SkillDefinition(string skillName, List<SkillStep> activeSteps = null, List<SkillStep> passiveSteps = null,
             string description = "", string passiveDescription = "")
         {
-            SkillName = skillName;
+            _skillName = skillName;
             ActiveSteps = activeSteps ?? new List<SkillStep>();
             PassiveSteps = passiveSteps ?? new List<SkillStep>();
-            Description = description;
-            PassiveDescription = passiveDescription;
+            _description = description;
+            _passiveDescription = passiveDescription;
         }
+
+        // ============================================== init ==============================================
+        /// Active and Passive skill of the hero
+        /// Called once from Init
+        protected virtual List<SkillStep> Active(TemplateActionRegistrySO registry) => new List<SkillStep>();
+        protected virtual List<SkillStep> Passive(TemplateActionRegistrySO registry) => new List<SkillStep>();
 
         public virtual void Init(ICombatant caster)
         {
             Caster = caster;
+
+            if (_registry != null)
+            {
+                ActiveSteps = Active(_registry) ?? new List<SkillStep>();
+                PassiveSteps = Passive(_registry) ?? new List<SkillStep>();
+
+                // prevent second init from rebuilt the skill
+                _registry = null;
+            }
 
             foreach (SkillStep step in ActiveSteps) step.Init(caster);
 
             foreach (SkillStep step in PassiveSteps) step.Init(caster);
         }
 
-        // ============================================== hooks ==============================================
+        // ============================================== virtual ==============================================
+        public virtual string SkillName => "";
+        public virtual string Description => "";
+        public virtual string PassiveDescription => "";
+        public virtual bool HasActive => ActiveSteps.Count > 0;
+        public virtual bool HasPassive => PassiveSteps.Count > 0;
+
+        // ============================================== virtual hooks ==============================================
         // If mana is full, play the active skill. 
         // Returns whether anything played.
         public virtual bool OnCast()
@@ -65,11 +92,11 @@ namespace MagicSchool.Skills
         // Returns whether anything played.
         public virtual bool OnAttack(ICombatant target) => PlayPassive(TriggerEnum.OnAttack);
 
-        // ============================================== protected ==============================================
+        // ============================================== private ==============================================
         // FIXLATER: passive step sound dump. Could we pair passive with dictionary instead.
         // e.g. dict.TryGet(OnAttack)
         // play the passive that starts with this trigger, if there is one
-        protected bool PlayPassive(TriggerEnum trigger)
+        private bool PlayPassive(TriggerEnum trigger)
         {
             if (!HasPassive || PassiveSteps[0].Trigger != trigger) return false;
 
@@ -77,7 +104,7 @@ namespace MagicSchool.Skills
         }
 
         // Play one step of a skill chain
-        protected bool PlayStep(IReadOnlyList<SkillStep> steps, int stepIndex, SkillStepContext fromPreviousStep = null)
+        private bool PlayStep(IReadOnlyList<SkillStep> steps, int stepIndex, SkillStepContext fromPreviousStep = null)
         {
             if (stepIndex < 0 || stepIndex >= steps.Count) return false;
 
@@ -102,7 +129,6 @@ namespace MagicSchool.Skills
         // no step, no chain skill. 
         protected bool PlayGroup(SkillActionGroup group) => Play(group, null, null, null);
 
-        // ============================================== private ==============================================
         // try play template action
         // wiring NextStep() callback to template action
         private bool Play(SkillActionGroup group, Action<SkillStepContext> onExpired, Action<SkillStepContext> onHit,
