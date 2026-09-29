@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &8911470474828548146
+--- !u!1001 &690527201589459389
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -8,53 +8,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 38794796998338304, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_Color.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 38794796998338304, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_Color.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 38794796998338304, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_Color.r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 259197248819313921, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -0.12500018
-      objectReference: {fileID: 0}
-    - target: {fileID: 418219314494336481, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 418219314494336481, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 995603351820911232, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0.00000029802322
-      objectReference: {fileID: 0}
-    - target: {fileID: 1070167044866336580, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1070167044866336580, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2250757249124314573, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_Value
-      value: 1
+    - target: {fileID: -5557713623014044713, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.y
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3252859667575464305, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.5
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 3252859667575464305, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -8
+      value: -3.5
       objectReference: {fileID: 0}
     - target: {fileID: 3252859667575464305, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -88,17 +52,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4236529559355277141, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
-      propertyPath: m_Value
-      value: 0
-      objectReference: {fileID: 0}
+    - target: {fileID: 8683539419365400204, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: f4916daf353f3ce4ab5dca75a2f0a3cf, type: 3}
     - target: {fileID: 8683539419365400204, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
       propertyPath: m_Color.b
-      value: 0.28490567
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8683539419365400204, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
       propertyPath: m_Color.g
-      value: 0.7491697
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8683539419365400204, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
       propertyPath: m_Color.r
@@ -106,7 +70,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8729075628341993162, guid: dfe3eea710701584dbffacec42803d0f, type: 3}
       propertyPath: m_Name
-      value: Reyn
+      value: Archangel
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
