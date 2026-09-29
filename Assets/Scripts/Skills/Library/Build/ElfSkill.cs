@@ -37,10 +37,10 @@ namespace MagicSchool.Skills
                     recipient: EffectRecipientEnum.SameToAimTarget,
                     modifier: Bundle(
                         duration: ShredDuration,
-                        modifiers: Buff(
+                        modifiers: Debuff(
                             modifier: ModifierEnum.DefendShred,
                             // 20% of the total AP is the total that reduce the target's DF.
-                            ratios: (StatEnum.AP, -ShredFromAP, ScaleFromEnum.Total))))
+                            ratios: (StatEnum.AP, ShredFromAP, ScaleFromEnum.Total))))
             );
 
             return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: shootProjectile) };

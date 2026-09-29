@@ -34,12 +34,10 @@ namespace MagicSchool.Skills
                     Bundle(
                         StealDuration,
 
-                        // ASKING: Buff kinda misleading. It does Debuff here. We may need a better name.
-                        // Could we have both Buff() and Debuff(), the difference is Debuff will turn the buff value into minus automatically.
-                        Buff(
+                        Debuff(
                             ModifierEnum.AS,
                             ScalingSourceEnum.Recipient,
-                            (StatEnum.AS, -StealPercent, ScaleFromEnum.Base)
+                            (StatEnum.AS, StealPercent, ScaleFromEnum.Base)
                 )))
             );
 

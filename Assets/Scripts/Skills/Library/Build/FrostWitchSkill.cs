@@ -33,7 +33,7 @@ namespace MagicSchool.Skills
             // past the interval so it never drops between two ticks for someone still inside.
             ICustomModifier chill = Bundle(
                 TickInterval * 2f,
-                Buff(ModifierEnum.AS, ScalingSourceEnum.Recipient, (StatEnum.AS, -SlowPercent, ScaleFromEnum.Base
+                Debuff(ModifierEnum.AS, ScalingSourceEnum.Recipient, (StatEnum.AS, SlowPercent, ScaleFromEnum.Base
             )));
 
             SkillActionGroup field = ActionGroup(registry,

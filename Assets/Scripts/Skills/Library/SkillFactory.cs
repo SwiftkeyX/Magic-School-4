@@ -30,20 +30,19 @@ namespace MagicSchool.Skills
         public static ModifierSkillEffect Apply(EffectRecipientEnum recipient, ICustomModifier modifier, float amplifier = 0f)
             => new ModifierSkillEffect(recipient, modifier, amplifier: amplifier);
 
-        // the same, re-applied on a timer - a zone's slow on whoever is still standing in it.
-        // Re-applying the same modifier refreshes it rather than stacking, so give it a duration
-        // a little longer than the interval: it holds while the recipient stays inside, and lapses soon after.
+        // same to Apply(), but does apply over time
         public static ModifierSkillEffect ApplyOverTime(EffectRecipientEnum recipient, float interval, float duration,
                                                         ICustomModifier modifier)
             => new ModifierSkillEffect(recipient, modifier, new Cadence(interval, duration));
 
-        // the same, but amplified only when every condition holds - the effect still lands either
-        // way, the conditions just scale it. Naga's wound is applied harder while transformed.
+        // same to Apply(), but amplified only when every condition met 
+        // e.g. Naga's skill is amplifield when the target is poison
         public static ModifierSkillEffect ApplyWhen(EffectRecipientEnum recipient, ICustomModifier modifier,
                                                     List<SkillCondition> conditions, float amplifier)
             => new ModifierSkillEffect(recipient, modifier, conditions: conditions, amplifier: amplifier);
 
-        // the group of modifiers - everything in it shares one duration. -1f is permanent.
+        // the group of modifiers - everything in it shares one duration. 
+        // -1f is permanent.
         public static ICustomModifier Bundle(float duration, params IModifier[] modifiers)
             => new CustomModifier(duration, modifiers);
 
@@ -54,12 +53,35 @@ namespace MagicSchool.Skills
         public static IModifier Buff(ModifierEnum modifier, params StatRatio[] ratios)
             => new StatModifier(modifier, ratios);
 
-        // 3) the buff will derived from the caster itself unless it consume "source" parameter.
-        // Dryad's skill buff ally base on their attack speed by +25% => This mean the skill is derived from ally, not the caster itself.
-        // BUT it have another pattern, you should know:
-        // Dryad's skill (alternative) buff ally base on Dryad's AP by +50%AP => This will get different result.
+        // same to Buff() above, but: 
+        // 1) buff will be given to other hero. 
+        // 2) buff will derived from the "source" parameter (normally it would derived from the caster).
+        // e.g. Dryad's skill buff ally base on their attack speed by +25% => This mean the skill is derived from ally, not the caster itself.
+        // another pattern, you should know:
+        // e.g. Dryad's skill (alternative) buff ally base on Dryad's AP by +50%AP => This mean the skill is derive from the caster
         public static IModifier Buff(ModifierEnum modifier, ScalingSourceEnum source, params StatRatio[] ratios)
             => new StatModifier(modifier, ratios, source);
+
+        // counterpart to Buff(). this one reduce stat instead.
+        //   Debuff(DefendShred, (StatEnum.AP, 20f))       -> "Reduce DF by 20% of the caster's AP"
+        public static IModifier Debuff(ModifierEnum modifier, params StatRatio[] ratios)
+            => new StatModifier(modifier, Negate(ratios));
+
+        public static IModifier Debuff(ModifierEnum modifier, ScalingSourceEnum source, params StatRatio[] ratios)
+            => new StatModifier(modifier, Negate(ratios), source);
+
+        private static StatRatio[] Negate(StatRatio[] ratios)
+        {
+            var negated = new StatRatio[ratios.Length];
+            for (int i = 0; i < ratios.Length; i++)
+            {
+                StatRatio ratio = ratios[i];
+                negated[i] = ratio.IsFlat
+                    ? new StatRatio(-ratio.Amount)
+                    : new StatRatio(ratio.Stat.Value, -ratio.Amount, ratio.ScaleFrom ?? ScaleFromEnum.Total);
+            }
+            return negated;
+        }
 
         // a modifier that give status 
         // e.g. Wound, Stun, Transformed

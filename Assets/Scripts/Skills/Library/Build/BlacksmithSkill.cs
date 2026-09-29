@@ -33,7 +33,7 @@ namespace MagicSchool.Skills
                 Apply(EffectRecipientEnum.EnemiesInArea,
                       Bundle(ShredDuration,
                              // 25% of the total AP is taken off the target's DF, for the rest of the fight
-                             Buff(ModifierEnum.DefendShred, (StatEnum.AP, -ShredFromAP, ScaleFromEnum.Total))))
+                             Debuff(ModifierEnum.DefendShred, (StatEnum.AP, ShredFromAP, ScaleFromEnum.Total))))
             );
 
             return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: hammer) };
