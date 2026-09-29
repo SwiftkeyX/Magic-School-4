@@ -11,7 +11,8 @@ namespace MagicSchool.Skills
     public class AOETuning : Tuning
     {
         public float? Duration;          // how long the blast stays before it expires
-        public float? Size;              // how big the AOE is
+        public float? Length;            // the length of the AOE
+        public float? Width;             // the width of the AOE
         public bool? Sticky;             // does AOE follow something e.g. roland's skill
         public AOEOffsetEnum? Offset;    // the offset this AOE will be placing
         public int? Range;               // how far a AOE can reach (not a size)

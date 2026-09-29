@@ -18,7 +18,7 @@ namespace MagicSchool.Skills
         // ======================================= override =======================================
         protected override void ApplyTypedTuning(AOETuning aoeTuning)
         {
-            if (aoeTuning.Size.HasValue) SetSize(aoeTuning.Size.Value);
+            SetShape(aoeTuning.Length, aoeTuning.Width);
 
             if (aoeTuning.Sticky.HasValue) _sticky.IsSticky = aoeTuning.Sticky.Value;
 
@@ -87,7 +87,7 @@ namespace MagicSchool.Skills
             // aim at clustered that measure by specify radius
             else if (source == ActionSourceEnum.ClusteredCircle)
             {
-                IPlacement target = _me.FindClusteredCircle(_reachRange, SkillFactory.Reach(transform.localScale.y), isJump: false);
+                IPlacement target = _me.FindClusteredCircle(_reachRange, HalfWidthAcrossFacing(), isJump: false);
                 if (target == null) return false;
                 _source = target.transform.position;
             }
@@ -182,34 +182,40 @@ namespace MagicSchool.Skills
         }
 
         // ======================================= private =======================================
-        // Scale the whole thing - sprite and collider
-        private void SetSize(float size)
+        // set width and length of the AOE
+        private void SetShape(float? length, float? width)
         {
-            transform.localScale = new Vector3(size, size, transform.localScale.z);
+            Vector2 local = LocalShapeSize();
+            Vector3 scale = transform.localScale;
+
+            if (length.HasValue && local.y > 0f) scale.y = length.Value / local.y;
+            if (width.HasValue && local.x > 0f) scale.x = width.Value / local.x;
+
+            transform.localScale = scale;
         }
 
-        /// How far the offset of this shape will be? e.g.
-        private float HalfLengthAlongFacing()
+        // half this shape's length or width
+        // e.g. box 2 wide x 10 long    => half length = 5, half width = 1
+        //      circle radius = 3       => half legnth/widht = 1.5
+        private float HalfLengthAlongFacing() => LocalShapeSize().y * 0.5f * Mathf.Abs(transform.lossyScale.y);
+        private float HalfWidthAcrossFacing() => LocalShapeSize().x * 0.5f * Mathf.Abs(transform.lossyScale.x);
+
+        // the original size of the shape before it was set 
+        private Vector2 LocalShapeSize()
         {
-            float localHalf;
             Collider2D hitbox = GetComponent<Collider2D>();
 
-            // BOXAOE - half a box's length, 
-            if (hitbox is BoxCollider2D box) localHalf = box.size.y * 0.5f;
+            // BOXAOE
+            if (hitbox is BoxCollider2D box) return box.size;
 
-            // CIRCLEAOE - a circle's radius. 
-            else if (hitbox is CircleCollider2D circle) localHalf = circle.radius;
+            // CIRCLEAOE
+            if (hitbox is CircleCollider2D circle) return Vector2.one * circle.radius * 2f;
 
             // else if {} ...
 
             // fallback
-            else
-            {
-                SpriteRenderer sprite = GetComponent<SpriteRenderer>();
-                localHalf = sprite == null ? 0f : sprite.sprite.bounds.extents.y;
-            }
-
-            return localHalf * Mathf.Abs(transform.lossyScale.y);
+            SpriteRenderer sprite = GetComponent<SpriteRenderer>();
+            return sprite == null || sprite.sprite == null ? Vector2.zero : (Vector2)sprite.sprite.bounds.size;
         }
 
         // Point the AOE tip toward aim target
