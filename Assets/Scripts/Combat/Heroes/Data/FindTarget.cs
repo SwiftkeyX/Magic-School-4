@@ -161,6 +161,13 @@ namespace MagicSchool.Combat.Heroes
             return _scan.GetAllEnemy().Where(enemy => enemy.CurrentHex() != null && nearby.Contains(enemy.CurrentHex())).ToList();
         }
 
+        // Find random x enemies.
+        public IReadOnlyList<ICombatant> FindRandomEnemies(int count)
+            => _scan.GetAllEnemy().OrderBy(_ => UnityEngine.Random.value).Take(count).ToList();
+
+        // Find all allys or enemies.
+        public IReadOnlyList<ICombatant> FindAllEnemies() => _scan.GetAllEnemy();
+        public IReadOnlyList<ICombatant> FindAllAllies() => _scan.GetAllAlly();
 
         // ========================================= private =========================================
         // when choosing a target, it could have several best candidate (a tied)

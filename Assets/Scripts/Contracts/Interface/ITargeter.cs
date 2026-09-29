@@ -13,5 +13,8 @@ namespace MagicSchool.Contracts
         ICombatant FindClusteredLaser(int reachRange, float beamHalfWidth);
         IPlacement FindClusteredCharge(int reachRange, float chargeHalfWidth);
         IReadOnlyList<ICombatant> FindEnemiesNear(ICombatant target, int reachRange);
+        IReadOnlyList<ICombatant> FindAllEnemies();
+        IReadOnlyList<ICombatant> FindAllAllies();
+        IReadOnlyList<ICombatant> FindRandomEnemies(int count);
     }
 }

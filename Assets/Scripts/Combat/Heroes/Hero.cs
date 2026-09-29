@@ -165,6 +165,9 @@ namespace MagicSchool.Combat.Heroes
         public IPlacement FindClusteredCharge(int reachRange, float chargeHalfWidth) => _findEnemy.FindClusteredCharge(reachRange, chargeHalfWidth);
         public ICombatant FindClusteredLaser(int reachRange, float beamHalfWidth) => _findEnemy.FindClusteredLaser(reachRange, beamHalfWidth);
         public IReadOnlyList<ICombatant> FindEnemiesNear(ICombatant target, int reachRange) => _findEnemy.FindEnemiesNear(target, reachRange);
+        public IReadOnlyList<ICombatant> FindAllEnemies() => _findEnemy.FindAllEnemies();
+        public IReadOnlyList<ICombatant> FindAllAllies() => _findEnemy.FindAllAllies();
+        public IReadOnlyList<ICombatant> FindRandomEnemies(int count) => _findEnemy.FindRandomEnemies(count);
 
 
         // ======================================== life cycle ========================================

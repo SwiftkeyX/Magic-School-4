@@ -49,6 +49,12 @@ namespace MagicSchool.Combat.Heroes
             return _enemyCache;
         }
 
+        // Get every ally on the board.
+        public List<ICombatant> GetAllAlly()
+        {
+            return _board.HeroesOnBoard.Where(IsAlly).ToList();
+        }
+
         // What is the "distance" between me and each target.
         // distance = the distance in straight line.
         public List<(ICombatant target, float dist)> Distances()
@@ -90,6 +96,14 @@ namespace MagicSchool.Combat.Heroes
             bool notTargetDead = target.IsAlive;
             bool notTargetGuyNotInCombat = target.IsInCombat;
             return notTargetMyself && notTargetFriend && notTargetDead && notTargetGuyNotInCombat;
+        }
+
+        // easy boolean logic to filter the ally
+        private bool IsAlly(ICombatant target)
+        {
+            bool notMyself = target != _me as ICombatant;
+            bool sameTeam = target.Team == _me.Team;
+            return notMyself && sameTeam && target.IsAlive && target.IsInCombat;
         }
 
         // get number of hop from me to specify enemy
