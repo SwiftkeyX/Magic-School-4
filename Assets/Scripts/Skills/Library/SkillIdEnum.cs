@@ -35,5 +35,6 @@ namespace MagicSchool.Skills
         Lich = 24,
         Dragon = 25,
         Ettin = 26,
+        Harpy = 27,
     }
 }
