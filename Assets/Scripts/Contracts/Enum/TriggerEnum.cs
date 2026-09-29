@@ -10,5 +10,6 @@ namespace MagicSchool.Contracts
         OnExpired = 2,      // once the previous step expired
         OnHit = 3,          // once the previous step hit someone 
         OnAttack = 4,       // once hero auto attack
+        OnCombatStart = 6,  // once the fight begins
     }
 }

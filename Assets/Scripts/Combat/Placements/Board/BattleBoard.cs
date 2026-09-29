@@ -132,6 +132,15 @@ namespace MagicSchool.Combat.Placements
             }
         }
 
+        // Tell every hero on the board the fight has begun, both teams.
+        public void TriggerCombatStart()
+        {
+            foreach (ICombatant combatant in _heroesOnBoard.ToList())
+            {
+                if (combatant is Hero hero && hero.IsAlive) hero.TriggerOnCombatStart();
+            }
+        }
+
         private void ReleaseReservationsOf(ICombatant hero)
         {
             List<Hex> held = _reservedBy.Where(pair => pair.Value == hero).Select(pair => pair.Key).ToList();

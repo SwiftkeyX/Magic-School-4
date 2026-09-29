@@ -14,7 +14,9 @@ namespace MagicSchool.Core.States
 
         public override void OnEnter()
         {
+            // FLAGGING: both can be combine later.
             _game.Board.SetBattleOn(true);
+            _game.Board.TriggerCombatStart();
 
             // remember the team's formation at the start
             _game.Formation.Remember(_game.Board.HeroesOnBoard, TeamEnum.Blue);

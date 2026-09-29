@@ -77,13 +77,20 @@ namespace MagicSchool.Skills
         // Returns whether anything played.
         public virtual bool OnAttack(ICombatant target) => PlayPassive(TriggerEnum.OnAttack);
 
+        // At combat start, play OnCombat passive.
+        // Returns whether anything played.
+        public virtual bool OnCombatStart() => PlayPassive(TriggerEnum.OnCombatStart);
+
+        // add other hook
+        // ... 
+
         // ============================================== private ==============================================
         // FIXLATER: passive step sound dump. Could we pair passive with dictionary instead.
         // e.g. dict.TryGet(OnAttack)
         // play the passive that starts with this trigger, if there is one
         private bool PlayPassive(TriggerEnum trigger)
         {
-            if (!HasPassive || PassiveSteps[0].Trigger != trigger) return false;
+            if (PassiveSteps.Count == 0 || PassiveSteps[0].Trigger != trigger) return false;
 
             return PlayStep(PassiveSteps, 0);
         }

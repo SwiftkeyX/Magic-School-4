@@ -48,5 +48,13 @@ namespace MagicSchool.Combat.Heroes
 
             return _skill.OnAttack(target);
         }
+
+        // at start of the combat, play OnCombat type of skill
+        public bool TriggerOnCombatStart()
+        {
+            if (_skill == null) return false;
+
+            return _skill.OnCombatStart();
+        }
     }
 }
