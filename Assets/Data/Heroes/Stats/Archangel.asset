@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b55b0dd9ae9b645ad69373b7cb4ae9, type: 3}
+  m_Name: Archangel
+  m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Heroes.HeroDataSO
+  _prefab: {fileID: 8121915225950906231, guid: 15a9380d31f2c4446b00795609901c54, type: 3}
+  _name: Archangel
+  _tier: 2
+  _role: 2
+  _hp: 500
+  _attack: 30
+  _defend: 15
+  _magic: 100
+  _magicResist: 20
+  _attackSpeed: 0.7
+  _range: 4
+  _startMana: 20
+  _maxMana: 80
+  _skillId: 0
+  _isDummy: 0

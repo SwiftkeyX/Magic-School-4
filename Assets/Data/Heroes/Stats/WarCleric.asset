@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b55b0dd9ae9b645ad69373b7cb4ae9, type: 3}
+  m_Name: WarCleric
+  m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Heroes.HeroDataSO
+  _prefab: {fileID: 209906941233361819, guid: 25064ed2880715249a3631b82ffdcaf1, type: 3}
+  _name: War Cleric
+  _tier: 1
+  _role: 1
+  _hp: 800
+  _attack: 45
+  _defend: 40
+  _magic: 100
+  _magicResist: 40
+  _attackSpeed: 0.6
+  _range: 1
+  _startMana: 30
+  _maxMana: 90
+  _skillId: 0
+  _isDummy: 0

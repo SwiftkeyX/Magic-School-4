@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b55b0dd9ae9b645ad69373b7cb4ae9, type: 3}
+  m_Name: Fencer
+  m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Heroes.HeroDataSO
+  _prefab: {fileID: 2672648386815266198, guid: 8fd4bbe577ee3554eb85513432e0cfa2, type: 3}
+  _name: Fencer
+  _tier: 2
+  _role: 3
+  _hp: 650
+  _attack: 55
+  _defend: 30
+  _magic: 100
+  _magicResist: 30
+  _attackSpeed: 0.75
+  _range: 1
+  _startMana: 0
+  _maxMana: 60
+  _skillId: 0
+  _isDummy: 0
