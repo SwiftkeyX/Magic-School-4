@@ -15,14 +15,17 @@ namespace MagicSchool.Skills
         public string Description { get; }
         public string PassiveDescription { get; }
 
-        // triggered by OnCast once mana caps
+        // active skill.  
         public IReadOnlyList<SkillStep> ActiveSteps { get; }
 
-        // triggered by whatever the hero does (attack, combat start, ...)
+        // passive skill.
         public IReadOnlyList<SkillStep> PassiveSteps { get; }
 
-        // event to control skill behaviour e.g. combo counter, (no more usage yet) ...
-        public event Action<TriggerEnum> Triggered;
+        protected ICombatant Caster { get; private set; }   // owner of this skill
+        public float CastTime { get; private set; } // the animation's duration to play this specific skill
+
+        public virtual bool HasActive => ActiveSteps.Count > 0;
+        public virtual bool HasPassive => PassiveSteps.Count > 0;
 
         public SkillDefinition(string skillName, List<SkillStep> activeSteps = null, List<SkillStep> passiveSteps = null,
             string description = "", string passiveDescription = "")
@@ -34,18 +37,98 @@ namespace MagicSchool.Skills
             PassiveDescription = passiveDescription;
         }
 
-        // inject caster into class that need it.
-        // E.g. SkillCondition
-        public void Init(IEffectable caster)
+        public virtual void Init(ICombatant caster)
         {
+            Caster = caster;
+
             foreach (SkillStep step in ActiveSteps) step.Init(caster);
 
             foreach (SkillStep step in PassiveSteps) step.Init(caster);
         }
 
-        // FLAGGING: I don't like using this function, it don't tell anything about the event that was fired.
-        // it too generic.
-        // invoke the event, listener read if the trigger type match their's
-        public void InvokeTrigger(TriggerEnum trigger) => Triggered?.Invoke(trigger);
+        // ============================================== hooks ==============================================
+        // If mana is full, play the active skill. 
+        // Returns whether anything played.
+        public virtual bool OnCast()
+        {
+            if (!HasActive || ActiveSteps[0].Trigger != TriggerEnum.OnCast) return false;
+
+            if (!PlayStep(ActiveSteps, 0)) return false;
+
+            // OnCastStart rides along with the cast
+            if (ActiveSteps.Count > 1 && ActiveSteps[1].Trigger == TriggerEnum.OnCastStart) PlayStep(ActiveSteps, 1);
+
+            return true;
+        }
+
+        // If auto-attack, play OnAttack passive. 
+        // Returns whether anything played.
+        public virtual bool OnAttack(ICombatant target) => PlayPassive(TriggerEnum.OnAttack);
+
+        // ============================================== protected ==============================================
+        // FIXLATER: passive step sound dump. Could we pair passive with dictionary instead.
+        // e.g. dict.TryGet(OnAttack)
+        // play the passive that starts with this trigger, if there is one
+        protected bool PlayPassive(TriggerEnum trigger)
+        {
+            if (!HasPassive || PassiveSteps[0].Trigger != trigger) return false;
+
+            return PlayStep(PassiveSteps, 0);
+        }
+
+        // Play one step of a skill chain
+        protected bool PlayStep(IReadOnlyList<SkillStep> steps, int stepIndex, SkillStepContext fromPreviousStep = null)
+        {
+            if (stepIndex < 0 || stepIndex >= steps.Count) return false;
+
+            // init the callback 
+            Action<SkillStepContext> onExpired = NextStep(steps, stepIndex + 1, TriggerEnum.OnExpired);
+            Action<SkillStepContext> onHit = NextStep(steps, stepIndex + 1, TriggerEnum.OnHit);
+
+            // play the first action group that met the condition
+            foreach (SkillActionGroup group in steps[stepIndex].ActionGroups)
+            {
+                if (SkillCondition.Ask(group.Conditions, Caster) == ConditionResultEnum.ConditionIsNotMet) continue;
+
+                // play the template action
+                // and give callback to the template action
+                if (Play(group, onExpired, onHit, fromPreviousStep)) return true;
+            }
+
+            return false;
+        }
+
+        // Play a single group on its own.
+        // no step, no chain skill. 
+        protected bool PlayGroup(SkillActionGroup group) => Play(group, null, null, null);
+
+        // ============================================== private ==============================================
+        // try play template action
+        // wiring NextStep() callback to template action
+        private bool Play(SkillActionGroup group, Action<SkillStepContext> onExpired, Action<SkillStepContext> onHit,
+                          SkillStepContext fromPreviousStep)
+        {
+            // guard
+            if (Caster is UnityEngine.Object hero && hero == null) return false;
+
+            // try play template action and wiring callback
+            if (!TemplateAction.TryPlay(group, Caster, onExpired, onHit, fromPreviousStep)) return false;
+
+            CastTime = group.Tuning?.CastTime ?? group.TemplateAction.CastTime;
+            return true;
+        }
+
+        // return the callback that can be use to fires the next steps
+        // the callback will be used by the template action. the example usage of this callback:
+        // e.g.     the AOE is gone (the prefab is destroyed)   =   call NextStep(OnExpired)
+        //          the moment projectile hit something         =   call NextStep(OnHit)
+        private Action<SkillStepContext> NextStep(IReadOnlyList<SkillStep> steps, int nextIndex, TriggerEnum trigger)
+        {
+            if (nextIndex >= steps.Count) return null;
+
+            if (steps[nextIndex].Trigger != trigger) return null;
+
+            return context => PlayStep(steps, nextIndex, context);
+        }
     }
 }

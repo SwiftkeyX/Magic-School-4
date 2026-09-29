@@ -49,7 +49,7 @@ namespace MagicSchool.Combat.Heroes.States
             if (_me.IsAttackReady)
             {
                 // fire OnAttack event
-                _me.TriggerPassiveSkill(TriggerEnum.OnAttack);
+                _me.TriggerOnAttack(_currentTarget);
 
                 // this hero auto attack
                 PerformAutoAttack();

@@ -76,7 +76,7 @@ namespace MagicSchool.Combat.Heroes
 
         // ======================================== skill ========================================
         public bool TriggerActiveSkill(bool isManaCapped) => _skill.TriggerOnCastSkill(isManaCapped);
-        public bool TriggerPassiveSkill(TriggerEnum trigger) => _skill.TriggerPassiveSkill(trigger);
+        public bool TriggerOnAttack(ICombatant target) => _skill.TriggerOnAttack(target);
         public float GetCastTime() => _skill.GetCastTime();
 
         // what the Hero Panel reads
