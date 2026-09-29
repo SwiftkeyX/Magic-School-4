@@ -126,6 +126,25 @@ namespace MagicSchool.Skills
                 _aimTarget = target.transform.position;
             }
 
+            // point at the densest cluster
+            // e.g. a cone AOE from the caster point toward the cluster
+            else if (aimTarget == AimTargetEnum.ClusteredCircle)
+            {
+                // FIXNOW: how about using _spread like projectile does?
+                IPlacement target = _me.FindClusteredCircle(_reachRange, HalfWidthAcrossFacing(), isJump: false);
+                if (target == null) return false;
+                _aimTarget = target.transform.position;
+            }
+
+            // point down the lane that passes through the most enemies 
+            // e.g. a laser from the caster point toward the cluster
+            else if (aimTarget == AimTargetEnum.ClusteredLaser)
+            {
+                ICombatant target = _me.FindClusteredLaser(_reachRange, HalfWidthAcrossFacing());
+                if (target == null) return false;
+                _aimTarget = target.transform.position;
+            }
+
             // point at previous projectile hit position
             else if (aimTarget == AimTargetEnum.WhereProjectileHit)
             {
