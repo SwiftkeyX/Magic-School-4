@@ -8,7 +8,7 @@ namespace MagicSchool.Skills
     /// <summary>
     /// ZoneAOE are template action that apply effect over time.
     /// Effect here was apply to the recipients on standing in the effect, if they walk out of it, they don't get effect re-apply.
-    /// e.g. Roland
+    /// e.g. Orc Blademaster
     /// </summary>
     internal class ZoneAOE : AOE
     {

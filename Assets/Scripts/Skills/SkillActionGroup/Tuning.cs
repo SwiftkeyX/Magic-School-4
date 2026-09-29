@@ -40,7 +40,7 @@ namespace MagicSchool.Skills
     }
 
     // FireTimingRunner with Projectile
-    // FLAGGING: Currently use in 1 scenario e.g. Sparks attack random enemies in 2 hex of current target
+    // FLAGGING: Currently use in 1 scenario e.g. Imp attack random enemies in 2 hex of current target
     public class FireTimingRunnerProjectileTuning : FireTimingRunnerTuning
     {
         public int? RandomPoolRadius;    

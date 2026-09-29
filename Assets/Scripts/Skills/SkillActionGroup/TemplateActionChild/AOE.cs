@@ -162,7 +162,7 @@ namespace MagicSchool.Skills
         }
 
         // The AOE could rides Move
-        // e.g. Grimm's AOE dies when his Move dies
+        // e.g. Centaur's AOE dies when his Move dies
         protected override void InitRider()
         {
             _rider = Rider.FindHostFor(this, _me);

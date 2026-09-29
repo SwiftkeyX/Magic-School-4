@@ -6,7 +6,7 @@ namespace MagicSchool.Skills
 {
 
     /// Now was use in 1 situation:
-    /// 1) Attack random enemies in 2 hex of current target e.g. Sparks spraying the units around her current target.
+    /// 1) Attack random enemies in 2 hex of current target e.g. Imp spraying the units around his current target.
     /// 2) (There is other case but not implement yet) ...
     /// 
     /// README:
@@ -46,7 +46,7 @@ namespace MagicSchool.Skills
 
         // filled the random pool with:
         // 1) enemy who is near the current target
-        // FLAGGING: this is hardcode for Sparks, let leave it for now
+        // FLAGGING: this is hardcode for Imp, let leave it for now
         private void Fill()
         {
             ICombatant currentTarget = _owner.FindCurrentTarget();

@@ -10,7 +10,7 @@ namespace MagicSchool.Skills
     ///
     /// 1) on a SkillActionGroup, it gates - a group whose condition fails is skipped, and the step
     ///    falls through to the next group. That is how a template action gets swapped for another
-    ///    one, e.g. Vharn throwing a box while transformed and a circle otherwise.
+    ///    one, e.g. Werewolf throwing a box while transformed and a circle otherwise.
     ///
     /// 2) on a SkillEffect, it amplifies - the effect still lands, but scaled up when the answer is
     ///    yes, e.g. +30% damage against a wounded target.

@@ -7,7 +7,7 @@ namespace MagicSchool.StatScaling
     // 2) which part of that stat will be used for deriving? read ScaleFromEnum.cs
     // 3) how much the amount/percentage it scale.
     //
-    // e.g. Quatre's skill = (StatEnum.ATK, 744f) damage
+    // e.g. Ranger's skill = (StatEnum.ATK, 744f) damage
     // which mean [total damage] = [744%] of the [atk].
     public readonly struct StatRatio
     {

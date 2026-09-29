@@ -36,7 +36,7 @@ namespace MagicSchool.UI
 
         // ================================= Chart var =================================
         // Chart contain several track, 1 chart represent 1 hero
-        // e.g. Vharn's Chart = {do 100 dmg, take 300 dmg, etc...}
+        // e.g. Werewolf's Chart = {do 100 dmg, take 300 dmg, etc...}
 
         // charts contain all chart that'll be shown on the scoreboard.
         private static readonly Chart[] Charts =
