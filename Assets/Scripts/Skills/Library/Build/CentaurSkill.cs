@@ -6,21 +6,26 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class CentaurSkill
+    internal class CentaurSkill : SkillDefinition
     {
         private const int ChargeRange = 4;              // hexes he can cross
         private const float HitboxHalfWidth = 1.25f;
         private const float KnockedUpDuration = 2f;
         private const float CollideDamage = 200f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
-        {
-            return new SkillDefinition(
-                skillName: "Trample",
-                activeSteps: new List<SkillStep> { Move(registry), AOE(registry) },
-                description: $"Charges up to {ChargeRange} hexes straight through the enemy line, dealing "
-                           + $"{CollideDamage}% AP to everyone he ploughs into on the way and stunning them.");
-        }
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new CentaurSkill(registry);
+
+        private CentaurSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Trample";
+
+        public override string Description
+            => $"Charges up to {ChargeRange} hexes straight through the enemy line, dealing "
+             + $"{CollideDamage}% AP to everyone he ploughs into on the way and stunning them.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+            => new List<SkillStep> { Move(registry), AOE(registry) };
 
         private static SkillStep Move(TemplateActionRegistrySO registry)
         {

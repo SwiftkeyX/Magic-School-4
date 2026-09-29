@@ -15,7 +15,7 @@ namespace MagicSchool.Skills
     /// Star-level scaling (the /155/160 and /20/35 tiers) isn't implemented yet - same as Dryad's
     /// DamageRatio, this takes the 1-star baseline only.
     /// </summary>
-    internal class ImpSkill
+    internal class ImpSkill : SkillDefinition
     {
         private const float ADDamagePerShot = 150f;   // sheet: 150/155/160% AD
         private const float APDamagePerShot = 15f;    // sheet: 15/20/35% AP
@@ -24,16 +24,21 @@ namespace MagicSchool.Skills
         private const int RandomPoolRadius = 2;        // sheet: "random enemies within 2 hexes of the current target"
         private const float TotalCastTime = IntervalBetweenShot * (ShotCount - 1);
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
-        {
-            return new SkillDefinition(
-                skillName: "Spear Barrage",
-                activeSteps: new List<SkillStep> { Shoot(registry) },
-                description: $"Throws {ShotCount} spears one after another at random enemies within {RandomPoolRadius} "
-                           + $"hexes of the current target, each landing for {ADDamagePerShot}% AD + "
-                           + $"{APDamagePerShot}% AP, never hitting the same one twice until everyone in range has "
-                           + "been caught once.");
-        }
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ImpSkill(registry);
+
+        private ImpSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Spear Barrage";
+
+        public override string Description
+            => $"Throws {ShotCount} spears one after another at random enemies within {RandomPoolRadius} "
+             + $"hexes of the current target, each landing for {ADDamagePerShot}% AD + "
+             + $"{APDamagePerShot}% AP, never hitting the same one twice until everyone in range has "
+             + "been caught once.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+            => new List<SkillStep> { Shoot(registry) };
 
         private static SkillStep Shoot(TemplateActionRegistrySO registry)
         {

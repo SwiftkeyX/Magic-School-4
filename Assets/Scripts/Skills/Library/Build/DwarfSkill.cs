@@ -4,20 +4,25 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal class DwarfSkill
+    internal class DwarfSkill : SkillDefinition
     {
         private const float ExplodeDmg = 240f;
         private const float BlastDiameter = 4.5f;
         private const float BlastRadius = BlastDiameter / 2f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
-        {
-            return new SkillDefinition(
-                skillName: "Blast Charge",
-                activeSteps: new List<SkillStep> { Shoot(registry), Explode(registry) },
-                description: "Fires a homing shot into the densest cluster of enemies. "
-                           + $"it bursts where it lands, dealing {ExplodeDmg}% AD to everyone inside the blast.");
-        }
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new DwarfSkill(registry);
+
+        private DwarfSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Blast Charge";
+
+        public override string Description
+            => "Fires a homing shot into the densest cluster of enemies. "
+             + $"it bursts where it lands, dealing {ExplodeDmg}% AD to everyone inside the blast.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+            => new List<SkillStep> { Shoot(registry), Explode(registry) };
 
         private static SkillStep Shoot(TemplateActionRegistrySO registry)
         {

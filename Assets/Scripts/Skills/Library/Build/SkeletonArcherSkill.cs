@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal class SkeletonArcherSkill
+    internal class SkeletonArcherSkill : SkillDefinition
     {
         private const float ADDamagePerShot = 125f;
         private const float MGDamagePerShot = 125f;
@@ -12,14 +12,19 @@ namespace MagicSchool.Skills
         private const float IntervalBetweenShot = 0.1f;
         private const float TotalCastTime = IntervalBetweenShot * (ShotCount - 1);
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
-        {
-            return new SkillDefinition(
-                skillName: "Bone Barrage",
-                activeSteps: new List<SkillStep> { Shoot(registry) },
-                description: $"Fires {ShotCount} shots in quick succession at the furthest enemy, each one landing for "
-                           + $"{ADDamagePerShot}% AD + {MGDamagePerShot}% AP.");
-        }
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new SkeletonArcherSkill(registry);
+
+        private SkeletonArcherSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Bone Barrage";
+
+        public override string Description
+            => $"Fires {ShotCount} shots in quick succession at the furthest enemy, each one landing for "
+             + $"{ADDamagePerShot}% AD + {MGDamagePerShot}% AP.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+            => new List<SkillStep> { Shoot(registry) };
 
         private static SkillStep Shoot(TemplateActionRegistrySO registry)
         {

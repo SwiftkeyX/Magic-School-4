@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class KnightSkill
+    internal class KnightSkill : SkillDefinition
     {
         private const float StunDuration = 2f;
         private const float LandingDamage = 200f;
@@ -13,15 +13,20 @@ namespace MagicSchool.Skills
 
         private const float LandingRadius = LandingDiameter / 2f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
-        {
-            return new SkillDefinition(
-                skillName: "Valiant Leap",
-                activeSteps: new List<SkillStep> { Jump(registry), Landing(registry) },
-                description: "Leaps into the densest part of the enemy formation. The landing deals "
-                           + $"{LandingDamage}% AP to everyone caught around him and leaves them stunned for "
-                           + $"{StunDuration} seconds.");
-        }
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new KnightSkill(registry);
+
+        private KnightSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Valiant Leap";
+
+        public override string Description
+            => "Leaps into the densest part of the enemy formation. The landing deals "
+             + $"{LandingDamage}% AP to everyone caught around him and leaves them stunned for "
+             + $"{StunDuration} seconds.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+            => new List<SkillStep> { Jump(registry), Landing(registry) };
 
         private static SkillStep Jump(TemplateActionRegistrySO registry)
         {
