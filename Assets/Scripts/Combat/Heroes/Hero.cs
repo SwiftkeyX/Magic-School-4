@@ -121,7 +121,9 @@ namespace MagicSchool.Combat.Heroes
 
         public void TakeDamage(int damage, IEffectable source, DamageKindEnum kind)
         {
-            DamageOutcome outcome = CombatMath.ResolveDamage(damage, Stat.DF, Stat.DamageReductionPercent, Stat.CurrentHP);
+            DamageOutcome outcome = CombatMath.ResolveDamage(damage, Stat.DF, Stat.DamageReductionPercent, Stat.CurrentHP,
+                                                             Stat.Shield, out int absorbed);
+            Stat.ConsumeShield(absorbed);
             Stat.SetCurrentHP(outcome.NewHP);
 
             OnDamaged?.Invoke(new DamageEvent(source, this, kind, outcome));
@@ -130,6 +132,7 @@ namespace MagicSchool.Combat.Heroes
         // === IHeroStats ===
         public int CurrentHP => Stat.CurrentHP;
         public int MaxHP => Stat.MaxHP;
+        public int Shield => Stat.Shield;
         public int CurrentMana => Stat.CurrentMana;
         public int MaxMana => Stat.MaxMana;
         public int AttackDamage => Stat.Atk;

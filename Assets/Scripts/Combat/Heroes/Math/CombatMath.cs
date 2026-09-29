@@ -7,15 +7,20 @@ namespace MagicSchool.Combat.Heroes
     {
         // calculate final damage after mitigation
         // final damage = damage that use to to reduce the HP directly
-        public static DamageOutcome ResolveDamage(int rawDamage, int defense, float damageReductionPercent, int currentHP)
+        public static DamageOutcome ResolveDamage(int rawDamage, int defense, float damageReductionPercent, int currentHP,
+                                                  int shield, out int shieldAbsorbed)
         {
-            int landed = DamageAfterMitigation(rawDamage, defense, damageReductionPercent);
+            int mitigated = DamageAfterMitigation(rawDamage, defense, damageReductionPercent);
+
+            // the shield absorb damage before HP
+            shieldAbsorbed = Mathf.Min(mitigated, Mathf.Max(0, shield));
+            int toHP = mitigated - shieldAbsorbed;
 
             // HP stops at 0; whatever the hit was still worth past that is overkill, not damage
-            int newHP = Mathf.Max(0, currentHP - landed);
+            int newHP = Mathf.Max(0, currentHP - toHP);
             int lost = currentHP - newHP;
 
-            return new DamageOutcome(newHP, lost, landed - lost, rawDamage - landed);
+            return new DamageOutcome(newHP, lost, toHP - lost, rawDamage - mitigated);
         }
 
         // calculate final heal

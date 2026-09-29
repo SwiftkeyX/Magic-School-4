@@ -88,6 +88,12 @@ namespace MagicSchool.Skills
         public static IModifier Status(ModifierEnum status)
             => new StatusModifier(status);
 
+        // a shield - absorb damage before HP, gone when duration expired
+        //   Shield(500f)                    -> "a 500 shield"
+        //   Shield((StatEnum.DF, 300f))     -> "a shield worth 300% of the caster's DF"
+        public static IModifier Shield(params StatRatio[] ratios)
+            => new StatModifier(ModifierEnum.Shield, ratios);
+
         // ================================== ActionGroup ==================================
         // a template action
         public static SkillActionGroup ActionGroup(TemplateActionRegistrySO registry, ActionSourceEnum source,

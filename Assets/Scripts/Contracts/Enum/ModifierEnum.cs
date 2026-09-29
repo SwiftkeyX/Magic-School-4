@@ -15,6 +15,7 @@ namespace MagicSchool.Contracts
         Range = 14,
         StartMana = 15,
         MR = 16,
+        Shield = 17,       
 
         // ======================================= Debuff =======================================
         DefendShred = 13,

@@ -48,6 +48,10 @@ namespace MagicSchool.Combat.Heroes.Stats
         public bool IsStunned => HasStatus(ModifierEnum.Stun);
         public bool IsWounded => HasStatus(ModifierEnum.Wound);
 
+        // === shield ===
+        public int Shield => Mathf.FloorToInt(_statModifier.ShieldTotal);
+        public void ConsumeShield(int amount) => _statModifier.AbsorbDamage(amount);
+
         // === other ===
         public float ModifierRemaining(int index) => _statModifier.GetRemainingDuration(index);
         public int ActiveModifierCount => _statModifier.ActiveCount;

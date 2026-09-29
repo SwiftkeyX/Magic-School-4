@@ -22,26 +22,6 @@ namespace MagicSchool.Modifiers
         // tracking if the bonus stat from modifier is stale 
         private bool _isBonusStale = true;
 
-        // pair of modifier & stat - tell which stat is increase by this modifier
-        private static readonly Dictionary<ModifierEnum, StatEnum> _lookup = new Dictionary<ModifierEnum, StatEnum>
-        {
-            // buff
-            { ModifierEnum.BonusHP        , StatEnum.MaxHP }          ,
-            { ModifierEnum.ATK            , StatEnum.ATK }            ,
-            { ModifierEnum.AS             , StatEnum.AS}              ,
-            { ModifierEnum.DF             , StatEnum.DF }             ,
-            { ModifierEnum.DamageReduction, StatEnum.DamageReduction },
-            { ModifierEnum.AP             , StatEnum.AP }             ,
-            { ModifierEnum.Range          , StatEnum.Range }          ,
-            { ModifierEnum.StartMana      , StatEnum.StartMana }      ,
-            { ModifierEnum.MR             , StatEnum.MR }             ,
-            // ...
-
-            // debuff
-            { ModifierEnum.DefendShred    , StatEnum.DF }             ,
-            // ...
-        };
-
         // =================================== life cycle ===================================
         // update all current modifier duration, removing any that just expired
         public void Tick(float deltaTime)
@@ -115,9 +95,7 @@ namespace MagicSchool.Modifiers
             // if not stale, return the cache one.
             if (_isBonusStale) RebuildBonus();
 
-            // a stat's own enum value IS its slot: StatEnum.MaxHP is 0, so its bonus is _bonus[0].
-            // StatEnum.None is -1 though, and would throw on the way in - it, and anything sitting
-            // past the table, answer with the plain base stat: nothing has added to them.
+            // guard
             int slot = (int)type;
             if (slot < 0 || slot >= _bonus.Length) return baseStat;
 
@@ -153,27 +131,26 @@ namespace MagicSchool.Modifiers
             return tracker.Remaining / duration;
         }
 
+        // =================================== shield ===================================
+        // read Shield.cs
+        public float ShieldTotal => Shield.Total(_activeModifiers);
+        public float AbsorbDamage(float damage) => Shield.Absorb(_activeModifiers, damage);
+
         // =================================== private ===================================
-        // Add every active modifier up, once, into the slot of the stat it feeds.
+        // Add every active modifier up.
+        // bonus stat was added into its own slot. _bonus[ATK] will only count the atk modifier inside itself.
+        // example result,
+        //      _bonus[ATK] = 100f
+        //      _bonus[DF]  = 50f
         private void RebuildBonus()
         {
             // clear bonus list
             Array.Clear(_bonus, 0, _bonus.Length);
 
-            // build the bonus list using enum value, to identify which bonus this belong to.
-            // e.g. according to StatEnum, _bonus[0] is the bonus for MaxHP
-            foreach (ActiveCustomModifier active in _activeModifiers)
-            {
-                IReadOnlyList<IModifier> modifiers = active.CustomModifier.GetModifiers();
-
-                for (int i = 0; i < modifiers.Count; i++)
-                {
-                    // lookup modifier table - what stat is increase?
-                    if (!_lookup.TryGetValue(modifiers[i].GetModifierEnum(), out StatEnum target)) continue;
-
-                    _bonus[(int)target] += active.BonusStat[i];
-                }
-            }
+            // each bonus slot asks every ActiveModifier how much stat should be added.
+            for (int slot = 0; slot < _bonus.Length; slot++)
+                foreach (ActiveCustomModifier active in _activeModifiers)
+                    _bonus[slot] += active.GetStat((StatEnum)slot);
 
             // no longer stale
             _isBonusStale = false;
