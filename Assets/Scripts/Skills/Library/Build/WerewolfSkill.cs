@@ -4,60 +4,87 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    /// <summary>
-    /// Werewolf: casting transforms him, and while transformed his auto attack is replaced by a three
-    /// beat combo - box, then triangle, then circle - each hitting harder than the last.
-    /// </summary>
-    internal static class WerewolfSkill
+    internal class WerewolfSkill : SkillDefinition
     {
-        private const int ComboLength = 3;
+        // werewolf play 3 different attack
+        // box, triangle, circle - in the order 
+        private readonly SkillActionGroup[] _beats;
+        private int _currentBeat;
 
-        private const float OmnivampFromAP = 10f;   // sheet: 10% AP omnivamp
-        private const float AttackFromAS = 500f;   // sheet: 80% of bonus AS, converted to AD
+        private const float OmnivampFromAP = 10f;  
+        // FLAGGING: sheet: 80% of bonus AS, converted to AD 
+        private const float AttackFromAS = 500f;   
         private const float TransformDuration = 10f;
 
-        // one per beat of the combo, in order. Named rather than passed inline so the description
-        // below can quote the same figures the beats are built from.
+        // each beat (attack) have different damage amount
         private const float BoxDamage = 200f;
         private const float TriangleDamage = 300f;
         private const float CircleDamage = 400f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
-        {
-            // one count for the whole combo, handed to each beat below. Shared deliberately and
-            // visibly, rather than a count inside each beat that nothing keeps in agreement.
-            ComboTracker combo = new ComboTracker(ComboLength);
 
-            SkillDefinition skill = new SkillDefinition(
+        // FIXLATER: turn every hero into skilldefinition. and move Build inside the skilldefinition.
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new WerewolfSkill(registry);
+
+        private WerewolfSkill(TemplateActionRegistrySO registry)
+            : base(
                 skillName: "Moonrage",
                 activeSteps: new List<SkillStep> { Transform(registry) },
-                passiveSteps: new List<SkillStep> { Combo(registry, combo) },
-                description: $"Transforms for {TransformDuration} seconds, draining {OmnivampFromAP}% AP of the damage "
-                           + "he deals back as life and turning his bonus attack speed into raw attack damage.",
-                passiveDescription: "While transformed his auto attack becomes a three beat combo - box, then triangle, "
-                                  + $"then circle - landing for {BoxDamage}% / {TriangleDamage}% / {CircleDamage}% AD "
-                                  + "in turn.");
-
-            // moves the combo on when he attacks - not when a condition is asked
-            skill.Triggered += combo.Count;
-
-            return skill;
+                description: GetSkillDescription(),
+                passiveDescription: GetPassiveDescription())
+        {
+            _beats = new[]
+            {
+                Beat(registry, TemplateActionEnum.BoxAOE,      BoxDamage),
+                Beat(registry, TemplateActionEnum.TriangleAOE, TriangleDamage),
+                Beat(registry, TemplateActionEnum.CircleAOE,   CircleDamage),
+            };
         }
 
-        // ============================== active: the transform ==============================
+        // ============================== init ==============================
+        private static string GetSkillDescription()
+        {
+            return $"Transforms for {TransformDuration} seconds, draining {OmnivampFromAP}% AP of the damage "
+                 + "he deals back as life and turning his bonus attack speed into raw attack damage.";
+        }
+
+        private static string GetPassiveDescription()
+        {
+            return "While transformed his auto attack becomes a three beat combo - box, then triangle, "
+                 + $"then circle - landing for {BoxDamage}% / {TriangleDamage}% / {CircleDamage}% AD "
+                 + "in turn.";
+        }
+
+        public override void Init(ICombatant caster)
+        {
+            base.Init(caster);
+
+            foreach (SkillActionGroup beat in _beats) beat.Init(caster);
+        }
+
+        // ============================== passive ==============================
+        public override bool HasPassive => true;
+
+        public override bool OnAttack(ICombatant target)
+        {
+            if (!Caster.HasStatus(ModifierEnum.Transformed)) return false;
+
+            if (!PlayGroup(_beats[_currentBeat])) return false;
+
+            _currentBeat = (_currentBeat + 1) % _beats.Length;
+            return true;
+        }
+
+        // ============================== active ==============================
         private static SkillStep Transform(TemplateActionRegistrySO registry)
         {
             // one group, one timer - the whole transform ends on the same tick
             ICustomModifier WorldEnderBuff = Bundle(
                 duration: TransformDuration,
 
-                // sheet: 10% Ability Power Omnivamp
                 Buff(
                     modifier: ModifierEnum.Omnivamp,
                     ratios: (StatEnum.AP, OmnivampFromAP, ScaleFromEnum.Base)),
 
-                // FLAGGING: it consume 80% AS. which is only convert to 0.5 atk.
-                // need change later
                 Buff(
                     modifier: ModifierEnum.ATK,
                     ratios: (StatEnum.AS, AttackFromAS, ScaleFromEnum.Base)),
@@ -83,51 +110,16 @@ namespace MagicSchool.Skills
             return Step(trigger: TriggerEnum.OnCast, groups: cast);
         }
 
-        // ============================== passive: the combo ==============================
-        private static SkillStep Combo(TemplateActionRegistrySO registry, ComboTracker combo)
-        {
-            List<SkillActionGroup> beats = new List<SkillActionGroup>
-            {
-                Beat(registry: registry, combo: combo, action: TemplateActionEnum.BoxAOE,      beat: 1, damage: BoxDamage,      tuning: TuneAOE(offset: AOEOffsetEnum.Tip)),
-                Beat(registry: registry, combo: combo, action: TemplateActionEnum.TriangleAOE, beat: 2, damage: TriangleDamage, tuning: TuneAOE(offset: AOEOffsetEnum.Tip)),
-                Beat(registry: registry, combo: combo, action: TemplateActionEnum.CircleAOE,   beat: 3, damage: CircleDamage,   tuning: TuneAOE(offset: AOEOffsetEnum.Tip)),
-            };
-
-            return new SkillStep(trigger: TriggerEnum.OnAttack, actionGroups: beats);
-        }
-
-        // One beat of the combo: play this shape when transformed and the combo is on this count.
-        private static SkillActionGroup Beat(TemplateActionRegistrySO registry, ComboTracker combo,
-                                             TemplateActionEnum action, int beat, float damage,
-                                             Tuning tuning = null)
-        {
-            List<SkillCondition> conditions = new List<SkillCondition>
-            {
-                // must have status transform
-                new HasStatusCondition(
-                    subject:     ConditionSubjectEnum.Caster,
-                    status:      ModifierEnum.Transformed,
-                    wantPresent: true),
-
-                // ask the user
-                new NumberCondition(
-                    subject:   ConditionSubjectEnum.Caster,
-                    combo:     combo,
-                    matchBeat: beat),
-            };
-
-            return ActionGroupWhen(
+        private static SkillActionGroup Beat(TemplateActionRegistrySO registry, TemplateActionEnum action, float damage)
+            => ActionGroup(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: action,
                 target: AimTargetEnum.Current,
-                conditions: conditions,
-                tuning: tuning,
-                // sheet: Werewolf is AD
+                tuning: TuneAOE(offset: AOEOffsetEnum.Tip),
                 Damage(
                     recipient: EffectRecipientEnum.EnemiesInArea,
                     ratios: (StatEnum.ATK, damage))
             );
-        }
     }
 }
