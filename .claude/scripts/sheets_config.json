@@ -1,4 +1,10 @@
 {
+  "auto-battler": {
+    "key": "1b4RJGgdKV0i42F9-L_hG64Tj5TG3aS8XCUMoz24j-eE",
+    "role": "canonical",
+    "writable": true,
+    "description": "Magic School 4's design source of truth: heroes, their skills and their items. No traits."
+  },
   "tft-skill": {
     "key": "1X5glHjVcgv3yYG4Q2SyV9YJS3sv_wH5XAg3RLOHnUa4",
     "role": "canonical",
