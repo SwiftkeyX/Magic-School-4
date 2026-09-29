@@ -130,7 +130,6 @@ namespace MagicSchool.Skills
             // e.g. a cone AOE from the caster point toward the cluster
             else if (aimTarget == AimTargetEnum.ClusteredCircle)
             {
-                // FIXNOW: how about using _spread like projectile does?
                 IPlacement target = _me.FindClusteredCircle(_reachRange, HalfWidthAcrossFacing(), isJump: false);
                 if (target == null) return false;
                 _aimTarget = target.transform.position;
