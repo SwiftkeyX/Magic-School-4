@@ -1,5 +1,6 @@
 using System.Linq;
 using MagicSchool.Contracts;
+using MagicSchool.Combat.Heroes;
 using MagicSchool.Engine;
 
 namespace MagicSchool.Core.States
@@ -70,8 +71,20 @@ namespace MagicSchool.Core.States
             // if not seeded, reset, and restore the formation
             else
             {
-                _game.Board.ResetTeam(TeamEnum.Blue);
+                ResetTeam(TeamEnum.Blue);
                 _game.Formation.Restore();
+            }
+        }
+
+        // Reset hero = reset its stat, sprite, statemachine
+        // e.g. after player is losing, reset each hero from player team
+        private void ResetTeam(TeamEnum team)
+        {
+            foreach (ICombatant combatant in _game.Board.HeroesOnBoard)
+            {
+                if (combatant == null || combatant.Team != team) continue;
+
+                if (combatant is Hero hero) hero.ResetForNewStage();
             }
         }
     }

@@ -1,5 +1,6 @@
 using System.Linq;
 using MagicSchool.Contracts;
+using MagicSchool.Combat.Heroes;
 
 namespace MagicSchool.Core.States
 {
@@ -16,7 +17,7 @@ namespace MagicSchool.Core.States
         {
             // FLAGGING: both can be combine later.
             _game.Board.SetBattleOn(true);
-            _game.Board.TriggerCombatStart();
+            TriggerCombatStart();
 
             // remember the team's formation at the start
             _game.Formation.Remember(_game.Board.HeroesOnBoard, TeamEnum.Blue);
@@ -25,6 +26,15 @@ namespace MagicSchool.Core.States
             _game.Recorder.BeginRound();
 
             _game.Hint?.ShowCombat(_game.StageNumber, _game.StageCount);
+        }
+
+        // Tell every hero on the board the fight has begun, both teams.
+        private void TriggerCombatStart()
+        {
+            foreach (ICombatant combatant in _game.Board.HeroesOnBoard.ToList())
+            {
+                if (combatant is Hero hero && hero.IsAlive) hero.TriggerOnCombatStart();
+            }
         }
 
         // if there is no hero on the board, change to result state 

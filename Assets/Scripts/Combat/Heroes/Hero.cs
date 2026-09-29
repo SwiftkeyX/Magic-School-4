@@ -148,6 +148,7 @@ namespace MagicSchool.Combat.Heroes
         public Hex ReservedHex => _reservedHex;
         public IPlacement CurrentPlacement => _currentPlacement;
         public bool IsInCombat => _currentPlacement is Hex;
+        public int LinesFromFront => CurrentHex != null ? CurrentHex.LinesFromFront : -1;
         public void SetReservedHex(Hex hex)
         {
             if (_board != null) _board.UpdateReservation(this, _reservedHex, hex);

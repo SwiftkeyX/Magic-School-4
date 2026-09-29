@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using MagicSchool.Contracts;
-using MagicSchool.Combat.Heroes;
 
 namespace MagicSchool.Combat.Placements
 {
@@ -26,6 +25,7 @@ namespace MagicSchool.Combat.Placements
         void Awake()
         {
             InitializeHex();
+            FrontLines.Assign(_hexs);
         }
 
         // =================================== initialzie ===================================
@@ -117,27 +117,6 @@ namespace MagicSchool.Combat.Placements
                 _heroesOnBoard.Remove(hero);
 
                 if (hero.transform != null) Destroy(hero.transform.gameObject);
-            }
-        }
-
-        // Reset hero = reset its stat, sprite, statemachine
-        // e.g. after player is losing, reset each hero from player team
-        public void ResetTeam(TeamEnum team)
-        {
-            foreach (ICombatant combatant in _heroesOnBoard)
-            {
-                if (combatant == null || combatant.Team != team) continue;
-
-                if (combatant is Hero hero) hero.ResetForNewStage();
-            }
-        }
-
-        // Tell every hero on the board the fight has begun, both teams.
-        public void TriggerCombatStart()
-        {
-            foreach (ICombatant combatant in _heroesOnBoard.ToList())
-            {
-                if (combatant is Hero hero && hero.IsAlive) hero.TriggerOnCombatStart();
             }
         }
 

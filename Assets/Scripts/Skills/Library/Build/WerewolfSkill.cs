@@ -58,6 +58,14 @@ namespace MagicSchool.Skills
         // ============================== passive ==============================
         public override bool HasPassive => true;
 
+        // at combat start, reset the beat
+        public override bool OnCombatStart()
+        {
+            _currentBeat = 0;
+            return base.OnCombatStart();
+        }
+
+        // if transform, auto-attack play the current beat
         public override bool OnAttack(ICombatant target)
         {
             if (!Caster.HasStatus(ModifierEnum.Transformed)) return false;

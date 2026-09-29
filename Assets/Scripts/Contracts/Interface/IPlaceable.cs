@@ -11,5 +11,6 @@ namespace MagicSchool.Contracts
         IPlacement CurrentPlacement { get; }                // the placement this unit is standing on
         void SetCurrentPlacement(IPlacement placement);     // set new placement this unit'll be standing on
         bool IsInCombat { get; }                // FLAGGING: this one shouldn't belong in this interface, no?
+        int LinesFromFront { get; }                         // the line count from the most front column
     }
 }

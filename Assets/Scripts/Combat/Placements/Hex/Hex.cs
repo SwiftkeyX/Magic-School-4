@@ -13,6 +13,10 @@ namespace MagicSchool.Combat.Placements
         // ========================== getter & setter ==========================
         public string Name => gameObject.name;
 
+        // === line from front ===
+        public int LinesFromFront { get; private set; } = -1;
+        internal void SetLinesFromFront(int lines) => LinesFromFront = lines;
+
         // ===================================== life cycle =====================================
         void Start()
         {
