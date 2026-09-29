@@ -105,8 +105,9 @@ Rules that aren't visible from any single file:
 **UI Toolkit panel pattern** (`Assets/UI Toolkit/`): one shared `UIDocument` on `MainScreen.uxml`, which has empty named containers as slots (`#ShopPanel` is wired up; `#BenchPanel`/`#TraitPanel`/`#HeroPanel` still empty). Each actual panel is its own `.uxml` file plus a small controller script (see `ShopPanelController.cs`) that clones its UXML into the matching-named slot at runtime. The convention: name a panel's root element in its own `.uxml` the same as the slot container waiting for it in `MainScreen.uxml` — the controller looks up the slot by reading its own root element's name, so no manual string field has to be kept in sync.
 - The Bench is deliberately **not** a UI Toolkit panel: it needs real `Hero` GameObjects standing on it (animated sprites, not flat icons), which `VisualElement` can't host. It's world-space instead, using the same `Hero`/Physics2D-drag approach as board placement (see `Assets/Scripts/Combat/Placements/Bench/`, `Assets/Prefabs/Bench/`). The `#BenchPanel` slot in `MainScreen.uxml` stays empty/unused for this reason. The Shop panel (buy heroes) is the UI Toolkit one: drag a shop slot's ghost outside the shop panel's bounds to buy, drop it back inside to cancel — see `ShopPanelController.ResolveDrop`. Selling is the same bounds read from the other direction: drop a held world-space `Hero` onto the shop and it's sold (`PlayerController.DropHero` → `GameManager.SellHero` → `HeroSeller`). Because the two drags live in different coordinate spaces, and `Player` may not reference `UI`, the shop answers `ISellZone.ContainsScreenPoint` rather than handing out its rect — it owns the screen→panel conversion, y-flip included. A drop only sells when no `IPlacement` is under the pointer, since the bench band sits directly above the shop.
 
-**Hero prefabs are all variants of `BaseHero`** (`Assets/Prefabs/Hero/BaseHero.prefab`). All 24 —
-including `Have Skill/` and `Dummy` — override only their name, sprite colour and root position;
+**Hero prefabs are all variants of `BaseHero`** (`Assets/Prefabs/Hero/BaseHero.prefab`). All of them —
+the 35-hero roster in `Roster/`, the test units in `Have Skill/`, and `Dummy` — override only their
+name, sprite (roster: its `Assets/Art/Characters/` sprite, tint white; test units: a tint) and root position;
 everything else is inherited. **Add shared components to `BaseHero`, never to an individual hero**,
 and only ever add a new hero as a variant of it (right-click `BaseHero` → Create → Prefab Variant).
 A hero's `HeroDataSO` (in `Assets/Data/Heroes/Stats/`) holds the `_prefab` reference, not the other
@@ -118,7 +119,12 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
 - Combat works: auto-attack on an attack-speed cooldown, mana (10 per attack, `HeroAttack.ManaPerAttack`),
   skill cast when mana caps and spent in `HeroCast.OnEnter`, damage/heal via `CombatMath`, and
   modifiers/statuses through `Stat`/`ModifierResolver`.
-- Skills are built for 8 heroes (Vharn, Sithra, Bulwark, Roland, Quatre, Solace, Vesper, Pip).
+- The roster comes from the `auto-battler` sheet's `Heroes` tab (`sync-sheet` skill): 35 heroes, each
+  with a hidden `HeroRoleEnum` and a `HeroTierEnum` (Common/Uncommon/Rare) in place of a gold cost.
+  Skills are built for 14 of them (Elf, Skeleton Archer, Dire Wolf, Naga, Shield Knight, Dwarf,
+  Orc Blademaster, Reaper, Dryad, Knight, Centaur, Imp, Werewolf, Ranger) - the rest have
+  `SkillIdEnum.None` and only auto attack until their skill is built. `SkillIdEnum` ints 6/8/17 are
+  retired (old Solace/Pip/Verity); never reuse them.
 - Between stages the player's team is revived *and* walked back to the hexes it started the
   fight on (`HeroFormation`, snapshot in `CombatState.OnEnter`, restore in
   `PreparationState.OnEnter`). Without the restore a hero stays where the fight left it —

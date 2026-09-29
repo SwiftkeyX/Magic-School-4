@@ -1,7 +1,7 @@
 namespace MagicSchool.Contracts
 {
     // ICombatRecord answers: over one round of combat, show this unit's performance to the player.
-    // e.g. Vharn do 400 damage, take 300 damage, and healed for 120
+    // e.g. Werewolf do 400 damage, take 300 damage, and healed for 120
     public interface ICombatRecord
     {
         // === what this unit did to others ===

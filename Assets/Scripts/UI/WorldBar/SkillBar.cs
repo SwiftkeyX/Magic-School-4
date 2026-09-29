@@ -2,7 +2,7 @@ namespace MagicSchool.UI
 {
     /// <summary>
     /// worldbar that counting down the duration of CustomModifier.
-    /// e.g. the ten seconds Vharn spends transformed. 
+    /// e.g. the ten seconds Werewolf spends transformed. 
     /// A hero can carry several SkillBar at once.
     /// </summary>
     internal class SkillBar : WorldBar

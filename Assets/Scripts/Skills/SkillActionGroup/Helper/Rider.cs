@@ -20,7 +20,7 @@ namespace MagicSchool.Skills
         {
             if (me == null || caster == null) return null;
 
-            // FLAGGING: It's only use by Grimm now. So it only find 1 template action, "Move"
+            // FLAGGING: It's only use by Centaur now. So it only find 1 template action, "Move"
             // But it could use other template action as a host too. Let's see what'll happen.
             
             // Find all "Move" 

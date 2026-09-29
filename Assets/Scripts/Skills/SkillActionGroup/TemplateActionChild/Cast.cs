@@ -8,7 +8,7 @@ namespace MagicSchool.Skills
     /// <summary>
     /// Cast is the template action for instant self-effects (e.g. self-buffs).
     /// No hitbox, no physical footprint - it applies its effects to the caster and is done.
-    /// e.g. Bulwark's Guardian's Roar step 1.
+    /// e.g. Shield Knight's Guardian's Roar step 1.
     /// </summary>
     public class Cast : TemplateAction
     {

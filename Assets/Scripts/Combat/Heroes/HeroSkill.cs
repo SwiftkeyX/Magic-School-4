@@ -68,7 +68,7 @@ namespace MagicSchool.Combat.Heroes
 
             bool played = FireStep(steps, 0);
 
-            // after fire passive skill, invoke [trigger = OnAttack] => to activate Vharn's combo counter
+            // after fire passive skill, invoke [trigger = OnAttack] => to activate Werewolf's combo counter
             // FLAGGING: Don't sure if it should stay here. Let's look at it again when the pattern is more clear. 
             if (played) _skill.InvokeTrigger(trigger);
 
