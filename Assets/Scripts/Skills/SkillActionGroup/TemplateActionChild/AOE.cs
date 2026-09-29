@@ -72,7 +72,7 @@ namespace MagicSchool.Skills
             {
                 ICombatant target = _me.FindFurthestEnemy(_reachRange);
                 if (target == null) return false;
-                _aimTarget = target.transform.position;
+                _source = target.transform.position;
             }
 
             // spawn on where the previous projectile hit
@@ -161,7 +161,7 @@ namespace MagicSchool.Skills
         }
 
         // return position where AOE was spawn
-        // There's some nuiance => AOE could be place with offset
+        // There's some nuisance => AOE could be place with offset
         // e.g. place the tip of box AOE at user, place the center of circle AOE at user
         protected override Vector3 GetSpawnPosition()
         {
