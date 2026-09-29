@@ -87,9 +87,10 @@ namespace MagicSchool.Skills
         public override bool OnCast()
         {
             if (!base.OnCast()) return false;
-            if (_stance == STANCE.range) return false;
+            
+            if (_stance != STANCE.range)
+                Grow(Buff(ModifierEnum.ATK, (StatEnum.ATK, AttackPerCast, ScaleFromEnum.Base)));
 
-            Grow(Buff(ModifierEnum.ATK, (StatEnum.ATK, AttackPerCast, ScaleFromEnum.Base)));
             return true;
         }
 
