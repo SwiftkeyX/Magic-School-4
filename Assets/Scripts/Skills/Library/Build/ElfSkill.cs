@@ -4,13 +4,24 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class ElfSkill
+    internal class ElfSkill : SkillDefinition
     {
         private const float DamageRatio = 200f;
         private const float ShredDuration = -1f;
         private const float ShredFromAP = 20f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ElfSkill(registry);
+
+        private ElfSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Sundering Arrow";
+
+        public override string Description
+            => $"Fires a shot at the current target. The first enemy it finds takes {DamageRatio}% AD "
+             + $"and loses {ShredFromAP}% AP worth of armour for the rest of the fight.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
             SkillActionGroup shootProjectile = ActionGroup(
                 registry: registry,
@@ -28,15 +39,11 @@ namespace MagicSchool.Skills
                         duration: ShredDuration,
                         modifiers: Buff(
                             modifier: ModifierEnum.DefendShred,
-                            // 20% of the total AP is the total that reduce the target's DF. 
+                            // 20% of the total AP is the total that reduce the target's DF.
                             ratios: (StatEnum.AP, -ShredFromAP, ScaleFromEnum.Total))))
             );
 
-            return new SkillDefinition(
-                skillName: "Sundering Arrow",
-                activeSteps: new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: shootProjectile) },
-                description: $"Fires a shot at the current target. The first enemy it finds takes {DamageRatio}% AD "
-                             + $"and loses {ShredFromAP}% AP worth of armour for the rest of the fight.");
+            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: shootProjectile) };
         }
     }
 }

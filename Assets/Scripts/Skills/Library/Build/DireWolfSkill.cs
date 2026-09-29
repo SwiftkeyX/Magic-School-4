@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class DireWolfSkill
+    internal class DireWolfSkill : SkillDefinition
     {
         // buff
         private const float AttackSpeedBuff = 200f;   // +200%
@@ -17,21 +17,23 @@ namespace MagicSchool.Skills
         // heal on aa
         private const float HealOnAA = 30f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
-        {
-            SkillDefinition skill = new SkillDefinition(
-                skillName: "Frenzy",
-                activeSteps: new List<SkillStep> { Cast(registry), OnCastExpired(registry) },
-                passiveSteps: new List<SkillStep> { OnAttack(registry) },
-                description: $"Works himself into a frenzy for {BuffDuration} seconds, gaining {AttackSpeedBuff}% "
-                           + "attack speed. When it wears off he lets out a howl that stuns every enemy around him "
-                           + $"for {StunDuration} seconds.",
-                passiveDescription: $"Every auto attack he lands heals him for {HealOnAA}% AP.");
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new DireWolfSkill(registry);
 
-            return skill;
-        }
+        private DireWolfSkill(TemplateActionRegistrySO registry) : base(registry) { }
 
-        // ============================== active: the transform ==============================
+        public override string SkillName => "Frenzy";
+
+        public override string Description
+            => $"Works himself into a frenzy for {BuffDuration} seconds, gaining {AttackSpeedBuff}% "
+             + "attack speed. When it wears off he lets out a howl that stuns every enemy around him "
+             + $"for {StunDuration} seconds.";
+
+        public override string PassiveDescription => $"Every auto attack he lands heals him for {HealOnAA}% AP.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+            => new List<SkillStep> { Cast(registry), OnCastExpired(registry) };
+
         private static SkillStep Cast(TemplateActionRegistrySO registry)
         {
             // +200% of his own attack speed - a self-referential ratio, resolved once when it lands
@@ -55,7 +57,7 @@ namespace MagicSchool.Skills
             // stun
             ICustomModifier stun = Bundle(StunDuration, Status(ModifierEnum.Stun));
 
-            // aoe on self 
+            // aoe on self
             SkillActionGroup AOE = ActionGroup(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.CircleAOE,
@@ -65,8 +67,8 @@ namespace MagicSchool.Skills
             return Step(trigger: TriggerEnum.OnExpired, groups: AOE);
         }
 
-        // ============================== passive: the combo ==============================
-        private static SkillStep OnAttack(TemplateActionRegistrySO registry)
+        // ============================== passive ==============================
+        protected override List<SkillStep> Passive(TemplateActionRegistrySO registry)
         {
             // cast
             SkillActionGroup cast = ActionGroup(registry,
@@ -76,7 +78,7 @@ namespace MagicSchool.Skills
                 // sheet: 30% AP
                 Heal(EffectRecipientEnum.Self, (StatEnum.AP, HealOnAA)));
 
-            return Step(trigger: TriggerEnum.OnAttack, groups: cast);
+            return new List<SkillStep> { Step(trigger: TriggerEnum.OnAttack, groups: cast) };
         }
     }
 }
