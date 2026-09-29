@@ -26,7 +26,7 @@ namespace MagicSchool.Skills
             {
                 if (recipient == null || !recipient.IsAlive) continue;
 
-                recipient.AddModifier(_modifier, AmplifierFor(recipient), _caster as IHeroStats);
+                recipient.AddModifier(_modifier, _caster as IHeroStats, AmplifierFor(recipient));
             }
         }
     }

@@ -105,7 +105,7 @@ namespace MagicSchool.Combat.Heroes
         // ======================================== interface method ========================================
         // === IEffectable ===
         public bool IsAlive => this != null && IsInitialized && StateType != HeroStateEnum.Dead;
-        public void AddModifier(ICustomModifier modifier, float amplifier, IHeroStats casterStats) => Stat.AddModifier(modifier, amplifier, casterStats, this);
+        public void AddModifier(ICustomModifier modifier, IHeroStats casterStats, float amplifier = 1f) => Stat.AddModifier(modifier, amplifier, casterStats, this);
         public bool RemoveModifier(ICustomModifier modifier) => Stat.RemoveModifier(modifier);
         public bool HasStatus(ModifierEnum status) => Stat.HasStatus(status);
         public int ActiveModifierCount => Stat.ActiveModifierCount;

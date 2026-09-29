@@ -89,7 +89,7 @@ namespace MagicSchool.Combat.Heroes
 
             if (granted == null) return;
 
-            _wearer.AddModifier(granted, Strength, _wearer);
+            _wearer.AddModifier(granted, _wearer, Strength);
         }
 
         // Park the item under the hero, in its slot.

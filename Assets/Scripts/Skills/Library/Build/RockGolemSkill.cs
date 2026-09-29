@@ -41,8 +41,8 @@ namespace MagicSchool.Skills
         {
             if (!base.OnCast()) return false;
 
-            Caster.AddModifier(_shield, 1f, Caster as IHeroStats);
-            if (_ward != null && _ward.IsAlive) _ward.AddModifier(_shield, 1f, Caster as IHeroStats);
+            Caster.AddModifier(_shield, Caster as IHeroStats);
+            if (_ward != null && _ward.IsAlive) _ward.AddModifier(_shield, Caster as IHeroStats);
 
             return true;
         }
