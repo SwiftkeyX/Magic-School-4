@@ -10,7 +10,7 @@ namespace MagicSchool.Skills
         private const float TickInterval = 0.5f;
         private const float Duration = 3f;
         private const float SlowPercent = 30f;
-        private const float Radius = 4.5f;
+        private const float Diameter = 4.5f;
         // DamageOverTime splits its ratio across the ticks, so hand it the total the sheet's per-tick
         // number adds up to
         private const float TotalDamage = DamagePerTick * (Duration / TickInterval);
@@ -28,7 +28,7 @@ namespace MagicSchool.Skills
                 source: ActionSourceEnum.ClusteredCircle,
                 action: TemplateActionEnum.ZoneAOE,
                 target: AimTargetEnum.ClusteredCircle,
-                tuning: TuneAOE(size: Radius),
+                tuning: TuneAOE(length: Diameter, width: Diameter),
                 DamageOverTime(EffectRecipientEnum.EnemiesInArea, TickInterval, Duration, (StatEnum.AP, TotalDamage)),
                 ApplyOverTime(EffectRecipientEnum.EnemiesInArea, TickInterval, Duration, chill)
             );

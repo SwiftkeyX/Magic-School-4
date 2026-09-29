@@ -7,8 +7,8 @@ namespace MagicSchool.Skills
     internal class DwarfSkill
     {
         private const float ExplodeDmg = 240f;
-        private const float BlastSize = 4.5f;
-        private static readonly float BlastRadius = Reach(BlastSize);
+        private const float BlastDiameter = 4.5f;
+        private const float BlastRadius = BlastDiameter / 2f;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry)
         {
@@ -39,7 +39,7 @@ namespace MagicSchool.Skills
                 source: ActionSourceEnum.WhereProjectileHit,
                 action: TemplateActionEnum.CircleAOE,
                 target: AimTargetEnum.WhereProjectileHit,
-                tuning: TuneAOE(size: BlastSize),
+                tuning: TuneAOE(length: BlastDiameter, width: BlastDiameter),
 
                 Damage(
                     recipient: EffectRecipientEnum.EnemiesInArea,

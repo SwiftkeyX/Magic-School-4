@@ -8,10 +8,10 @@ namespace MagicSchool.Skills
     {
         private const float StunDuration = 2f;
         private const float LandingDamage = 200f;
-        private const float LandingSize = 4.5f;
+        private const float LandingDiameter = 4.5f;
         private const int JumpRange = 4;
 
-        private static readonly float LandingRadius = Reach(LandingSize);
+        private const float LandingRadius = LandingDiameter / 2f;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry)
         {
@@ -50,7 +50,7 @@ namespace MagicSchool.Skills
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.CircleAOE,
                 target: AimTargetEnum.Self,
-                tuning: TuneAOE(size: LandingSize),
+                tuning: TuneAOE(length: LandingDiameter, width: LandingDiameter),
 
                 Damage(
                     recipient: EffectRecipientEnum.EnemiesInArea,
