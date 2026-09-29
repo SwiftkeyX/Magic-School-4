@@ -27,6 +27,9 @@ namespace MagicSchool.Skills
                 { SkillIdEnum.SkeletonArcher, SkeletonArcherSkill.Build },
                 { SkillIdEnum.Imp           , ImpSkill.Build            },
                 { SkillIdEnum.Reaper        , ReaperSkill.Build         },
+                { SkillIdEnum.Myconid       , MyconidSkill.Build        },
+                { SkillIdEnum.Monk          , MonkSkill.Build           },
+                { SkillIdEnum.Blacksmith    , BlacksmithSkill.Build     },
             };
 
         /// Return a skill that match skillID's TemplateAction.

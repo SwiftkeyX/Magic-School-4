@@ -25,5 +25,5 @@ MonoBehaviour:
   _range: 1
   _startMana: 0
   _maxMana: 60
-  _skillId: 0
+  _skillId: 19
   _isDummy: 0

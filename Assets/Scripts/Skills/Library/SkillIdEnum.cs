@@ -26,5 +26,8 @@ namespace MagicSchool.Skills
         Imp = 15,
         Reaper = 16,
         // 17 retired (Verity)
+        Myconid = 18,
+        Monk = 19,
+        Blacksmith = 20,
     }
 }

@@ -1,0 +1,45 @@
+using System.Collections.Generic;
+using MagicSchool.Contracts;
+using static MagicSchool.Skills.SkillFactory;
+
+namespace MagicSchool.Skills
+{
+    internal static class MonkSkill
+    {
+        private const float DamageRatio = 150f;
+        private const float StunDuration = 1.5f;
+        private const float DamageReductionPercent = 30f;
+        private const float GuardDuration = 3f;
+
+        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        {
+            // the palm - a box on the current target
+            SkillActionGroup palm = ActionGroup(registry,
+                source: ActionSourceEnum.Current,
+                action: TemplateActionEnum.BoxAOE,
+                target: AimTargetEnum.Current,
+                Damage(EffectRecipientEnum.EnemiesInArea, (StatEnum.AP, DamageRatio)),
+                Apply(EffectRecipientEnum.EnemiesInArea, Bundle(StunDuration, Status(ModifierEnum.Stun)))
+            );
+
+            // the guard - its own step, because a step plays only one of its groups
+            SkillActionGroup guard = ActionGroup(registry,
+                source: ActionSourceEnum.Self,
+                action: TemplateActionEnum.Cast,
+                target: AimTargetEnum.Self,
+                Apply(EffectRecipientEnum.Self,
+                      Bundle(GuardDuration, Buff(ModifierEnum.DamageReduction, DamageReductionPercent)))
+            );
+
+            return new SkillDefinition(
+                skillName: "Stunning Palm",
+                activeSteps: new List<SkillStep>
+                {
+                    Step(trigger: TriggerEnum.OnCast, groups: palm),
+                    Step(trigger: TriggerEnum.OnExpired, groups: guard),
+                },
+                description: $"Strikes the current target for {DamageRatio}% AP and stuns it for {StunDuration} "
+                             + $"seconds, then takes {DamageReductionPercent}% less damage for {GuardDuration} seconds.");
+        }
+    }
+}
