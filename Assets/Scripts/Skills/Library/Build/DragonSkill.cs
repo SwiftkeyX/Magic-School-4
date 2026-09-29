@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class DragonSkill
+    internal class DragonSkill : SkillDefinition
     {
         private const float DamageRatio = 300f;
         private const float BurnTotal = 150f;       // over the whole burn, not per tick
@@ -13,7 +13,18 @@ namespace MagicSchool.Skills
         private const float ConeLength = 3.5f;       // world units from his tip outward
         private const float ConeWidth = 3.5f;        // world units across the open end
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new DragonSkill(registry);
+
+        private DragonSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Dragon Breath";
+
+        public override string Description
+            => $"Breathes a cone of fire at the densest cluster: {DamageRatio}% AP, then burns them for "
+             + $"{BurnTotal}% AP over {BurnDuration} seconds.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
             // tip on the dragon, pointed at the densest pack
             SkillActionGroup breath = ActionGroup(registry,
@@ -25,11 +36,7 @@ namespace MagicSchool.Skills
                 DamageOverTime(EffectRecipientEnum.EnemiesInArea, BurnInterval, BurnDuration, (StatEnum.AP, BurnTotal))
             );
 
-            return new SkillDefinition(
-                skillName: "Dragon Breath",
-                activeSteps: new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: breath) },
-                description: $"Breathes a cone of fire at the densest cluster: {DamageRatio}% AP, then burns them for "
-                             + $"{BurnTotal}% AP over {BurnDuration} seconds.");
+            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: breath) };
         }
     }
 }

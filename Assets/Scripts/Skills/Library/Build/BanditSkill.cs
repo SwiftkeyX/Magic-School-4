@@ -4,21 +4,24 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    // ASKING: I start to see the problem from each skill factory being static.
-    // The class itself do the job well. But those class would benefit a lot from being a real instance on a hero.
-    // For example, this class Bandit can calculate the AS steal in the scene, and steal the actual number for real.
-    // The werewolf too, he was using his 3 beat combo and his helper class, I begin to think that's the fix in the wrong point.
-    // if the werewolf have its skill a real instance, it would a be a lot simpler to do his 3 beat combo.
-
-    // Additionally, the system is kinda confusing espectially the HeroSkill.cs.
-    // That's hard to understand.
-    internal static class BanditSkill
+    internal class BanditSkill : SkillDefinition
     {
         private const float DamageRatio = 160f;
         private const float StealPercent = 30f;
         private const float StealDuration = -1f;   // until the end of the fight
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new BanditSkill(registry);
+
+        private BanditSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Pickpocket";
+
+        public override string Description
+            => $"Strikes the current target for {DamageRatio}% AD and steals {StealPercent}% of its "
+             + "attack speed until the end of the fight.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
             // the target loses 30% of its own attack speed
             SkillActionGroup strike = ActionGroup(registry,
@@ -56,15 +59,11 @@ namespace MagicSchool.Skills
                 )))
             );
 
-            return new SkillDefinition(
-                skillName: "Pickpocket",
-                activeSteps: new List<SkillStep>
-                {
-                    Step(trigger: TriggerEnum.OnCast, groups: strike),
-                    Step(trigger: TriggerEnum.OnExpired, groups: pocket),
-                },
-                description: $"Strikes the current target for {DamageRatio}% AD and steals {StealPercent}% of its "
-                             + "attack speed until the end of the fight.");
+            return new List<SkillStep>
+            {
+                Step(trigger: TriggerEnum.OnCast, groups: strike),
+                Step(trigger: TriggerEnum.OnExpired, groups: pocket),
+            };
         }
     }
 }

@@ -4,14 +4,25 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class MonkSkill
+    internal class MonkSkill : SkillDefinition
     {
         private const float DamageRatio = 150f;
         private const float StunDuration = 1.5f;
         private const float DamageReductionPercent = 30f;
         private const float GuardDuration = 3f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new MonkSkill(registry);
+
+        private MonkSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Stunning Palm";
+
+        public override string Description
+            => $"Strikes the current target for {DamageRatio}% AP and stuns it for {StunDuration} "
+             + $"seconds, then takes {DamageReductionPercent}% less damage for {GuardDuration} seconds.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
             // the palm - a box on the current target
             SkillActionGroup palm = ActionGroup(registry,
@@ -31,15 +42,11 @@ namespace MagicSchool.Skills
                       Bundle(GuardDuration, Buff(ModifierEnum.DamageReduction, DamageReductionPercent)))
             );
 
-            return new SkillDefinition(
-                skillName: "Stunning Palm",
-                activeSteps: new List<SkillStep>
-                {
-                    Step(trigger: TriggerEnum.OnCast, groups: palm),
-                    Step(trigger: TriggerEnum.OnExpired, groups: guard),
-                },
-                description: $"Strikes the current target for {DamageRatio}% AP and stuns it for {StunDuration} "
-                             + $"seconds, then takes {DamageReductionPercent}% less damage for {GuardDuration} seconds.");
+            return new List<SkillStep>
+            {
+                Step(trigger: TriggerEnum.OnCast, groups: palm),
+                Step(trigger: TriggerEnum.OnExpired, groups: guard),
+            };
         }
     }
 }

@@ -4,14 +4,25 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class BlacksmithSkill
+    internal class BlacksmithSkill : SkillDefinition
     {
         private const float DamageRatio = 180f;
         private const float StunDuration = 1f;
         private const float ShredDuration = -1f;
         private const float ShredFromAP = 25f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new BlacksmithSkill(registry);
+
+        private BlacksmithSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Forge Hammer";
+
+        public override string Description
+            => $"Hammers the current target for {DamageRatio}% AD, stunning it for {StunDuration} "
+             + $"seconds and permanently removing armour equal to {ShredFromAP}% AP.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
             SkillActionGroup hammer = ActionGroup(registry,
                 source: ActionSourceEnum.Current,
@@ -25,11 +36,7 @@ namespace MagicSchool.Skills
                              Buff(ModifierEnum.DefendShred, (StatEnum.AP, -ShredFromAP, ScaleFromEnum.Total))))
             );
 
-            return new SkillDefinition(
-                skillName: "Forge Hammer",
-                activeSteps: new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: hammer) },
-                description: $"Hammers the current target for {DamageRatio}% AD, stunning it for {StunDuration} "
-                             + $"seconds and permanently removing armour equal to {ShredFromAP}% AP.");
+            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: hammer) };
         }
     }
 }

@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class SwordsmanSkill
+    internal class SwordsmanSkill : SkillDefinition
     {
         private const float ChargeTime = 3f;
         private const float DamageRatio = 999f;
@@ -12,7 +12,18 @@ namespace MagicSchool.Skills
         // outlasts the charge, so the lifesteal is still up when the slash lands
         private const float OmnivampDuration = ChargeTime + 0.5f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new SwordsmanSkill(registry);
+
+        private SwordsmanSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Charged Slash";
+
+        public override string Description
+            => $"Charges up for {ChargeTime} seconds, then slashes the current target for "
+             + $"{DamageRatio}% AD, healing for {OmnivampPercent}% of the damage dealt.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
             // step 0 - the lifesteal, put on as the cast begins
             SkillActionGroup focus = ActionGroup(registry,
@@ -42,16 +53,12 @@ namespace MagicSchool.Skills
                 Damage(EffectRecipientEnum.SameToAimTarget, (StatEnum.ATK, DamageRatio))
             );
 
-            return new SkillDefinition(
-                skillName: "Charged Slash",
-                activeSteps: new List<SkillStep>
-                {
-                    Step(trigger: TriggerEnum.OnCast, groups: focus),
-                    Step(trigger: TriggerEnum.OnCastStart, groups: charge),
-                    Step(trigger: TriggerEnum.OnExpired, groups: slash),
-                },
-                description: $"Charges up for {ChargeTime} seconds, then slashes the current target for "
-                             + $"{DamageRatio}% AD, healing for {OmnivampPercent}% of the damage dealt.");
+            return new List<SkillStep>
+            {
+                Step(trigger: TriggerEnum.OnCast, groups: focus),
+                Step(trigger: TriggerEnum.OnCastStart, groups: charge),
+                Step(trigger: TriggerEnum.OnExpired, groups: slash),
+            };
         }
     }
 }

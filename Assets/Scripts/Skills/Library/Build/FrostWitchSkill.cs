@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class FrostWitchSkill
+    internal class FrostWitchSkill : SkillDefinition
     {
         private const float DamagePerTick = 60f;
         private const float TickInterval = 0.5f;
@@ -15,7 +15,19 @@ namespace MagicSchool.Skills
         // number adds up to
         private const float TotalDamage = DamagePerTick * (Duration / TickInterval);
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new FrostWitchSkill(registry);
+
+        private FrostWitchSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Frost Field";
+
+        public override string Description
+            => $"Freezes the ground under the densest enemy cluster for {Duration} seconds: "
+             + $"{DamagePerTick}% AP every {TickInterval} seconds, and enemies inside lose "
+             + $"{SlowPercent}% attack speed.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
             // one instance, re-applied every tick - so it refreshes instead of stacking. Lasts one tick
             // past the interval so it never drops between two ticks for someone still inside.
@@ -33,12 +45,7 @@ namespace MagicSchool.Skills
                 ApplyOverTime(EffectRecipientEnum.EnemiesInArea, TickInterval, Duration, chill)
             );
 
-            return new SkillDefinition(
-                skillName: "Frost Field",
-                activeSteps: new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: field) },
-                description: $"Freezes the ground under the densest enemy cluster for {Duration} seconds: "
-                             + $"{DamagePerTick}% AP every {TickInterval} seconds, and enemies inside lose "
-                             + $"{SlowPercent}% attack speed.");
+            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: field) };
         }
     }
 }
