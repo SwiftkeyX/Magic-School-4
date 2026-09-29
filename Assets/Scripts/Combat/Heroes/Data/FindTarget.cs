@@ -161,6 +161,18 @@ namespace MagicSchool.Combat.Heroes
             return _scan.GetAllEnemy().Where(enemy => enemy.CurrentHex() != null && nearby.Contains(enemy.CurrentHex())).ToList();
         }
 
+        // Find the ally closest to me 
+        public ICombatant FindNearestAlly()
+        {
+            Hex myHex = _me.CurrentHex;
+            if (myHex == null) return null;
+
+            return _scan.GetAllAlly()
+                .Where(ally => ally.CurrentHex() != null)
+                .OrderBy(ally => Vector3.Distance(myHex.transform.position, ally.CurrentHex().transform.position))
+                .FirstOrDefault();
+        }
+
         // Find random x enemies.
         public IReadOnlyList<ICombatant> FindRandomEnemies(int count)
             => _scan.GetAllEnemy().OrderBy(_ => UnityEngine.Random.value).Take(count).ToList();

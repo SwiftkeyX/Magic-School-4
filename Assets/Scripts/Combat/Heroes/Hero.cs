@@ -171,6 +171,7 @@ namespace MagicSchool.Combat.Heroes
         public IReadOnlyList<ICombatant> FindAllEnemies() => _findEnemy.FindAllEnemies();
         public IReadOnlyList<ICombatant> FindAllAllies() => _findEnemy.FindAllAllies();
         public IReadOnlyList<ICombatant> FindRandomEnemies(int count) => _findEnemy.FindRandomEnemies(count);
+        public ICombatant FindNearestAlly() => _findEnemy.FindNearestAlly();
 
 
         // ======================================== life cycle ========================================
