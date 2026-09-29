@@ -30,6 +30,9 @@ namespace MagicSchool.Skills
                 { SkillIdEnum.Myconid       , MyconidSkill.Build        },
                 { SkillIdEnum.Monk          , MonkSkill.Build           },
                 { SkillIdEnum.Blacksmith    , BlacksmithSkill.Build     },
+                { SkillIdEnum.Bandit        , BanditSkill.Build         },
+                { SkillIdEnum.FrostWitch    , FrostWitchSkill.Build     },
+                { SkillIdEnum.Swordsman     , SwordsmanSkill.Build      },
             };
 
         /// Return a skill that match skillID's TemplateAction.

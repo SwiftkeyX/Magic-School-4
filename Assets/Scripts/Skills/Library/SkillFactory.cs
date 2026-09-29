@@ -30,6 +30,13 @@ namespace MagicSchool.Skills
         public static ModifierSkillEffect Apply(EffectRecipientEnum recipient, ICustomModifier modifier, float amplifier = 0f)
             => new ModifierSkillEffect(recipient, modifier, amplifier: amplifier);
 
+        // the same, re-applied on a timer - a zone's slow on whoever is still standing in it.
+        // Re-applying the same modifier refreshes it rather than stacking, so give it a duration
+        // a little longer than the interval: it holds while the recipient stays inside, and lapses soon after.
+        public static ModifierSkillEffect ApplyOverTime(EffectRecipientEnum recipient, float interval, float duration,
+                                                        ICustomModifier modifier)
+            => new ModifierSkillEffect(recipient, modifier, new Cadence(interval, duration));
+
         // the same, but amplified only when every condition holds - the effect still lands either
         // way, the conditions just scale it. Naga's wound is applied harder while transformed.
         public static ModifierSkillEffect ApplyWhen(EffectRecipientEnum recipient, ICustomModifier modifier,

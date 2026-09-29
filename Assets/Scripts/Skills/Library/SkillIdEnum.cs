@@ -29,5 +29,8 @@ namespace MagicSchool.Skills
         Myconid = 18,
         Monk = 19,
         Blacksmith = 20,
+        Bandit = 21,
+        FrostWitch = 22,
+        Swordsman = 23,
     }
 }
