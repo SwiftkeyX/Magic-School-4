@@ -4,34 +4,31 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    /// <summary>
-    /// Shield Knight: braces himself - bonus health and healing over a couple of seconds, plus damage
-    /// reduction - and when that wears off, slams the ground for damage around him.
-    ///
-    /// Two steps: the second one is triggered by the first expiring, not by anything the hero does.
-    /// </summary>
-    internal static class ShieldKnightSkill
+    internal class ShieldKnightSkill : SkillDefinition
     {
-        // he is braced and locked out of attacking for the same stretch, so it is said once
         private const float BraceDuration = 2f;
         private const float TickInterval = 0.5f;
-
-        // percentages of the caster's stat, the way the sheet writes them
         private const float HealAmount = 200f;
         private const float SlamDamage = 120f;
-        private const float DamageReductionPercent = 25f;   // sheet: 25/25/35%
+        private const float DamageReductionPercent = 25f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ShieldKnightSkill(registry);
+
+        private ShieldKnightSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Guardian's Roar";
+
+        public override string Description
+            => $"Braces for {BraceDuration} seconds, healing steadily for {HealAmount} and taking "
+             + $"{DamageReductionPercent}% less damage. The moment the brace ends he slams the ground "
+             + $"for {SlamDamage}% AP to every enemy around him.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
-            return new SkillDefinition(
-                skillName: "Guardian's Roar",
-                activeSteps: new List<SkillStep> { Brace(registry), Slam(registry) },
-                description: $"Braces for {BraceDuration} seconds, healing steadily for {HealAmount} and taking "
-                             + $"{DamageReductionPercent}% less damage. The moment the brace ends he slams the ground "
-                             + $"for {SlamDamage}% AP to every enemy around him.");
+            return new List<SkillStep> { Brace(registry), Slam(registry) };
         }
 
-        // the cast itself - everything here lands on Shield Knight
         private static SkillStep Brace(TemplateActionRegistrySO registry)
         {
             SkillActionGroup brace = ActionGroup(
@@ -41,7 +38,6 @@ namespace MagicSchool.Skills
                 target: AimTargetEnum.Self,
                 tuning: Tune(castTime: BraceDuration),
 
-                // sheet: Shield Knight heals off AP
                 HealOverTime(
                     recipient: EffectRecipientEnum.Self,
                     duration: BraceDuration,
@@ -61,7 +57,6 @@ namespace MagicSchool.Skills
             return Step(trigger: TriggerEnum.OnCast, groups: brace);
         }
 
-        // fired when the brace above expires
         private static SkillStep Slam(TemplateActionRegistrySO registry)
         {
             SkillActionGroup slam = ActionGroup(

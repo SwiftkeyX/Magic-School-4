@@ -4,13 +4,26 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class NagaSkill
+    internal class NagaSkill : SkillDefinition
     {
         private const float DamageRatio = 160f;
         private const float WoundDuration = 5f;
         private const float WoundedAmplifier = 0.3f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new NagaSkill(registry);
+
+        private NagaSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Split Venom";
+
+        public override string Description
+            => $"Spits a homing bolt at the current enemy. It deals {DamageRatio}% AP and leaves the "
+             + $"target wounded, so everything that tries to heal them for the next {WoundDuration} "
+             + "seconds does less. If target is already wounded, amplified damage by "
+             + $"+{WoundedAmplifier * 100}%";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
             List<SkillCondition> amplifierCondition = new List<SkillCondition>
             {
@@ -40,13 +53,7 @@ namespace MagicSchool.Skills
                     amplifier: WoundedAmplifier)
             );
 
-            return new SkillDefinition(
-                skillName: "Split Venom",
-                activeSteps: new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: shootProjectile) },
-                description: $"Spits a homing bolt at the current enemy. It deals {DamageRatio}% AP and leaves the "
-                             + $"target wounded, so everything that tries to heal them for the next {WoundDuration} "
-                             + "seconds does less. If target is already wounded, amplified damage by "
-                             + $"+{WoundedAmplifier * 100}%");
+            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: shootProjectile) };
         }
     }
 }

@@ -4,14 +4,24 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    internal static class OrcBlademasterSkill
+    internal class OrcBlademasterSkill : SkillDefinition
     {
         private const float DamagePerTick = 80f;
         private const float TickInterval = 0.5f;
-        // the spin lasts this long and he cannot attack through it, so it is one number
         private const float Duration = 4f;
 
-        public static SkillDefinition Build(TemplateActionRegistrySO registry)
+        public static SkillDefinition Build(TemplateActionRegistrySO registry) => new OrcBlademasterSkill(registry);
+
+        private OrcBlademasterSkill(TemplateActionRegistrySO registry) : base(registry) { }
+
+        public override string SkillName => "Blade Storm";
+
+        public override string Description
+            => $"Whips up a storm around himself that deals {DamagePerTick}% AD to every enemy standing "
+             + $"in it, split over {Duration} seconds and ticking every {TickInterval} seconds.";
+
+        // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
         {
             SkillActionGroup spin = ActionGroup(
                 registry: registry,
@@ -27,11 +37,7 @@ namespace MagicSchool.Skills
                     ratios: (StatEnum.ATK, DamagePerTick))
             );
 
-            return new SkillDefinition(
-                skillName: "Blade Storm",
-                activeSteps: new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: spin) },
-                description: $"Whips up a storm around himself that deals {DamagePerTick}% AD to every enemy standing "
-                             + $"in it, split over {Duration} seconds and ticking every {TickInterval} seconds.");
+            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: spin) };
         }
     }
 }

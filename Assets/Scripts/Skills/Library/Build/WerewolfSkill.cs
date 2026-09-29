@@ -6,31 +6,26 @@ namespace MagicSchool.Skills
 {
     internal class WerewolfSkill : SkillDefinition
     {
-        // werewolf play 3 different attack
+        // werewolf skill play 3 different attack
         // box, triangle, circle - in the order 
         private readonly SkillActionGroup[] _beats;
         private int _currentBeat;
-
-        private const float OmnivampFromAP = 10f;  
-        // FLAGGING: sheet: 80% of bonus AS, converted to AD 
-        private const float AttackFromAS = 500f;   
-        private const float TransformDuration = 10f;
 
         // each beat (attack) have different damage amount
         private const float BoxDamage = 200f;
         private const float TriangleDamage = 300f;
         private const float CircleDamage = 400f;
 
+        private const float OmnivampFromAP = 10f;
+        // FLAGGING: sheet: 80% of bonus AS, converted to AD 
+        private const float AttackFromAS = 500f;
+        private const float TransformDuration = 10f;
+
 
         // FIXLATER: turn every hero into skilldefinition. and move Build inside the skilldefinition.
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new WerewolfSkill(registry);
 
-        private WerewolfSkill(TemplateActionRegistrySO registry)
-            : base(
-                skillName: "Moonrage",
-                activeSteps: new List<SkillStep> { Transform(registry) },
-                description: GetSkillDescription(),
-                passiveDescription: GetPassiveDescription())
+        private WerewolfSkill(TemplateActionRegistrySO registry) : base(registry)
         {
             _beats = new[]
             {
@@ -40,19 +35,18 @@ namespace MagicSchool.Skills
             };
         }
 
-        // ============================== init ==============================
-        private static string GetSkillDescription()
-        {
-            return $"Transforms for {TransformDuration} seconds, draining {OmnivampFromAP}% AP of the damage "
-                 + "he deals back as life and turning his bonus attack speed into raw attack damage.";
-        }
+        public override string SkillName => "Moonrage";
 
-        private static string GetPassiveDescription()
-        {
-            return "While transformed his auto attack becomes a three beat combo - box, then triangle, "
-                 + $"then circle - landing for {BoxDamage}% / {TriangleDamage}% / {CircleDamage}% AD "
-                 + "in turn.";
-        }
+        public override string Description
+            => $"Transforms for {TransformDuration} seconds, draining {OmnivampFromAP}% AP of the damage "
+             + "he deals back as life and turning his bonus attack speed into raw attack damage.";
+
+        public override string PassiveDescription
+            => "While transformed his auto attack becomes a three beat combo - box, then triangle, "
+             + $"then circle - landing for {BoxDamage}% / {TriangleDamage}% / {CircleDamage}% AD "
+             + "in turn.";
+
+        // ============================== init ==============================
 
         public override void Init(ICombatant caster)
         {
@@ -75,6 +69,11 @@ namespace MagicSchool.Skills
         }
 
         // ============================== active ==============================
+        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        {
+            return new List<SkillStep> { Transform(registry) };
+        }
+
         private static SkillStep Transform(TemplateActionRegistrySO registry)
         {
             // one group, one timer - the whole transform ends on the same tick
