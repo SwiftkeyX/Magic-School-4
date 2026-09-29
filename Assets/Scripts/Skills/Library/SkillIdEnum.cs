@@ -36,5 +36,6 @@ namespace MagicSchool.Skills
         Dragon = 25,
         Ettin = 26,
         Harpy = 27,
+        Husk = 28,
     }
 }
