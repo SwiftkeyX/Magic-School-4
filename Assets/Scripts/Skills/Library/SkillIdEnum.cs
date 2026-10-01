@@ -39,5 +39,6 @@ namespace MagicSchool.Skills
         Husk = 28,
         RockGolem = 29,
         Templar = 30,
+        Archangel = 31,
     }
 }
