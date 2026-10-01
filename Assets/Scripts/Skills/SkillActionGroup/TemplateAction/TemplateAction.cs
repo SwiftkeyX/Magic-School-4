@@ -207,7 +207,8 @@ namespace MagicSchool.Skills
             }
 
             // this effect hit ally only
-            else if (effectRecipientEnum == EffectRecipientEnum.AlliesInPath)
+            else if (effectRecipientEnum == EffectRecipientEnum.AlliesInPath
+                  || effectRecipientEnum == EffectRecipientEnum.AlliesInArea)
             {
                 shouldHitMyTeam = true;
                 shouldHitEnemy = false;

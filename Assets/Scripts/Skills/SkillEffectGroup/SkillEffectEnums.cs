@@ -17,6 +17,7 @@ namespace MagicSchool.Skills
         SameToAimTarget = 2,
         EnemiesInPath = 3,
         AlliesInPath = 4,
+        AlliesInArea = 5,      
     }
 
     // skill condition can either ask Caster or each Recipients

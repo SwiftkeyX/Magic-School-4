@@ -29,8 +29,8 @@ namespace MagicSchool.Skills
 
             ICombatant heroHit = other.GetComponent<ICombatant>();
 
-            // not apply effect to myself, my team, the dead hero
-            if (heroHit == null || heroHit.Team == _caster.Team || heroHit.StateType == HeroStateEnum.Dead) return;
+            // guard
+            if (heroHit == null || heroHit.StateType == HeroStateEnum.Dead) return;
 
             // Group all the heroes who was hit by the skill in 1 list
             if (!_heroesWhoWasHit.Contains(heroHit)) _heroesWhoWasHit.Add(heroHit);
