@@ -102,3 +102,5 @@ __pycache__/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+/.claude/docs/working-space-record
