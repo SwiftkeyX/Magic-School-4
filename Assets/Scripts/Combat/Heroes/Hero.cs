@@ -55,10 +55,7 @@ namespace MagicSchool.Combat.Heroes
         public bool IsHexReservedByOther(Hex hex) => _board.IsReservedByOther(hex, this);
         public bool IsBattleOn => _board == null || _board.IsBattleOn;
 
-        // A hero knows which board it belongs to, so HeroMover doesn't need telling.
-        // Null-checked (not `?.`) because `?.` skips Unity's fake-null: a destroyed board would
-        // pass the check and then throw. Guarded at all because a hero can exist before a board,
-        // e.g. spawned onto the bench.
+        public IReadOnlyList<ICombatant> HeroesOnBoard => _board != null ? _board.HeroesOnBoard : new List<ICombatant>();
         public void TrackOnBoard() { if (_board != null) _board.TrackThisHero(this); }
         public void UntrackFromBoard() { if (_board != null) _board.UntrackThisHero(this); }
 
@@ -78,6 +75,7 @@ namespace MagicSchool.Combat.Heroes
         public bool TriggerActiveSkill(bool isManaCapped) => _skill.TriggerOnCastSkill(isManaCapped);
         public bool TriggerOnAttack(ICombatant target) => _skill.TriggerOnAttack(target);
         public bool TriggerOnCombatStart() => _skill.TriggerOnCombatStart();
+        public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);
         public float GetCastTime() => _skill.GetCastTime();
 
         // what the Hero Panel reads

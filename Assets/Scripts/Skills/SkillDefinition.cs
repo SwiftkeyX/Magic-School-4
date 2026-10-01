@@ -82,6 +82,10 @@ namespace MagicSchool.Skills
         // Returns whether anything played.
         public virtual bool OnCombatStart() => PlayPassive(TriggerEnum.OnCombatStart);
 
+        // if any hero dies, play OnHeroDied passive.
+        // e.g. Troll gains health whenever an enemy dies
+        public virtual void OnHeroDied(ICombatant dead) { }
+
         // add other hook
         // ... 
 

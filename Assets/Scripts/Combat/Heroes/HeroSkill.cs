@@ -1,5 +1,5 @@
 using MagicSchool.Contracts;
-using MagicSchool.Skills; 
+using MagicSchool.Skills;
 
 namespace MagicSchool.Combat.Heroes
 {
@@ -55,6 +55,12 @@ namespace MagicSchool.Combat.Heroes
             if (_skill == null) return false;
 
             return _skill.OnCombatStart();
+        }
+
+        // if hero dies, play OnHeroDied type of skill
+        public void TriggerOnHeroDied(ICombatant dead)
+        {
+            _skill?.OnHeroDied(dead);
         }
     }
 }
