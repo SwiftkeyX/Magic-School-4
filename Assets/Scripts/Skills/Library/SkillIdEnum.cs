@@ -40,5 +40,6 @@ namespace MagicSchool.Skills
         RockGolem = 29,
         Templar = 30,
         Archangel = 31,
+        WarCleric = 32,
     }
 }
