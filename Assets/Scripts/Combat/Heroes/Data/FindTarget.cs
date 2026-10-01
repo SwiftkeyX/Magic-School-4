@@ -131,6 +131,22 @@ namespace MagicSchool.Combat.Heroes
             return ClusterAim.BestCharge(myHex.transform.position, landings, enemies, chargeHalfWidth);
         }
 
+        // Pick a random free hex within my reach range (not the one I stand on)
+        // e.g. Rogue dashes 1 hex in a random direction
+        public IPlacement FindRandomFreeHex(int reachRange)
+        {
+            Hex myHex = _me.CurrentHex;
+            if (myHex == null) return null;
+
+            List<Hex> landings = HexFinder.FindFreeHexesWithin(myHex, reachRange, _me.IsHexReservedByOther)
+                .Where(hex => hex != myHex)
+                .ToList();
+
+            if (landings.Count == 0) return null;
+
+            return landings[UnityEngine.Random.Range(0, landings.Count)];
+        }
+
         // Context: the laser will be shoot from caster to a enemy.
         // Pick the enemy that a laser'll go through the most enemies.
         public ICombatant FindClusteredLaser(int reachRange, float beamHalfWidth)

@@ -85,6 +85,16 @@ namespace MagicSchool.Skills
                 return true;
             }
 
+            // source move at a random free hex in reach
+            else if (aimTarget == AimTargetEnum.Random)
+            {
+                _landing = _me.FindRandomFreeHex(_jumpRange);
+                if (_landing == null) return false;
+
+                _aimTarget = _landing.transform.position;
+                return true;
+            }
+
             // else if () ...
 
             // no landing spot means no jump - falling back to "move to where I already am" would
