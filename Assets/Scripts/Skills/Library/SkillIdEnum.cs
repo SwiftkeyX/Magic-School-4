@@ -41,5 +41,6 @@ namespace MagicSchool.Skills
         Templar = 30,
         Archangel = 31,
         WarCleric = 32,
+        Troll = 33,
     }
 }
