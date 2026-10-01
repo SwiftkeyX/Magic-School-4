@@ -131,22 +131,24 @@ namespace MagicSchool.Skills
 
         // Play a single group on its own.
         // no step, no chain skill. 
-        protected bool PlayGroup(SkillActionGroup group)
+        protected bool PlayGroup(SkillActionGroup group, ICombatant assignedTarget = null)
             => Play(
                 group, 
                 new TemplateActionCallbacks { OnSkillHit = group.OnSkillHit }, 
-                null
+                null,
+                assignedTarget
             );
 
         // try play template action
         // wiring NextStep() callback to template action
-        private bool Play(SkillActionGroup group, TemplateActionCallbacks callbacks, Vector3? previousPosition)
+        private bool Play(SkillActionGroup group, TemplateActionCallbacks callbacks, Vector3? previousPosition,
+                          ICombatant assignedTarget = null)
         {
             // guard
             if (Caster is UnityEngine.Object hero && hero == null) return false;
 
             // try play template action and wiring callback
-            if (!TemplateAction.TryPlay(group, Caster, callbacks, previousPosition)) return false;
+            if (!TemplateAction.TryPlay(group, Caster, callbacks, previousPosition, assignedTarget)) return false;
 
             CastTime = group.Tuning?.CastTime ?? group.TemplateAction.CastTime;
             return true;

@@ -161,6 +161,20 @@ namespace MagicSchool.Combat.Heroes
             return _scan.GetAllEnemy().Where(enemy => enemy.CurrentHex() != null && nearby.Contains(enemy.CurrentHex())).ToList();
         }
 
+        // Find a enemy closest to target
+        // NOTE: target may already be dead
+        // e.g. Warlock passes the curse when the host dies
+        public ICombatant FindNearestEnemyTo(ICombatant target)
+        {
+            Hex targetHex = target?.CurrentHex();
+            if (targetHex == null) return null;
+
+            return _scan.GetAllEnemy()
+                .Where(enemy => !ReferenceEquals(enemy, target) && enemy.IsAlive && enemy.CurrentHex() != null)
+                .OrderBy(enemy => Vector3.Distance(targetHex.transform.position, enemy.CurrentHex().transform.position))
+                .FirstOrDefault();
+        }
+
         // Find the ally closest to me 
         public ICombatant FindNearestAlly()
         {

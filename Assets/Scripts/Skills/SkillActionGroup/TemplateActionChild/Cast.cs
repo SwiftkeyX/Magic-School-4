@@ -37,7 +37,7 @@ namespace MagicSchool.Skills
                     effect.ApplyEffect(new List<IEffectable> { _target });
                 }
 
-                durations.Add(GetModifierDuration(effect));
+                durations.Add(GetDuration(effect));
             }
 
             // After a longest effect duration die, this template action also dies
@@ -92,6 +92,14 @@ namespace MagicSchool.Skills
                 if (_target == null) return false;
             }
 
+            // this cast's target was already chosen for it
+            // e.g. Warlock's curse lands on whoever his bolt hit
+            else if (aimTarget == AimTargetEnum.Assigned)
+            {
+                _target = _assignedTarget;
+                if (_target == null) return false;
+            }
+
             // else if () ...
 
             // fallback
@@ -105,20 +113,16 @@ namespace MagicSchool.Skills
 
 
         // ======================================= private ========================================
-        // get duration from this effect's modifier
-        private float GetModifierDuration(SkillEffect effect)
+        // find the longest lifetime of the thing that live on this cast. 
+        private float GetDuration(SkillEffect effect)
         {
-            // if isn't modifier, return
-            if (!(effect is ModifierSkillEffect modifierEffect)) return 0f;
-
-            // guard
-            if (modifierEffect.Modifier == null) return 0f;
-
-            // if cadence, return cadenceDuration
+            // if the effect was cadence, return the cadence duration
             if (effect.Cadence.isCadence) return effect.Cadence.cadenceDuration;
 
-            // return modifer's duration
-            return modifierEffect.Modifier.GetDuration();
+            // if the effect was modifier, return modifier duration
+            if (effect is ModifierSkillEffect modifierEffect) return modifierEffect.Modifier.GetDuration();
+
+            return 0f;
         }
 
         private static float Longest(List<float> durations)
