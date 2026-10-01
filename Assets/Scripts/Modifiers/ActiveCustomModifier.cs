@@ -10,7 +10,7 @@ namespace MagicSchool.Modifiers
     //
     // e.g. Werewolf's transform. a CustomModifier:
     //
-    //      Bundle(10s,
+    //      BundleRefresh(10s,
     //          Buff(Omnivamp, 10% of AP),          [0]
     //          Buff(ATK, 500% of AS),              [1]
     //          Status(Transformed),                [2]

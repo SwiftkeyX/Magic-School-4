@@ -41,16 +41,27 @@ namespace MagicSchool.Skills
                                                     List<SkillCondition> conditions, float amplifier)
             => new ModifierSkillEffect(recipient, modifier, conditions: conditions, amplifier: amplifier);
 
-        // the group of modifiers - everything in it shares one duration. 
-        // -1f is permanent.
-        public static ICustomModifier Bundle(float duration, params IModifier[] modifiers)
-            => new CustomModifier(duration, modifiers);
+        /// <summary>
+        /// Bundle is a group of modifiers - everything in it shares one duration. 
+        /// </summary>
+        
+        // the modifier is refresh if applied again
+        public static ICustomModifier BundleRefresh(float duration, params IModifier[] modifiers)
+            => new CustomModifier(duration, modifiers, isStack: false);
+        
+        // the modifier is stacked if applied again
+        public static ICustomModifier BundleStack(float duration, params IModifier[] modifiers)
+            => new CustomModifier(duration, modifiers, isStack: true);
 
-        // the same to Bundle() above, but the duration is asked for every time the bundle was used - this make the duration can be adjust during combat after init once.
-        //   Bundle(() => CurrentStun, Status(Stun))    -> "a stun as long as CurrentStun is at that moment"
-        // e.g. DireWolf's stun is increased during the combat.
-        public static ICustomModifier Bundle(System.Func<float> duration, params IModifier[] modifiers)
-            => new CustomModifier(duration, modifiers);
+        // the same to BundleRefresh() / BundleStack() above, but the duration is asked for every time the bundle was used
+        // this make the duration can be adjust during combat after init once.
+        //      BundleRefresh(() => CurrentStun, Status(Stun))    -> "a stun as long as CurrentStun is at that moment"
+        //      e.g. DireWolf's stun is increased during the combat.
+        public static ICustomModifier BundleRefresh(System.Func<float> duration, params IModifier[] modifiers)
+            => new CustomModifier(duration, modifiers, isStack: false);
+
+        public static ICustomModifier BundleStack(System.Func<float> duration, params IModifier[] modifiers)
+            => new CustomModifier(duration, modifiers, isStack: true);
 
         // a modifier that gives a stat bonus:
         //   Buff(DamageReduction, 20f)                     -> "+20% DR"
@@ -62,9 +73,9 @@ namespace MagicSchool.Skills
         // same to Buff() above, but: 
         // 1) buff will be given to other hero. 
         // 2) buff will derived from the "source" parameter (normally it would derived from the caster).
-        // e.g. Dryad's skill buff ally base on their attack speed by +25% => This mean the skill is derived from ally, not the caster itself.
+        //      e.g. Dryad's skill buff ally base on their attack speed by +25% => This mean the skill is derived from ally, not the caster itself.
         // another pattern, you should know:
-        // e.g. Dryad's skill (alternative) buff ally base on Dryad's AP by +50%AP => This mean the skill is derive from the caster
+        //      e.g. Dryad's skill (alternative) buff ally base on Dryad's AP by +50%AP => This mean the skill is derive from the caster
         public static IModifier Buff(ModifierEnum modifier, ScalingSourceEnum source, params StatRatio[] ratios)
             => new StatModifier(modifier, ratios, source);
 

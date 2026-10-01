@@ -9,5 +9,6 @@ namespace MagicSchool.Contracts
     {
         float GetDuration();                        // All modifier in the list shared a same duration.
         IReadOnlyList<IModifier> GetModifiers();    // Get all modifier inside
+        bool IsStack();                             // Could this buff stack?
     }
 }

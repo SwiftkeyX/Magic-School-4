@@ -39,8 +39,8 @@ namespace MagicSchool.Modifiers
             if (taken.Count == 0) return;
 
             IHeroStats thiefStats = thief as IHeroStats;
-            victim.AddModifier(new CustomModifier(duration, taken), thiefStats);
-            thief.AddModifier(new CustomModifier(duration, given), thiefStats);
+            victim.AddModifier(new CustomModifier(duration, taken, isStack: true), thiefStats);
+            thief.AddModifier(new CustomModifier(duration, given, isStack: true), thiefStats);
         }
     }
 }

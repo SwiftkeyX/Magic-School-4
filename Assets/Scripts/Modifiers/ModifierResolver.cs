@@ -48,19 +48,20 @@ namespace MagicSchool.Modifiers
         // add new modifier
         public void AddModifier(ICustomModifier modifier, float amplifier, IHeroStats casterStats, IHeroStats recipientStats)
         {
-            // FLAGGING: we shouldn't have to loop all the modifiers, but RefernceEqual is still need, 
-            // we can use dict to help this.
-            // if the same modifier is added again, refresh the modifier
-            for (int i = 0; i < _activeModifiers.Count; i++)
+            // if this modifier can't stack, remove the modifier, then re-add it
+            if (!modifier.IsStack())
             {
-                // is new added modifier the same to current active one?
-                if (!ReferenceEquals(_activeModifiers[i].CustomModifier, modifier)) continue;
+                // FLAGGING: we shouldn't have to loop all the modifiers, but RefernceEqual is still need, 
+                // we can use dict to help this.
+                for (int i = 0; i < _activeModifiers.Count; i++)
+                {
+                    // is new added modifier the same to current active one?
+                    if (!ReferenceEquals(_activeModifiers[i].CustomModifier, modifier)) continue;
 
-                // FLAGGING: Depend on skill, some skill can be stacked, while some skill refresh cleanly.
-                // Now only refresh exist. We'll do this later when pattern is more clear.
-                // refresh modifier
-                _activeModifiers.RemoveAt(i);
-                break;
+                    // refresh modifier
+                    _activeModifiers.RemoveAt(i);
+                    break;
+                }
             }
 
             // add modifier, and mark bonus as stale

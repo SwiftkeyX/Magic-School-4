@@ -12,7 +12,7 @@ namespace MagicSchool.Items
         // the group of modifiers - everything in it shares one duration. -1f is permanent.
         // An item's grant is permanent: it lasts as long as the item is worn.
         public static ICustomModifier Bundle(params IModifier[] modifiers)
-            => new CustomModifier(Permanent, modifiers);
+            => new CustomModifier(Permanent, modifiers, isStack: false);
 
         // a modifier that gives a stat bonus:
         //   Buff(DamageReduction, 20f)                     -> "+20% DR"
