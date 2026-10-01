@@ -36,14 +36,13 @@ namespace MagicSchool.Skills
             StartCoroutine(CadenceTick(hitbox));
         }
 
-        // ZoneAOE have _lifetime as the same to cadence duration
+        // ZoneAOE have _lifetime as the same to cadence duration.
         protected override void SetLifeTime()
         {
             // guard
             if (_duration == VALUENOTASSIGN) { base.SetLifeTime(); return; }
 
             _lifetime = _duration;
-            ExpireAfter(_lifetime);
         }
 
         // a hero currently in the zone got ticked - apply every cadence effect to them
@@ -93,13 +92,19 @@ namespace MagicSchool.Skills
         // Global cadence tick - on a fixed schedule from spawn, no initial collision needed to start ticking.
         private IEnumerator CadenceTick(OnTickHitbox hitbox)
         {
-            WaitForSeconds wait = new WaitForSeconds(_interval);
+            // guard
+            if (_interval == VALUENOTASSIGN) yield break;
 
-            while (true)
+            WaitForSeconds wait = new WaitForSeconds(_interval);
+            int ticks = Mathf.Max(1, Mathf.RoundToInt(_duration / _interval));
+
+            for (int i = 0; i < ticks; i++)
             {
                 yield return wait;
                 hitbox.FireTick();
             }
+
+            DestroyMe();
         }
     }
 }
