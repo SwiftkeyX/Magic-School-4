@@ -6,7 +6,7 @@ namespace MagicSchool.Contracts
         bool HasSkill { get; }
         string SkillName { get; }
         string SkillDescription { get; }
-        bool HasPassive { get; }
+        bool HasAttackPassive { get; }
         string PassiveDescription { get; }
     }
 }

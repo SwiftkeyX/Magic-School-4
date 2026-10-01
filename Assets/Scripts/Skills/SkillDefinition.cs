@@ -7,18 +7,16 @@ namespace MagicSchool.Skills
 {
     /// <summary>
     /// A whole container for 1 skill.
-    /// SkillDefinition contain list of SkillFlow for both passive & active skill.
-    /// skill are separated into step, those step are working together in order, to create a actual skill.
+    /// A skill is a combination of:
+    /// 1) the SkillFlow: to create active skill, auto-attck skill, and more if added. (read SKillFlow.cs for more info)
+    /// 2) the hook: to create a passive skill, and helper for active skill (read virtual hooks section in here)
     /// </summary>
     public abstract class SkillDefinition
     {
         private TemplateActionRegistrySO _registry;
 
-        // active skill.
-        public IReadOnlyList<SkillFlow> ActiveFlows { get; private set; } = new List<SkillFlow>();
-
-        // passive skill.
-        public IReadOnlyList<SkillFlow> PassiveFlows { get; private set; } = new List<SkillFlow>();
+        private SkillFlow _active;          // played when mana is full
+        private SkillFlow _onAttack;        // played on every auto attack. (most skills have none)
 
         protected ICombatant Caster { get; private set; }   // owner of this skill
         public float CastTime { get; private set; } // the animation's duration to play this specific skill
@@ -29,10 +27,11 @@ namespace MagicSchool.Skills
         }
 
         // ============================================== init ==============================================
-        /// Active and Passive skill of the hero
-        /// Called once from Init
-        protected abstract List<SkillFlow> Active(TemplateActionRegistrySO registry);
-        protected virtual List<SkillFlow> Passive(TemplateActionRegistrySO registry) => new List<SkillFlow>();
+        /// The flows of the hero's skill. Built once from Init.
+        /// BuildActiveFlow    the flow played when mana is full
+        /// BuildAttackFlow    the flow played on every auto attack, if the skill has one
+        protected abstract SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry);
+        protected virtual SkillFlow BuildAttackFlow(TemplateActionRegistrySO registry) => null;
 
         public virtual void Init(ICombatant caster)
         {
@@ -40,131 +39,129 @@ namespace MagicSchool.Skills
 
             if (_registry != null)
             {
-                ActiveFlows = Active(_registry) ?? new List<SkillFlow>();
-                PassiveFlows = Passive(_registry) ?? new List<SkillFlow>();
+                _active = BuildActiveFlow(_registry);
+                _onAttack = BuildAttackFlow(_registry);
 
                 // prevent second init from rebuilt the skill
                 _registry = null;
             }
 
-            foreach (SkillFlow step in ActiveFlows) step.Init(caster);
-
-            foreach (SkillFlow step in PassiveFlows) step.Init(caster);
+            _active?.Init(caster);
+            _onAttack?.Init(caster);
         }
 
         // ============================================== virtual ==============================================
         public abstract string SkillName { get; }
         public abstract string Description { get; }
         public virtual string PassiveDescription => "";
-        public virtual bool HasActive => ActiveFlows.Count > 0;
-        public virtual bool HasPassive => PassiveFlows.Count > 0;
+        public virtual bool HasActive => _active != null;
+        public virtual bool HasAttackPassive => _onAttack != null;
 
         // ============================================== virtual hooks ==============================================
-        // If mana is full, play the active skill. 
-        // Returns whether anything played.
-        public virtual bool OnCast()
-        {
-            if (!HasActive || ActiveFlows[0].Trigger != TriggerEnum.OnCast) return false;
+        // If mana is full, subclass do [x], and play the active flow.
+        public virtual bool OnCast() => PlayFlow(_active);
 
-            if (!PlayFlow(ActiveFlows, 0)) return false;
+        // If auto-attack, subclass do [x], and play the onAttack flow.
+        public virtual bool OnAttack(ICombatant target) => PlayFlow(_onAttack);
 
-            // OnCastStart rides along with the cast
-            if (ActiveFlows.Count > 1 && ActiveFlows[1].Trigger == TriggerEnum.OnCastStart) PlayFlow(ActiveFlows, 1);
+        // At combat start, play OnCombatStart.
+        public virtual bool OnCombatStart() => false;
 
-            return true;
-        }
-
-        // If auto-attack, play OnAttack passive. 
-        // Returns whether anything played.
-        public virtual bool OnAttack(ICombatant target) => PlayPassive(TriggerEnum.OnAttack);
-
-        // At combat start, play OnCombat passive.
-        // Returns whether anything played.
-        public virtual bool OnCombatStart() => PlayPassive(TriggerEnum.OnCombatStart);
-
-        // if any hero dies, play OnHeroDied passive.
+        // If any hero dies, play OnHeroDied.
         // e.g. Troll gains health whenever an enemy dies
         public virtual void OnHeroDied(ICombatant dead) { }
 
         // add other hook
-        // ... 
+        // ...
+
+        // ============================================== play ==============================================
+        /// Play a specify flow.
+        /// The flow will play each skill part which consist of OnStart, OnHit, and OnExpired in order. 
+        /// OnStart, then follow by optional OnHit, and optional OnExpired.
+        /// Vocab:
+        ///     onStart     the parts that skill starts with.
+        ///     onHit       the parts to play when `onStart` hits something. Optional.
+        ///     onExpired   the parts to play when `onStart` expires. Optional.
+        protected bool PlayFlow(SkillFlow flow)
+        {
+            if (flow == null) return false;
+
+            return PlayParts(flow.OnStart, Follow(flow.OnHit), Follow(flow.OnExpired), previousPosition: null);
+        }
+
+        // Play a single part without depending on a flow.
+        // no flow played after this.
+        protected bool PlayOnePart(SkillPart part, ICombatant assignedTarget = null)
+        {
+            if (!Play(part, new TemplateActionCallbacks { OnSkillHit = part.OnSkillHit }, null, assignedTarget)) return false;
+
+            CastTime = CastTimeOf(part);
+            return true;
+        }
 
         // ============================================== private ==============================================
-        // FIXLATER: passive step sound dump. Could we pair passive with dictionary instead.
-        // e.g. dict.TryGet(OnAttack)
-        // play the passive that starts with this trigger, if there is one
-        private bool PlayPassive(TriggerEnum trigger)
+        // read PlayFlow()
+        private bool PlayParts(IReadOnlyList<SkillPart> parts,
+        Action<Vector3> onHit,
+        Action<Vector3> onExpired,
+        Vector3? previousPosition)
         {
-            if (PassiveFlows.Count == 0 || PassiveFlows[0].Trigger != trigger) return false;
+            float longestCast = 0f;
 
-            return PlayFlow(PassiveFlows, 0);
-        }
-
-        // Play one step of a skill chain
-        private bool PlayFlow(IReadOnlyList<SkillFlow> steps, int stepIndex, Vector3? previousPosition = null)
-        {
-            if (stepIndex < 0 || stepIndex >= steps.Count) return false;
-
-            // init the callback 
-            Action<Vector3> onExpired = NextFlow(steps, stepIndex + 1, TriggerEnum.OnExpired);
-            Action<Vector3> onHit = NextFlow(steps, stepIndex + 1, TriggerEnum.OnHit);
-
-            // play the first action group that met the condition
-            foreach (SkillPart group in steps[stepIndex].ActionGroups)
+            for (int i = 0; i < parts.Count; i++)
             {
-                if (SkillCondition.Ask(group.Conditions, Caster) == ConditionResultEnum.ConditionIsNotMet) continue;
+                SkillPart part = parts[i];
+                bool isLeading = i == 0;
 
-                // play the template action
-                // and give callback to the template action
+                // each skill part can be played by using this callback
                 var callbacks = new TemplateActionCallbacks
                 {
-                    OnExpired = onExpired,
-                    OnHit = onHit,
-                    OnSkillHit = group.OnSkillHit,
+                    OnHit = isLeading ? onHit : null,
+                    OnExpired = isLeading ? onExpired : null,
+                    OnSkillHit = part.OnSkillHit,
                 };
 
-                if (Play(group, callbacks, previousPosition)) return true;
+                bool played = false;
+                if (SkillCondition.Ask(part.Conditions, Caster) != ConditionResultEnum.ConditionIsNotMet)
+                {
+                    // give the callback to template action
+                    // let the template action decide when to use the callback to play each skill part
+                    // e.g.     projectile (a template action) hit a hero, so it call OnHit.
+                    played = Play(part, callbacks, previousPosition);
+                }
+
+                if (isLeading && !played) return false;
+                if (played) longestCast = Mathf.Max(longestCast, CastTimeOf(part));
             }
 
-            return false;
+            CastTime = longestCast;
+            return true;
         }
 
-        // Play a single group on its own.
-        // no step, no chain skill. 
-        protected bool PlayGroup(SkillPart group, ICombatant assignedTarget = null)
-            => Play(
-                group, 
-                new TemplateActionCallbacks { OnSkillHit = group.OnSkillHit }, 
-                null,
-                assignedTarget
-            );
+        // Consume only the optional part of the SkillPart.cs (e.g. OnHit, OnExpired)
+        // return the callback that can be used to play skill part.
+        // Currently, this project force the skill to only have 2 flow depth. 
+        // So the Follow won't play anything after itself.
+        private Action<Vector3> Follow(IReadOnlyList<SkillPart> parts)
+        {
+            if (parts.Count == 0) return null;
 
-        // try play template action
-        // wiring NextFlow() callback to template action
-        private bool Play(SkillPart group, TemplateActionCallbacks callbacks, Vector3? previousPosition,
-                          ICombatant assignedTarget = null)
+            return position => PlayParts(parts, onHit: null, onExpired: null, previousPosition: position);
+        }
+
+        // spawn the part's template action (read TemplateAction.cs for more info)
+        private bool Play(SkillPart part, TemplateActionCallbacks callbacks, Vector3? previousPosition, ICombatant assignedTarget = null)
         {
             // guard
             if (Caster is UnityEngine.Object hero && hero == null) return false;
 
-            // try play template action and wiring callback
-            if (!TemplateAction.TryPlay(group, Caster, callbacks, previousPosition, assignedTarget)) return false;
-
-            CastTime = group.Tuning?.CastTime ?? group.TemplateAction.CastTime;
-            return true;
+            return TemplateAction.TryPlay(part, Caster, callbacks, previousPosition, assignedTarget);
         }
 
-        // return the callback that can be use to fires the next steps
-        // the callback will be used by the template action. the example usage of this callback:
-        // e.g.     the AOE is gone (the prefab is destroyed)   =   call NextFlow(OnExpired)
-        //          the moment projectile hit something         =   call NextFlow(OnHit)
-        private Action<Vector3> NextFlow(IReadOnlyList<SkillFlow> steps, int nextIndex, TriggerEnum trigger)
-        {
-            if (nextIndex >= steps.Count) return null;
-
-            if (steps[nextIndex].Trigger != trigger) return null;
-
-            return position => PlayFlow(steps, nextIndex, position);
-        }
+        // get the cast time of the specify skill part
+        // cast time = duration before the skill part is played
+        // e.g.     0.5 sec before shooting a projectile
+        private static float CastTimeOf(SkillPart part)
+            => part.Tuning?.CastTime ?? part.TemplateAction.CastTime;
     }
 }

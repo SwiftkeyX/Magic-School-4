@@ -132,7 +132,7 @@ namespace MagicSchool.UI
             }
 
             // only two heroes have one - an empty PASSIVE heading on the other fifteen reads as a bug
-            bool hasPassive = unit.HasPassive;
+            bool hasPassive = unit.HasAttackPassive;
             SetShown(_passiveSection, hasPassive);
             if (hasPassive)
             {

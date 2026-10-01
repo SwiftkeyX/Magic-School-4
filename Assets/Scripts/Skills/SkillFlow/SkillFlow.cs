@@ -5,36 +5,40 @@ namespace MagicSchool.Skills
 {
 
     /// <summary>
-    /// 1 step = 1 part of the skill (called TemplateAction.cs) that can work independently.
-    /// But if work together with other step, could create a actual complex skill. 
-    /// E.g. projectile that explode into AOE.
+    /// skill is the combination of SkillPart.cs. A flow is the order played between those SkillPart.
+    /// Exmaple,
+    ///     Flow(onStart: shot, onHit: blast)                          Dwarf: shoot projectile. when it hit, create blast
+    ///     Flow(onStart: frenzy, onExpired: howl)                     Dire Wolf: buff itself, and when the buff expired, do howl
+    ///     Flow(onStart: Together(charge, hitbox))                    Centaur: charge forward, with a hitbox riding on itsef
     /// 
-    /// 1 step could contain several SkillPart (which contain TemplateAction). 
-    /// But only 1 SkillPart will be played, which'll be played depending on the trigger. 
+    /// Vocab:
+    ///     onStart     the parts that skill starts with.
+    ///     onHit       the parts to play when `onStart` hits something. Optional.
+    ///     onExpired   the parts to play when `onStart` expires. Optional.
+    ///
+    /// A part (SkillPart) is one piece of a skill: 
+    /// e.g. a shot, a blast, a dash, a buff
     /// </summary>
     public class SkillFlow
     {
-        private TriggerEnum _trigger;
-        private List<SkillPart> _actionGroups;
+        public IReadOnlyList<SkillPart> OnStart { get; }
+        public IReadOnlyList<SkillPart> OnHit { get; }
+        public IReadOnlyList<SkillPart> OnExpired { get; }
 
-        // ================================== getter ==================================
-        public TriggerEnum Trigger => _trigger;
-        public IReadOnlyList<SkillPart> ActionGroups => _actionGroups;
-
-        // ================================== setter ==================================
-        public SkillFlow(TriggerEnum trigger, List<SkillPart> actionGroups)
+        public SkillFlow(IReadOnlyList<SkillPart> onStart, IReadOnlyList<SkillPart> onHit,
+                         IReadOnlyList<SkillPart> onExpired)
         {
-            _trigger = trigger;
-            _actionGroups = actionGroups;
+            OnStart = onStart;
+            OnHit = onHit;
+            OnExpired = onExpired;
         }
 
         // ================================== init ==================================
-        // pass the caster down to the groups this step holds
         public void Init(IEffectable caster)
         {
-            if (_actionGroups == null) return;
-
-            foreach (SkillPart actionGroup in _actionGroups) actionGroup?.Init(caster);
+            foreach (SkillPart part in OnStart) part?.Init(caster);
+            foreach (SkillPart part in OnHit) part?.Init(caster);
+            foreach (SkillPart part in OnExpired) part?.Init(caster);
         }
     }
 }

@@ -8,8 +8,15 @@ namespace MagicSchool.Skills
 {
 
     /// <summary>
-    /// TemplateAction = 1 part of skill that being played independently.
-    /// e.g. create AOE, shoot projectile, cast buff/debuff
+    /// TemplateAction = the skill prefab that actually appears on the board and does the work.
+    /// Example,    
+    ///         the projectile prefab that flies toward target
+    ///         the AOE prefab that spawn on the ground
+    ///         the move prefab that carries the caster forward
+    ///
+    /// The template action itself knows how to behave
+    /// Example,
+    ///         projectile - know how to fly toward the target, what it collides with, when it dies 
     /// </summary>
     public abstract class TemplateAction : MonoBehaviour
     {

@@ -80,7 +80,7 @@ namespace MagicSchool.Combat.Heroes
 
         // what the Hero Panel reads
         public bool HasSkill => _skill != null && _skill.HasSkill;
-        public bool HasPassive => _skill != null && _skill.HasPassive;
+        public bool HasAttackPassive => _skill != null && _skill.HasAttackPassive;
         public string SkillName => _skill != null ? _skill.SkillName : string.Empty;
         public string SkillDescription => _skill != null ? _skill.Description : string.Empty;
         public string PassiveDescription => _skill != null ? _skill.PassiveDescription : string.Empty;
