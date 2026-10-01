@@ -17,7 +17,7 @@ MonoBehaviour:
   _tier: 0
   _role: 3
   _hp: 650
-  _attack: 28
+  _attack: 55
   _defend: 30
   _magic: 100
   _magicResist: 30

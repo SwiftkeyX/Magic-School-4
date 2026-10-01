@@ -46,6 +46,12 @@ namespace MagicSchool.Skills
         public static ICustomModifier Bundle(float duration, params IModifier[] modifiers)
             => new CustomModifier(duration, modifiers);
 
+        // the same to Bundle() above, but the duration is asked for every time the bundle was used - this make the duration can be adjust during combat after init once.
+        //   Bundle(() => CurrentStun, Status(Stun))    -> "a stun as long as CurrentStun is at that moment"
+        // e.g. DireWolf's stun is increased during the combat.
+        public static ICustomModifier Bundle(System.Func<float> duration, params IModifier[] modifiers)
+            => new CustomModifier(duration, modifiers);
+
         // a modifier that gives a stat bonus:
         //   Buff(DamageReduction, 20f)                     -> "+20% DR"
         //   Buff(ATK, (StatEnum.AP, 50f))                  -> "Buff ATK = 50% of the caster's AP"
