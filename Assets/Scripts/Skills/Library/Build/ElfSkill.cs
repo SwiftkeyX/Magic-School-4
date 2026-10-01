@@ -35,7 +35,7 @@ namespace MagicSchool.Skills
 
                 Apply(
                     recipient: EffectRecipientEnum.SameToAimTarget,
-                    modifier: Bundle(
+                    modifier: BundleRefresh(
                         duration: ShredDuration,
                         modifiers: Debuff(
                             modifier: ModifierEnum.DefendShred,

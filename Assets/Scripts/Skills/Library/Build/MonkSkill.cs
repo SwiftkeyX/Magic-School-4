@@ -30,7 +30,7 @@ namespace MagicSchool.Skills
                 action: TemplateActionEnum.BoxAOE,
                 target: AimTargetEnum.Current,
                 Damage(EffectRecipientEnum.EnemiesInArea, (StatEnum.AP, DamageRatio)),
-                Apply(EffectRecipientEnum.EnemiesInArea, Bundle(StunDuration, Status(ModifierEnum.Stun)))
+                Apply(EffectRecipientEnum.EnemiesInArea, BundleRefresh(StunDuration, Status(ModifierEnum.Stun)))
             );
 
             // the guard - put up once the palm is gone
@@ -39,7 +39,7 @@ namespace MagicSchool.Skills
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
                 Apply(EffectRecipientEnum.Self,
-                      Bundle(GuardDuration, Buff(ModifierEnum.DamageReduction, DamageReductionPercent)))
+                      BundleRefresh(GuardDuration, Buff(ModifierEnum.DamageReduction, DamageReductionPercent)))
             );
 
             return Flow(onStart: palm, onExpired: guard);

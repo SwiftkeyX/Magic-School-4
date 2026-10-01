@@ -26,7 +26,7 @@ namespace MagicSchool.Skills
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            ICustomModifier aegis = Bundle(
+            ICustomModifier aegis = BundleRefresh(
                 duration: BuffDuration,
                 Buff(ModifierEnum.DamageReduction, DamageReductionPercent),
                 Buff(

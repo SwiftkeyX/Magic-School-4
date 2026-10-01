@@ -85,7 +85,7 @@ namespace MagicSchool.Skills
         private static SkillFlow Transform(TemplateActionRegistrySO registry)
         {
             // one group, one timer - the whole transform ends on the same tick
-            ICustomModifier WorldEnderBuff = Bundle(
+            ICustomModifier WorldEnderBuff = BundleRefresh(
                 duration: TransformDuration,
 
                 Buff(

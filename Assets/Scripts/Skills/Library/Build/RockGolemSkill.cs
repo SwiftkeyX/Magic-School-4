@@ -8,7 +8,7 @@ namespace MagicSchool.Skills
     {
         private const float ShieldAmount = 500f;
         private const float ShieldDuration = 4f;
-        private readonly ICustomModifier _shield = Bundle(ShieldDuration, Shield(ShieldAmount));
+        private readonly ICustomModifier _shield = BundleRefresh(ShieldDuration, Shield(ShieldAmount));
 
 
         // the ally he protects - picked once, when combat starts

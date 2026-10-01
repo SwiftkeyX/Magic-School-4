@@ -34,7 +34,7 @@ namespace MagicSchool.Skills
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
                 Apply(EffectRecipientEnum.Self,
-                      Bundle(
+                      BundleRefresh(
                         BonusDuration,
                         Buff(
                             ModifierEnum.BonusHP,

@@ -42,7 +42,7 @@ namespace MagicSchool.Skills
 
         private static SkillPart AOE(TemplateActionRegistrySO registry)
         {
-            ICustomModifier knockup = Bundle(
+            ICustomModifier knockup = BundleRefresh(
                 duration: KnockedUpDuration,
                 modifiers: (
                     Status(ModifierEnum.Stun)

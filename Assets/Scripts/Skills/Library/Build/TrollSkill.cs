@@ -41,7 +41,7 @@ namespace MagicSchool.Skills
             if (dead.Team == Caster.Team) return;
 
             Caster.AddModifier(
-                Bundle(RestOfFight, Buff(ModifierEnum.BonusHP, BonusHPPerDeath)),
+                BundleStack(RestOfFight, Buff(ModifierEnum.BonusHP, BonusHPPerDeath)),
                 Caster as IHeroStats);
 
             Caster.Heal(BonusHPPerDeath, Caster);
@@ -50,7 +50,7 @@ namespace MagicSchool.Skills
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            ICustomModifier wound = Bundle(WoundDuration, Status(ModifierEnum.Wound));
+            ICustomModifier wound = BundleRefresh(WoundDuration, Status(ModifierEnum.Wound));
 
             // a circle around himself
             SkillPart slam = Part(

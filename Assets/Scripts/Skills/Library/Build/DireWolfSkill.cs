@@ -44,7 +44,7 @@ namespace MagicSchool.Skills
         private static SkillPart Cast(TemplateActionRegistrySO registry)
         {
             // +200% of his own attack speed - a self-referential ratio, resolved once when it lands
-            ICustomModifier modifiers = Bundle(
+            ICustomModifier modifiers = BundleRefresh(
                 BuffDuration,
                 Buff(ModifierEnum.AS, (StatEnum.AS, AttackSpeedBuff, ScaleFromEnum.Base)),
                 // FIXLATER: I notice that there's not anything to prevent the Modifier.ManaBlocked to be use with Buff or Debuff. 
@@ -65,7 +65,7 @@ namespace MagicSchool.Skills
         private SkillPart OnCastExpired(TemplateActionRegistrySO registry)
         {
             // stun
-            ICustomModifier stun = Bundle(() => CurrentStun, Status(ModifierEnum.Stun));
+            ICustomModifier stun = BundleRefresh(() => CurrentStun, Status(ModifierEnum.Stun));
 
             // aoe on self
             SkillPart AOE = Part(registry,
@@ -84,7 +84,7 @@ namespace MagicSchool.Skills
             _attackCount = 0;
 
             Caster.AddModifier(
-                Bundle(
+                BundleStack(
                     RestOfFight,
                     Debuff(
                         ModifierEnum.ATK,

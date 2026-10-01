@@ -31,7 +31,7 @@ namespace MagicSchool.Skills
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
                 Apply(EffectRecipientEnum.Self,
-                      Bundle(OmnivampDuration, Buff(ModifierEnum.Omnivamp, OmnivampPercent)))
+                      BundleRefresh(OmnivampDuration, Buff(ModifierEnum.Omnivamp, OmnivampPercent)))
             );
 
             // the charge. Starts together with the lifesteal and holds him for ChargeTime. A Cast lives as
@@ -42,7 +42,7 @@ namespace MagicSchool.Skills
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
                 tuning: Tune(castTime: ChargeTime),
-                Apply(EffectRecipientEnum.Self, Bundle(ChargeTime, Status(ModifierEnum.ManaBlocked)))
+                Apply(EffectRecipientEnum.Self, BundleRefresh(ChargeTime, Status(ModifierEnum.ManaBlocked)))
             );
 
             // the slash, when the charge ends. A Cast aimed at the current target hits only it.

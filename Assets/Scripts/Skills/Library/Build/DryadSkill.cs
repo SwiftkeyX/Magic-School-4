@@ -27,7 +27,7 @@ namespace MagicSchool.Skills
 
         private static SkillFlow Wave(TemplateActionRegistrySO registry)
         {
-            ICustomModifier ASBuff = Bundle(
+            ICustomModifier ASBuff = BundleRefresh(
                 duration: -1f,
                 Buff(
                     modifier: ModifierEnum.AS,

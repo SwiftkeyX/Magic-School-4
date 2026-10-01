@@ -43,7 +43,7 @@ namespace MagicSchool.Skills
         private void GainAttackSpeed(ICombatant enemy)
         {
             Caster.AddModifier(
-                Bundle(BuffDuration,
+                BundleStack(BuffDuration,
                     Buff(
                         ModifierEnum.AS, (StatEnum.AS, AttackSpeedPerHit, ScaleFromEnum.Base)
                     )),

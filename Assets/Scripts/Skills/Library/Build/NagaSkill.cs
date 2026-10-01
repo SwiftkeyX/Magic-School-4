@@ -46,7 +46,7 @@ namespace MagicSchool.Skills
 
                 ApplyWhen(
                     recipient: EffectRecipientEnum.SameToAimTarget,
-                    modifier: Bundle(
+                    modifier: BundleRefresh(
                         duration: WoundDuration,
                         modifiers: Status(ModifierEnum.Wound)),
                     conditions: amplifierCondition,

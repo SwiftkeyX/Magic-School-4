@@ -46,7 +46,7 @@ namespace MagicSchool.Skills
 
                 Apply(
                     recipient: EffectRecipientEnum.Self,
-                    modifier: Bundle(
+                    modifier: BundleRefresh(
                         duration: BraceDuration,
                         modifiers: Buff(
                             modifier: ModifierEnum.DamageReduction,

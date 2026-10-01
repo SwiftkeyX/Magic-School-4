@@ -29,9 +29,9 @@ namespace MagicSchool.Skills
                 action: TemplateActionEnum.CircleAOE,
                 target: AimTargetEnum.Current,
                 Damage(EffectRecipientEnum.EnemiesInArea, (StatEnum.ATK, DamageRatio)),
-                Apply(EffectRecipientEnum.EnemiesInArea, Bundle(StunDuration, Status(ModifierEnum.Stun))),
+                Apply(EffectRecipientEnum.EnemiesInArea, BundleRefresh(StunDuration, Status(ModifierEnum.Stun))),
                 Apply(EffectRecipientEnum.EnemiesInArea,
-                      Bundle(ShredDuration,
+                      BundleRefresh(ShredDuration,
                              // 25% of the total AP is taken off the target's DF, for the rest of the fight
                              Debuff(ModifierEnum.DefendShred, (StatEnum.AP, ShredFromAP, ScaleFromEnum.Total))))
             );

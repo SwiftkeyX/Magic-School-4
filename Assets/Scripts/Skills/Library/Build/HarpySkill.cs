@@ -112,6 +112,6 @@ namespace MagicSchool.Skills
 
         // ============================== helper ==============================
         private void Grow(IModifier modifier)
-            => Caster.AddModifier(Bundle(RestOfFight, modifier), Caster as IHeroStats);
+            => Caster.AddModifier(BundleStack(RestOfFight, modifier), Caster as IHeroStats);
     }
 }

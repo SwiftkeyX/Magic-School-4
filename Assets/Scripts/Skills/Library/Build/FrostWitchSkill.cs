@@ -31,7 +31,7 @@ namespace MagicSchool.Skills
         {
             // one instance, re-applied every tick - so it refreshes instead of stacking. Lasts one tick
             // past the interval so it never drops between two ticks for someone still inside.
-            ICustomModifier chill = Bundle(
+            ICustomModifier chill = BundleRefresh(
                 TickInterval * 2f,
                 Debuff(ModifierEnum.AS, ScalingSourceEnum.Recipient, (StatEnum.AS, SlowPercent, ScaleFromEnum.Base
             )));

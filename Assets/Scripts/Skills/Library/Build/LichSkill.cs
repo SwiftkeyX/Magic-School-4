@@ -33,7 +33,7 @@ namespace MagicSchool.Skills
 
                 Apply(
                     EffectRecipientEnum.Self,
-                    Bundle(
+                    BundleRefresh(
                         OmnivampDuration,
                         Buff(ModifierEnum.Omnivamp, OmnivampPercent)
                     )),

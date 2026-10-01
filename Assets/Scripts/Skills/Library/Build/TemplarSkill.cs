@@ -16,7 +16,7 @@ namespace MagicSchool.Skills
         private const float ShieldRatioPerHit = 50f;
         private const float ShieldDuration = 4f;        // FLAGGING: the roster sheet gives no length - 4s is Rock Golem's
 
-        private readonly ICustomModifier _shield = Bundle(ShieldDuration, Shield((StatEnum.DF, ShieldRatio)));
+        private readonly ICustomModifier _shield = BundleRefresh(ShieldDuration, Shield((StatEnum.DF, ShieldRatio)));
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new TemplarSkill(registry);
 
@@ -59,7 +59,7 @@ namespace MagicSchool.Skills
         private void GrowShield(ICombatant enemy)
         {
             Caster.AddModifier(
-                Bundle(ShieldDuration, Shield((StatEnum.DF, ShieldRatioPerHit))),
+                BundleStack(ShieldDuration, Shield((StatEnum.DF, ShieldRatioPerHit))),
                 Caster as IHeroStats);
         }
     }

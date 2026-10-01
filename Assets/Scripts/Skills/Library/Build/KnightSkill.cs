@@ -43,7 +43,7 @@ namespace MagicSchool.Skills
 
         private static SkillPart Landing(TemplateActionRegistrySO registry)
         {
-            ICustomModifier stun = Bundle(
+            ICustomModifier stun = BundleRefresh(
                 duration: StunDuration,
                 modifiers: (
                     Status(ModifierEnum.Stun)

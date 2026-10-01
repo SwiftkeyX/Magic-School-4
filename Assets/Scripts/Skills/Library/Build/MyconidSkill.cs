@@ -23,7 +23,7 @@ namespace MagicSchool.Skills
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            ICustomModifier stun = Bundle(StunDuration, Status(ModifierEnum.Stun));
+            ICustomModifier stun = BundleRefresh(StunDuration, Status(ModifierEnum.Stun));
 
             SkillPart spore = Part(registry,
                 source: ActionSourceEnum.Self,
