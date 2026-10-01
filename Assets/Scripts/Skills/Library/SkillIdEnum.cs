@@ -38,5 +38,6 @@ namespace MagicSchool.Skills
         Harpy = 27,
         Husk = 28,
         RockGolem = 29,
+        Templar = 30,
     }
 }

@@ -39,6 +39,7 @@ namespace MagicSchool.Skills
                 { SkillIdEnum.Harpy         , HarpySkill.Build          },
                 { SkillIdEnum.Husk          , HuskSkill.Build           },
                 { SkillIdEnum.RockGolem     , RockGolemSkill.Build      },
+                { SkillIdEnum.Templar       , TemplarSkill.Build        },
             };
 
         /// Return a skill that match skillID's TemplateAction.
