@@ -66,12 +66,7 @@ namespace MagicSchool.Skills
         {
             if (!HasActive || ActiveSteps[0].Trigger != TriggerEnum.OnCast) return false;
 
-            if (!PlayStep(ActiveSteps, 0)) return false;
-
-            // OnCastStart rides along with the cast
-            if (ActiveSteps.Count > 1 && ActiveSteps[1].Trigger == TriggerEnum.OnCastStart) PlayStep(ActiveSteps, 1);
-
-            return true;
+            return PlayStep(ActiveSteps, 0);
         }
 
         // If auto-attack, play OnAttack passive. 
@@ -105,17 +100,25 @@ namespace MagicSchool.Skills
         {
             if (stepIndex < 0 || stepIndex >= steps.Count) return false;
 
-            // init the callback 
-            Action<Vector3> onExpired = NextStep(steps, stepIndex + 1, TriggerEnum.OnExpired);
-            Action<Vector3> onHit = NextStep(steps, stepIndex + 1, TriggerEnum.OnHit);
+            // ASKING: I don't like how the rider was now use.
+            // I think the problem come from the skillstep itself.
+            // the skillstep itself was flexible but not intutive to understand by the reader.
+            // so how about changing it? instead of playing it into step. how about using the existing hook instead.
+            // e.g.     now: step 1 => 2 => 3
+            //          new: OnCastStart (could have than 1 template action) => OnHit (if exist) => OnExpired (if exist)
+            int riderIndex = stepIndex + 1;
+            bool hasRider = riderIndex < steps.Count && steps[riderIndex].Trigger == TriggerEnum.OnCastStart;
+            int nextIndex = hasRider ? riderIndex + 1 : riderIndex;
+
+            // init the callback
+            Action<Vector3> onExpired = NextStep(steps, nextIndex, TriggerEnum.OnExpired);
+            Action<Vector3> onHit = NextStep(steps, nextIndex, TriggerEnum.OnHit);
 
             // play the first action group that met the condition
             foreach (SkillActionGroup group in steps[stepIndex].ActionGroups)
             {
                 if (SkillCondition.Ask(group.Conditions, Caster) == ConditionResultEnum.ConditionIsNotMet) continue;
 
-                // play the template action
-                // and give callback to the template action
                 var callbacks = new TemplateActionCallbacks
                 {
                     OnExpired = onExpired,
@@ -123,10 +126,30 @@ namespace MagicSchool.Skills
                     OnSkillHit = group.OnSkillHit,
                 };
 
-                if (Play(group, callbacks, previousPosition)) return true;
+                // 1) play the template action, continue if condition isn't met 
+                // 2) give callback to the template action
+                if (!Play(group, callbacks, previousPosition)) continue;
+
+                // ...
+                if (hasRider) PlayRider(steps[riderIndex], previousPosition);
+
+                return true;
             }
 
             return false;
+        }
+
+        // Play a rider step. It chains nothing: the step it rides on is the one that carries the chain.
+        private void PlayRider(SkillStep rider, Vector3? previousPosition)
+        {
+            foreach (SkillActionGroup group in rider.ActionGroups)
+            {
+                if (SkillCondition.Ask(group.Conditions, Caster) == ConditionResultEnum.ConditionIsNotMet) continue;
+
+                var callbacks = new TemplateActionCallbacks { OnSkillHit = group.OnSkillHit };
+
+                if (Play(group, callbacks, previousPosition)) return;
+            }
         }
 
         // Play a single group on its own.
