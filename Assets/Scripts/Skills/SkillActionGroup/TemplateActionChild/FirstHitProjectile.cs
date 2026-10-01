@@ -24,6 +24,8 @@ namespace MagicSchool.Skills
             // NOTE: mention this because PiercingProjectile can hit the same team (to give buff)
             if (hero == null || hero.Team == _me.Team) return;
 
+            ReportSkillHit(hero);
+
             List<ICombatant> recipients = new List<ICombatant> { hero };
             foreach (SkillEffect effect in _effects)
             {

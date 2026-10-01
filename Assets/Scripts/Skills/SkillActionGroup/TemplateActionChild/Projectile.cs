@@ -22,15 +22,15 @@ namespace MagicSchool.Skills
 
 
         // ==================================== OnHit event ====================================
-        private event Action<SkillStepContext> OnHit;        // Fire the first time projectile lands on someone
+        private event Action<Vector3> OnHit;        // fire when the projectile lands on someone the first time, return where it landed
         private bool _hasReportedHit;
 
         // Projectile have OnHit event
-        protected override void SubscribeTriggers(Action<SkillStepContext> onExpired, Action<SkillStepContext> onHit)
+        protected override void SubscribeTriggers(TemplateActionCallbacks callbacks)
         {
-            base.SubscribeTriggers(onExpired, onHit);
+            base.SubscribeTriggers(callbacks);
 
-            OnHit += onHit;
+            OnHit += callbacks.OnHit;
         }
 
         // Report where the projectile hit
@@ -39,7 +39,7 @@ namespace MagicSchool.Skills
             if (_hasReportedHit) return;
             _hasReportedHit = true;
 
-            OnHit?.Invoke(new SkillStepContext(transform.position));
+            OnHit?.Invoke(transform.position);
         }
 
         protected bool IsTargetAlive => _target != null && _target.IsAlive;
@@ -136,7 +136,7 @@ namespace MagicSchool.Skills
             // e.g. FireTimingRunner's pseudo-random 
             else if (aimTarget == AimTargetEnum.Assigned)
             {
-                _target = _fromPreviousStep?.Target;
+                _target = _assignedTarget;
                 if (_target == null) return false;
 
                 _aimAt = _target.transform;

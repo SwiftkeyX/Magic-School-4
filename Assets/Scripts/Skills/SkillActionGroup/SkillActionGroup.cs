@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MagicSchool.Contracts;
 
@@ -33,6 +34,11 @@ namespace MagicSchool.Skills
             _conditions = conditions ?? new List<SkillCondition>();
             _effects = effects ?? new List<SkillEffect>();
         }
+
+        // ============================================ OnSkillHit ============================================
+        // Called each time THIS action hits an enemy, return who it hit.
+        // e.g. a projectile that pierce 3 enemies in a row, call OnSkillHit 3 times.
+        public Action<ICombatant> OnSkillHit;
 
         // ============================================ Init ============================================
         // Inject caster into class that need it.

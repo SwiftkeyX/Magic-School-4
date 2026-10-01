@@ -21,17 +21,27 @@ namespace MagicSchool.Skills
         protected Vector3 _source;
         protected Vector3 _aimTarget;
 
+        // === Callbacks ===
+        // what this action calls back to the skill that played it
+        protected TemplateActionCallbacks _callbacks = TemplateActionCallbacks.None;
+        
         // === OnExpired ===
-        internal event Action<SkillStepContext> OnExpired;     // Fire when a template action lifetime runout
+        // Fire when a template action lifetime runout
+        internal event Action<Vector3> OnExpired;     
         protected float _lifetime;
         private bool _hasExpired;
 
         // === Rider ===
         private protected Rider _rider;
 
-        // ==================================== from the step before ====================================
-        // whatever the previous step produced, this'll be used by next step, to check trigger's condition
-        protected SkillStepContext _fromPreviousStep;
+        // ==================================== context (handed in by whoever played this template action) ====================================
+        // where the step before this one expired, or where its projectile landed. Null on a first step.
+        // e.g.     Dwarf's blast spawns where his shot landed
+        protected Vector3? _previousPosition;
+
+        // who this action was told to aim at.
+        // e.g.     FireTimingRunner picks a random enemy for each shot it fires
+        protected ICombatant _assignedTarget;
 
         // ==================================== getter ====================================
         public float CastTime => _castTime;
@@ -42,13 +52,15 @@ namespace MagicSchool.Skills
         // try play template action. if play success, return true.
         // act as factory, since when this function is called, there is no real instance yet.
         public static bool TryPlay(SkillActionGroup group, ICombatant caster,
-        Action<SkillStepContext> onExpired = null, Action<SkillStepContext> onHit = null, SkillStepContext fromPreviousStep = null)
+                                   TemplateActionCallbacks callbacks = null, Vector3? previousPosition = null,
+                                   ICombatant assignedTarget = null)
         {
             // change skill prefab into scene instace
             TemplateAction instance = Instantiate(group.TemplateAction);
 
-            // config data from previous step
-            instance._fromPreviousStep = fromPreviousStep;
+            // config data from previous guy
+            instance._previousPosition = previousPosition;
+            instance._assignedTarget = assignedTarget;
 
             // Apply tuning that specific to this hero
             instance.ApplyTuning(group.Tuning);
@@ -62,7 +74,8 @@ namespace MagicSchool.Skills
             }
 
             // other config - each template action wires up the triggers it can actually raise
-            instance.SubscribeTriggers(onExpired, onHit);
+            instance._callbacks = callbacks ?? TemplateActionCallbacks.None;
+            instance.SubscribeTriggers(instance._callbacks);
 
             // skill is played
             instance.Play();
@@ -131,7 +144,7 @@ namespace MagicSchool.Skills
 
             Destroy(gameObject);
 
-            OnExpired?.Invoke(new SkillStepContext(expiredPosition));
+            OnExpired?.Invoke(expiredPosition);
         }
 
         protected void ExpireAfter(float delay)
@@ -146,14 +159,24 @@ namespace MagicSchool.Skills
             DestroyMe();
         }
 
+        // ==================================== OnSkillHit event ====================================
+        // If this template action hit someone, invoke onSkillHit, BEFORE the effect is applied.
+        // e.g. Projectile hit enemy, ...
+        protected void ReportSkillHit(ICombatant hero)
+        {
+            if (hero == null || hero.Team == _me.Team || !hero.IsAlive) return;
+
+            _callbacks.OnSkillHit?.Invoke(hero);
+        }
+
         // ==================================== Trigger wiring ====================================
         // Each template action have its own event.
         // e.g. Projectile have OnHit event which is fire when it hit someone
-        protected virtual void SubscribeTriggers(Action<SkillStepContext> onExpired, Action<SkillStepContext> onHit)
+        protected virtual void SubscribeTriggers(TemplateActionCallbacks callbacks)
         {
-            // OnExpired is the only trigger every template action can raise 
-            // it was fired when the template action dies
-            OnExpired += onExpired;
+            // OnExpired is wired on the base class 
+            // because OnExpired the only trigger every template action can raise 
+            OnExpired += callbacks.OnExpired;
         }
 
 

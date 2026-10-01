@@ -79,8 +79,8 @@ namespace MagicSchool.Skills
             // e.g. Solace's dart exploding on impact
             else if (source == ActionSourceEnum.WhereProjectileHit)
             {
-                if (_fromPreviousStep?.Position == null) return false;
-                _source = _fromPreviousStep.Position.Value;
+                if (_previousPosition == null) return false;
+                _source = _previousPosition.Value;
                 if (_sticky.IsSticky) _sticky.Source = null;
             }
 
@@ -147,8 +147,8 @@ namespace MagicSchool.Skills
             // point at previous projectile hit position
             else if (aimTarget == AimTargetEnum.WhereProjectileHit)
             {
-                if (_fromPreviousStep?.Position == null) return false;
-                _aimTarget = _fromPreviousStep.Position.Value;
+                if (_previousPosition == null) return false;
+                _aimTarget = _previousPosition.Value;
             }
 
             // else if () ...

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MagicSchool.Contracts;
+using UnityEngine;
 
 namespace MagicSchool.Skills
 {
@@ -96,13 +97,13 @@ namespace MagicSchool.Skills
         }
 
         // Play one step of a skill chain
-        private bool PlayStep(IReadOnlyList<SkillStep> steps, int stepIndex, SkillStepContext fromPreviousStep = null)
+        private bool PlayStep(IReadOnlyList<SkillStep> steps, int stepIndex, Vector3? previousPosition = null)
         {
             if (stepIndex < 0 || stepIndex >= steps.Count) return false;
 
             // init the callback 
-            Action<SkillStepContext> onExpired = NextStep(steps, stepIndex + 1, TriggerEnum.OnExpired);
-            Action<SkillStepContext> onHit = NextStep(steps, stepIndex + 1, TriggerEnum.OnHit);
+            Action<Vector3> onExpired = NextStep(steps, stepIndex + 1, TriggerEnum.OnExpired);
+            Action<Vector3> onHit = NextStep(steps, stepIndex + 1, TriggerEnum.OnHit);
 
             // play the first action group that met the condition
             foreach (SkillActionGroup group in steps[stepIndex].ActionGroups)
@@ -111,7 +112,14 @@ namespace MagicSchool.Skills
 
                 // play the template action
                 // and give callback to the template action
-                if (Play(group, onExpired, onHit, fromPreviousStep)) return true;
+                var callbacks = new TemplateActionCallbacks
+                {
+                    OnExpired = onExpired,
+                    OnHit = onHit,
+                    OnSkillHit = group.OnSkillHit,
+                };
+
+                if (Play(group, callbacks, previousPosition)) return true;
             }
 
             return false;
@@ -119,18 +127,22 @@ namespace MagicSchool.Skills
 
         // Play a single group on its own.
         // no step, no chain skill. 
-        protected bool PlayGroup(SkillActionGroup group) => Play(group, null, null, null);
+        protected bool PlayGroup(SkillActionGroup group)
+            => Play(
+                group, 
+                new TemplateActionCallbacks { OnSkillHit = group.OnSkillHit }, 
+                null
+            );
 
         // try play template action
         // wiring NextStep() callback to template action
-        private bool Play(SkillActionGroup group, Action<SkillStepContext> onExpired, Action<SkillStepContext> onHit,
-                          SkillStepContext fromPreviousStep)
+        private bool Play(SkillActionGroup group, TemplateActionCallbacks callbacks, Vector3? previousPosition)
         {
             // guard
             if (Caster is UnityEngine.Object hero && hero == null) return false;
 
             // try play template action and wiring callback
-            if (!TemplateAction.TryPlay(group, Caster, onExpired, onHit, fromPreviousStep)) return false;
+            if (!TemplateAction.TryPlay(group, Caster, callbacks, previousPosition)) return false;
 
             CastTime = group.Tuning?.CastTime ?? group.TemplateAction.CastTime;
             return true;
@@ -140,13 +152,13 @@ namespace MagicSchool.Skills
         // the callback will be used by the template action. the example usage of this callback:
         // e.g.     the AOE is gone (the prefab is destroyed)   =   call NextStep(OnExpired)
         //          the moment projectile hit something         =   call NextStep(OnHit)
-        private Action<SkillStepContext> NextStep(IReadOnlyList<SkillStep> steps, int nextIndex, TriggerEnum trigger)
+        private Action<Vector3> NextStep(IReadOnlyList<SkillStep> steps, int nextIndex, TriggerEnum trigger)
         {
             if (nextIndex >= steps.Count) return null;
 
             if (steps[nextIndex].Trigger != trigger) return null;
 
-            return context => PlayStep(steps, nextIndex, context);
+            return position => PlayStep(steps, nextIndex, position);
         }
     }
 }

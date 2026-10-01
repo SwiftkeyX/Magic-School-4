@@ -38,6 +38,8 @@ namespace MagicSchool.Skills
         /// </summary>
         protected override void HandleAOEHit(ICombatant recipient)
         {
+            ReportSkillHit(recipient);
+
             List<ICombatant> recipients = new List<ICombatant> { recipient };
             foreach (SkillEffect effect in _effects)
             {

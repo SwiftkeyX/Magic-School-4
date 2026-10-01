@@ -26,6 +26,8 @@ namespace MagicSchool.Skills
         // ======================================== private ==============================================
         private void HandleHit(ICombatant hero)
         {
+            ReportSkillHit(hero);
+
             List<ICombatant> recipients = new List<ICombatant> { hero };
             foreach (SkillEffect effect in _effects)
             {

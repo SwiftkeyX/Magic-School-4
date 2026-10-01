@@ -21,7 +21,7 @@ namespace MagicSchool.Skills
         protected override void FireOnce()
         {
             AimTargetEnum shotAimTarget = _innerAimTarget;
-            SkillStepContext shotContext = _fromPreviousStep;
+            ICombatant shotTarget = _assignedTarget;
             
             // if aim = random, the runner have to be the organizer for picking the random unit.
             if (_innerAimTarget == AimTargetEnum.Random)
@@ -30,7 +30,7 @@ namespace MagicSchool.Skills
                 if (chosen == null) return;
 
                 shotAimTarget = AimTargetEnum.Assigned;
-                shotContext = new SkillStepContext(chosen);
+                shotTarget = chosen;
             }
 
             // copy/paste to create a desired template action
@@ -42,7 +42,7 @@ namespace MagicSchool.Skills
                 tuning: _innerTuning
             );
 
-            TemplateAction.TryPlay(innerGroup, _me, _onExpired, _onHit, shotContext);
+            TemplateAction.TryPlay(innerGroup, _me, _callbacks, _previousPosition, shotTarget);
         }
 
         // ======================================= private =======================================

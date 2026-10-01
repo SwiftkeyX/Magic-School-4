@@ -9,7 +9,7 @@ namespace MagicSchool.Skills
     /// 
     /// Rider tell which template action is the host, which is the rider.
     /// It's only use now:
-    /// 1) Once the host is dead, rider also dead.
+    /// 1) Once the host is dead, make rider dead too.
     /// </summary>
     internal class Rider
     {
@@ -45,7 +45,7 @@ namespace MagicSchool.Skills
         }
 
         // Host is dead, now I dies too.
-        private void HostIsDead(SkillStepContext context)
+        private void HostIsDead(Vector3 position)
         {
             _host.OnExpired -= HostIsDead;
 

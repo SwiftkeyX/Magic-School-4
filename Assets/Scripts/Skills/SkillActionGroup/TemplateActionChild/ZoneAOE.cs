@@ -49,6 +49,9 @@ namespace MagicSchool.Skills
         // a hero currently in the zone got ticked - apply every cadence effect to them
         protected override void HandleAOEHit(ICombatant recipient)
         {
+            // report hits on every tick
+            ReportSkillHit(recipient);
+
             List<ICombatant> recipients = new List<ICombatant> { recipient };
             foreach (SkillEffect effect in _effects)
             {

@@ -49,6 +49,8 @@ namespace MagicSchool.Skills
             // if hero is hit isn't the target one, don't apply effect
             if (hero != _target) return;
 
+            ReportSkillHit(hero);
+
             List<ICombatant> recipients = new List<ICombatant> { hero };
             foreach (SkillEffect effect in _effects)
             {

@@ -14,8 +14,6 @@ namespace MagicSchool.Skills
 
         protected ActionSourceEnum _innerSource;
         protected AimTargetEnum _innerAimTarget;
-        protected Action<SkillStepContext> _onExpired;
-        protected Action<SkillStepContext> _onHit;
 
         private bool _warnedAboutRandom;
 
@@ -26,11 +24,8 @@ namespace MagicSchool.Skills
         private float _interval;
 
         // ======================================= Event =======================================
-        protected override void SubscribeTriggers(Action<SkillStepContext> onExpired, Action<SkillStepContext> onHit)
-        {
-            _onExpired = onExpired;
-            _onHit = onHit;
-        }
+        // The runner raises nothing itself - its callbacks are handed on to every shot it fires.
+        protected override void SubscribeTriggers(TemplateActionCallbacks callbacks) { }
 
 
         // ======================================= override =======================================
@@ -78,7 +73,6 @@ namespace MagicSchool.Skills
         protected virtual void FireOnce()
         {
             AimTargetEnum shotAimTarget = _innerAimTarget;
-            SkillStepContext shotContext = _fromPreviousStep;
 
             // copy/paste to create a desired template action
             SkillActionGroup innerGroup = new SkillActionGroup(
@@ -89,7 +83,7 @@ namespace MagicSchool.Skills
                 tuning: _innerTuning
             );
 
-            TemplateAction.TryPlay(innerGroup, _me, _onExpired, _onHit, shotContext);
+            TemplateAction.TryPlay(innerGroup, _me, _callbacks, _previousPosition, _assignedTarget);
         }
 
         private IEnumerator FireSequence()
