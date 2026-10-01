@@ -12,7 +12,7 @@ namespace MagicSchool.Skills
         private const float CurseInterval = 1f;
 
         // the curse itself - played on whoever the bolt hit, and again on whoever it jumps to
-        private SkillActionGroup _curse;
+        private SkillPart _curse;
 
         // who carries the curse right now, and until when
         private ICombatant _cursed;
@@ -61,10 +61,10 @@ namespace MagicSchool.Skills
         }
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
             // the bolt does nothing itself - it only carries the curse to its target
-            SkillActionGroup bolt = ActionGroup(
+            SkillPart bolt = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.HomingProjectile,
@@ -72,7 +72,7 @@ namespace MagicSchool.Skills
 
             bolt.OnSkillHit = Curse;
 
-            _curse = ActionGroup(
+            _curse = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
@@ -85,7 +85,7 @@ namespace MagicSchool.Skills
                     ratios: (StatEnum.AP, CurseTotal))
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: bolt) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: bolt) };
         }
 
         // ============================== helper ==============================

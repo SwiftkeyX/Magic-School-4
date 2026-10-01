@@ -32,9 +32,9 @@ namespace MagicSchool.Skills
              + $"included, heal for {HealPerTick}% AP.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
-            SkillActionGroup ground = ActionGroup(
+            SkillPart ground = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.ZoneAOE,
@@ -54,7 +54,7 @@ namespace MagicSchool.Skills
                     ratios: (StatEnum.AP, TotalHeal))
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: ground) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: ground) };
         }
     }
 }

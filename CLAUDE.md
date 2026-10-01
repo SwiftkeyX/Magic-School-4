@@ -95,7 +95,7 @@ Rules that aren't visible from any single file:
 - **`Combat/Placements/Hex/HexNumber.cs`** — `struct HexNumber { TeamEnum team; int column; int row; }`.
   Must stay a `struct`: value equality is what makes the dictionary lookups work: a `class` here
   would silently break them into reference equality.
-- **`Skills/`** — a skill is a `SkillDefinition` of `SkillStep`s, each holding `SkillActionGroup`s
+- **`Skills/`** — a skill is a `SkillDefinition` of `SkillFlow`s, each holding `SkillPart`s
   that pick a `TemplateAction` (projectile / AoE / hitbox variants) by `SkillCondition`. Effects are
   applied through `IEffectable`, so nothing here knows the `Hero` type. `SkillLibrary.Resolve` maps
   a `SkillIdEnum` to its builder.

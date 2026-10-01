@@ -23,10 +23,10 @@ namespace MagicSchool.Skills
              + $"{DamageRatio}% AD, healing for {OmnivampPercent}% of the damage dealt.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
             // step 0 - the lifesteal, put on as the cast begins
-            SkillActionGroup focus = ActionGroup(registry,
+            SkillPart focus = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
@@ -37,7 +37,7 @@ namespace MagicSchool.Skills
             // step 1 - the charge. Fires alongside step 0 and holds him for ChargeTime. A Cast lives as
             // long as its longest modifier, so ManaBlocked is what makes it last - and he gains no mana
             // while charging.
-            SkillActionGroup charge = ActionGroup(registry,
+            SkillPart charge = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
@@ -46,18 +46,18 @@ namespace MagicSchool.Skills
             );
 
             // step 2 - the slash, when the charge ends. A Cast aimed at the current target hits only it.
-            SkillActionGroup slash = ActionGroup(registry,
+            SkillPart slash = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Current,
                 Damage(EffectRecipientEnum.SameToAimTarget, (StatEnum.ATK, DamageRatio))
             );
 
-            return new List<SkillStep>
+            return new List<SkillFlow>
             {
-                Step(trigger: TriggerEnum.OnCast, groups: focus),
-                Step(trigger: TriggerEnum.OnCastStart, groups: charge),
-                Step(trigger: TriggerEnum.OnExpired, groups: slash),
+                Flow(trigger: TriggerEnum.OnCast, groups: focus),
+                Flow(trigger: TriggerEnum.OnCastStart, groups: charge),
+                Flow(trigger: TriggerEnum.OnExpired, groups: slash),
             };
         }
     }

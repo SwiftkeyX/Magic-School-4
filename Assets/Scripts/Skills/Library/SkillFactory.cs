@@ -102,13 +102,13 @@ namespace MagicSchool.Skills
 
         // ================================== ActionGroup ==================================
         // a template action
-        public static SkillActionGroup ActionGroup(TemplateActionRegistrySO registry, ActionSourceEnum source,
+        public static SkillPart Part(TemplateActionRegistrySO registry, ActionSourceEnum source,
                                                    TemplateActionEnum action, AimTargetEnum target,
                                                    params SkillEffect[] effects)
             => Group(registry, source, action, target, conditions: null, tuning: null, effects: effects);
 
         // the same, with this hero's numbers for the action
-        public static SkillActionGroup ActionGroup(TemplateActionRegistrySO registry, ActionSourceEnum source,
+        public static SkillPart Part(TemplateActionRegistrySO registry, ActionSourceEnum source,
                                                    TemplateActionEnum action, AimTargetEnum target,
                                                    Tuning tuning,
                                                    params SkillEffect[] effects)
@@ -116,23 +116,23 @@ namespace MagicSchool.Skills
 
         // a template action with condition, and this hero's numbers for it if it needs them.
         // conditin need to be true, in order this template action to play.
-        public static SkillActionGroup ActionGroupWhen(TemplateActionRegistrySO registry, ActionSourceEnum source,
+        public static SkillPart PartWhen(TemplateActionRegistrySO registry, ActionSourceEnum source,
                                                        TemplateActionEnum action, AimTargetEnum target,
                                                        List<SkillCondition> conditions, Tuning tuning = null,
                                                        params SkillEffect[] effects)
             => Group(registry, source, action, target, conditions: conditions, tuning: tuning, effects: effects);
 
-        private static SkillActionGroup Group(TemplateActionRegistrySO registry, ActionSourceEnum source,
+        private static SkillPart Group(TemplateActionRegistrySO registry, ActionSourceEnum source,
                                               TemplateActionEnum action, AimTargetEnum target,
                                               List<SkillCondition> conditions, Tuning tuning,
                                               SkillEffect[] effects)
-            => new SkillActionGroup(source, registry.Get(action), target,
+            => new SkillPart(source, registry.Get(action), target,
                                     conditions: conditions, effects: new List<SkillEffect>(effects), tuning: tuning);
 
         // a step inside template action
         // step are working in order, each step will be played if it was trigger.
-        public static SkillStep Step(TriggerEnum trigger, params SkillActionGroup[] groups)
-            => new SkillStep(trigger, new List<SkillActionGroup>(groups));
+        public static SkillFlow Flow(TriggerEnum trigger, params SkillPart[] groups)
+            => new SkillFlow(trigger, new List<SkillPart>(groups));
         
         // ================================== Tune ==================================
         // tuning a template action

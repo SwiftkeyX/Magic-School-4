@@ -21,11 +21,11 @@ namespace MagicSchool.Skills
              + $"and is stunned for {StunDuration} seconds.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
             ICustomModifier stun = Bundle(StunDuration, Status(ModifierEnum.Stun));
 
-            SkillActionGroup spore = ActionGroup(registry,
+            SkillPart spore = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.PiercingProjectile,
                 target: AimTargetEnum.Furthest,
@@ -33,7 +33,7 @@ namespace MagicSchool.Skills
                 Apply(EffectRecipientEnum.EnemiesInPath, stun)
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: spore) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: spore) };
         }
     }
 }

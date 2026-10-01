@@ -30,15 +30,15 @@ namespace MagicSchool.Skills
             return base.OnCast();
         }
 
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
-            SkillActionGroup strike = ActionGroup(registry,
+            SkillPart strike = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Current,
                 Damage(EffectRecipientEnum.SameToAimTarget, (StatEnum.ATK, DamageRatio)));
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: strike) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: strike) };
         }
     }
 }

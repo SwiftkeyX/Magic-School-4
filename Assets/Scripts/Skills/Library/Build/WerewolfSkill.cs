@@ -8,7 +8,7 @@ namespace MagicSchool.Skills
     {
         // werewolf skill play 3 different attack
         // box, triangle, circle - in the order 
-        private readonly SkillActionGroup[] _beats;
+        private readonly SkillPart[] _beats;
         private int _currentBeat;
 
         // each beat (attack) have different damage amount
@@ -52,7 +52,7 @@ namespace MagicSchool.Skills
         {
             base.Init(caster);
 
-            foreach (SkillActionGroup beat in _beats) beat.Init(caster);
+            foreach (SkillPart beat in _beats) beat.Init(caster);
         }
 
         // ============================== passive ==============================
@@ -77,12 +77,12 @@ namespace MagicSchool.Skills
         }
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
-            return new List<SkillStep> { Transform(registry) };
+            return new List<SkillFlow> { Transform(registry) };
         }
 
-        private static SkillStep Transform(TemplateActionRegistrySO registry)
+        private static SkillFlow Transform(TemplateActionRegistrySO registry)
         {
             // one group, one timer - the whole transform ends on the same tick
             ICustomModifier WorldEnderBuff = Bundle(
@@ -104,7 +104,7 @@ namespace MagicSchool.Skills
                 Status(ModifierEnum.AutoAttackWasReplaced)
             );
 
-            SkillActionGroup cast = ActionGroup(
+            SkillPart cast = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
@@ -114,11 +114,11 @@ namespace MagicSchool.Skills
                     modifier: WorldEnderBuff)
             );
 
-            return Step(trigger: TriggerEnum.OnCast, groups: cast);
+            return Flow(trigger: TriggerEnum.OnCast, groups: cast);
         }
 
-        private static SkillActionGroup Beat(TemplateActionRegistrySO registry, TemplateActionEnum action, float damage)
-            => ActionGroup(
+        private static SkillPart Beat(TemplateActionRegistrySO registry, TemplateActionEnum action, float damage)
+            => Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: action,

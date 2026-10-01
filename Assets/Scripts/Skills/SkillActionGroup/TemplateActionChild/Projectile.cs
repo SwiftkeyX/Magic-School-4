@@ -18,7 +18,7 @@ namespace MagicSchool.Skills
         [SerializeField] protected float _speed = 8f;
         protected float _size = 1f;                  // projectile size; 1 leaves the prefab as drawn
         protected int _reachRange = int.MaxValue;    // how far a projectile can reach, in hexes, default to global range
-        protected float _spread = 1f;                // how wide the AOE (next SkillStep) will be spread
+        protected float _spread = 1f;                // how wide the AOE (next SkillFlow) will be spread
 
 
         // ==================================== OnHit event ====================================

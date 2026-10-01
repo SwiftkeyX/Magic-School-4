@@ -37,14 +37,14 @@ namespace MagicSchool.Skills
              + "been caught once.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
-            => new List<SkillStep> { Shoot(registry) };
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+            => new List<SkillFlow> { Shoot(registry) };
 
-        private static SkillStep Shoot(TemplateActionRegistrySO registry)
+        private static SkillFlow Shoot(TemplateActionRegistrySO registry)
         {
             ProjectileTuning tune = TuneProjectile(castTime: 0f);
 
-            SkillActionGroup shoot = ActionGroup(
+            SkillPart shoot = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.FireTimingRunnerHomingProjectile,
@@ -58,7 +58,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return Step(trigger: TriggerEnum.OnCast, groups: shoot);
+            return Flow(trigger: TriggerEnum.OnCast, groups: shoot);
         }
     }
 }

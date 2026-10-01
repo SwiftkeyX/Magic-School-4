@@ -24,7 +24,7 @@ namespace MagicSchool.Skills
              + $"and gains {AttackSpeedBuff}% attack speed for {BuffDuration} seconds.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
             ICustomModifier aegis = Bundle(
                 duration: BuffDuration,
@@ -35,7 +35,7 @@ namespace MagicSchool.Skills
                     ratios: (StatEnum.AS, AttackSpeedBuff, ScaleFromEnum.Base))
             );
 
-            SkillActionGroup light = ActionGroup(
+            SkillPart light = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.CircleAOE,
@@ -47,7 +47,7 @@ namespace MagicSchool.Skills
                     modifier: aegis)
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: light) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: light) };
         }
     }
 }

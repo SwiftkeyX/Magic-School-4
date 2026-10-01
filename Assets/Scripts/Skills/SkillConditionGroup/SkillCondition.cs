@@ -10,7 +10,7 @@ namespace MagicSchool.Skills
     /// A question a skill asks before it does something. One predicate, used in two places that do
     /// different things with the answer:
     ///
-    /// 1) on a SkillActionGroup, it gates - a group whose condition fails is skipped, and the step
+    /// 1) on a SkillPart, it gates - a group whose condition fails is skipped, and the step
     ///    falls through to the next group. That is how a template action gets swapped for another
     ///    one, e.g. Werewolf throwing a box while transformed and a circle otherwise.
     ///
@@ -53,7 +53,7 @@ namespace MagicSchool.Skills
                 if (recipient == null)
                 {
                     Debug.LogError($"[{GetType().Name}] asks about the recipient but was asked without one. " +
-                                   "Only a SkillEffect's conditions get a recipient, not a SkillActionGroup's.");
+                                   "Only a SkillEffect's conditions get a recipient, not a SkillPart's.");
                 }
 
                 return recipient;

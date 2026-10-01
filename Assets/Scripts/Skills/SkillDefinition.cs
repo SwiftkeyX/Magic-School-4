@@ -7,7 +7,7 @@ namespace MagicSchool.Skills
 {
     /// <summary>
     /// A whole container for 1 skill.
-    /// SkillDefinition contain list of SkillStep for both passive & active skill.
+    /// SkillDefinition contain list of SkillFlow for both passive & active skill.
     /// skill are separated into step, those step are working together in order, to create a actual skill.
     /// </summary>
     public abstract class SkillDefinition
@@ -15,10 +15,10 @@ namespace MagicSchool.Skills
         private TemplateActionRegistrySO _registry;
 
         // active skill.
-        public IReadOnlyList<SkillStep> ActiveSteps { get; private set; } = new List<SkillStep>();
+        public IReadOnlyList<SkillFlow> ActiveFlows { get; private set; } = new List<SkillFlow>();
 
         // passive skill.
-        public IReadOnlyList<SkillStep> PassiveSteps { get; private set; } = new List<SkillStep>();
+        public IReadOnlyList<SkillFlow> PassiveFlows { get; private set; } = new List<SkillFlow>();
 
         protected ICombatant Caster { get; private set; }   // owner of this skill
         public float CastTime { get; private set; } // the animation's duration to play this specific skill
@@ -31,8 +31,8 @@ namespace MagicSchool.Skills
         // ============================================== init ==============================================
         /// Active and Passive skill of the hero
         /// Called once from Init
-        protected abstract List<SkillStep> Active(TemplateActionRegistrySO registry);
-        protected virtual List<SkillStep> Passive(TemplateActionRegistrySO registry) => new List<SkillStep>();
+        protected abstract List<SkillFlow> Active(TemplateActionRegistrySO registry);
+        protected virtual List<SkillFlow> Passive(TemplateActionRegistrySO registry) => new List<SkillFlow>();
 
         public virtual void Init(ICombatant caster)
         {
@@ -40,36 +40,36 @@ namespace MagicSchool.Skills
 
             if (_registry != null)
             {
-                ActiveSteps = Active(_registry) ?? new List<SkillStep>();
-                PassiveSteps = Passive(_registry) ?? new List<SkillStep>();
+                ActiveFlows = Active(_registry) ?? new List<SkillFlow>();
+                PassiveFlows = Passive(_registry) ?? new List<SkillFlow>();
 
                 // prevent second init from rebuilt the skill
                 _registry = null;
             }
 
-            foreach (SkillStep step in ActiveSteps) step.Init(caster);
+            foreach (SkillFlow step in ActiveFlows) step.Init(caster);
 
-            foreach (SkillStep step in PassiveSteps) step.Init(caster);
+            foreach (SkillFlow step in PassiveFlows) step.Init(caster);
         }
 
         // ============================================== virtual ==============================================
         public abstract string SkillName { get; }
         public abstract string Description { get; }
         public virtual string PassiveDescription => "";
-        public virtual bool HasActive => ActiveSteps.Count > 0;
-        public virtual bool HasPassive => PassiveSteps.Count > 0;
+        public virtual bool HasActive => ActiveFlows.Count > 0;
+        public virtual bool HasPassive => PassiveFlows.Count > 0;
 
         // ============================================== virtual hooks ==============================================
         // If mana is full, play the active skill. 
         // Returns whether anything played.
         public virtual bool OnCast()
         {
-            if (!HasActive || ActiveSteps[0].Trigger != TriggerEnum.OnCast) return false;
+            if (!HasActive || ActiveFlows[0].Trigger != TriggerEnum.OnCast) return false;
 
-            if (!PlayStep(ActiveSteps, 0)) return false;
+            if (!PlayFlow(ActiveFlows, 0)) return false;
 
             // OnCastStart rides along with the cast
-            if (ActiveSteps.Count > 1 && ActiveSteps[1].Trigger == TriggerEnum.OnCastStart) PlayStep(ActiveSteps, 1);
+            if (ActiveFlows.Count > 1 && ActiveFlows[1].Trigger == TriggerEnum.OnCastStart) PlayFlow(ActiveFlows, 1);
 
             return true;
         }
@@ -95,22 +95,22 @@ namespace MagicSchool.Skills
         // play the passive that starts with this trigger, if there is one
         private bool PlayPassive(TriggerEnum trigger)
         {
-            if (PassiveSteps.Count == 0 || PassiveSteps[0].Trigger != trigger) return false;
+            if (PassiveFlows.Count == 0 || PassiveFlows[0].Trigger != trigger) return false;
 
-            return PlayStep(PassiveSteps, 0);
+            return PlayFlow(PassiveFlows, 0);
         }
 
         // Play one step of a skill chain
-        private bool PlayStep(IReadOnlyList<SkillStep> steps, int stepIndex, Vector3? previousPosition = null)
+        private bool PlayFlow(IReadOnlyList<SkillFlow> steps, int stepIndex, Vector3? previousPosition = null)
         {
             if (stepIndex < 0 || stepIndex >= steps.Count) return false;
 
             // init the callback 
-            Action<Vector3> onExpired = NextStep(steps, stepIndex + 1, TriggerEnum.OnExpired);
-            Action<Vector3> onHit = NextStep(steps, stepIndex + 1, TriggerEnum.OnHit);
+            Action<Vector3> onExpired = NextFlow(steps, stepIndex + 1, TriggerEnum.OnExpired);
+            Action<Vector3> onHit = NextFlow(steps, stepIndex + 1, TriggerEnum.OnHit);
 
             // play the first action group that met the condition
-            foreach (SkillActionGroup group in steps[stepIndex].ActionGroups)
+            foreach (SkillPart group in steps[stepIndex].ActionGroups)
             {
                 if (SkillCondition.Ask(group.Conditions, Caster) == ConditionResultEnum.ConditionIsNotMet) continue;
 
@@ -131,7 +131,7 @@ namespace MagicSchool.Skills
 
         // Play a single group on its own.
         // no step, no chain skill. 
-        protected bool PlayGroup(SkillActionGroup group, ICombatant assignedTarget = null)
+        protected bool PlayGroup(SkillPart group, ICombatant assignedTarget = null)
             => Play(
                 group, 
                 new TemplateActionCallbacks { OnSkillHit = group.OnSkillHit }, 
@@ -140,8 +140,8 @@ namespace MagicSchool.Skills
             );
 
         // try play template action
-        // wiring NextStep() callback to template action
-        private bool Play(SkillActionGroup group, TemplateActionCallbacks callbacks, Vector3? previousPosition,
+        // wiring NextFlow() callback to template action
+        private bool Play(SkillPart group, TemplateActionCallbacks callbacks, Vector3? previousPosition,
                           ICombatant assignedTarget = null)
         {
             // guard
@@ -156,15 +156,15 @@ namespace MagicSchool.Skills
 
         // return the callback that can be use to fires the next steps
         // the callback will be used by the template action. the example usage of this callback:
-        // e.g.     the AOE is gone (the prefab is destroyed)   =   call NextStep(OnExpired)
-        //          the moment projectile hit something         =   call NextStep(OnHit)
-        private Action<Vector3> NextStep(IReadOnlyList<SkillStep> steps, int nextIndex, TriggerEnum trigger)
+        // e.g.     the AOE is gone (the prefab is destroyed)   =   call NextFlow(OnExpired)
+        //          the moment projectile hit something         =   call NextFlow(OnHit)
+        private Action<Vector3> NextFlow(IReadOnlyList<SkillFlow> steps, int nextIndex, TriggerEnum trigger)
         {
             if (nextIndex >= steps.Count) return null;
 
             if (steps[nextIndex].Trigger != trigger) return null;
 
-            return position => PlayStep(steps, nextIndex, position);
+            return position => PlayFlow(steps, nextIndex, position);
         }
     }
 }

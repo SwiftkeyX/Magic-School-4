@@ -48,15 +48,15 @@ namespace MagicSchool.Skills
         }
 
         // the cast itself only plays the animation; the shields land in OnCast
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
-            SkillActionGroup cast = ActionGroup(
+            SkillPart cast = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self);
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: cast) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: cast) };
         }
     }
 }

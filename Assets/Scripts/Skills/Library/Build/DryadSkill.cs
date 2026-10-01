@@ -22,10 +22,10 @@ namespace MagicSchool.Skills
              + "rest of the fight.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
-            => new List<SkillStep> { Wave(registry) };
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+            => new List<SkillFlow> { Wave(registry) };
 
-        private static SkillStep Wave(TemplateActionRegistrySO registry)
+        private static SkillFlow Wave(TemplateActionRegistrySO registry)
         {
             ICustomModifier ASBuff = Bundle(
                 duration: -1f,
@@ -35,7 +35,7 @@ namespace MagicSchool.Skills
                     ratios: (StatEnum.AS, ASbuff, ScaleFromEnum.Base))
             );
 
-            SkillActionGroup wave = ActionGroup(
+            SkillPart wave = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.PiercingProjectile,
@@ -52,7 +52,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return Step(trigger: TriggerEnum.OnCast, groups: wave);
+            return Flow(trigger: TriggerEnum.OnCast, groups: wave);
         }
     }
 }

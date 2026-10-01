@@ -38,10 +38,10 @@ namespace MagicSchool.Skills
         private float CurrentStun => StunDuration + StunPerGrowth * (_attackCount / AttacksPerGrowth);
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
-            => new List<SkillStep> { Cast(registry), OnCastExpired(registry) };
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+            => new List<SkillFlow> { Cast(registry), OnCastExpired(registry) };
 
-        private static SkillStep Cast(TemplateActionRegistrySO registry)
+        private static SkillFlow Cast(TemplateActionRegistrySO registry)
         {
             // +200% of his own attack speed - a self-referential ratio, resolved once when it lands
             ICustomModifier modifiers = Bundle(
@@ -53,28 +53,28 @@ namespace MagicSchool.Skills
             );
 
             // cast buff
-            SkillActionGroup cast = ActionGroup(registry,
+            SkillPart cast = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
                 Apply(EffectRecipientEnum.Self, modifiers));
 
-            return Step(trigger: TriggerEnum.OnCast, groups: cast);
+            return Flow(trigger: TriggerEnum.OnCast, groups: cast);
         }
 
-        private SkillStep OnCastExpired(TemplateActionRegistrySO registry)
+        private SkillFlow OnCastExpired(TemplateActionRegistrySO registry)
         {
             // stun
             ICustomModifier stun = Bundle(() => CurrentStun, Status(ModifierEnum.Stun));
 
             // aoe on self
-            SkillActionGroup AOE = ActionGroup(registry,
+            SkillPart AOE = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.CircleAOE,
                 target: AimTargetEnum.Self,
                 Apply(EffectRecipientEnum.EnemiesInArea, stun));
 
-            return Step(trigger: TriggerEnum.OnExpired, groups: AOE);
+            return Flow(trigger: TriggerEnum.OnExpired, groups: AOE);
         }
 
         // ============================== passive ==============================
@@ -105,17 +105,17 @@ namespace MagicSchool.Skills
             return base.OnAttack(target);
         }
 
-        protected override List<SkillStep> Passive(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Passive(TemplateActionRegistrySO registry)
         {
             // cast
-            SkillActionGroup cast = ActionGroup(registry,
+            SkillPart cast = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
                 // sheet: 30% AP
                 Heal(EffectRecipientEnum.Self, (StatEnum.AP, HealOnAA)));
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnAttack, groups: cast) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnAttack, groups: cast) };
         }
     }
 }

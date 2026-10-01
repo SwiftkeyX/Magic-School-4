@@ -25,12 +25,12 @@ namespace MagicSchool.Skills
              + $"{StunDuration} seconds.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
-            => new List<SkillStep> { Jump(registry), Landing(registry) };
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+            => new List<SkillFlow> { Jump(registry), Landing(registry) };
 
-        private static SkillStep Jump(TemplateActionRegistrySO registry)
+        private static SkillFlow Jump(TemplateActionRegistrySO registry)
         {
-            SkillActionGroup jump = ActionGroup(
+            SkillPart jump = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Move,
@@ -38,10 +38,10 @@ namespace MagicSchool.Skills
                 tuning: TuneMove(range: JumpRange, spread: LandingRadius)
             );
 
-            return Step(trigger: TriggerEnum.OnCast, groups: jump);
+            return Flow(trigger: TriggerEnum.OnCast, groups: jump);
         }
 
-        private static SkillStep Landing(TemplateActionRegistrySO registry)
+        private static SkillFlow Landing(TemplateActionRegistrySO registry)
         {
             ICustomModifier stun = Bundle(
                 duration: StunDuration,
@@ -50,7 +50,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            SkillActionGroup landing = ActionGroup(
+            SkillPart landing = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.CircleAOE,
@@ -67,7 +67,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return Step(TriggerEnum.OnExpired, landing);
+            return Flow(TriggerEnum.OnExpired, landing);
         }
     }
 }

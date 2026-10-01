@@ -6,9 +6,9 @@ namespace MagicSchool.Skills
 {
 
     /// <summary>
-    /// SkillActionGroup contain all the data neccessary to play TemplateAction.
+    /// SkillPart contain all the data neccessary to play TemplateAction.
     /// </summary>
-    public class SkillActionGroup
+    public class SkillPart
     {
         private ActionSourceEnum _source;
         private TemplateAction _templateAction;
@@ -21,7 +21,7 @@ namespace MagicSchool.Skills
 
         private List<SkillEffect> _effects;    // 1 template action = have several effect
 
-        public SkillActionGroup(ActionSourceEnum source, TemplateAction templateAction, AimTargetEnum target,
+        public SkillPart(ActionSourceEnum source, TemplateAction templateAction, AimTargetEnum target,
                                 List<SkillCondition> conditions = null, List<SkillEffect> effects = null,
                                 Tuning tuning = null)
         {

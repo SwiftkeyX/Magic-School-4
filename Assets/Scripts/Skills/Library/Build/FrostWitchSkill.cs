@@ -27,7 +27,7 @@ namespace MagicSchool.Skills
              + $"{SlowPercent}% attack speed.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
             // one instance, re-applied every tick - so it refreshes instead of stacking. Lasts one tick
             // past the interval so it never drops between two ticks for someone still inside.
@@ -36,7 +36,7 @@ namespace MagicSchool.Skills
                 Debuff(ModifierEnum.AS, ScalingSourceEnum.Recipient, (StatEnum.AS, SlowPercent, ScaleFromEnum.Base
             )));
 
-            SkillActionGroup field = ActionGroup(registry,
+            SkillPart field = Part(registry,
                 source: ActionSourceEnum.ClusteredCircle,
                 action: TemplateActionEnum.ZoneAOE,
                 target: AimTargetEnum.ClusteredCircle,
@@ -45,7 +45,7 @@ namespace MagicSchool.Skills
                 ApplyOverTime(EffectRecipientEnum.EnemiesInArea, TickInterval, Duration, chill)
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: field) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: field) };
         }
     }
 }

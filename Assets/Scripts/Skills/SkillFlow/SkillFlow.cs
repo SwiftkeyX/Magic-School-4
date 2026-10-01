@@ -9,20 +9,20 @@ namespace MagicSchool.Skills
     /// But if work together with other step, could create a actual complex skill. 
     /// E.g. projectile that explode into AOE.
     /// 
-    /// 1 step could contain several SkillActionGroup (which contain TemplateAction). 
-    /// But only 1 SkillActionGroup will be played, which'll be played depending on the trigger. 
+    /// 1 step could contain several SkillPart (which contain TemplateAction). 
+    /// But only 1 SkillPart will be played, which'll be played depending on the trigger. 
     /// </summary>
-    public class SkillStep
+    public class SkillFlow
     {
         private TriggerEnum _trigger;
-        private List<SkillActionGroup> _actionGroups;
+        private List<SkillPart> _actionGroups;
 
         // ================================== getter ==================================
         public TriggerEnum Trigger => _trigger;
-        public IReadOnlyList<SkillActionGroup> ActionGroups => _actionGroups;
+        public IReadOnlyList<SkillPart> ActionGroups => _actionGroups;
 
         // ================================== setter ==================================
-        public SkillStep(TriggerEnum trigger, List<SkillActionGroup> actionGroups)
+        public SkillFlow(TriggerEnum trigger, List<SkillPart> actionGroups)
         {
             _trigger = trigger;
             _actionGroups = actionGroups;
@@ -34,7 +34,7 @@ namespace MagicSchool.Skills
         {
             if (_actionGroups == null) return;
 
-            foreach (SkillActionGroup actionGroup in _actionGroups) actionGroup?.Init(caster);
+            foreach (SkillPart actionGroup in _actionGroups) actionGroup?.Init(caster);
         }
     }
 }

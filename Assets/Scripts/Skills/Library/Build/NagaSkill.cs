@@ -23,7 +23,7 @@ namespace MagicSchool.Skills
              + $"+{WoundedAmplifier * 100}%";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
             List<SkillCondition> amplifierCondition = new List<SkillCondition>
             {
@@ -34,7 +34,7 @@ namespace MagicSchool.Skills
             };
 
             // homing projectile to furthest enemy
-            SkillActionGroup shootProjectile = ActionGroup(
+            SkillPart shootProjectile = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.HomingProjectile,
@@ -53,7 +53,7 @@ namespace MagicSchool.Skills
                     amplifier: WoundedAmplifier)
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: shootProjectile) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: shootProjectile) };
         }
     }
 }

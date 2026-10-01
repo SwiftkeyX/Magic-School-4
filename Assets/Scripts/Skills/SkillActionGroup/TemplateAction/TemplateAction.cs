@@ -51,7 +51,7 @@ namespace MagicSchool.Skills
         // ==================================== public method ====================================
         // try play template action. if play success, return true.
         // act as factory, since when this function is called, there is no real instance yet.
-        public static bool TryPlay(SkillActionGroup group, ICombatant caster,
+        public static bool TryPlay(SkillPart group, ICombatant caster,
                                    TemplateActionCallbacks callbacks = null, Vector3? previousPosition = null,
                                    ICombatant assignedTarget = null)
         {

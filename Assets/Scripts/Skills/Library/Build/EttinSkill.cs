@@ -24,12 +24,12 @@ namespace MagicSchool.Skills
             => $"Auto attacks deal an extra {MaxHPPerAttack}% of his max HP.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
             // FLAGGING: the sheet says this stacks every cast, but the same modifier instance is
             // refreshed rather than added again, so a second cast gives nothing more. Needs the
             // stack-vs-refresh rule in ModifierResolver.
-            SkillActionGroup skulls = ActionGroup(registry,
+            SkillPart skulls = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
@@ -44,14 +44,14 @@ namespace MagicSchool.Skills
                 ))
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: skulls) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: skulls) };
         }
 
         // ============================== passive ==============================
-        protected override List<SkillStep> Passive(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Passive(TemplateActionRegistrySO registry)
         {
             // every auto attack also hits the target for a share of his own max HP
-            SkillActionGroup onAttack = ActionGroup(registry,
+            SkillPart onAttack = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Current,
@@ -61,7 +61,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnAttack, groups: onAttack) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnAttack, groups: onAttack) };
         }
     }
 }

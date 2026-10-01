@@ -55,14 +55,14 @@ namespace MagicSchool.Skills
             return true;
         }
 
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
-            => new List<SkillStep> { Shoot(registry), Explode(registry) };
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+            => new List<SkillFlow> { Shoot(registry), Explode(registry) };
 
-        private SkillStep Shoot(TemplateActionRegistrySO registry)
+        private SkillFlow Shoot(TemplateActionRegistrySO registry)
         {
             _shotTuning = TuneProjectile();
 
-            SkillActionGroup shoot = ActionGroup(
+            SkillPart shoot = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.HomingProjectile,
@@ -70,14 +70,14 @@ namespace MagicSchool.Skills
                 tuning: _shotTuning
             );
 
-            return Step(trigger: TriggerEnum.OnCast, groups: shoot);
+            return Flow(trigger: TriggerEnum.OnCast, groups: shoot);
         }
 
-        private SkillStep Explode(TemplateActionRegistrySO registry)
+        private SkillFlow Explode(TemplateActionRegistrySO registry)
         {
             _blastTuning = TuneAOE();
 
-            SkillActionGroup explode = ActionGroup(
+            SkillPart explode = Part(
                 registry: registry,
                 source: ActionSourceEnum.WhereProjectileHit,
                 action: TemplateActionEnum.CircleAOE,
@@ -90,7 +90,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return Step(trigger: TriggerEnum.OnHit, groups: explode);
+            return Flow(trigger: TriggerEnum.OnHit, groups: explode);
         }
     }
 }

@@ -23,9 +23,9 @@ namespace MagicSchool.Skills
              + $"in it. He heals for {OmnivampPercent}% of the damage dealt.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
-            SkillActionGroup beam = ActionGroup(registry,
+            SkillPart beam = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.BoxAOE,
                 target: AimTargetEnum.ClusteredLaser,
@@ -41,7 +41,7 @@ namespace MagicSchool.Skills
                 Damage(EffectRecipientEnum.EnemiesInPath, (StatEnum.AP, DamageRatio))
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: beam) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: beam) };
         }
     }
 }

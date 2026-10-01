@@ -75,7 +75,7 @@ namespace MagicSchool.Skills
             AimTargetEnum shotAimTarget = _innerAimTarget;
 
             // copy/paste to create a desired template action
-            SkillActionGroup innerGroup = new SkillActionGroup(
+            SkillPart innerGroup = new SkillPart(
                 source: _innerSource,
                 templateAction: _innerPrefab,
                 target: shotAimTarget,

@@ -94,9 +94,9 @@ namespace MagicSchool.Skills
             return true;
         }
 
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
-            SkillActionGroup screech = ActionGroup(
+            SkillPart screech = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.HomingProjectile,
@@ -107,7 +107,7 @@ namespace MagicSchool.Skills
                     ratios: (StatEnum.ATK, DamageRatio))
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: screech) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: screech) };
         }
 
         // ============================== helper ==============================

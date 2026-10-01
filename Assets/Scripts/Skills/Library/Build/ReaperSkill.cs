@@ -23,16 +23,16 @@ namespace MagicSchool.Skills
              + $"that deals {MGDamagePerSnip}% AP to every enemy standing inside it.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
-            return new List<SkillStep> { Snip(registry) };
+            return new List<SkillFlow> { Snip(registry) };
         }
 
-        private static SkillStep Snip(TemplateActionRegistrySO registry)
+        private static SkillFlow Snip(TemplateActionRegistrySO registry)
         {
             AOETuning tune = TuneAOE(offset: AOEOffsetEnum.Tip);
 
-            SkillActionGroup snip = ActionGroup(
+            SkillPart snip = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.FireTimingRunnerTriangleAOE,
@@ -49,7 +49,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return Step(trigger: TriggerEnum.OnCast, groups: snip);
+            return Flow(trigger: TriggerEnum.OnCast, groups: snip);
         }
     }
 }

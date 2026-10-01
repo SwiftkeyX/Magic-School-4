@@ -24,12 +24,12 @@ namespace MagicSchool.Skills
              + $"{CollideDamage}% AP to everyone he ploughs into on the way and stunning them.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
-            => new List<SkillStep> { Move(registry), AOE(registry) };
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+            => new List<SkillFlow> { Move(registry), AOE(registry) };
 
-        private static SkillStep Move(TemplateActionRegistrySO registry)
+        private static SkillFlow Move(TemplateActionRegistrySO registry)
         {
-            SkillActionGroup move = ActionGroup(
+            SkillPart move = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Move,
@@ -37,10 +37,10 @@ namespace MagicSchool.Skills
                 tuning: TuneMove(range: ChargeRange, spread: HitboxHalfWidth)
             );
 
-            return Step(trigger: TriggerEnum.OnCast, groups: move);
+            return Flow(trigger: TriggerEnum.OnCast, groups: move);
         }
 
-        private static SkillStep AOE(TemplateActionRegistrySO registry)
+        private static SkillFlow AOE(TemplateActionRegistrySO registry)
         {
             ICustomModifier knockup = Bundle(
                 duration: KnockedUpDuration,
@@ -50,7 +50,7 @@ namespace MagicSchool.Skills
             );
 
             // Make sure the AOE's lifetime is long enough until Move dies
-            SkillActionGroup charge = ActionGroup(
+            SkillPart charge = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.HalfCircleAOESticky,
@@ -68,7 +68,7 @@ namespace MagicSchool.Skills
             );
 
             // FLAGGING: new trigger, start immediately at OnCast
-            return Step(TriggerEnum.OnCastStart, charge);
+            return Flow(TriggerEnum.OnCastStart, charge);
         }
     }
 }

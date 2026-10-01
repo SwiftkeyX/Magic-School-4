@@ -48,12 +48,12 @@ namespace MagicSchool.Skills
         }
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
             ICustomModifier wound = Bundle(WoundDuration, Status(ModifierEnum.Wound));
 
             // a circle around himself
-            SkillActionGroup slam = ActionGroup(
+            SkillPart slam = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.CircleAOE,
@@ -64,7 +64,7 @@ namespace MagicSchool.Skills
                 Apply(EffectRecipientEnum.EnemiesInArea, wound)
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: slam) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: slam) };
         }
     }
 }

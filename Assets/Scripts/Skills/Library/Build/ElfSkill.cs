@@ -21,9 +21,9 @@ namespace MagicSchool.Skills
              + $"and loses {ShredFromAP}% AP worth of armour for the rest of the fight.";
 
         // ============================== active ==============================
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
-            SkillActionGroup shootProjectile = ActionGroup(
+            SkillPart shootProjectile = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.FirstHitProjectile,
@@ -43,7 +43,7 @@ namespace MagicSchool.Skills
                             ratios: (StatEnum.AP, ShredFromAP, ScaleFromEnum.Total))))
             );
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: shootProjectile) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: shootProjectile) };
         }
     }
 }

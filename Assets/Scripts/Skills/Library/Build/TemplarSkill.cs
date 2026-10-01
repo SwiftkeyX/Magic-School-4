@@ -39,9 +39,9 @@ namespace MagicSchool.Skills
             return true;
         }
 
-        protected override List<SkillStep> Active(TemplateActionRegistrySO registry)
+        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
         {
-            SkillActionGroup swipe = ActionGroup(registry,
+            SkillPart swipe = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.TriangleAOE,
                 target: AimTargetEnum.Current,
@@ -51,7 +51,7 @@ namespace MagicSchool.Skills
 
             swipe.OnSkillHit = GrowShield;
 
-            return new List<SkillStep> { Step(trigger: TriggerEnum.OnCast, groups: swipe) };
+            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: swipe) };
         }
 
         // the swipe hit an enemy - the shield grows.
