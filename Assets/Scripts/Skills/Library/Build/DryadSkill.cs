@@ -22,8 +22,8 @@ namespace MagicSchool.Skills
              + "rest of the fight.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
-            => new List<SkillFlow> { Wave(registry) };
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
+            => Wave(registry);
 
         private static SkillFlow Wave(TemplateActionRegistrySO registry)
         {
@@ -52,7 +52,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return Flow(trigger: TriggerEnum.OnCast, groups: wave);
+            return Flow(onStart: wave);
         }
     }
 }

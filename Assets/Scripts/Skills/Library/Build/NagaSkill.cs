@@ -23,7 +23,7 @@ namespace MagicSchool.Skills
              + $"+{WoundedAmplifier * 100}%";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             List<SkillCondition> amplifierCondition = new List<SkillCondition>
             {
@@ -53,7 +53,7 @@ namespace MagicSchool.Skills
                     amplifier: WoundedAmplifier)
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: shootProjectile) };
+            return Flow(onStart: shootProjectile);
         }
     }
 }

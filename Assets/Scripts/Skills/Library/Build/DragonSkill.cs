@@ -24,7 +24,7 @@ namespace MagicSchool.Skills
              + $"{BurnTotal}% AP over {BurnDuration} seconds.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             // tip on the dragon, pointed at the densest pack
             SkillPart breath = Part(registry,
@@ -36,7 +36,7 @@ namespace MagicSchool.Skills
                 DamageOverTime(EffectRecipientEnum.EnemiesInArea, BurnInterval, BurnDuration, (StatEnum.AP, BurnTotal))
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: breath) };
+            return Flow(onStart: breath);
         }
     }
 }

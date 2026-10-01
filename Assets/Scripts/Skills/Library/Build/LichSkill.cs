@@ -9,8 +9,8 @@ namespace MagicSchool.Skills
         private const float DamageRatio = 250f;
         private const float OmnivampPercent = 40f;
         private const float OmnivampDuration = 0.5f;
-        private const float BeamLength = 10f;         
-        private const float BeamWidth = 3f;          
+        private const float BeamLength = 10f;
+        private const float BeamWidth = 3f;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new LichSkill(registry);
 
@@ -23,7 +23,7 @@ namespace MagicSchool.Skills
              + $"in it. He heals for {OmnivampPercent}% of the damage dealt.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart beam = Part(registry,
                 source: ActionSourceEnum.Self,
@@ -32,16 +32,16 @@ namespace MagicSchool.Skills
                 tuning: TuneAOE(length: BeamLength, width: BeamWidth, offset: AOEOffsetEnum.Tip),
 
                 Apply(
-                    EffectRecipientEnum.Self, 
+                    EffectRecipientEnum.Self,
                     Bundle(
-                        OmnivampDuration, 
+                        OmnivampDuration,
                         Buff(ModifierEnum.Omnivamp, OmnivampPercent)
                     )),
 
                 Damage(EffectRecipientEnum.EnemiesInPath, (StatEnum.AP, DamageRatio))
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: beam) };
+            return Flow(onStart: beam);
         }
     }
 }

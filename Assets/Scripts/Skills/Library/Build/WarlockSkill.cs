@@ -29,7 +29,7 @@ namespace MagicSchool.Skills
              + "If the target dies while cursed, the curse jumps to the next closest enemy.";
 
         // ============================== init ==============================
-        // the curse is played on its own rather than as a step, so it is initialized here
+        // the curse is played on its own rather than inside the flow, so it is initialized here
         public override void Init(ICombatant caster)
         {
             base.Init(caster);
@@ -61,7 +61,7 @@ namespace MagicSchool.Skills
         }
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             // the bolt does nothing itself - it only carries the curse to its target
             SkillPart bolt = Part(
@@ -85,14 +85,14 @@ namespace MagicSchool.Skills
                     ratios: (StatEnum.AP, CurseTotal))
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: bolt) };
+            return Flow(onStart: bolt);
         }
 
         // ============================== helper ==============================
         // put a curse on this enemy   
         private void Curse(ICombatant enemy)
         {
-            if (!PlayGroup(_curse, assignedTarget: enemy)) return;
+            if (!PlayOnePart(_curse, assignedTarget: enemy)) return;
 
             _cursed = enemy;
             _curseEndsAt = Time.time + CurseDuration;

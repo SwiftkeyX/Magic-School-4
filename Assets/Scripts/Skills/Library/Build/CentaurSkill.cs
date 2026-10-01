@@ -24,10 +24,10 @@ namespace MagicSchool.Skills
              + $"{CollideDamage}% AP to everyone he ploughs into on the way and stunning them.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
-            => new List<SkillFlow> { Move(registry), AOE(registry) };
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
+            => Flow(onStart: Together(Move(registry), AOE(registry)));
 
-        private static SkillFlow Move(TemplateActionRegistrySO registry)
+        private static SkillPart Move(TemplateActionRegistrySO registry)
         {
             SkillPart move = Part(
                 registry: registry,
@@ -37,10 +37,10 @@ namespace MagicSchool.Skills
                 tuning: TuneMove(range: ChargeRange, spread: HitboxHalfWidth)
             );
 
-            return Flow(trigger: TriggerEnum.OnCast, groups: move);
+            return move;
         }
 
-        private static SkillFlow AOE(TemplateActionRegistrySO registry)
+        private static SkillPart AOE(TemplateActionRegistrySO registry)
         {
             ICustomModifier knockup = Bundle(
                 duration: KnockedUpDuration,
@@ -67,8 +67,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            // FLAGGING: new trigger, start immediately at OnCast
-            return Flow(TriggerEnum.OnCastStart, charge);
+            return charge;
         }
     }
 }

@@ -24,12 +24,12 @@ namespace MagicSchool.Skills
              + $"for {SlamDamage}% AP to every enemy around him.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            return new List<SkillFlow> { Brace(registry), Slam(registry) };
+            return Flow(onStart: Brace(registry), onExpired: Slam(registry));
         }
 
-        private static SkillFlow Brace(TemplateActionRegistrySO registry)
+        private static SkillPart Brace(TemplateActionRegistrySO registry)
         {
             SkillPart brace = Part(
                 registry: registry,
@@ -54,10 +54,10 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return Flow(trigger: TriggerEnum.OnCast, groups: brace);
+            return brace;
         }
 
-        private static SkillFlow Slam(TemplateActionRegistrySO registry)
+        private static SkillPart Slam(TemplateActionRegistrySO registry)
         {
             SkillPart slam = Part(
                 registry: registry,
@@ -70,7 +70,7 @@ namespace MagicSchool.Skills
                     ratios: (StatEnum.AP, SlamDamage))
             );
 
-            return Flow(trigger: TriggerEnum.OnExpired, groups: slam);
+            return slam;
         }
     }
 }

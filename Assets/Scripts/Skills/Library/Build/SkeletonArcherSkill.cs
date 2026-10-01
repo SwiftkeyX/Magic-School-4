@@ -23,8 +23,8 @@ namespace MagicSchool.Skills
              + $"{ADDamagePerShot}% AD + {MGDamagePerShot}% AP.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
-            => new List<SkillFlow> { Shoot(registry) };
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
+            => Shoot(registry);
 
         private static SkillFlow Shoot(TemplateActionRegistrySO registry)
         {
@@ -44,7 +44,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return Flow(trigger: TriggerEnum.OnCast, groups: shoot);
+            return Flow(onStart: shoot);
         }
 
     }

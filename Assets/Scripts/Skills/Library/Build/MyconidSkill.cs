@@ -21,7 +21,7 @@ namespace MagicSchool.Skills
              + $"and is stunned for {StunDuration} seconds.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             ICustomModifier stun = Bundle(StunDuration, Status(ModifierEnum.Stun));
 
@@ -33,7 +33,7 @@ namespace MagicSchool.Skills
                 Apply(EffectRecipientEnum.EnemiesInPath, stun)
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: spore) };
+            return Flow(onStart: spore);
         }
     }
 }

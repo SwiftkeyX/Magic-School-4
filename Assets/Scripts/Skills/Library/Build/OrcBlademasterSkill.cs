@@ -21,7 +21,7 @@ namespace MagicSchool.Skills
              + $"in it, split over {Duration} seconds and ticking every {TickInterval} seconds.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart spin = Part(
                 registry: registry,
@@ -37,7 +37,7 @@ namespace MagicSchool.Skills
                     ratios: (StatEnum.ATK, DamagePerTick))
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: spin) };
+            return Flow(onStart: spin);
         }
     }
 }

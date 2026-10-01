@@ -38,10 +38,10 @@ namespace MagicSchool.Skills
         private float CurrentStun => StunDuration + StunPerGrowth * (_attackCount / AttacksPerGrowth);
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
-            => new List<SkillFlow> { Cast(registry), OnCastExpired(registry) };
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
+            => Flow(onStart: Cast(registry), onExpired: OnCastExpired(registry));
 
-        private static SkillFlow Cast(TemplateActionRegistrySO registry)
+        private static SkillPart Cast(TemplateActionRegistrySO registry)
         {
             // +200% of his own attack speed - a self-referential ratio, resolved once when it lands
             ICustomModifier modifiers = Bundle(
@@ -59,10 +59,10 @@ namespace MagicSchool.Skills
                 target: AimTargetEnum.Self,
                 Apply(EffectRecipientEnum.Self, modifiers));
 
-            return Flow(trigger: TriggerEnum.OnCast, groups: cast);
+            return cast;
         }
 
-        private SkillFlow OnCastExpired(TemplateActionRegistrySO registry)
+        private SkillPart OnCastExpired(TemplateActionRegistrySO registry)
         {
             // stun
             ICustomModifier stun = Bundle(() => CurrentStun, Status(ModifierEnum.Stun));
@@ -74,7 +74,7 @@ namespace MagicSchool.Skills
                 target: AimTargetEnum.Self,
                 Apply(EffectRecipientEnum.EnemiesInArea, stun));
 
-            return Flow(trigger: TriggerEnum.OnExpired, groups: AOE);
+            return AOE;
         }
 
         // ============================== passive ==============================
@@ -105,7 +105,8 @@ namespace MagicSchool.Skills
             return base.OnAttack(target);
         }
 
-        protected override List<SkillFlow> Passive(TemplateActionRegistrySO registry)
+        // on attack, heal himself
+        protected override SkillFlow BuildAttackFlow(TemplateActionRegistrySO registry)
         {
             // cast
             SkillPart cast = Part(registry,
@@ -115,7 +116,7 @@ namespace MagicSchool.Skills
                 // sheet: 30% AP
                 Heal(EffectRecipientEnum.Self, (StatEnum.AP, HealOnAA)));
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnAttack, groups: cast) };
+            return Flow(onStart: cast);
         }
     }
 }

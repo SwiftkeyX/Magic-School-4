@@ -23,9 +23,9 @@ namespace MagicSchool.Skills
              + $"that deals {MGDamagePerSnip}% AP to every enemy standing inside it.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            return new List<SkillFlow> { Snip(registry) };
+            return Snip(registry);
         }
 
         private static SkillFlow Snip(TemplateActionRegistrySO registry)
@@ -49,7 +49,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return Flow(trigger: TriggerEnum.OnCast, groups: snip);
+            return Flow(onStart: snip);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace MagicSchool.Skills
              + "for the rest of the fight.";
 
         // ============================== passive ==============================
-        public override bool HasPassive => true;
+        public override bool HasAttackPassive => true;
 
         public override bool OnCombatStart()
         {
@@ -54,7 +54,7 @@ namespace MagicSchool.Skills
         }
 
         // the cast itself only plays the animation; the steal happens in OnCast
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart cast = Part(
                 registry: registry,
@@ -62,7 +62,7 @@ namespace MagicSchool.Skills
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self);
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: cast) };
+            return Flow(onStart: cast);
         }
     }
 }

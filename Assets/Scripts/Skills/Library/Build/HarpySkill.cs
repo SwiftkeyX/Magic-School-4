@@ -41,7 +41,7 @@ namespace MagicSchool.Skills
              + $"{BothBonusesAttack} AD and {BothBonusesAttackSpeed} attack speed she gets both.";
 
         // ============================== passive ==============================
-        public override bool HasPassive => true;
+        public override bool HasAttackPassive => true;
 
         // at combat start, choose the stance
         public override bool OnCombatStart()
@@ -87,14 +87,14 @@ namespace MagicSchool.Skills
         public override bool OnCast()
         {
             if (!base.OnCast()) return false;
-            
+
             if (_stance != STANCE.range)
                 Grow(Buff(ModifierEnum.ATK, (StatEnum.ATK, AttackPerCast, ScaleFromEnum.Base)));
 
             return true;
         }
 
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart screech = Part(
                 registry: registry,
@@ -107,7 +107,7 @@ namespace MagicSchool.Skills
                     ratios: (StatEnum.ATK, DamageRatio))
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: screech) };
+            return Flow(onStart: screech);
         }
 
         // ============================== helper ==============================

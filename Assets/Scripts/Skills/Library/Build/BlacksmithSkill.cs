@@ -22,7 +22,7 @@ namespace MagicSchool.Skills
              + $"seconds and permanently removing armour equal to {ShredFromAP}% AP.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart hammer = Part(registry,
                 source: ActionSourceEnum.Current,
@@ -36,7 +36,7 @@ namespace MagicSchool.Skills
                              Debuff(ModifierEnum.DefendShred, (StatEnum.AP, ShredFromAP, ScaleFromEnum.Total))))
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: hammer) };
+            return Flow(onStart: hammer);
         }
     }
 }

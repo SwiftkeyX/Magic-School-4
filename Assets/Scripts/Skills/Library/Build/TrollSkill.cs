@@ -32,7 +32,7 @@ namespace MagicSchool.Skills
             => $"Whenever an enemy dies, he gains {BonusHPPerDeath} bonus health for the rest of the fight and heals for as much.";
 
         // ============================== passive ==============================
-        public override bool HasPassive => true;
+        public override bool HasAttackPassive => true;
 
         // an enemy died - gain bonus health, and the HP to fill it.
         // A fresh bundle every time, so the deaths stack
@@ -48,7 +48,7 @@ namespace MagicSchool.Skills
         }
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             ICustomModifier wound = Bundle(WoundDuration, Status(ModifierEnum.Wound));
 
@@ -64,7 +64,7 @@ namespace MagicSchool.Skills
                 Apply(EffectRecipientEnum.EnemiesInArea, wound)
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: slam) };
+            return Flow(onStart: slam);
         }
     }
 }

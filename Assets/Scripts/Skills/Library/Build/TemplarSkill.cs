@@ -8,12 +8,12 @@ namespace MagicSchool.Skills
     {
         // swipe
         private const float DamageRatio = 150f;
-        private const float ConeLength = 2.5f;       
-        private const float ConeWidth = 3f;          
+        private const float ConeLength = 2.5f;
+        private const float ConeWidth = 3f;
 
         // shield
-        private const float ShieldRatio = 300f;         
-        private const float ShieldRatioPerHit = 50f;    
+        private const float ShieldRatio = 300f;
+        private const float ShieldRatioPerHit = 50f;
         private const float ShieldDuration = 4f;        // FLAGGING: the roster sheet gives no length - 4s is Rock Golem's
 
         private readonly ICustomModifier _shield = Bundle(ShieldDuration, Shield((StatEnum.DF, ShieldRatio)));
@@ -39,7 +39,7 @@ namespace MagicSchool.Skills
             return true;
         }
 
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart swipe = Part(registry,
                 source: ActionSourceEnum.Self,
@@ -51,7 +51,7 @@ namespace MagicSchool.Skills
 
             swipe.OnSkillHit = GrowShield;
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: swipe) };
+            return Flow(onStart: swipe);
         }
 
         // the swipe hit an enemy - the shield grows.

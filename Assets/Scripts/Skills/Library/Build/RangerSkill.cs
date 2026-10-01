@@ -24,7 +24,7 @@ namespace MagicSchool.Skills
              + $"{BuffDuration} seconds for each enemy it hits.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart shot = Part(registry,
                 source: ActionSourceEnum.Self,
@@ -35,7 +35,7 @@ namespace MagicSchool.Skills
 
             shot.OnSkillHit = GainAttackSpeed;
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: shot) };
+            return Flow(onStart: shot);
         }
 
         // the arrow hit an enemy - gain attack speed.

@@ -56,7 +56,7 @@ namespace MagicSchool.Skills
         }
 
         // ============================== passive ==============================
-        public override bool HasPassive => true;
+        public override bool HasAttackPassive => true;
 
         // at combat start, reset the beat
         public override bool OnCombatStart()
@@ -70,16 +70,16 @@ namespace MagicSchool.Skills
         {
             if (!Caster.HasStatus(ModifierEnum.Transformed)) return false;
 
-            if (!PlayGroup(_beats[_currentBeat])) return false;
+            if (!PlayOnePart(_beats[_currentBeat])) return false;
 
             _currentBeat = (_currentBeat + 1) % _beats.Length;
             return true;
         }
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            return new List<SkillFlow> { Transform(registry) };
+            return Transform(registry);
         }
 
         private static SkillFlow Transform(TemplateActionRegistrySO registry)
@@ -114,7 +114,7 @@ namespace MagicSchool.Skills
                     modifier: WorldEnderBuff)
             );
 
-            return Flow(trigger: TriggerEnum.OnCast, groups: cast);
+            return Flow(onStart: cast);
         }
 
         private static SkillPart Beat(TemplateActionRegistrySO registry, TemplateActionEnum action, float damage)

@@ -480,7 +480,7 @@ MonoBehaviour:
   _templateActions: {fileID: 11400000, guid: 31d48e144b9be4e40b79fd94b16f49ed, type: 2}
   _isPlayerSeed: 0
   _test: 1
-  _startingHeroLimit: 3
+  _startingHeroLimit: 5
 --- !u!4 &344829187
 Transform:
   m_ObjectHideFlags: 0
@@ -946,6 +946,15 @@ MonoBehaviour:
   _panelAsset: {fileID: 9197481963319205126, guid: a6ab2bc69608ec746938b3134742beb5, type: 3}
   _ghostAsset: {fileID: 9197481963319205126, guid: f2b0855b1d9174942833f355aba69429, type: 3}
   _heroDataSOs:
+  - {fileID: 11400000, guid: c89100b4b11c04842a71fca916c1d4c1, type: 2}
+  - {fileID: 11400000, guid: e55e93ecd34e44c429e32be0e761a605, type: 2}
+  - {fileID: 11400000, guid: e3572f7949186fc4191265167e10d06c, type: 2}
+  - {fileID: 11400000, guid: e0d92ea49f97c2f46b205c5e450d59a8, type: 2}
+  - {fileID: 11400000, guid: cd4cac9939490af43aa6dbf673be3eb0, type: 2}
+  - {fileID: 11400000, guid: 222e942e99c763945a71cfb41266672d, type: 2}
+  - {fileID: 11400000, guid: 32ec63790ae82b342bcce0520067c869, type: 2}
+  - {fileID: 11400000, guid: ae7dbc09b43826d49bf4777dd185c50b, type: 2}
+  - {fileID: 11400000, guid: 73b3853130bb12a489fffe28539d20f4, type: 2}
   - {fileID: 11400000, guid: 621e6aa619eba43449eec15fda915d3c, type: 2}
   - {fileID: 11400000, guid: 3cda1428d994f8842bab119907747544, type: 2}
   - {fileID: 11400000, guid: 6c221077dffe9bf418d6dbf62db3777b, type: 2}

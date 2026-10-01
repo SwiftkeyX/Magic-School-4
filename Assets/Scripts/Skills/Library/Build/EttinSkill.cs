@@ -24,7 +24,7 @@ namespace MagicSchool.Skills
             => $"Auto attacks deal an extra {MaxHPPerAttack}% of his max HP.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             // FLAGGING: the sheet says this stacks every cast, but the same modifier instance is
             // refreshed rather than added again, so a second cast gives nothing more. Needs the
@@ -44,11 +44,11 @@ namespace MagicSchool.Skills
                 ))
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: skulls) };
+            return Flow(onStart: skulls);
         }
 
         // ============================== passive ==============================
-        protected override List<SkillFlow> Passive(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildAttackFlow(TemplateActionRegistrySO registry)
         {
             // every auto attack also hits the target for a share of his own max HP
             SkillPart onAttack = Part(registry,
@@ -61,7 +61,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnAttack, groups: onAttack) };
+            return Flow(onStart: onAttack);
         }
     }
 }

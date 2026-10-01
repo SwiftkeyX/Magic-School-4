@@ -24,7 +24,7 @@ namespace MagicSchool.Skills
              + $"and gains {AttackSpeedBuff}% attack speed for {BuffDuration} seconds.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             ICustomModifier aegis = Bundle(
                 duration: BuffDuration,
@@ -47,7 +47,7 @@ namespace MagicSchool.Skills
                     modifier: aegis)
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: light) };
+            return Flow(onStart: light);
         }
     }
 }

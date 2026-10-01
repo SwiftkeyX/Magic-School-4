@@ -23,9 +23,9 @@ namespace MagicSchool.Skills
              + $"{DamageRatio}% AD, healing for {OmnivampPercent}% of the damage dealt.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            // step 0 - the lifesteal, put on as the cast begins
+            // the lifesteal, put on as the cast begins
             SkillPart focus = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
@@ -34,7 +34,7 @@ namespace MagicSchool.Skills
                       Bundle(OmnivampDuration, Buff(ModifierEnum.Omnivamp, OmnivampPercent)))
             );
 
-            // step 1 - the charge. Fires alongside step 0 and holds him for ChargeTime. A Cast lives as
+            // the charge. Starts together with the lifesteal and holds him for ChargeTime. A Cast lives as
             // long as its longest modifier, so ManaBlocked is what makes it last - and he gains no mana
             // while charging.
             SkillPart charge = Part(registry,
@@ -45,7 +45,7 @@ namespace MagicSchool.Skills
                 Apply(EffectRecipientEnum.Self, Bundle(ChargeTime, Status(ModifierEnum.ManaBlocked)))
             );
 
-            // step 2 - the slash, when the charge ends. A Cast aimed at the current target hits only it.
+            // the slash, when the charge ends. A Cast aimed at the current target hits only it.
             SkillPart slash = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
@@ -53,12 +53,8 @@ namespace MagicSchool.Skills
                 Damage(EffectRecipientEnum.SameToAimTarget, (StatEnum.ATK, DamageRatio))
             );
 
-            return new List<SkillFlow>
-            {
-                Flow(trigger: TriggerEnum.OnCast, groups: focus),
-                Flow(trigger: TriggerEnum.OnCastStart, groups: charge),
-                Flow(trigger: TriggerEnum.OnExpired, groups: slash),
-            };
+            // the charge leads, so the slash waits on it and not on the lifesteal
+            return Flow(onStart: Together(charge, focus), onExpired: slash);
         }
     }
 }

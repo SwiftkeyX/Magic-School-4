@@ -22,7 +22,7 @@ namespace MagicSchool.Skills
              + $"seconds, then takes {DamageReductionPercent}% less damage for {GuardDuration} seconds.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             // the palm - a box on the current target
             SkillPart palm = Part(registry,
@@ -33,7 +33,7 @@ namespace MagicSchool.Skills
                 Apply(EffectRecipientEnum.EnemiesInArea, Bundle(StunDuration, Status(ModifierEnum.Stun)))
             );
 
-            // the guard - its own step, because a step plays only one of its groups
+            // the guard - put up once the palm is gone
             SkillPart guard = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
@@ -42,11 +42,7 @@ namespace MagicSchool.Skills
                       Bundle(GuardDuration, Buff(ModifierEnum.DamageReduction, DamageReductionPercent)))
             );
 
-            return new List<SkillFlow>
-            {
-                Flow(trigger: TriggerEnum.OnCast, groups: palm),
-                Flow(trigger: TriggerEnum.OnExpired, groups: guard),
-            };
+            return Flow(onStart: palm, onExpired: guard);
         }
     }
 }

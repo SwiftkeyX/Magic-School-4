@@ -129,10 +129,20 @@ namespace MagicSchool.Skills
             => new SkillPart(source, registry.Get(action), target,
                                     conditions: conditions, effects: new List<SkillEffect>(effects), tuning: tuning);
 
-        // a step inside template action
-        // step are working in order, each step will be played if it was trigger.
-        public static SkillFlow Flow(TriggerEnum trigger, params SkillPart[] groups)
-            => new SkillFlow(trigger, new List<SkillPart>(groups));
+        // ================================== Flow ==================================
+        // one flow = one skill, read SkillFlow.cs
+        //   onStart     the parts the skill starts with
+        //   onHit       the parts played when `onStart` hits something
+        //   onExpired   the parts played when `onStart` expires
+        // e.g. Flow(onStart: shot, onHit: blast)
+        //      Flow(onStart: Together(charge, hitbox), onExpired: slash)
+        public static SkillFlow Flow(PartSet onStart, PartSet onHit = default, PartSet onExpired = default)
+            => new SkillFlow(onStart.Parts, onHit.Parts, onExpired.Parts);
+
+        // several parts in one slot of a flow. They start together, and the first one leads:
+        // only lead matter for what'll be played afterward. 
+        public static PartSet Together(params SkillPart[] parts)
+            => new PartSet(parts);
         
         // ================================== Tune ==================================
         // tuning a template action

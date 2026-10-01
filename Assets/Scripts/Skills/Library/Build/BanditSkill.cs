@@ -30,7 +30,7 @@ namespace MagicSchool.Skills
             return base.OnCast();
         }
 
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart strike = Part(registry,
                 source: ActionSourceEnum.Self,
@@ -38,7 +38,7 @@ namespace MagicSchool.Skills
                 target: AimTargetEnum.Current,
                 Damage(EffectRecipientEnum.SameToAimTarget, (StatEnum.ATK, DamageRatio)));
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: strike) };
+            return Flow(onStart: strike);
         }
     }
 }

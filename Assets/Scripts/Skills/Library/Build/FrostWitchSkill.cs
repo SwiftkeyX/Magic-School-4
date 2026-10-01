@@ -27,7 +27,7 @@ namespace MagicSchool.Skills
              + $"{SlowPercent}% attack speed.";
 
         // ============================== active ==============================
-        protected override List<SkillFlow> Active(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             // one instance, re-applied every tick - so it refreshes instead of stacking. Lasts one tick
             // past the interval so it never drops between two ticks for someone still inside.
@@ -45,7 +45,7 @@ namespace MagicSchool.Skills
                 ApplyOverTime(EffectRecipientEnum.EnemiesInArea, TickInterval, Duration, chill)
             );
 
-            return new List<SkillFlow> { Flow(trigger: TriggerEnum.OnCast, groups: field) };
+            return Flow(onStart: field);
         }
     }
 }
