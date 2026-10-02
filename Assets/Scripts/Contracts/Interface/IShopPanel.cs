@@ -1,8 +1,8 @@
 namespace MagicSchool.Contracts
 {
-    // IShopPanel answers: whose gold is spended when interact with the shop?
+    // IShopPanel answers: Bind the Shop.cs to the shop panel.
     public interface IShopPanel : IPanel
     {
-        void BindWallet(IWallet wallet);
+        void BindShop(IShop shop);
     }
 }

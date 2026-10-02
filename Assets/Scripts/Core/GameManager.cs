@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using UnityEngine;
 using MagicSchool.Contracts;
+using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.CombatRecording;
 using MagicSchool.Core.States;
@@ -16,19 +18,32 @@ namespace MagicSchool.Core
         public static GameManager Instance { get; private set; }
 
         // ============================================= dependency =============================================
+        [Header("Scene")]
         [SerializeField] private BattleBoard _board;
         [SerializeField] private Bench _bench;
-        [SerializeField] private BattlePlacementSO[] _stages;
         [SerializeField] private TemplateActionRegistrySO _templateActions;
-        [SerializeField] private bool _isPlayerSeed;
 
-        [Tooltip("Write every round's numbers to a CSV for balancing. Off in a real build - it writes a file.")]
-        [SerializeField] private bool _test;
+        [Header("Stages")]
+        [SerializeField] private BattlePlacementSO[] _stages;
         [SerializeField] private int _startingHeroLimit = 3;   // how many heroes the player may field on stage 1
+
+        [Header("Gold")]
         [SerializeField] private int _startingGold = 10;       // what the player shops with on stage 1
         [SerializeField] private int _stageIncome = 5;         // gold paid after every fight
+
+        [Header("Shop")]
+        [SerializeField] private int _shopSlots = 5;           // how many things the shop sells at once
+        [SerializeField] private int _refreshCost = 1;         // gold for one re-roll of the whole shop
+        [SerializeField] private List<HeroDataSO> _shopRoster; // every hero the shop can roll
+
+        [Header("Testing")]
+        [SerializeField] private bool _isPlayerSeed;
+        [Tooltip("Write every round's numbers to a CSV for balancing. Off in a real build - it writes a file.")]
+        [SerializeField] private bool _test;
+
         private BattlePlacementSO _currentStage;
         private Wallet _wallet;
+        private Shop _shop;
         private HeroMover _heroMover;
         private HeroSeller _heroSeller;
         private HeroFormation _heroFormation;
@@ -105,6 +120,7 @@ namespace MagicSchool.Core
             _heroSpawner = new HeroSpawner(_heroMover, _bench, _seed, _templateActions, _recorder);
             _wallet = new Wallet(_startingGold);
             _heroSeller = new HeroSeller(_wallet);
+            _shop = new Shop(_wallet, _bench, _shopRoster, _shopSlots, _refreshCost);
             _heroFormation = new HeroFormation(_heroMover);
             _heroLimit = _startingHeroLimit;
             _stateMachine = new GameStateMachine(this);
@@ -115,8 +131,8 @@ namespace MagicSchool.Core
             _reward = behaviours.OfType<IRewardPanel>().FirstOrDefault();
             _scoreboard = behaviours.OfType<IScoreboardPanel>().FirstOrDefault();
 
-            // bind the shop panel to player's wallet
-            behaviours.OfType<IShopPanel>().FirstOrDefault()?.BindWallet(_wallet);
+            // bind the shop (logic) to shop panel
+            behaviours.OfType<IShopPanel>().FirstOrDefault()?.BindShop(_shop);
         }
 
         // start the game at preparation state

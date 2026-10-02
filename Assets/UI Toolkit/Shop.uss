@@ -74,7 +74,7 @@
 }
 
 /* What the slot costs, under its name. Gold-coloured while the player can pay for it, red when
-   he can't (ShopPanelController.ShowAffordability puts the --unaffordable class on the slot). */
+   he can't (ShopPanelController.ShowSlot puts the --unaffordable class on the slot). */
 .hero-slot-price {
     color: rgb(240, 200, 90);
     font-size: 12px;
@@ -98,7 +98,7 @@
    out of the layout and in hand. Declared after .hero-slot deliberately - equal specificity, so
    on the properties they share these win.
 
-   Width and height are a fallback: ShopPanelController.ShowGhostAs overwrites them inline with
+   Width and height are a fallback: UIDrag.ShowGhostAs overwrites them inline with
    the measured size of the slot actually being dragged, so the card does not change size the
    moment you pick it up. They matter only if the ghost is somehow shown without that call. */
 .ghost {
