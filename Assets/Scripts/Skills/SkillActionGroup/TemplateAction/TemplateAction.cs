@@ -207,7 +207,7 @@ namespace MagicSchool.Skills
         protected void ApplyEffectToRecipients(SkillEffect effect, IReadOnlyList<ICombatant> recipients)
         {
             var resolve = ResolveRecipient(effect.Recipient, recipients);
-            effect.ApplyEffect(resolve);
+            effect.ApplyEffect(resolve, _me);
         }
 
         // resolve the new recipient list according to recipientEnum specify

@@ -36,7 +36,7 @@ namespace MagicSchool.Skills
                 else
                 {
                     // apply effect once
-                    effect.ApplyEffect(new List<IEffectable> { _target });
+                    effect.ApplyEffect(new List<IEffectable> { _target }, _me);
                 }
 
                 durations.Add(GetDuration(effect));

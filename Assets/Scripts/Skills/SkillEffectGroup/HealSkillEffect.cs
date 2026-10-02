@@ -24,7 +24,7 @@ namespace MagicSchool.Skills
 
         // heal the reciepient
         // if the heal was cadence, it only heal the divided amount each time.
-        public override void ApplyEffect(IReadOnlyList<IEffectable> recipients)
+        public override void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null)
         {
             int totalTicks = Mathf.Max(1, Mathf.RoundToInt(_duration / Cadence.cadenceInterval));
             float healPerTick = Scaling.Total(_ratios, _caster as IHeroStats) / totalTicks;

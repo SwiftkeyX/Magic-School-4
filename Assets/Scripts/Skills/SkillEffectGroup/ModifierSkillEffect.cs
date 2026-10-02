@@ -18,7 +18,7 @@ namespace MagicSchool.Skills
             _modifier = modifier;
         }
 
-        public override void ApplyEffect(IReadOnlyList<IEffectable> recipients)
+        public override void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null)
         {
             if (_modifier == null) return;
 

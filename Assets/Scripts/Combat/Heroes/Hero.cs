@@ -119,10 +119,10 @@ namespace MagicSchool.Combat.Heroes
             OnHealed?.Invoke(new HealEvent(source, this, outcome));
         }
 
-        public void TakeDamage(int damage, IEffectable source, DamageKindEnum kind)
+        public int TakeDamage(int damage, IEffectable source, DamageKindEnum kind)
         {
             // if target has vanish, the target don't take damage
-            if (HasStatus(ModifierEnum.Untargetable)) return;
+            if (HasStatus(ModifierEnum.Untargetable)) return 0;
 
             DamageOutcome outcome = CombatMath.ResolveDamage(damage, Stat.DF, Stat.DamageReductionPercent, Stat.CurrentHP,
                                                              Stat.Shield, out int absorbed);
@@ -130,6 +130,9 @@ namespace MagicSchool.Combat.Heroes
             Stat.SetCurrentHP(outcome.NewHP);
 
             OnDamaged?.Invoke(new DamageEvent(source, this, kind, outcome));
+
+            // return how much damage was done
+            return outcome.Landed;
         }
 
         // === IHeroStats ===

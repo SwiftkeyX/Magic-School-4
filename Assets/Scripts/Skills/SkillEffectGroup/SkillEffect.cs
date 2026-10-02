@@ -46,6 +46,6 @@ namespace MagicSchool.Skills
             return 1f;
         }
 
-        public abstract void ApplyEffect(IReadOnlyList<IEffectable> recipients);
+        public abstract void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null);
     }
 }

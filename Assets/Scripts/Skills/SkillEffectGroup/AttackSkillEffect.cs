@@ -10,6 +10,7 @@ namespace MagicSchool.Skills
     {
         private readonly IReadOnlyList<StatRatio> _ratios;
         private readonly bool _canCrit;     // skill damage does not crit by default, unless the skill was built to
+        private float _lifestealPercent;
 
         public AttackSkillEffect(EffectRecipientEnum recipient, IReadOnlyList<StatRatio> ratios, Cadence cadence = null,
                                  List<SkillCondition> conditions = null, float amplifier = 0f, bool canCrit = false)
@@ -19,7 +20,14 @@ namespace MagicSchool.Skills
             _canCrit = canCrit;
         }
 
-        public override void ApplyEffect(IReadOnlyList<IEffectable> recipients)
+        // ASKING: what is this for?
+        public AttackSkillEffect WithLifesteal(float percent)
+        {
+            _lifestealPercent = percent;
+            return this;
+        }
+
+        public override void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null)
         {
             // scale the damage e.g. skill damage = 500% AP
             float damageAmount = Scaling.Total(_ratios, _caster as IHeroStats);
@@ -42,11 +50,16 @@ namespace MagicSchool.Skills
                 if (_canCrit) dmg = Crit.Roll(dmg, _caster as IHeroStats, out _);
 
                 // apply damage
-                recipient.TakeDamage(
+                int landed = recipient.TakeDamage(
                     damage: Mathf.RoundToInt(dmg),
                     source: _caster,
                     kind: DamageKindEnum.Skill
                 );
+
+                // lifesteal
+                bool lifeStealExist = _lifestealPercent > 0f;
+                if (lifeStealExist && actor != null)
+                    actor.Heal(landed * _lifestealPercent / 100f, _caster);
             }
         }
     }
