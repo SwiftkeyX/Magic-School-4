@@ -120,7 +120,7 @@ namespace MagicSchool.Combat.Tests
         }
 
         /// <summary>
-        /// FindEnemy caches who the enemies are and how far off they stand for the length of one
+        /// EnemyScan caches who the enemies are and how far off they stand for the length of one
         /// frame, keyed on Time.frameCount. EditMode never runs a frame, so that cache would live
         /// for the whole test and answer every question with the board as it was at the first one.
         /// Anything that moves a unit has to clear it, the way the next frame would in a real game.
@@ -132,8 +132,12 @@ namespace MagicSchool.Combat.Tests
                 object finder = GetPrivateField(hero, "_findEnemy");
                 if (finder == null) continue;
 
-                SetPrivateField(finder, "_enemyBFSCacheFrame", -1);
-                SetPrivateField(finder, "_enemyDistanceCacheFrame", -1);
+                // the caches live on the scan the finder owns, not on the finder itself
+                object scan = GetPrivateField(finder, "_scan");
+
+                SetPrivateField(scan, "_enemyCacheFrame", -1);
+                SetPrivateField(scan, "_distanceCacheFrame", -1);
+                SetPrivateField(scan, "_stepCacheFrame", -1);
             }
         }
 
