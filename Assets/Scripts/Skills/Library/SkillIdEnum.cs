@@ -46,5 +46,6 @@ namespace MagicSchool.Skills
         Rogue = 35,
         GoblinArcher = 36,
         Fencer = 37,
+        Priest = 38,
     }
 }
