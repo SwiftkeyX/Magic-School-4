@@ -26,6 +26,13 @@ namespace MagicSchool.Skills
         public bool? MaxRange;           // ClusteredLaser only: keep running as far as possible, instead of stopping behind the last enemy hit
     }
 
+    public class SummonTuning : Tuning
+    {
+        public float? Duration;          // how long the companion stays
+        public float? Interval;          // act cooldown of companion
+        public SkillPart Act;            // what the companion do on every interval
+    }
+
     public class ProjectileTuning : Tuning
     {
         public int? Range;               // how far a projectile can reach

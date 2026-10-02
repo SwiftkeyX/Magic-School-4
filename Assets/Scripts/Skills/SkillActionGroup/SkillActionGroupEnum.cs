@@ -25,6 +25,7 @@ namespace MagicSchool.Skills
         WhereProjectileHit = 4,
         Random = 6,
         Assigned = 7,
+        NearestAlly = 8,
 
         // ...
     }

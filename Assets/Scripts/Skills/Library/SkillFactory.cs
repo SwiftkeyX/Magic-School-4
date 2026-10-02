@@ -187,6 +187,10 @@ namespace MagicSchool.Skills
             => new MoveTuning { CastTime = castTime, Range = range, Duration = duration, Spread = spread,
                                 MaxRange = maxRange };
 
+        public static SummonTuning TuneSummon(SkillPart act, float? duration = null, float? interval = null,
+                                              float? castTime = null)
+            => new SummonTuning { Act = act, Duration = duration, Interval = interval, CastTime = castTime };
+
         public static ProjectileTuning TuneProjectile(float? castTime = null, int? range = null,
                                                       float? spread = null, float? size = null)
             => new ProjectileTuning { CastTime = castTime, Range = range, Spread = spread, Size = size };
