@@ -63,8 +63,13 @@ namespace MagicSchool.Skills
         // If mana is full, subclass do [x], and play the active flow.
         public virtual bool OnCast() => PlayFlow(_active);
 
-        // If auto-attack, subclass do [x], and play the onAttack flow.
+        // If auto attack, subclass do [x], and play the onAttack flow.
         public virtual bool OnAttack(ICombatant target) => PlayFlow(_onAttack);
+
+        // Normally a auto attack always default to current target.
+        // But some skill may pick different target through this method. 
+        // e.g. Goblin Archer auto attack a random enemy
+        public virtual ICombatant OnPickAttackTarget(ICombatant target) => target;
 
         // At combat start, play OnCombatStart.
         public virtual bool OnCombatStart() => false;

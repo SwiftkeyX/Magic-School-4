@@ -74,6 +74,7 @@ namespace MagicSchool.Combat.Heroes
         // ======================================== skill ========================================
         public bool TriggerActiveSkill(bool isManaCapped) => _skill.TriggerOnCastSkill(isManaCapped);
         public bool TriggerOnAttack(ICombatant target) => _skill.TriggerOnAttack(target);
+        public ICombatant PickAttackTarget(ICombatant target) => _skill.PickAttackTarget(target);
         public bool TriggerOnCombatStart() => _skill.TriggerOnCombatStart();
         public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);
         public float GetCastTime() => _skill.GetCastTime();

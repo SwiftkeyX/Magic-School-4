@@ -48,11 +48,16 @@ namespace MagicSchool.Combat.Heroes.States
             // attack again if aa is reset. The timer is always runs in the background
             if (_me.IsAttackReady)
             {
+                // who this attack lands on. 
+                // default current target, unless the skill picks someone else
+                // e.g. Goblin Archer shoots a random enemy
+                ICombatant attackTarget = _me.PickAttackTarget(_currentTarget);
+
                 // fire OnAttack event
-                _me.TriggerOnAttack(_currentTarget);
+                _me.TriggerOnAttack(attackTarget);
 
                 // this hero auto attack
-                PerformAutoAttack();
+                PerformAutoAttack(attackTarget);
             }
 
             // update attack animation
@@ -85,21 +90,21 @@ namespace MagicSchool.Combat.Heroes.States
             }
         }
 
-        private void PerformAutoAttack()
+        private void PerformAutoAttack(ICombatant target)
         {
             // other action may replace normal auto attack e.g. Werewolf
             if (!_me.HasStatus(ModifierEnum.AutoAttackWasReplaced))
             {
                 // FLAGGING: attack animation got skip by skill which is not intended
                 // apply damage to target
-                _currentTarget.TakeDamage(
+                target.TakeDamage(
                     damage: _me.AttackDamage,
                     source: _me,
                     kind: DamageKindEnum.AutoAttack
                 );
 
                 // attack animation: dash toward the enemy, then back to where we started
-                AttackAnimation();
+                AttackAnimation(target);
             }
 
             // aa is now on cooldown
@@ -109,11 +114,11 @@ namespace MagicSchool.Combat.Heroes.States
             if (!_me.HasStatus(ModifierEnum.ManaBlocked)) _me.GainMana(ManaPerAttack);
         }
 
-        private void AttackAnimation()
+        private void AttackAnimation(ICombatant target)
         {
             // attack animation: dash toward the enemy, then back to where we started
             _dashStart = _me.transform.position;
-            Vector3 toEnemy = _currentTarget.transform.position - _dashStart;
+            Vector3 toEnemy = target.transform.position - _dashStart;
             Vector3 direction = toEnemy.sqrMagnitude > 0f ? toEnemy.normalized : Vector3.zero;
             _dashPeak = _dashStart + direction * DashDistance;
             _dashElapsed = 0f;

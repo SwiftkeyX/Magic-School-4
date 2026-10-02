@@ -13,6 +13,7 @@ namespace MagicSchool.Skills
     public class Cast : TemplateAction
     {
         private ICombatant _target;
+        private int _cadencesRunning;       // how many effects are still ticking
 
         // ======================================= override =======================================
         protected override void Play()
@@ -27,6 +28,7 @@ namespace MagicSchool.Skills
                 if (effect.Cadence.isCadence)
                 {
                     // apply effect overtime
+                    _cadencesRunning++;
                     StartCoroutine(PerHeroCadenceTick(effect, _target));
                 }
 
@@ -42,7 +44,7 @@ namespace MagicSchool.Skills
 
             // After a longest effect duration die, this template action also dies
             // this is to make sure, this template action'll last until the effect really truly dies.
-            ExpireAfter(Longest(durations));
+            StartCoroutine(ExpireWhenEffectsEnd(Longest(durations)));
         }
 
         // source mean nothing to Cast.
@@ -151,6 +153,20 @@ namespace MagicSchool.Skills
                 if (hero == null || hero.StateType == HeroStateEnum.Dead) break;
                 ApplyEffectToRecipients(effect, recipients);
             }
+
+            _cadencesRunning--;
+        }
+
+        // If cadence effect was applied by Cast, the effect will live on the Cast itself.
+        // So if the Cast is destroyed, all effect on this Cast are gone.
+        // So Cast need to track every cadence to know when to destroy itself correctly. 
+        private IEnumerator ExpireWhenEffectsEnd(float longest)
+        {
+            yield return new WaitForSeconds(longest);
+
+            while (_cadencesRunning > 0) yield return null;
+
+            DestroyMe();
         }
     }
 }

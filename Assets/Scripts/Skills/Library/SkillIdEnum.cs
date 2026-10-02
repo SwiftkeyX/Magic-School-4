@@ -44,5 +44,6 @@ namespace MagicSchool.Skills
         Troll = 33,
         Warlock = 34,
         Rogue = 35,
+        GoblinArcher = 36,
     }
 }

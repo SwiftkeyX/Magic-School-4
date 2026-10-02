@@ -50,6 +50,15 @@ namespace MagicSchool.Combat.Heroes
             return _skill.OnAttack(target);
         }
 
+        // before an auto-attack lands, the skill may pick another target 
+        // e.g. Goblin Archer shoots a random enemy
+        public ICombatant PickAttackTarget(ICombatant target)
+        {
+            if (_skill == null) return target;
+
+            return _skill.OnPickAttackTarget(target) ?? target;
+        }
+
         // at start of the combat, play OnCombat type of skill
         public bool TriggerOnCombatStart()
         {

@@ -45,6 +45,7 @@ namespace MagicSchool.Skills
                 { SkillIdEnum.Troll         , TrollSkill.Build          },
                 { SkillIdEnum.Warlock       , WarlockSkill.Build        },
                 { SkillIdEnum.Rogue         , RogueSkill.Build          },
+                { SkillIdEnum.GoblinArcher  , GoblinArcherSkill.Build   },
             };
 
         /// Return a skill that match skillID's TemplateAction.

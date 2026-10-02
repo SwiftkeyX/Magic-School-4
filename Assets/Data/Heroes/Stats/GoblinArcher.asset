@@ -22,8 +22,8 @@ MonoBehaviour:
   _magic: 100
   _magicResist: 15
   _attackSpeed: 0.75
-  _range: 4
+  _range: 99
   _startMana: 0
   _maxMana: 70
-  _skillId: 0
+  _skillId: 36
   _isDummy: 0
