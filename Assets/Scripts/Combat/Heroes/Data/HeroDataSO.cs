@@ -26,7 +26,7 @@ namespace MagicSchool.Combat.Heroes
         [SerializeField] private int _range = 1;
         [SerializeField] private int _startMana = 0;
         [SerializeField] private int _maxMana = 50;
-        // which skill in SkillLibrary this hero runs. None means no skill at all, e.g. a dummy.
+        [SerializeField] private float _critChance = 25f;   
         [SerializeField] private SkillIdEnum _skillId = SkillIdEnum.None;
         // FLAGGING: a dummy should be its own unit type, not a Hero. Let's see later if it make sense.
         [SerializeField] private bool _isDummy = false; // A dummy never walks or attacks 
@@ -45,6 +45,7 @@ namespace MagicSchool.Combat.Heroes
         public int Range => _range;
         public int StartMana => _startMana;
         public int MaxMana => _maxMana;
+        public float CritChance => _critChance;
         public SkillIdEnum SkillId => _skillId;
         public bool IsDummy => _isDummy;
     }

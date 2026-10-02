@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MagicSchool.Contracts;
 
@@ -27,15 +28,21 @@ namespace MagicSchool.Skills
         public IReadOnlyList<SkillPart> OnStart { get; }
         public IReadOnlyList<SkillPart> OnHit { get; }
         public IReadOnlyList<SkillPart> OnExpired { get; }
-        public int Times { get; }       // how many rounds this flow plays
+        public int Times => _times();   // how many rounds this flow plays
+
+        private readonly Func<int> _times;
 
         public SkillFlow(IReadOnlyList<SkillPart> onStart, IReadOnlyList<SkillPart> onHit,
                          IReadOnlyList<SkillPart> onExpired, int times = 1)
+            : this(onStart, onHit, onExpired, () => times) { }
+
+        public SkillFlow(IReadOnlyList<SkillPart> onStart, IReadOnlyList<SkillPart> onHit,
+                         IReadOnlyList<SkillPart> onExpired, Func<int> times)
         {
             OnStart = onStart;
             OnHit = onHit;
             OnExpired = onExpired;
-            Times = times;
+            _times = times;
         }
 
         // ================================== init ==================================

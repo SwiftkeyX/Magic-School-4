@@ -9,12 +9,14 @@ namespace MagicSchool.Skills
     internal class AttackSkillEffect : SkillEffect
     {
         private readonly IReadOnlyList<StatRatio> _ratios;
+        private readonly bool _canCrit;     // skill damage does not crit by default, unless the skill was built to
 
         public AttackSkillEffect(EffectRecipientEnum recipient, IReadOnlyList<StatRatio> ratios, Cadence cadence = null,
-                                 List<SkillCondition> conditions = null, float amplifier = 0f)
+                                 List<SkillCondition> conditions = null, float amplifier = 0f, bool canCrit = false)
             : base(recipient, cadence, conditions, amplifier)
         {
             _ratios = ratios;
+            _canCrit = canCrit;
         }
 
         public override void ApplyEffect(IReadOnlyList<IEffectable> recipients)
@@ -35,6 +37,9 @@ namespace MagicSchool.Skills
 
                 // if pass specify condition, amplify the effect
                 dmg *= AmplifierFor(recipient);
+
+                // roll the crit once per recipient
+                if (_canCrit) dmg = Crit.Roll(dmg, _caster as IHeroStats, out _);
 
                 // apply damage
                 recipient.TakeDamage(

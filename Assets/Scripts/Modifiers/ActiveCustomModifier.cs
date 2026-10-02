@@ -40,6 +40,7 @@ namespace MagicSchool.Modifiers
             { ModifierEnum.Range          , StatEnum.Range }          ,
             { ModifierEnum.StartMana      , StatEnum.StartMana }      ,
             { ModifierEnum.MR             , StatEnum.MR }             ,
+            { ModifierEnum.CritChance     , StatEnum.CritChance }     ,
             // ...
 
             // debuff

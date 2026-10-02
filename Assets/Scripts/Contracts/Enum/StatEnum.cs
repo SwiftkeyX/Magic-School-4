@@ -24,5 +24,6 @@ namespace MagicSchool.Contracts
 
         // ====================== Extension ======================
         DamageReduction = 9,
+        CritChance = 10,        
     }
 }

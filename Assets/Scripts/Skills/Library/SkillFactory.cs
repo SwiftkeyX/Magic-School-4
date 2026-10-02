@@ -12,7 +12,12 @@ namespace MagicSchool.Skills
         public static AttackSkillEffect Damage(EffectRecipientEnum recipient, params StatRatio[] ratios)
             => new AttackSkillEffect(recipient, ratios);
 
-        // the same, re-applied on a timer - Orc Blademaster's spin, Pip's patch
+        // the same to Damage(), but it can crit. Skill damage does not crit by default.
+        // e.g.     Fencer's strikes can crit
+        public static AttackSkillEffect DamageCanCrit(EffectRecipientEnum recipient, params StatRatio[] ratios)
+            => new AttackSkillEffect(recipient, ratios, canCrit: true);
+
+        // the same to Damage(), re-applied on a timer - Orc Blademaster's spin, Pip's patch
         public static AttackSkillEffect DamageOverTime(EffectRecipientEnum recipient, float interval, float duration,
                                                        params StatRatio[] ratios)
             => new AttackSkillEffect(recipient, ratios, new Cadence(interval, duration));
@@ -159,7 +164,12 @@ namespace MagicSchool.Skills
         // e.g.     Repeat(Flow(onStart: dash, onExpired: stab), times: 3)
         public static SkillFlow Repeat(SkillFlow flow, int times)
             => new SkillFlow(flow.OnStart, flow.OnHit, flow.OnExpired, times);
-        
+
+        // the same to Repeat(), but the number of rounds is asked for every time the flow is played.
+        // e.g.     Repeat(Flow(onStart: strike), () => StrikeCount)    -> "as many strikes as StrikeCount is at that moment"
+        public static SkillFlow Repeat(SkillFlow flow, System.Func<int> times)
+            => new SkillFlow(flow.OnStart, flow.OnHit, flow.OnExpired, times);
+
         // ================================== Tune ==================================
         // tuning a template action
         public static Tuning Tune(float? castTime = null)
