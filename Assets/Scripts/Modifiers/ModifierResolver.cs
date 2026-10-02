@@ -16,8 +16,7 @@ namespace MagicSchool.Modifiers
         // the amount of bonus stat give by all modifier
         private readonly float[] _bonus = new float[StatSlots];
 
-        // FLAGGING: hardcode slot number, this is adjust as the maximum number in StatEnum.cs
-        private const int StatSlots = 10;
+        private static readonly int StatSlots = 11;
 
         // tracking if the bonus stat from modifier is stale 
         private bool _isBonusStale = true;

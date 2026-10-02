@@ -96,6 +96,7 @@ namespace MagicSchool.Combat.Heroes.Stats
             _base[StatEnum.MaxMana] = so.MaxMana;
             _base[StatEnum.DamageReduction] = 0f;
             _base[StatEnum.CritChance] = so.CritChance;
+            _base[StatEnum.Omnivamp] = 0f;
 
             // there's chance MaxHP is modified at the start, so set _currentHP to MaxHP accordingly  
             _currentHP = MaxHP;

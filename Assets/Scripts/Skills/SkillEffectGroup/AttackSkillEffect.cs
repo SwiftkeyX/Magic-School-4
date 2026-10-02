@@ -20,7 +20,8 @@ namespace MagicSchool.Skills
             _canCrit = canCrit;
         }
 
-        // ASKING: what is this for?
+        // This attack hardcode the lifesteal in. Not related to Omnivamp stat.
+        // e.g.     Damage(...).WithLifesteal(100f)      Priest's fairy heals its owner, not the Priest
         public AttackSkillEffect WithLifesteal(float percent)
         {
             _lifestealPercent = percent;
@@ -56,10 +57,11 @@ namespace MagicSchool.Skills
                     kind: DamageKindEnum.Skill
                 );
 
-                // lifesteal
-                bool lifeStealExist = _lifestealPercent > 0f;
-                if (lifeStealExist && actor != null)
-                    actor.Heal(landed * _lifestealPercent / 100f, _caster);
+                // if caster have omnivamp, heals off the damage dealt
+                Omnivamp.Apply(_caster, landed);
+
+                // if this effect have lifesteal, whoever played the action heals off the damage dealt
+                Omnivamp.HealFromDamage(actor, landed, _lifestealPercent, source: _caster);
             }
         }
     }

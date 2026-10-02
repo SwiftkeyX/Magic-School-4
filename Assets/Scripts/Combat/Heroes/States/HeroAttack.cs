@@ -101,11 +101,14 @@ namespace MagicSchool.Combat.Heroes.States
                 float damage = Crit.Roll(_me.AttackDamage, _me, out _);
 
                 // apply damage to target
-                target.TakeDamage(
+                int landed = target.TakeDamage(
                     damage: Mathf.RoundToInt(damage),
                     source: _me,
                     kind: DamageKindEnum.AutoAttack
                 );
+
+                // if caster have omnivamp, heals off the damage dealt
+                Omnivamp.Apply(_me, landed);
 
                 // attack animation: dash toward the enemy, then back to where we started
                 AttackAnimation(target);
