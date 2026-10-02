@@ -43,5 +43,6 @@ namespace MagicSchool.Skills
         WarCleric = 32,
         Troll = 33,
         Warlock = 34,
+        Rogue = 35,
     }
 }
