@@ -15,8 +15,11 @@ namespace MagicSchool.Skills
     ///     onStart     the parts that skill starts with.
     ///     onHit       the parts to play when `onStart` hits something. Optional.
     ///     onExpired   the parts to play when `onStart` expires. Optional.
+    ///     round       the flow played once start to finish, that is 1 round. 
+    ///                 A flow default to plays only one round unless it is repeated.
+    ///                 Repeat(Flow(onStart: dash, onExpired: stab), times: 3)   -> dash, stab, for three times 
     ///
-    /// A part (SkillPart) is one piece of a skill: 
+    /// A part (SkillPart) is one piece of a skill:
     /// e.g. a shot, a blast, a dash, a buff
     /// </summary>
     public class SkillFlow
@@ -24,13 +27,15 @@ namespace MagicSchool.Skills
         public IReadOnlyList<SkillPart> OnStart { get; }
         public IReadOnlyList<SkillPart> OnHit { get; }
         public IReadOnlyList<SkillPart> OnExpired { get; }
+        public int Times { get; }       // how many rounds this flow plays
 
         public SkillFlow(IReadOnlyList<SkillPart> onStart, IReadOnlyList<SkillPart> onHit,
-                         IReadOnlyList<SkillPart> onExpired)
+                         IReadOnlyList<SkillPart> onExpired, int times = 1)
         {
             OnStart = onStart;
             OnHit = onHit;
             OnExpired = onExpired;
+            Times = times;
         }
 
         // ================================== init ==================================

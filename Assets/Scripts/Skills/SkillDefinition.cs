@@ -86,7 +86,7 @@ namespace MagicSchool.Skills
         {
             if (flow == null) return false;
 
-            return PlayParts(flow.OnStart, Follow(flow.OnHit), Follow(flow.OnExpired), previousPosition: null);
+            return PlayRound(flow);
         }
 
         // Play a single part without depending on a flow.
@@ -100,6 +100,30 @@ namespace MagicSchool.Skills
         }
 
         // ============================================== private ==============================================
+        // Play the flow once, start to finish. That is one round.
+        // If 'round' is more than 1, repeat the flow for the 'round'.
+        private bool PlayRound(SkillFlow flow, int round = 1)
+        {
+            // action to repeat the round
+            Action finished = () => RoundFinished(flow, round);
+
+            // play the flow, hand 'finished' to it too 
+            return PlayParts(flow.OnStart, Follow(flow.OnHit), FollowLast(flow.OnExpired, finished), previousPosition: null);
+        }
+
+        // A round is finished, if the flow request repeat, play the next round. (read Repeat() in SkillFactory.cs)
+        // if no repeat request, the flow'll end here. 
+        private void RoundFinished(SkillFlow flow, int round)
+        {
+            if (round >= flow.Times) return;
+
+            // guard
+            if (Caster is UnityEngine.Object hero && hero == null) return;
+            if (!Caster.IsAlive) return;
+
+            PlayRound(flow, round + 1);
+        }
+
         // read PlayFlow()
         private bool PlayParts(IReadOnlyList<SkillPart> parts,
         Action<Vector3> onHit,
@@ -139,14 +163,35 @@ namespace MagicSchool.Skills
         }
 
         // Consume only the optional part of the SkillPart.cs (e.g. OnHit, OnExpired)
-        // return the callback that can be used to play skill part.
+        // return the callback that can be used to play the specify SkillPart.
         // Currently, this project force the skill to only have 2 flow depth. 
-        // So the Follow won't play anything after itself.
+        // So the Follow() won't play anything after itself.
+        // e.g.     OnStart => OnHit        => None
+        //                  => OnExpired    => None
         private Action<Vector3> Follow(IReadOnlyList<SkillPart> parts)
         {
             if (parts.Count == 0) return null;
 
             return position => PlayParts(parts, onHit: null, onExpired: null, previousPosition: position);
+        }
+
+        // Same to Follow(), but for the parts a round ends with. It is to tell when this flow end:
+        // Example, 
+        //      there are no parts to play            => finished when `onStart` expired
+        //      there are parts to play               => finished when their leading part expired
+        //      the leading part could not be played  => finished right away, nothing is left to wait for
+        // NOTE,
+        //      onHit never finishes a round: a skill can miss, and then it would never finish.
+        private Action<Vector3> FollowLast(IReadOnlyList<SkillPart> parts, Action finished)
+        {
+            if (parts.Count == 0) return _ => finished();
+
+            return position =>
+            {
+                bool played = PlayParts(parts, onHit: null, onExpired: _ => finished(), previousPosition: position);
+
+                if (!played) finished();
+            };
         }
 
         // spawn the part's template action (read TemplateAction.cs for more info)

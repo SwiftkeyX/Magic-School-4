@@ -154,6 +154,11 @@ namespace MagicSchool.Skills
         // only lead matter for what'll be played afterward. 
         public static PartSet Together(params SkillPart[] parts)
             => new PartSet(parts);
+
+        // repeat the same flow [x] total time.
+        // e.g.     Repeat(Flow(onStart: dash, onExpired: stab), times: 3)
+        public static SkillFlow Repeat(SkillFlow flow, int times)
+            => new SkillFlow(flow.OnStart, flow.OnHit, flow.OnExpired, times);
         
         // ================================== Tune ==================================
         // tuning a template action
