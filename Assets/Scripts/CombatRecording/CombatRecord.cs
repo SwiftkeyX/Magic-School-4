@@ -24,7 +24,9 @@ namespace MagicSchool.CombatRecording
             Overkill += overkill;
 
             if (kind == DamageKindEnum.AutoAttack) AutoAttackDamage += landed;
-            else if (kind == DamageKindEnum.Skill) SkillDamage += landed;
+            // a burn is still a skill's damage
+            // FIXLATER: I prefer it have its own section. Burn damage section.
+            else if (kind == DamageKindEnum.Skill || kind == DamageKindEnum.Burn) SkillDamage += landed;
         }
 
         internal void AddTaken(int landed, int mitigated)

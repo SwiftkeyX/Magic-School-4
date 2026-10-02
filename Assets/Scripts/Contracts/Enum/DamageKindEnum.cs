@@ -6,5 +6,6 @@ namespace MagicSchool.Contracts
     {
         AutoAttack = 0,
         Skill = 1,
+        Burn = 2,
     }
 }

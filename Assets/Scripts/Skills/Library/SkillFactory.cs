@@ -12,6 +12,12 @@ namespace MagicSchool.Skills
         public static AttackSkillEffect Damage(EffectRecipientEnum recipient, params StatRatio[] ratios)
             => new AttackSkillEffect(recipient, ratios);
 
+        // the same to Damage(), but amplified when every condition is met
+        // e.g. Naga's bolt deals 30% more to a target that is already wounded
+        public static AttackSkillEffect DamageWhen(EffectRecipientEnum recipient, List<SkillCondition> conditions,
+                                                   float amplifier, params StatRatio[] ratios)
+            => new AttackSkillEffect(recipient, ratios, conditions: conditions, amplifier: amplifier);
+
         // the same to Damage(), but it can crit. Skill damage does not crit by default.
         // e.g.     Fencer's strikes can crit
         public static AttackSkillEffect DamageCanCrit(EffectRecipientEnum recipient, params StatRatio[] ratios)
@@ -21,6 +27,13 @@ namespace MagicSchool.Skills
         public static AttackSkillEffect DamageOverTime(EffectRecipientEnum recipient, float interval, float duration,
                                                        params StatRatio[] ratios)
             => new AttackSkillEffect(recipient, ratios, new Cadence(interval, duration));
+
+        // the same to DamageOverTime(), but it also flag itself as a burn
+        // e.g.     Dragon's breath, War Cleric's fire.
+        public static AttackSkillEffect Burn(EffectRecipientEnum recipient, float interval, float duration,
+                                             params StatRatio[] ratios)
+            => new AttackSkillEffect(recipient, ratios, new Cadence(interval, duration), kind: DamageKindEnum.Burn);
+
 
         // ================================== heal ==================================
         public static HealSkillEffect Heal(EffectRecipientEnum recipient, params StatRatio[] ratios)
@@ -40,8 +53,7 @@ namespace MagicSchool.Skills
                                                         ICustomModifier modifier)
             => new ModifierSkillEffect(recipient, modifier, new Cadence(interval, duration));
 
-        // same to Apply(), but amplified only when every condition met 
-        // e.g. Naga's skill is amplifield when the target is poison
+        // same to Apply(), but amplified only when every condition met
         public static ModifierSkillEffect ApplyWhen(EffectRecipientEnum recipient, ICustomModifier modifier,
                                                     List<SkillCondition> conditions, float amplifier)
             => new ModifierSkillEffect(recipient, modifier, conditions: conditions, amplifier: amplifier);

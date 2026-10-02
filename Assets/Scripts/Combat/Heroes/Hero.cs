@@ -77,6 +77,7 @@ namespace MagicSchool.Combat.Heroes
         public ICombatant PickAutoAttackTarget(ICombatant target) => _skill.PickAutoAttackTarget(target);
         public bool TriggerOnCombatStart() => _skill.TriggerOnCombatStart();
         public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);
+        public void TriggerOnHeroBurned(ICombatant burned) => _skill.TriggerOnHeroBurned(burned);
         public float GetCastTime() => _skill.GetCastTime();
         public bool IsSkillRepeating() => _skill.IsSkillRepeating();
 
@@ -124,12 +125,18 @@ namespace MagicSchool.Combat.Heroes
             // if target has vanish, the target don't take damage
             if (HasStatus(ModifierEnum.Untargetable)) return 0;
 
-            DamageOutcome outcome = CombatMath.ResolveDamage(damage, Stat.DF, Stat.DamageReductionPercent, Stat.CurrentHP,
-                                                             Stat.Shield, out int absorbed);
+            // calculate damage
+            DamageOutcome outcome = CombatMath.ResolveDamage(damage, Stat.DF, Stat.DamageReductionPercent, Stat.CurrentHP, Stat.Shield, out int absorbed);
             Stat.ConsumeShield(absorbed);
             Stat.SetCurrentHP(outcome.NewHP);
 
             OnDamaged?.Invoke(new DamageEvent(source, this, kind, outcome));
+
+            // if take burn, annouce it.
+            if (kind == DamageKindEnum.Burn) AnnounceBurn();
+
+            // if (other status) add here;
+            // ...
 
             // return how much damage was done
             return outcome.Landed;
@@ -262,6 +269,15 @@ namespace MagicSchool.Combat.Heroes
             // ChangeState, not Start: the Dead state has to be left properly, and a hero that
             // survived is already mid-state rather than un-started.
             _stateMachine.ChangeState(HeroStateEnum.Idle);
+        }
+
+        private void AnnounceBurn()
+        {
+            foreach (ICombatant combatant in new List<ICombatant>(HeroesOnBoard))
+            {
+                if (combatant is Hero hero && hero != this && hero.IsAlive)
+                    hero.TriggerOnHeroBurned(this);
+            }
         }
         #endregion
     }

@@ -9,15 +9,18 @@ namespace MagicSchool.Skills
     internal class AttackSkillEffect : SkillEffect
     {
         private readonly IReadOnlyList<StatRatio> _ratios;
+        private readonly DamageKindEnum _kind;  
         private readonly bool _canCrit;     // skill damage does not crit by default, unless the skill was built to
         private float _lifestealPercent;
 
         public AttackSkillEffect(EffectRecipientEnum recipient, IReadOnlyList<StatRatio> ratios, Cadence cadence = null,
-                                 List<SkillCondition> conditions = null, float amplifier = 0f, bool canCrit = false)
+                                 List<SkillCondition> conditions = null, float amplifier = 0f, bool canCrit = false,
+                                 DamageKindEnum kind = DamageKindEnum.Skill)
             : base(recipient, cadence, conditions, amplifier)
         {
             _ratios = ratios;
             _canCrit = canCrit;
+            _kind = kind;
         }
 
         // This attack hardcode the lifesteal in. Not related to Omnivamp stat.
@@ -54,7 +57,7 @@ namespace MagicSchool.Skills
                 int landed = recipient.TakeDamage(
                     damage: Mathf.RoundToInt(dmg),
                     source: _caster,
-                    kind: DamageKindEnum.Skill
+                    kind: _kind
                 );
 
                 // if caster have omnivamp, heals off the damage dealt

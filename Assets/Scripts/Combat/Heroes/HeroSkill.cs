@@ -72,5 +72,11 @@ namespace MagicSchool.Combat.Heroes
         {
             _skill?.OnHeroDied(dead);
         }
+
+        // if hero takes a burn tick, play OnHeroBurned type of skill
+        public void TriggerOnHeroBurned(ICombatant burned)
+        {
+            _skill?.OnHeroBurned(burned);
+        }
     }
 }

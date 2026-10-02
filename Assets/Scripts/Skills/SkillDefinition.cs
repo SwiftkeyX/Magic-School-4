@@ -78,6 +78,10 @@ namespace MagicSchool.Skills
         // e.g. Troll gains health whenever an enemy dies
         public virtual void OnHeroDied(ICombatant dead) { }
 
+        // If any hero takes a burn tick, play OnHeroBurned.
+        // e.g. Imp gains attack speed whenever an enemy burns
+        public virtual void OnHeroBurned(ICombatant burned) { }
+
         // add other hook
         // ...
 
