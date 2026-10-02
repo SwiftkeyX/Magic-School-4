@@ -36,6 +36,10 @@ namespace MagicSchool.Combat.Heroes.States
             // if still casting, return
             if (_remaining > 0f) return;
 
+            // if the skill still repeats, return
+            // e.g. Rogue's third shadowstep
+            if (_me.IsSkillRepeating()) return;
+
             ICombatant currentTarget = _me.FindCurrentTarget();
 
             // guard

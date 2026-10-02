@@ -179,11 +179,11 @@ namespace MagicSchool.Skills
             return _source;
         }
 
-        // The AOE could rides Move
-        // e.g. Centaur's AOE dies when his Move dies
+        // The AOE rides the part it was played together with, if there is one
+        // e.g.     Centaur's AOE ride his Move 
         protected override void InitRider()
         {
-            _rider = Rider.FindHostFor(this, _me);
+            _rider = Rider.RideOn(this, _host);
         }
 
         // ======================================= abstract =======================================

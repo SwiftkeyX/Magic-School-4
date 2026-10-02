@@ -16,6 +16,7 @@ namespace MagicSchool.Combat.Heroes
 
         // ============================================== getter ==============================================
         public float GetCastTime() => _skill?.CastTime ?? 0f;
+        public bool IsSkillRepeating() => _skill != null && _skill.IsRepeating;
 
         // Some heroes (e.g. generic dummy/tank archetypes) have no skill at all.
         public bool HasSkill => _skill != null && _skill.HasActive;

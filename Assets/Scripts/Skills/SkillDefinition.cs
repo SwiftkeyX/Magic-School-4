@@ -21,6 +21,8 @@ namespace MagicSchool.Skills
         protected ICombatant Caster { get; private set; }   // owner of this skill
         public float CastTime { get; private set; } // the animation's duration to play this specific skill
 
+        public bool IsRepeating { get; private set; }
+
         protected SkillDefinition(TemplateActionRegistrySO registry)
         {
             _registry = registry;
@@ -86,14 +88,21 @@ namespace MagicSchool.Skills
         {
             if (flow == null) return false;
 
-            return PlayRound(flow);
+            // if the flow played is active and repeat, set the FLAG.
+            if (flow == _active && flow.Times > 1) IsRepeating = true;
+
+            if (PlayRound(flow)) return true;
+
+            FlowFinished(flow);
+
+            return false;
         }
 
         // Play a single part without depending on a flow.
         // no flow played after this.
         protected bool PlayOnePart(SkillPart part, ICombatant assignedTarget = null)
         {
-            if (!Play(part, new TemplateActionCallbacks { OnSkillHit = part.OnSkillHit }, null, assignedTarget)) return false;
+            if (Play(part, new TemplateActionCallbacks { OnSkillHit = part.OnSkillHit }, null, assignedTarget) == null) return false;
 
             CastTime = CastTimeOf(part);
             return true;
@@ -112,16 +121,32 @@ namespace MagicSchool.Skills
         }
 
         // A round is finished, if the flow request repeat, play the next round. (read Repeat() in SkillFactory.cs)
-        // if no repeat request, the flow'll end here. 
+        // if no repeat request, the flow'll end here.
         private void RoundFinished(SkillFlow flow, int round)
         {
-            if (round >= flow.Times) return;
+            if (HasNextRound(flow, round) && PlayRound(flow, round + 1)) return;
+
+            FlowFinished(flow);
+        }
+
+        private bool HasNextRound(SkillFlow flow, int round)
+        {
+            if (!Caster.IsAlive) return false;
+
+            // the repeat count is all gone
+            if (round >= flow.Times) return false;
 
             // guard
-            if (Caster is UnityEngine.Object hero && hero == null) return;
-            if (!Caster.IsAlive) return;
+            if (Caster is UnityEngine.Object hero && hero == null) return false;
 
-            PlayRound(flow, round + 1);
+            return true;
+        }
+
+        // The flow has nothing left to play
+        // e.g.     out of rounds to play, the caster died.
+        private void FlowFinished(SkillFlow flow)
+        {
+            if (flow == _active) IsRepeating = false;
         }
 
         // read PlayFlow()
@@ -131,6 +156,7 @@ namespace MagicSchool.Skills
         Vector3? previousPosition)
         {
             float longestCast = 0f;
+            TemplateAction leader = null;
 
             for (int i = 0; i < parts.Count; i++)
             {
@@ -145,17 +171,18 @@ namespace MagicSchool.Skills
                     OnSkillHit = part.OnSkillHit,
                 };
 
-                bool played = false;
+                TemplateAction played = null;
                 if (SkillCondition.Ask(part.Conditions, Caster) != ConditionResultEnum.ConditionIsNotMet)
                 {
                     // give the callback to template action
                     // let the template action decide when to use the callback to play each skill part
                     // e.g.     projectile (a template action) hit a hero, so it call OnHit.
-                    played = Play(part, callbacks, previousPosition);
+                    played = Play(part, callbacks, previousPosition, host: leader);
                 }
 
-                if (isLeading && !played) return false;
-                if (played) longestCast = Mathf.Max(longestCast, CastTimeOf(part));
+                if (isLeading && played == null) return false;
+                if (isLeading) leader = played;
+                if (played != null) longestCast = Mathf.Max(longestCast, CastTimeOf(part));
             }
 
             CastTime = longestCast;
@@ -195,12 +222,13 @@ namespace MagicSchool.Skills
         }
 
         // spawn the part's template action (read TemplateAction.cs for more info)
-        private bool Play(SkillPart part, TemplateActionCallbacks callbacks, Vector3? previousPosition, ICombatant assignedTarget = null)
+        private TemplateAction Play(SkillPart part, TemplateActionCallbacks callbacks, Vector3? previousPosition,
+                                    ICombatant assignedTarget = null, TemplateAction host = null)
         {
             // guard
-            if (Caster is UnityEngine.Object hero && hero == null) return false;
+            if (Caster is UnityEngine.Object hero && hero == null) return null;
 
-            return TemplateAction.TryPlay(part, Caster, callbacks, previousPosition, assignedTarget);
+            return TemplateAction.Spawn(part, Caster, callbacks, previousPosition, assignedTarget, host);
         }
 
         // get the cast time of the specify skill part

@@ -77,6 +77,7 @@ namespace MagicSchool.Combat.Heroes
         public bool TriggerOnCombatStart() => _skill.TriggerOnCombatStart();
         public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);
         public float GetCastTime() => _skill.GetCastTime();
+        public bool IsSkillRepeating() => _skill.IsSkillRepeating();
 
         // what the Hero Panel reads
         public bool HasSkill => _skill != null && _skill.HasSkill;

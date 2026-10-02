@@ -39,6 +39,7 @@ namespace MagicSchool.Skills
         private bool _hasExpired;
 
         // === Rider ===
+        // read Rider.cs
         private protected Rider _rider;
 
         // ==================================== context (handed in by whoever played this template action) ====================================
@@ -50,6 +51,10 @@ namespace MagicSchool.Skills
         // e.g.     FireTimingRunner picks a random enemy for each shot it fires
         protected ICombatant _assignedTarget;
 
+        // my host, the leading part this action was played together() with.
+        // e.g.     Centaur's hitbox is played together with his charge, so the charge is hitbox's host
+        private protected TemplateAction _host;
+
         // ==================================== getter ====================================
         public float CastTime => _castTime;
         internal ICombatant Caster => _me;
@@ -57,10 +62,14 @@ namespace MagicSchool.Skills
 
         // ==================================== public method ====================================
         // try play template action. if play success, return true.
-        // act as factory, since when this function is called, there is no real instance yet.
         public static bool TryPlay(SkillPart group, ICombatant caster,
                                    TemplateActionCallbacks callbacks = null, Vector3? previousPosition = null,
                                    ICombatant assignedTarget = null)
+            => Spawn(group, caster, callbacks, previousPosition, assignedTarget, host: null) != null;
+
+        internal static TemplateAction Spawn(SkillPart group, ICombatant caster,
+                                             TemplateActionCallbacks callbacks, Vector3? previousPosition,
+                                             ICombatant assignedTarget, TemplateAction host)
         {
             // change skill prefab into scene instace
             TemplateAction instance = Instantiate(group.TemplateAction);
@@ -68,6 +77,7 @@ namespace MagicSchool.Skills
             // config data from previous guy
             instance._previousPosition = previousPosition;
             instance._assignedTarget = assignedTarget;
+            instance._host = host;
 
             // Apply tuning that specific to this hero
             instance.ApplyTuning(group.Tuning);
@@ -77,7 +87,7 @@ namespace MagicSchool.Skills
             {
                 // skill is not play
                 Destroy(instance.gameObject);
-                return false;
+                return null;
             }
 
             // other config - each template action wires up the triggers it can actually raise
@@ -86,7 +96,7 @@ namespace MagicSchool.Skills
 
             // skill is played
             instance.Play();
-            return true;
+            return instance;
         }
 
         // Public version of DestroyMe()
