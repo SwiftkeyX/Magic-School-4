@@ -24,11 +24,12 @@ namespace MagicSchool.Combat.Heroes
         }
 
         // From candidate hex (landings), which one hit the most enemies on the way to landing spot?
-        public static Hex BestCharge(Vector3 me, IReadOnlyList<Hex> landings, IReadOnlyList<ICombatant> enemies, float chargeHalfWidth)
+        public static Hex BestCharge(Vector3 me, IReadOnlyList<Hex> landings, IReadOnlyList<ICombatant> enemies, float chargeHalfWidth,
+                                     bool maxRange = false)
         {
             Func<Hex, int> caught = hex => CountSwept(enemies, me, hex.transform.position, chargeHalfWidth);
 
-            return BestHex(me, landings, caught);
+            return BestHex(me, landings, caught, preferFurthest: maxRange);
         }
 
         // From candidate enemies, which one that my beam going to hit the most enemies? 
@@ -62,7 +63,8 @@ namespace MagicSchool.Combat.Heroes
 
         // ========================================= private =========================================
         // From candidate hex, pick the one that catches the most heroes
-        private static Hex BestHex(Vector3 me, IReadOnlyList<Hex> candidates, Func<Hex, int> countCaughtFrom)
+        private static Hex BestHex(Vector3 me, IReadOnlyList<Hex> candidates, Func<Hex, int> countCaughtFrom,
+                                   bool preferFurthest = false)
         {
             if (candidates == null) return null;
 
@@ -75,10 +77,10 @@ namespace MagicSchool.Combat.Heroes
                 int count = countCaughtFrom(candidate);
                 if (count == 0) continue;
 
-                // prefered the one with the less distance from me
+                // prefered the one with the less distance from me, or the most distance if preferFurthest
                 float distance = Vector3.Distance(me, candidate.transform.position);
                 if (count < bestCount) continue;
-                if (count == bestCount && distance >= bestDistance) continue;
+                if (count == bestCount && !IsBetterDistance(distance, bestDistance, preferFurthest)) continue;
 
                 best = candidate;
                 bestCount = count;
@@ -87,6 +89,9 @@ namespace MagicSchool.Combat.Heroes
 
             return best;
         }
+
+        private static bool IsBetterDistance(float distance, float bestDistance, bool preferFurthest)
+            => preferFurthest ? distance > bestDistance : distance < bestDistance;
 
         // How many enemy hit with in the radius?
         private static int CountWithin(IReadOnlyList<ICombatant> enemies, Vector3 centre, float radius)

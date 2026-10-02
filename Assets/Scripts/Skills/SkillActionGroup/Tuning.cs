@@ -23,6 +23,7 @@ namespace MagicSchool.Skills
         public int? Range;               // how far a jump can reach
         public float? Duration;          // duration of the move
         public float? Spread;            // ClusteredCircle's landing radius, or ClusteredLaser's lane half-width
+        public bool? MaxRange;           // ClusteredLaser only: keep running as far as possible, instead of stopping behind the last enemy hit
     }
 
     public class ProjectileTuning : Tuning

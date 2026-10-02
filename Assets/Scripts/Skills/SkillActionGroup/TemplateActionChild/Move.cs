@@ -10,6 +10,7 @@ namespace MagicSchool.Skills
         private int _jumpRange = 2;
         private float _jumpDuration = 0.5f;
         private float _spread = 1f;
+        private bool _maxRange;         // read FindClusteredCharge() in FindTarget.cs
         private IPlacement _landing;    // hex the caster ends up on after moving
         private CurveMotion _jump;
         private bool _isJumping;
@@ -20,6 +21,7 @@ namespace MagicSchool.Skills
             if (moveTuning.Range.HasValue) _jumpRange = moveTuning.Range.Value;
             if (moveTuning.Duration.HasValue) _jumpDuration = moveTuning.Duration.Value;
             if (moveTuning.Spread.HasValue) _spread = moveTuning.Spread.Value;
+            if (moveTuning.MaxRange.HasValue) _maxRange = moveTuning.MaxRange.Value;
         }
 
         protected override void Play()
@@ -78,7 +80,7 @@ namespace MagicSchool.Skills
 
             else if (aimTarget == AimTargetEnum.ClusteredLaser)
             {
-                _landing = _me.FindClusteredCharge(_jumpRange, _spread);
+                _landing = _me.FindClusteredCharge(_jumpRange, _spread, _maxRange);
                 if (_landing == null) return false;     // nothing worth charging at, so don't cast
 
                 _aimTarget = _landing.transform.position;

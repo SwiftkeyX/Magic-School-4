@@ -117,7 +117,13 @@ namespace MagicSchool.Combat.Heroes
 
         // Context: the caster is about to charge in a straight line, with a hitbox riding on him.
         // Pick the placement where caster'll be landing. And hit the most enemies along the way.
-        public IPlacement FindClusteredCharge(int reachRange, float chargeHalfWidth)
+        // When several landings hit the same enemies count:
+        //      the closest hex wins
+        //      the furthest hex if maxRange
+        // e.g.     
+        //      Centaur stops right behind the last enemy he hit
+        //      Rogue keeps charging as far as he can
+        public IPlacement FindClusteredCharge(int reachRange, float chargeHalfWidth, bool maxRange = false)
         {
             List<ICombatant> enemies = _scan.GetAllEnemy();
             if (enemies.Count == 0) return null;
@@ -128,7 +134,7 @@ namespace MagicSchool.Combat.Heroes
             // standing still is not a charge - there would be no path to sweep
             List<Hex> landings = HexFinder.FindFreeHexesWithin(myHex, reachRange, _me.IsHexReservedByOther);
 
-            return ClusterAim.BestCharge(myHex.transform.position, landings, enemies, chargeHalfWidth);
+            return ClusterAim.BestCharge(myHex.transform.position, landings, enemies, chargeHalfWidth, maxRange);
         }
 
         // Pick a random free hex within my reach range (not the one I stand on)

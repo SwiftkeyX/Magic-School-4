@@ -173,8 +173,9 @@ namespace MagicSchool.Skills
                                Sticky = sticky, Offset = offset, Range = range };
 
         public static MoveTuning TuneMove(float? castTime = null, int? range = null,
-                                          float? duration = null, float? spread = null)
-            => new MoveTuning { CastTime = castTime, Range = range, Duration = duration, Spread = spread };
+                                          float? duration = null, float? spread = null, bool? maxRange = null)
+            => new MoveTuning { CastTime = castTime, Range = range, Duration = duration, Spread = spread,
+                                MaxRange = maxRange };
 
         public static ProjectileTuning TuneProjectile(float? castTime = null, int? range = null,
                                                       float? spread = null, float? size = null)
