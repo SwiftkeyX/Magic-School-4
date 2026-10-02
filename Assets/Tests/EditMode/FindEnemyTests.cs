@@ -311,6 +311,22 @@ namespace MagicSchool.Combat.Tests
         }
 
         [Test]
+        public void ClusteredCharge_with_maxRange_runs_on_past_the_enemy_instead_of_stopping_behind_it()
+        {
+            Hero me = _board.AddHero(TeamEnum.Blue, Blue(0, 3));
+            _board.AddHero(TeamEnum.Red, Blue(1, 3));
+
+            IPlacement stopsShort = me.FindClusteredCharge(reachRange: 4, chargeHalfWidth: 0.6f);
+            IPlacement runsOn = me.FindClusteredCharge(reachRange: 4, chargeHalfWidth: 0.6f, maxRange: true);
+
+            float shortDistance = Vector3.Distance(me.transform.position, stopsShort.transform.position);
+            float longDistance = Vector3.Distance(me.transform.position, runsOn.transform.position);
+
+            // both sweep the same single enemy, so only the tie-break tells them apart
+            Assert.That(longDistance, Is.GreaterThan(shortDistance));
+        }
+
+        [Test]
         public void ClusteredLanding_breaks_a_tie_by_taking_the_shorter_jump()
         {
             Hero me = _board.AddHero(TeamEnum.Blue, Blue(0, 3));
