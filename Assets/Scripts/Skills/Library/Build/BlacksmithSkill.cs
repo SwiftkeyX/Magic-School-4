@@ -7,7 +7,6 @@ namespace MagicSchool.Skills
     internal class BlacksmithSkill : SkillDefinition
     {
         private const float DamageRatio = 180f;
-        private const float StunDuration = 1f;
         private const float ShredDuration = -1f;
         private const float ShredFromAP = 25f;
 
@@ -18,8 +17,8 @@ namespace MagicSchool.Skills
         public override string SkillName => "Forge Hammer";
 
         public override string Description
-            => $"Hammers the current target for {DamageRatio}% AD, stunning it for {StunDuration} "
-             + $"seconds and permanently removing armour equal to {ShredFromAP}% AP.";
+            => $"Hammers the current target for {DamageRatio}% AD, "
+             + $"permanently removing armour equal to {ShredFromAP}% AP.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
@@ -29,7 +28,6 @@ namespace MagicSchool.Skills
                 action: TemplateActionEnum.CircleAOE,
                 target: AimTargetEnum.Current,
                 Damage(EffectRecipientEnum.EnemiesInArea, (StatEnum.ATK, DamageRatio)),
-                Apply(EffectRecipientEnum.EnemiesInArea, BundleRefresh(StunDuration, Status(ModifierEnum.Stun))),
                 Apply(EffectRecipientEnum.EnemiesInArea,
                       BundleRefresh(ShredDuration,
                              // 25% of the total AP is taken off the target's DF, for the rest of the fight

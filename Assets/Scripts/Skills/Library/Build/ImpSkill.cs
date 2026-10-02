@@ -5,16 +5,6 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    /// <summary>
-    /// Imp: throws 5 spears in sequence, each at a random enemy within 2 hexes of his current
-    /// target - no repeat until every enemy in that pool has been hit once. Spears, not fireballs:
-    /// he never burns anyone himself (the burn-tick passive on the roster sheet is not built yet).
-    ///
-    /// Sheet (Hero set 9): "Fire 5 rockets at random enemies within 2 hexes of the current target.
-    /// Each rocket deals 150/155/160% Attack Damage + 15/20/35% Ability Power physical damage."
-    /// Star-level scaling (the /155/160 and /20/35 tiers) isn't implemented yet - same as Dryad's
-    /// DamageRatio, this takes the 1-star baseline only.
-    /// </summary>
     internal class ImpSkill : SkillDefinition
     {
         private const float ADDamagePerShot = 150f;   // sheet: 150/155/160% AD
@@ -23,6 +13,11 @@ namespace MagicSchool.Skills
         private const float IntervalBetweenShot = 0.1f;
         private const int RandomPoolRadius = 2;        // sheet: "random enemies within 2 hexes of the current target"
         private const float TotalCastTime = IntervalBetweenShot * (ShotCount - 1);
+
+        // passive
+        private const float AttackSpeedPerBurnTick = 2f;   // +2% base AS
+        // FLAGGING: the roster sheet gives no length - the rest of the fight, same as Harpy's growth
+        private const float RestOfFight = -1f;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ImpSkill(registry);
 
@@ -35,6 +30,23 @@ namespace MagicSchool.Skills
              + $"hexes of the current target, each landing for {ADDamagePerShot}% AD + "
              + $"{APDamagePerShot}% AP, never hitting the same one twice until everyone in range has "
              + "been caught once.";
+
+        public override string PassiveDescription
+            => $"Gains {AttackSpeedPerBurnTick}% attack speed every time an enemy takes a burn tick.";
+
+        // ============================== passive ==============================
+        public override bool HasAutoAttackPassive => true;
+
+        // an enemy took a burn tick - gain attack speed.
+        // A fresh bundle every time, so the ticks stack
+        public override void OnHeroBurned(ICombatant burned)
+        {
+            if (burned.Team == Caster.Team) return;
+
+            Caster.AddModifier(
+                BundleStack(RestOfFight, Buff(ModifierEnum.AS, (StatEnum.AS, AttackSpeedPerBurnTick, ScaleFromEnum.Base))),
+                Caster as IHeroStats);
+        }
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

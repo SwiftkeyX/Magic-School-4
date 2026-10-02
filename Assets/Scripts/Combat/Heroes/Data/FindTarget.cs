@@ -209,6 +209,15 @@ namespace MagicSchool.Combat.Heroes
                 .FirstOrDefault();
         }
 
+        // Find a ally with the smallest percentage HP left.
+        public ICombatant FindLowestHealthAlly()
+        {
+            return _scan.GetAllAlly()
+                .Where(ally => ally.CurrentHex() != null && ally is IHeroStats stats && stats.MaxHP > 0)
+                .OrderBy(ally => (float)((IHeroStats)ally).CurrentHP / ((IHeroStats)ally).MaxHP)
+                .FirstOrDefault();
+        }
+
         // Find random x enemies.
         public IReadOnlyList<ICombatant> FindRandomEnemies(int count)
             => _scan.GetAllEnemy().OrderBy(_ => UnityEngine.Random.value).Take(count).ToList();

@@ -66,6 +66,12 @@ namespace MagicSchool.Skills
                 _owner = _me.FindNearestAlly() ?? _me;
             }
 
+            // give to the ally with the smallest percentage health left.
+            else if (aimTarget == AimTargetEnum.LowestHealthAlly)
+            {
+                _owner = _me.FindLowestHealthAlly() ?? _me;
+            }
+
             // the owner was already chosen for it
             else if (aimTarget == AimTargetEnum.Assigned)
             {

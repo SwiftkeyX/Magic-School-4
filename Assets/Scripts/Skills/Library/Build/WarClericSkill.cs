@@ -41,7 +41,7 @@ namespace MagicSchool.Skills
                 target: AimTargetEnum.Self,
                 tuning: TuneAOE(length: AreaDiameter, width: AreaDiameter),
 
-                DamageOverTime(
+                Burn(
                     recipient: EffectRecipientEnum.EnemiesInArea,
                     interval: TickInterval,
                     duration: Duration,

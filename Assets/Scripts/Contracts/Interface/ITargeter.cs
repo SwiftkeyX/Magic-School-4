@@ -19,5 +19,6 @@ namespace MagicSchool.Contracts
         IReadOnlyList<ICombatant> FindAllAllies();
         IReadOnlyList<ICombatant> FindRandomEnemies(int count);
         ICombatant FindNearestAlly();
+        ICombatant FindLowestHealthAlly();
     }
 }

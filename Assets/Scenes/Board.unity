@@ -946,6 +946,9 @@ MonoBehaviour:
   _panelAsset: {fileID: 9197481963319205126, guid: a6ab2bc69608ec746938b3134742beb5, type: 3}
   _ghostAsset: {fileID: 9197481963319205126, guid: f2b0855b1d9174942833f355aba69429, type: 3}
   _heroDataSOs:
+  - {fileID: 11400000, guid: e7d86f4be25b22c498716c553aa2a217, type: 2}
+  - {fileID: 11400000, guid: b9caac36cc1f73a4e90b0610299f9762, type: 2}
+  - {fileID: 11400000, guid: 2bbb40098e2c2cf4bb28cc25df079d26, type: 2}
   - {fileID: 11400000, guid: c89100b4b11c04842a71fca916c1d4c1, type: 2}
   - {fileID: 11400000, guid: e55e93ecd34e44c429e32be0e761a605, type: 2}
   - {fileID: 11400000, guid: e3572f7949186fc4191265167e10d06c, type: 2}

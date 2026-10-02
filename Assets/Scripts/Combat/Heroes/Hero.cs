@@ -187,6 +187,7 @@ namespace MagicSchool.Combat.Heroes
         public IReadOnlyList<ICombatant> FindAllAllies() => _findEnemy.FindAllAllies();
         public IReadOnlyList<ICombatant> FindRandomEnemies(int count) => _findEnemy.FindRandomEnemies(count);
         public ICombatant FindNearestAlly() => _findEnemy.FindNearestAlly();
+        public ICombatant FindLowestHealthAlly() => _findEnemy.FindLowestHealthAlly();
 
 
         // ======================================== life cycle ========================================

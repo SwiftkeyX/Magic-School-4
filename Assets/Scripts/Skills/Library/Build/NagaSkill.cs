@@ -40,17 +40,17 @@ namespace MagicSchool.Skills
                 action: TemplateActionEnum.HomingProjectile,
                 target: AimTargetEnum.Current,
 
-                Damage(
+                DamageWhen(
                     recipient: EffectRecipientEnum.SameToAimTarget,
+                    conditions: amplifierCondition,
+                    amplifier: WoundedAmplifier,
                     ratios: (StatEnum.AP, DamageRatio)),
 
-                ApplyWhen(
+                Apply(
                     recipient: EffectRecipientEnum.SameToAimTarget,
                     modifier: BundleRefresh(
                         duration: WoundDuration,
-                        modifiers: Status(ModifierEnum.Wound)),
-                    conditions: amplifierCondition,
-                    amplifier: WoundedAmplifier)
+                        modifiers: Status(ModifierEnum.Wound)))
             );
 
             return Flow(onStart: shootProjectile);

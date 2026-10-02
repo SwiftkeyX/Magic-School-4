@@ -18,7 +18,8 @@ namespace MagicSchool.Skills
         public override string SkillName => "Thick Skulls";
 
         public override string Description
-            => $"Gains {FlatBonusHP} + {BonusHPFromAP}% AP bonus health for the rest of the fight.";
+            => $"Gains {FlatBonusHP} + {BonusHPFromAP}% AP bonus health for the rest of the fight. "
+             + "Stacks every cast.";
 
         public override string PassiveDescription
             => $"Auto attacks deal an extra {MaxHPPerAttack}% of his max HP.";
@@ -26,15 +27,13 @@ namespace MagicSchool.Skills
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            // FLAGGING: the sheet says this stacks every cast, but the same modifier instance is
-            // refreshed rather than added again, so a second cast gives nothing more. Needs the
-            // stack-vs-refresh rule in ModifierResolver.
+            // a stack bundle, so every cast adds its bonus health on top of the last
             SkillPart skulls = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
                 Apply(EffectRecipientEnum.Self,
-                      BundleRefresh(
+                      BundleStack(
                         BonusDuration,
                         Buff(
                             ModifierEnum.BonusHP,

@@ -20,7 +20,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Fairy Companion";
 
         public override string Description
-            => $"Summons a fairy and gives it to the closest ally. For {FairyDuration} seconds the fairy deals "
+            => $"Summons a fairy and gives it to the lowest-health ally. For {FairyDuration} seconds the fairy deals "
              + $"{StingDamage}% AP every second to the enemy its owner is fighting, and heals the owner for "
              + $"{HealPercent}% of the damage it deals.";
 
@@ -50,13 +50,11 @@ namespace MagicSchool.Skills
                 ).WithLifesteal(HealPercent)
             );
 
-            // FLAGGING: temporarily. The fairy goes to the closest ally, the same way Rock Golem picks his ward.
-            // Who should really get it is not decided yet.
             SkillPart fairy = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Summon,
-                target: AimTargetEnum.NearestAlly,
+                target: AimTargetEnum.LowestHealthAlly,
                 tuning: TuneSummon(act: _sting, duration: FairyDuration, interval: FairyInterval)
             );
 

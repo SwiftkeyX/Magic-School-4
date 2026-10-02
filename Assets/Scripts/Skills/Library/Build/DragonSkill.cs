@@ -33,7 +33,7 @@ namespace MagicSchool.Skills
                 target: AimTargetEnum.ClusteredCircle,
                 tuning: TuneAOE(length: ConeLength, width: ConeWidth, offset: AOEOffsetEnum.Tip),
                 Damage(EffectRecipientEnum.EnemiesInArea, (StatEnum.AP, DamageRatio)),
-                DamageOverTime(EffectRecipientEnum.EnemiesInArea, BurnInterval, BurnDuration, (StatEnum.AP, BurnTotal))
+                Burn(EffectRecipientEnum.EnemiesInArea, BurnInterval, BurnDuration, (StatEnum.AP, BurnTotal))
             );
 
             return Flow(onStart: breath);
