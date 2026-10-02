@@ -42,7 +42,7 @@ namespace MagicSchool.Skills
         }
 
         // ============================== passive ==============================
-        public override bool HasAttackPassive => true;
+        public override bool HasAutoAttackPassive => true;
 
         // at combat start, nobody has been shot and his arrows are clean
         public override bool OnCombatStart()
@@ -54,7 +54,7 @@ namespace MagicSchool.Skills
         }
 
         // every arrow goes to a random enemy he has not shot yet
-        public override ICombatant OnPickAttackTarget(ICombatant target)
+        public override ICombatant OnPickAutoAttackTarget(ICombatant target)
         {
             _notShotYet.RemoveAll(enemy => !enemy.IsAlive);
 
@@ -71,7 +71,7 @@ namespace MagicSchool.Skills
         }
 
         // while the venom lasts, the arrow poisons whoever it landed on
-        public override bool OnAttack(ICombatant target)
+        public override bool OnAutoAttack(ICombatant target)
         {
             if (Time.time >= _venomEndsAt) return false;
 

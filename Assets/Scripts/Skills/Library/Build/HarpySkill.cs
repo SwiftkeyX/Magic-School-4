@@ -41,7 +41,7 @@ namespace MagicSchool.Skills
              + $"{BothBonusesAttack} AD and {BothBonusesAttackSpeed} attack speed she gets both.";
 
         // ============================== passive ==============================
-        public override bool HasAttackPassive => true;
+        public override bool HasAutoAttackPassive => true;
 
         // at combat start, choose the stance
         public override bool OnCombatStart()
@@ -74,7 +74,7 @@ namespace MagicSchool.Skills
 
 
         // on attack, if harpy was range or both, gain AS buff
-        public override bool OnAttack(ICombatant target)
+        public override bool OnAutoAttack(ICombatant target)
         {
             if (_stance == STANCE.melee) return false;
 

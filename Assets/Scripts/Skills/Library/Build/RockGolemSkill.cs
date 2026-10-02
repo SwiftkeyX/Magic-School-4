@@ -27,7 +27,7 @@ namespace MagicSchool.Skills
             => "When combat starts, he takes the closest ally as his ward.";
 
         // ============================== passive ==============================
-        public override bool HasAttackPassive => true;
+        public override bool HasAutoAttackPassive => true;
 
         public override bool OnCombatStart()
         {

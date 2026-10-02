@@ -16,7 +16,7 @@ namespace MagicSchool.Skills
         private TemplateActionRegistrySO _registry;
 
         private SkillFlow _active;          // played when mana is full
-        private SkillFlow _onAttack;        // played on every auto attack. (most skills have none)
+        private SkillFlow _onAutoAttack;        // played on every auto attack. (most skills have none)
 
         protected ICombatant Caster { get; private set; }   // owner of this skill
         public float CastTime { get; private set; } // the animation's duration to play this specific skill
@@ -31,9 +31,9 @@ namespace MagicSchool.Skills
         // ============================================== init ==============================================
         /// The flows of the hero's skill. Built once from Init.
         /// BuildActiveFlow    the flow played when mana is full
-        /// BuildAttackFlow    the flow played on every auto attack, if the skill has one
+        /// BuildAutoAttackFlow    the flow played on every auto attack, if the skill has one
         protected abstract SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry);
-        protected virtual SkillFlow BuildAttackFlow(TemplateActionRegistrySO registry) => null;
+        protected virtual SkillFlow BuildAutoAttackFlow(TemplateActionRegistrySO registry) => null;
 
         public virtual void Init(ICombatant caster)
         {
@@ -42,14 +42,14 @@ namespace MagicSchool.Skills
             if (_registry != null)
             {
                 _active = BuildActiveFlow(_registry);
-                _onAttack = BuildAttackFlow(_registry);
+                _onAutoAttack = BuildAutoAttackFlow(_registry);
 
                 // prevent second init from rebuilt the skill
                 _registry = null;
             }
 
             _active?.Init(caster);
-            _onAttack?.Init(caster);
+            _onAutoAttack?.Init(caster);
         }
 
         // ============================================== virtual ==============================================
@@ -57,19 +57,19 @@ namespace MagicSchool.Skills
         public abstract string Description { get; }
         public virtual string PassiveDescription => "";
         public virtual bool HasActive => _active != null;
-        public virtual bool HasAttackPassive => _onAttack != null;
+        public virtual bool HasAutoAttackPassive => _onAutoAttack != null;
 
         // ============================================== virtual hooks ==============================================
         // If mana is full, subclass do [x], and play the active flow.
         public virtual bool OnCast() => PlayFlow(_active);
 
-        // If auto attack, subclass do [x], and play the onAttack flow.
-        public virtual bool OnAttack(ICombatant target) => PlayFlow(_onAttack);
+        // If auto attack, subclass do [x], and play the onAutoAttack flow.
+        public virtual bool OnAutoAttack(ICombatant target) => PlayFlow(_onAutoAttack);
 
         // Normally a auto attack always default to current target.
         // But some skill may pick different target through this method. 
         // e.g. Goblin Archer auto attack a random enemy
-        public virtual ICombatant OnPickAttackTarget(ICombatant target) => target;
+        public virtual ICombatant OnPickAutoAttackTarget(ICombatant target) => target;
 
         // At combat start, play OnCombatStart.
         public virtual bool OnCombatStart() => false;

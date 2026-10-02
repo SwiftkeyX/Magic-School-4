@@ -73,8 +73,8 @@ namespace MagicSchool.Combat.Heroes
 
         // ======================================== skill ========================================
         public bool TriggerActiveSkill(bool isManaCapped) => _skill.TriggerOnCastSkill(isManaCapped);
-        public bool TriggerOnAttack(ICombatant target) => _skill.TriggerOnAttack(target);
-        public ICombatant PickAttackTarget(ICombatant target) => _skill.PickAttackTarget(target);
+        public bool TriggerOnAutoAttack(ICombatant target) => _skill.TriggerOnAutoAttack(target);
+        public ICombatant PickAutoAttackTarget(ICombatant target) => _skill.PickAutoAttackTarget(target);
         public bool TriggerOnCombatStart() => _skill.TriggerOnCombatStart();
         public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);
         public float GetCastTime() => _skill.GetCastTime();
@@ -82,7 +82,7 @@ namespace MagicSchool.Combat.Heroes
 
         // what the Hero Panel reads
         public bool HasSkill => _skill != null && _skill.HasSkill;
-        public bool HasAttackPassive => _skill != null && _skill.HasAttackPassive;
+        public bool HasAutoAttackPassive => _skill != null && _skill.HasAutoAttackPassive;
         public string SkillName => _skill != null ? _skill.SkillName : string.Empty;
         public string SkillDescription => _skill != null ? _skill.Description : string.Empty;
         public string PassiveDescription => _skill != null ? _skill.PassiveDescription : string.Empty;

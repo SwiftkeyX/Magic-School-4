@@ -98,15 +98,15 @@ namespace MagicSchool.Skills
 
         // on attack, increase attackCount
         // attackCount increase stun duration
-        public override bool OnAttack(ICombatant target)
+        public override bool OnAutoAttack(ICombatant target)
         {
             _attackCount++;
 
-            return base.OnAttack(target);
+            return base.OnAutoAttack(target);
         }
 
         // on attack, heal himself
-        protected override SkillFlow BuildAttackFlow(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildAutoAttackFlow(TemplateActionRegistrySO registry)
         {
             // cast
             SkillPart cast = Part(registry,

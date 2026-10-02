@@ -32,7 +32,7 @@ namespace MagicSchool.Skills
             => $"Whenever an enemy dies, he gains {BonusHPPerDeath} bonus health for the rest of the fight and heals for as much.";
 
         // ============================== passive ==============================
-        public override bool HasAttackPassive => true;
+        public override bool HasAutoAttackPassive => true;
 
         // an enemy died - gain bonus health, and the HP to fill it.
         // A fresh bundle every time, so the deaths stack

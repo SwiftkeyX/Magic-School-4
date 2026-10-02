@@ -51,10 +51,10 @@ namespace MagicSchool.Combat.Heroes.States
                 // who this attack lands on. 
                 // default current target, unless the skill picks someone else
                 // e.g. Goblin Archer shoots a random enemy
-                ICombatant attackTarget = _me.PickAttackTarget(_currentTarget);
+                ICombatant attackTarget = _me.PickAutoAttackTarget(_currentTarget);
 
-                // fire OnAttack event
-                _me.TriggerOnAttack(attackTarget);
+                // fire OnAutoAttack event
+                _me.TriggerOnAutoAttack(attackTarget);
 
                 // this hero auto attack
                 PerformAutoAttack(attackTarget);

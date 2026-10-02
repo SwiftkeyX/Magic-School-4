@@ -48,10 +48,10 @@ namespace MagicSchool.Skills
         }
 
         // ============================== passive ==============================
-        protected override SkillFlow BuildAttackFlow(TemplateActionRegistrySO registry)
+        protected override SkillFlow BuildAutoAttackFlow(TemplateActionRegistrySO registry)
         {
             // every auto attack also hits the target for a share of his own max HP
-            SkillPart onAttack = Part(registry,
+            SkillPart onAutoAttack = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Current,
@@ -61,7 +61,7 @@ namespace MagicSchool.Skills
                 )
             );
 
-            return Flow(onStart: onAttack);
+            return Flow(onStart: onAutoAttack);
         }
     }
 }

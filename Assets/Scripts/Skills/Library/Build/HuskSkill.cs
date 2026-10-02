@@ -32,7 +32,7 @@ namespace MagicSchool.Skills
              + "for the rest of the fight.";
 
         // ============================== passive ==============================
-        public override bool HasAttackPassive => true;
+        public override bool HasAutoAttackPassive => true;
 
         public override bool OnCombatStart()
         {

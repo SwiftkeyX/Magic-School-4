@@ -8,7 +8,7 @@ namespace MagicSchool.Combat.Heroes
     /// Work with SkillDefinition
     /// HeroSkill decide when to play each type of skill.
     /// e.g.    OnCast skill    =   played when mana is full
-    ///         OnAttack skill  =   played when hero auto-attack
+    ///         OnAutoAttack skill  =   played when hero auto-attack
     /// </summary>
     internal class HeroSkill
     {
@@ -20,7 +20,7 @@ namespace MagicSchool.Combat.Heroes
 
         // Some heroes (e.g. generic dummy/tank archetypes) have no skill at all.
         public bool HasSkill => _skill != null && _skill.HasActive;
-        public bool HasAttackPassive => _skill != null && _skill.HasAttackPassive;
+        public bool HasAutoAttackPassive => _skill != null && _skill.HasAutoAttackPassive;
 
         // information to hero inspector panel
         public string SkillName => _skill != null ? _skill.SkillName : string.Empty;
@@ -42,21 +42,21 @@ namespace MagicSchool.Combat.Heroes
             return _skill.OnCast();
         }
 
-        // if auto-attack, play OnAttack type of skill
-        public bool TriggerOnAttack(ICombatant target)
+        // if auto-attack, play OnAutoAttack type of skill
+        public bool TriggerOnAutoAttack(ICombatant target)
         {
-            if (!HasAttackPassive) return false;
+            if (!HasAutoAttackPassive) return false;
 
-            return _skill.OnAttack(target);
+            return _skill.OnAutoAttack(target);
         }
 
         // before an auto-attack lands, the skill may pick another target 
         // e.g. Goblin Archer shoots a random enemy
-        public ICombatant PickAttackTarget(ICombatant target)
+        public ICombatant PickAutoAttackTarget(ICombatant target)
         {
             if (_skill == null) return target;
 
-            return _skill.OnPickAttackTarget(target) ?? target;
+            return _skill.OnPickAutoAttackTarget(target) ?? target;
         }
 
         // at start of the combat, play OnCombat type of skill
