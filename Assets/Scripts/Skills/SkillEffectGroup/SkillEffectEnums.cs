@@ -2,8 +2,8 @@ namespace MagicSchool.Skills
 {
     /// <summary>
     /// Skil use A LOT OF enum. We group all of them here for readability.
-    /// The two that Hero also speaks - TriggerEnum and ModifierEnum - live in Contracts/ instead,
-    /// so Hero doesn't have to depend on the whole skill system just to name a buff or a trigger.
+    /// The one that Hero also speaks - ModifierEnum - lives in Contracts/ instead,
+    /// so Hero doesn't have to depend on the whole skill system just to name a buff.
     /// </summary>
 
     // These enums are serialized into SkillSO assets as raw ints - always assign explicit values so
