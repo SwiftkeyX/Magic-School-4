@@ -272,6 +272,9 @@ namespace MagicSchool.Combat.Heroes
             // Is current target is dead?
             if (engaged == null || !engaged.IsAlive || !engaged.IsInCombat) return false;
 
+            // Is current target vanished?
+            if (engaged.HasStatus(ModifierEnum.Untargetable)) return false;
+
             Hex myHex = _me.CurrentHex;
             if (myHex == null || engaged.CurrentHex() == null) return false;
 

@@ -45,5 +45,6 @@ namespace MagicSchool.Skills
         Warlock = 34,
         Rogue = 35,
         GoblinArcher = 36,
+        Fencer = 37,
     }
 }

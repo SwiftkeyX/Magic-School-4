@@ -28,6 +28,19 @@ namespace MagicSchool.Combat.Heroes
             _sprite = GetComponent<SpriteRenderer>();
         }
 
+        void LateUpdate()
+        {
+            if (_me == null || !_me.IsInitialized) return;
+
+            // if a hero is vanished, don't draw him 
+            bool isShown = !_me.HasStatus(ModifierEnum.Untargetable);
+            if (_sprite.enabled == isShown) return;
+            _sprite.enabled = isShown;
+
+            // don't draw the canvas of him too.
+            foreach (Canvas bar in GetComponentsInChildren<Canvas>(true)) bar.enabled = isShown;
+        }
+
         // When hero die, set his sprite transparent to indicate that he is dead.
         public void SetDeadVisual()
         {

@@ -121,6 +121,9 @@ namespace MagicSchool.Combat.Heroes
 
         public void TakeDamage(int damage, IEffectable source, DamageKindEnum kind)
         {
+            // if target has vanish, the target don't take damage
+            if (HasStatus(ModifierEnum.Untargetable)) return;
+
             DamageOutcome outcome = CombatMath.ResolveDamage(damage, Stat.DF, Stat.DamageReductionPercent, Stat.CurrentHP,
                                                              Stat.Shield, out int absorbed);
             Stat.ConsumeShield(absorbed);

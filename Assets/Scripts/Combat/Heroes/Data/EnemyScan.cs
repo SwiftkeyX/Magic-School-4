@@ -95,7 +95,8 @@ namespace MagicSchool.Combat.Heroes
             bool notTargetFriend = target.Team != _me.Team;
             bool notTargetDead = target.IsAlive;
             bool notTargetGuyNotInCombat = target.IsInCombat;
-            return notTargetMyself && notTargetFriend && notTargetDead && notTargetGuyNotInCombat;
+            bool notTargetGuyWhoVanished = !target.HasStatus(ModifierEnum.Untargetable);
+            return notTargetMyself && notTargetFriend && notTargetDead && notTargetGuyNotInCombat && notTargetGuyWhoVanished;
         }
 
         // easy boolean logic to filter the ally

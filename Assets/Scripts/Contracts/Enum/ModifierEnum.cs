@@ -27,5 +27,6 @@ namespace MagicSchool.Contracts
         Transformed = 10,
         ManaBlocked = 11,
         AutoAttackWasReplaced = 12,
+        Untargetable = 19,      
     }
 }
