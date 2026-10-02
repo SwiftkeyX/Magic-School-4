@@ -45,6 +45,7 @@ namespace MagicSchool.Combat.Heroes
         public TeamEnum Team => _team;
         public HeroStateEnum StateType => _stateMachine.CurrentType;
         public bool IsDummy => _isDummy;
+        public int Price => _SOData != null ? _SOData.Price : 0;   // what the shop charged for him, and what selling him refunds
 
         // ======================================== state ========================================
         public void ChangeState(HeroStateEnum next) => _stateMachine.ChangeState(next);

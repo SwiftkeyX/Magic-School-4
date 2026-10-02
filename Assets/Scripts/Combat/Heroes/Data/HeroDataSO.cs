@@ -35,6 +35,7 @@ namespace MagicSchool.Combat.Heroes
         public GameObject Prefab => _prefab;
         public string Name => _name;
         public HeroTierEnum Tier => _tier;
+        public int Price => HeroPrice.Of(_tier);
         public HeroRoleEnum Role => _role;
         public int HP => _hp;
         public int Atk => _attack;

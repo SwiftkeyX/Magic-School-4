@@ -25,7 +25,10 @@ namespace MagicSchool.Core
         [Tooltip("Write every round's numbers to a CSV for balancing. Off in a real build - it writes a file.")]
         [SerializeField] private bool _test;
         [SerializeField] private int _startingHeroLimit = 3;   // how many heroes the player may field on stage 1
+        [SerializeField] private int _startingGold = 10;       // what the player shops with on stage 1
+        [SerializeField] private int _stageIncome = 5;         // gold paid after every fight
         private BattlePlacementSO _currentStage;
+        private Wallet _wallet;
         private HeroMover _heroMover;
         private HeroSeller _heroSeller;
         private HeroFormation _heroFormation;
@@ -63,6 +66,7 @@ namespace MagicSchool.Core
         internal void SetStageIndex(int index) => _stageIndex = Mathf.Clamp(index, 0, StageCount - 1);
         internal void GrowHeroLimit() => _heroLimit++;
         internal void ResetHeroLimit() => _heroLimit = _startingHeroLimit;
+        internal void PayStageIncome() => _wallet.Earn(_stageIncome);
 
         // === forwarding ===
         internal BattleBoard Board => _board;
@@ -99,7 +103,8 @@ namespace MagicSchool.Core
             if (_test) _balanceLog = new CombatCsvLog(Path.Combine(Application.dataPath, "..", "BalanceLogs"));
 
             _heroSpawner = new HeroSpawner(_heroMover, _bench, _seed, _templateActions, _recorder);
-            _heroSeller = new HeroSeller();
+            _wallet = new Wallet(_startingGold);
+            _heroSeller = new HeroSeller(_wallet);
             _heroFormation = new HeroFormation(_heroMover);
             _heroLimit = _startingHeroLimit;
             _stateMachine = new GameStateMachine(this);
@@ -109,6 +114,9 @@ namespace MagicSchool.Core
             _hint = behaviours.OfType<IHintPanel>().FirstOrDefault();
             _reward = behaviours.OfType<IRewardPanel>().FirstOrDefault();
             _scoreboard = behaviours.OfType<IScoreboardPanel>().FirstOrDefault();
+
+            // bind the shop panel to player's wallet
+            behaviours.OfType<IShopPanel>().FirstOrDefault()?.BindWallet(_wallet);
         }
 
         // start the game at preparation state

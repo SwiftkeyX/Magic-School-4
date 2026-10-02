@@ -1,25 +1,32 @@
 using UnityEngine;
 using MagicSchool.Contracts;
+using MagicSchool.Combat.Heroes;
 
 namespace MagicSchool.Core
 {
     internal class HeroSeller
     {
+        private readonly IWallet _wallet;
+
+        public HeroSeller(IWallet wallet)
+        {
+            _wallet = wallet;
+        }
+
         public void Sell(ICombatant hero)
         {
             if (hero == null) return;
 
-            // BLOCKED on: the gold/economy system. => Put refund gold logic here once it exists.
-            // (its mirror image is the spend in ShopPanelController.ResolveDrop)
-            // ...
+            // player get money
+            if (hero is Hero sold) _wallet?.Earn(sold.Price);
 
+            // reset var that depend on this hero
             IPlacement placement = hero.CurrentPlacement;
             if (placement != null) placement.OnUnitUnplaced(hero);
             hero.SetCurrentPlacement(null);
-
-            // untrack from the board, since the hero is no longer exist on the team.
             hero.UntrackFromBoard();
 
+            // delete the hero
             Object.Destroy(hero.transform.gameObject);
         }
     }

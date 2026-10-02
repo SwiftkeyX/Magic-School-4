@@ -73,6 +73,24 @@
     white-space: normal;
 }
 
+/* What the slot costs, under its name. Gold-coloured while the player can pay for it, red when
+   he can't (ShopPanelController.ShowAffordability puts the --unaffordable class on the slot). */
+.hero-slot-price {
+    color: rgb(240, 200, 90);
+    font-size: 12px;
+    -unity-text-align: middle-center;
+    margin-top: 2px;
+}
+
+.hero-slot--unaffordable .hero-slot-price {
+    color: rgb(232, 84, 84);
+}
+
+/* the player's gold, in the box above Lock / Refresh */
+.gold-label {
+    color: rgb(240, 200, 90);
+}
+
 /* Dragged-hero preview that follows the pointer while holding a shop slot. It carries .hero-slot
    as well (see Ghost.uxml), so everything about how it LOOKS - background, border, radius, and the
    label inside it - is the slot's, not a second set of values here that would have to be kept in

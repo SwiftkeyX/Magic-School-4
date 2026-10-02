@@ -7,25 +7,32 @@ using MagicSchool.Combat.Placements;
 
 namespace MagicSchool.UI
 {
-    internal class ShopPanelController : PanelController, ISellZone
+    internal class ShopPanelController : PanelController, ISellZone, IShopPanel
     {
         // the shop tints itself while a held hero hovers it (see Shop.uss)
         private const string SellHintClass = "shop-panel--selling";
+
+        // a slot the player can't pay for shows its price in red (see Shop.uss)
+        private const string UnaffordableClass = "hero-slot--unaffordable";
 
         // ================= SerializeField ======================
         [SerializeField] private VisualTreeAsset _ghostAsset;
         [SerializeField] private List<HeroDataSO> _heroDataSOs;
         [SerializeField] private Bench _bench;
+        [SerializeField] private int _refreshCost = 1;      
 
         // ================= VisualElement ======================
         private VisualElement _shopPanel;
         private VisualElement _ghost;
         private Dictionary<VisualElement, HeroDataSO> _heroSlotsDict = new Dictionary<VisualElement, HeroDataSO>();
         private List<VisualElement> _heroSlots;
+        private Label _goldValue;
+        private Label _refreshLabel;
 
         // ================== etc =======================
         private bool _isDragging = false;
         private Vector2 _ghostSize;
+        private IWallet _wallet;        
 
         // ================= setter & getter ===================
         // ...
@@ -35,6 +42,8 @@ namespace MagicSchool.UI
         {
             // get the reference for later use
             _shopPanel = panel.Q<VisualElement>("ShopPanel");
+            _goldValue = panel.Q<Label>("GoldValue");
+            _refreshLabel = panel.Q<Label>("RefreshLabel");
 
             InitializeGhost();
 
@@ -43,6 +52,9 @@ namespace MagicSchool.UI
 
             // Wire up the "Refresh" button to re-roll all hero slots
             MakeRefreshButtonWork();
+
+            // init gold displayed
+            ShowGold();
         }
 
         #endregion
@@ -79,10 +91,7 @@ namespace MagicSchool.UI
             }
         }
 
-        // put a hero's data into a slot: what dragging/buying reads, and what's shown as its label.
-        // A null data means "empty" (e.g. just bought). The slot stays in the layout at full size
-        // either way (display is never toggled) so buying one doesn't reflow its siblings - it just
-        // goes dim and unlabeled, which is derived here in one place rather than a separate flag.
+        // put a hero's data into a slot
         private void AssignHeroToSlot(VisualElement slot, HeroDataSO data)
         {
             _heroSlotsDict[slot] = data;
@@ -91,6 +100,11 @@ namespace MagicSchool.UI
 
             Label nameLabel = slot.Q<Label>();
             if (nameLabel != null) nameLabel.text = data != null ? data.Name : string.Empty;
+
+            Label priceLabel = slot.Q<Label>("Price");
+            if (priceLabel != null) priceLabel.text = data != null ? $"{data.Price} g" : string.Empty;
+
+            ShowAffordability(slot);
         }
 
         // ============================== Pointer Event ====================================
@@ -182,7 +196,7 @@ namespace MagicSchool.UI
         // =========================== Buy / cancel on release ===============================
         private void ResolveDrop(VisualElement slot, Vector2 releasePosition)
         {
-            // pointer.position and worldBound are both in the same panel coordinate space, no screen/world conversion needed
+            // if the drop was done outside the shop's bound, buy that hero
             bool releasedInsideShop = _shopPanel.worldBound.Contains(releasePosition);
             if (releasedInsideShop)
             {
@@ -190,11 +204,22 @@ namespace MagicSchool.UI
                 return;
             }
 
-            // BLOCKED on: the gold/economy system. => Put spend gold logic here once it exists.
-            bool bought = BuyHero(_heroSlotsDict[slot]);
+            HeroDataSO data = _heroSlotsDict[slot];
+
+            // can't buy hero because not enough money. 
+            if (!CanAfford(data.Price))
+            {
+                Debug.Log($"Not enough gold for '{data.Name}' ({data.Price} g).");
+                return;
+            }
+
+            // if spawn hero don't work, no buy, return
+            bool bought = SpawnHero(data);
             if (!bought) return;
 
-            Debug.Log($"Bought hero from slot '{_heroSlotsDict[slot]}'.");
+            // pay money
+            Pay(data.Price);
+            Debug.Log($"Bought hero from slot '{data}'.");
 
             // slot's hero is gone - clearing its data dims it and blocks re-buying (see AssignHeroToSlot)
             AssignHeroToSlot(slot, null);
@@ -202,7 +227,7 @@ namespace MagicSchool.UI
         #endregion
 
         #region etc
-        private bool BuyHero(HeroDataSO data)
+        private bool SpawnHero(HeroDataSO data)
         {
             return _bench.SpawnHeroOnBench(data);
         }
@@ -231,30 +256,77 @@ namespace MagicSchool.UI
         #endregion
 
         #region Refresh
+        // "Refresh" is one of the boxes on the left. It make the shop reroll the products. 
         private void MakeRefreshButtonWork()
         {
-            // "Refresh" is one of the two refresh-slot boxes on the left (the other is "Lock", not wired up yet)
-            VisualElement randomSlot = _shopPanel.Q<VisualElement>("RandomSlot");
-            if (randomSlot == null) return;
+            VisualElement refresh = _shopPanel.Q<VisualElement>("Refresh");
+            if (refresh == null) return;
 
-            foreach (var child in randomSlot.Children())
-            {
-                Label label = child.Q<Label>();
-                if (label == null || label.text != "Refresh") continue;
+            if (_refreshLabel != null) _refreshLabel.text = $"Refresh ({_refreshCost} g)";
 
-                child.RegisterCallback<PointerUpEvent>(pointer => RerollShop());
-                break;
-            }
+            refresh.RegisterCallback<PointerUpEvent>(pointer => RerollShop());
         }
 
-        // Re-roll every hero slot with a random hero from the full roster
+        // Re-roll every slot with a random hero, or item. Costs gold.
         private void RerollShop()
         {
+            if (!CanAfford(_refreshCost))
+            {
+                Debug.Log($"Not enough gold to refresh the shop ({_refreshCost} g).");
+                return;
+            }
+
+            Pay(_refreshCost);
+
             foreach (var slot in _heroSlots)
             {
                 HeroDataSO randomHero = _heroDataSOs[Random.Range(0, _heroDataSOs.Count)];
                 AssignHeroToSlot(slot, randomHero);
             }
+        }
+        #endregion
+
+        // =========================== Gold ===============================
+        // FIXLATER: the ShopPanelController is too big. Let divide into Shop and ShopPanel.
+        // ShopPanel only displayed, Shop have the actual logic.
+        #region Gold
+        // === IShopPanel ===
+        public void BindWallet(IWallet wallet)
+        {
+            if (_wallet != null) _wallet.OnGoldChanged -= OnGoldChanged;
+
+            _wallet = wallet;
+
+            if (_wallet != null) _wallet.OnGoldChanged += OnGoldChanged;
+
+            ShowGold();
+        }
+
+        private void OnDestroy()
+        {
+            if (_wallet != null) _wallet.OnGoldChanged -= OnGoldChanged;
+        }
+
+        private void OnGoldChanged(int gold) => ShowGold();
+
+        private bool CanAfford(int cost) => _wallet == null || _wallet.CanAfford(cost);
+        private void Pay(int cost) => _wallet?.TrySpend(cost);
+
+        // show the player's gold, and which slots it can still pay for
+        private void ShowGold()
+        {
+            if (_goldValue != null) _goldValue.text = _wallet != null ? $"{_wallet.Gold} g" : string.Empty;
+
+            if (_heroSlots == null) return;
+
+            foreach (var slot in _heroSlots) ShowAffordability(slot);
+        }
+
+        private void ShowAffordability(VisualElement slot)
+        {
+            _heroSlotsDict.TryGetValue(slot, out HeroDataSO data);
+
+            slot.EnableInClassList(UnaffordableClass, data != null && !CanAfford(data.Price));
         }
         #endregion
 

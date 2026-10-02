@@ -86,6 +86,9 @@ namespace MagicSchool.Core.States
 
             _game.Hint?.ShowResult(_game.Winner, _game.StageNumber, _game.StageCount, runCleared);
 
+            // after fight, pay the player 
+            _game.PayStageIncome();
+
             // go preparation state
             _game.ChangeState(GamePhaseEnum.Preparation);
         }
