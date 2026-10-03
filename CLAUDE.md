@@ -69,7 +69,7 @@ Rules that aren't visible from any single file:
 
 - **`Contracts/`** — `ICombatant` (a unit fighting on the board), `IEffectable` (damage/heal/modifier
   — what a `SkillEffect` needs), `ITargeter`, `IPlaceable`, `IPlacement` (hex or bench slot),
-  `IHeroStats`, `IModifier`, plus `TeamEnum`/`HeroStateEnum`/`TriggerEnum`/`ModifierEnum`.
+  `IHeroStats`, `IModifier`, plus `TeamEnum`/`HeroStateEnum`/`ModifierEnum`.
 - **`Combat/Placements/Hex/Hex.cs`** — one per tile. Computes its own neighbors by distance rather
   than axial math (flat-top grid: same-column neighbors ~1.0 apart, diagonal ~1.118; a 1.15x
   threshold on the nearest distance catches exactly the real neighbors, including at board edges
@@ -95,10 +95,13 @@ Rules that aren't visible from any single file:
 - **`Combat/Placements/Hex/HexNumber.cs`** — `struct HexNumber { TeamEnum team; int column; int row; }`.
   Must stay a `struct`: value equality is what makes the dictionary lookups work: a `class` here
   would silently break them into reference equality.
-- **`Skills/`** — a skill is a `SkillDefinition` of `SkillFlow`s, each holding `SkillPart`s
-  that pick a `TemplateAction` (projectile / AoE / hitbox variants) by `SkillCondition`. Effects are
-  applied through `IEffectable`, so nothing here knows the `Hero` type. `SkillLibrary.Resolve` maps
-  a `SkillIdEnum` to its builder.
+- **`Skills/`** — a skill is a `SkillDefinition` holding one `SkillFlow` for its active:
+  `Flow(onStart, onHit, onExpired)`. Each of the three slots holds one `SkillPart` - one piece of the
+  skill, which picks a `TemplateAction` (projectile / AoE / move / cast) - or several that start
+  together, `Together(a, b)`, where the first one leads. Nothing follows `onHit` / `onExpired`;
+  anything further is played from a hook on `SkillDefinition` (`OnAutoAttack`, `OnCombatStart`,
+  `OnHeroDied`, or a part's own `OnSkillHit`). Effects are applied through `IEffectable`, so
+  nothing here knows the `Hero` type. `SkillLibrary.Resolve` maps a `SkillIdEnum` to its builder.
 - **`Core/`** — the composition root: `GameManager` (phase, winner, wiring), `HeroMover`,
   `HeroSeller`, `HeroFormation`, `HeroSpawner`.
 
@@ -124,10 +127,15 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   `PreparationState.OnEnter`). Without the restore a hero stays where the fight left it —
   including dead ones, since `HeroDead` never releases its hex — often on an enemy tile the
   player could never have placed it on.
-- **Not built yet:** the gold/economy system — the Shop resolves buy-vs-cancel on drag release but
-  can't charge for it, and selling removes the hero but can't refund (see the BLOCKED notes in
-  `ShopPanelController` and `HeroSeller`). Trait Panel and Hero Panel are
-  still empty slots. There is no "Start Battle" button: combat is triggered by the space bar in
+- Gold and the shop's rules work, and both live in `Core`: `Wallet` is the player's gold, `Shop` is
+  what each slot sells, buying and refreshing. `ShopPanelController` only draws and turns a drag
+  into "buy slot i" - it reads everything through `IShop` (Contracts), which `GameManager` hands it
+  via `IShopPanel.BindShop`, because `UI` may not reference `Core`. A hero's price comes from its
+  tier (`HeroPrice.Of`); `Shop.TryBuy` spends it, `HeroSeller.Sell` refunds it, Refresh costs
+  `_refreshCost`, and `ResultState` pays `_stageIncome` after every fight. The shop's roster and
+  numbers are on `GameManager` in the Inspector.
+- **Not built yet:** items in the shop and roll odds (Refresh picks uniformly from the roster).
+  Trait Panel and Hero Panel are still empty slots. There is no "Start Battle" button: combat is triggered by the space bar in
   `PlayerController.TryStartCombat`, which is temporary.
 - `BattlePlacementSO` (the Inspector list of starting `HeroPlacement`s, in `Assets/Data/BattleSetups/`)
   has been reset to defaults multiple times across past type changes — double-check its values
