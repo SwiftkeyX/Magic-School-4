@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b15591f0aa582343bd08d00a02b4206, type: 3}
+  m_Name: Stage 07
+  m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
+  _heroesPlacement:
+  - dataSO: {fileID: 11400000, guid: 3cda1428d994f8842bab119907747544, type: 2}
+    hexPlacement:
+      team: 1
+      column: 0
+      row: 3
+  - dataSO: {fileID: 11400000, guid: 841a5aaa2fba756488ce7d7b9745395c, type: 2}
+    hexPlacement:
+      team: 1
+      column: 0
+      row: 2
+  - dataSO: {fileID: 11400000, guid: e3572f7949186fc4191265167e10d06c, type: 2}
+    hexPlacement:
+      team: 1
+      column: 0
+      row: 4
+  - dataSO: {fileID: 11400000, guid: dc1c3d91f1638e84081e8a7a65529145, type: 2}
+    hexPlacement:
+      team: 1
+      column: 0
+      row: 1
+  - dataSO: {fileID: 11400000, guid: 034319cea1541054dbece22115555d90, type: 2}
+    hexPlacement:
+      team: 1
+      column: 1
+      row: 3
+  - dataSO: {fileID: 11400000, guid: 73b3853130bb12a489fffe28539d20f4, type: 2}
+    hexPlacement:
+      team: 1
+      column: 1
+      row: 2
+  - dataSO: {fileID: 11400000, guid: ae7dbc09b43826d49bf4777dd185c50b, type: 2}
+    hexPlacement:
+      team: 1
+      column: 3
+      row: 3
+  - dataSO: {fileID: 11400000, guid: a20eb6d6a41e37344b5edc7d44f81e3b, type: 2}
+    hexPlacement:
+      team: 1
+      column: 3
+      row: 2
+  - dataSO: {fileID: 11400000, guid: 621e6aa619eba43449eec15fda915d3c, type: 2}
+    hexPlacement:
+      team: 1
+      column: 3
+      row: 4
