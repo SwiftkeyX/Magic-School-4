@@ -84,7 +84,7 @@ namespace MagicSchool.Core
             // NOTE: Must come BEFORE paying because paying invoke a event
             _stock[slot] = null;
 
-            // pay money (its mirror image is the refund in HeroSeller.Sell / ItemSeller.Sell)
+            // pay money 
             _wallet.TrySpend(entry.Price);
             Debug.Log($"Bought {entry.Kind} '{entry.Name}'.");
 

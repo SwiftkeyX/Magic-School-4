@@ -5,7 +5,7 @@ using MagicSchool.Contracts;
 namespace MagicSchool.Items
 {
     [RequireComponent(typeof(SpriteRenderer))]
-    public class Item : MonoBehaviour, IInspectableItem, IDraggable, IEquipment
+    public class Item : MonoBehaviour, IInspectableItem, IDraggable, IEquipment, ISellable
     {
         [SerializeField] private ItemDataSO _data;
         [SerializeField] private TextMeshPro _nameLabel;    // FLAGGING: name on the item, this is for prototype

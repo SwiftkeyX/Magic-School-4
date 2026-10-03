@@ -58,7 +58,7 @@ namespace MagicSchool.Player
 
             // if the object is sellable, drag it to shop, will turn on the shop hint
             // shop hint = make shop red to indicated it was focus
-            bool isSellable = _held is Hero || _held is Item;
+            bool isSellable = _held is ISellable;
             RefreshSellHint(isSellable && IsPointerOverSellZone());
 
             // if still holding, return
@@ -180,7 +180,7 @@ namespace MagicSchool.Player
             // released over the shop = sell a hero.
             if (targetPlacement == null && IsPointerOverSellZone())
             {
-                GameManager.Instance.SellHero(hero);
+                GameManager.Instance.Sell(hero);
                 Release();
                 return;
             }
@@ -217,7 +217,7 @@ namespace MagicSchool.Player
             // released over the shop = sell the item
             if (IsPointerOverSellZone())
             {
-                GameManager.Instance.SellItem(item);
+                GameManager.Instance.Sell(item);
                 return;
             }
 

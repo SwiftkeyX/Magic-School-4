@@ -48,8 +48,7 @@ namespace MagicSchool.Core
         private Wallet _wallet;
         private Shop _shop;
         private HeroMover _heroMover;
-        private HeroSeller _heroSeller;
-        private ItemSeller _itemSeller;
+        private Seller _seller;
         private HeroFormation _heroFormation;
         private HeroSeed _seed;
         private HeroSpawner _heroSpawner;
@@ -100,16 +99,12 @@ namespace MagicSchool.Core
         internal IScoreboardPanel Scoreboard => _scoreboard;
         internal void ChangeState(GamePhaseEnum next) => _stateMachine.ChangeState(next);
         public void MoveHero(ICombatant hero, IPlacement placement) => _heroMover.MoveThisHeroTo(hero, placement);
-        public void SellHero(ICombatant hero)
-        {
-            if (Phase != GamePhaseEnum.Preparation) return;
 
-            _heroSeller.Sell(hero);
-        }
-
-        public void SellItem(Item item)
+        public void Sell(ISellable sellable)
         {
-            _itemSeller.Sell(item);
+            if (sellable is ICombatant && Phase != GamePhaseEnum.Preparation) return;
+
+            _seller.Sell(sellable);
         }
 
         // ======================================== life cycle ========================================
@@ -129,8 +124,7 @@ namespace MagicSchool.Core
 
             _heroSpawner = new HeroSpawner(_heroMover, _bench, _seed, _templateActions, _recorder);
             _wallet = new Wallet(_startingGold);
-            _heroSeller = new HeroSeller(_wallet);
-            _itemSeller = new ItemSeller(_wallet);
+            _seller = new Seller(_wallet);
             _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopOdds, () => StageNumber, _shopSlots, _refreshCost);
             _heroFormation = new HeroFormation(_heroMover);
             _heroLimit = _startingHeroLimit;
