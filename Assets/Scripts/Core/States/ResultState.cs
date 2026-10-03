@@ -26,6 +26,8 @@ namespace MagicSchool.Core.States
             _game.Hint?.ShowScoreboard(_game.Winner, _game.StageNumber, _game.StageCount, _game.IsRunCleared);
             _game.Banner?.ShowResult(_game.Winner, _game.StageNumber, _game.StageCount, _game.IsRunCleared);
 
+            _game.Recorder?.EndRound();
+
             IReadOnlyList<ScoreRow> scores = BuildScores();
             _game.Scoreboard?.ShowScores(scores);
             _game.BalanceLog?.AppendRound(_game.StageNumber, _game.StageCount, _game.Winner, scores);

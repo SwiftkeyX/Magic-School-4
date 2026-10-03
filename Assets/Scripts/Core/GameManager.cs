@@ -93,6 +93,8 @@ namespace MagicSchool.Core
 
         // === forwarding ===
         internal BattleBoard Board => _board;
+        internal IReadOnlyList<HeroDataSO> ShopRoster => _shopRoster;     
+        internal TemplateActionRegistrySO TemplateActions => _templateActions;     
         internal Shop Shop => _shop;
         internal HeroSeed Seed => _seed;
         internal HeroFormation Formation => _heroFormation;

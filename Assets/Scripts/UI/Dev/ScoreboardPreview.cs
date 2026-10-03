@@ -103,6 +103,10 @@ namespace MagicSchool.UI
             public int DamageMitigated => _row.Blocked;
             public int HealingReceived => _row.Received;
             public int HealingLostToWound => _row.Wound;
+
+            // stub
+            public float FightSeconds => 30f;
+            public float SecondsAlive => _row.IsAlive ? 30f : 18f;
         }
     }
 }

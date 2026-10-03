@@ -8,38 +8,49 @@ namespace MagicSchool.CombatRecording
     public class CombatRecorder
     {
         private readonly Dictionary<IEffectable, CombatRecord> _round = new Dictionary<IEffectable, CombatRecord>();
+        private RoundClock _clock = new RoundClock();       
 
         // ======================================== public ========================================
-        // get combat record from the consumed unit
-        public CombatRecord RoundOf(IEffectable unit) => RecordFor(_round, unit);
+        // get combat record from the specify unit
+        public CombatRecord RoundOf(IEffectable unit) => RecordFor(unit);
 
-        // A round starts from nothing
-        public void BeginRound() => _round.Clear();
+        public void BeginRound()
+        {
+            _round.Clear();
+            _clock = new RoundClock();
+        }
+
+        public void EndRound() => _clock.Stop();
 
         // ======================================== listener ========================================
         // Subscribed to a hero's OnDamaged/OnHealed
         public void Record(DamageEvent e)
         {
-            if (e.Source != null) RecordFor(_round, e.Source).AddDealt(e.Kind, e.Outcome.Landed, e.Outcome.Overkill);
-            if (e.Target != null) RecordFor(_round, e.Target).AddTaken(e.Outcome.Landed, e.Outcome.Mitigated);
+            if (e.Source != null) RecordFor(e.Source).AddDealt(e.Kind, e.Outcome.Landed, e.Outcome.Overkill);
+            if (e.Target != null)
+            {
+                CombatRecord target = RecordFor(e.Target);
+                target.AddTaken(e.Outcome.Landed, e.Outcome.Mitigated);
+                if (e.Outcome.NewHP <= 0) target.MarkDied();
+            }
         }
         public void Record(HealEvent e)
         {
-            if (e.Source != null) RecordFor(_round, e.Source).AddHealingDone(e.Outcome.Healed, e.Outcome.Overhealed);
-            if (e.Target != null) RecordFor(_round, e.Target).AddHealingReceived(e.Outcome.Healed, e.Outcome.LostToWound);
+            if (e.Source != null) RecordFor(e.Source).AddHealingDone(e.Outcome.Healed, e.Outcome.Overhealed);
+            if (e.Target != null) RecordFor(e.Target).AddHealingReceived(e.Outcome.Healed, e.Outcome.LostToWound);
         }
 
         // ======================================== helper ========================================
         // context: combat record keep data for damage dealt, damage taken, heal
         // to read/write the combat record
-        private static CombatRecord RecordFor(Dictionary<IEffectable, CombatRecord> table, IEffectable unit)
+        private CombatRecord RecordFor(IEffectable unit)
         {
-            if (unit == null) return new CombatRecord();
+            if (unit == null) return new CombatRecord(_clock);
 
-            if (!table.TryGetValue(unit, out CombatRecord record))
+            if (!_round.TryGetValue(unit, out CombatRecord record))
             {
-                record = new CombatRecord();
-                table[unit] = record;
+                record = new CombatRecord(_clock);
+                _round[unit] = record;
             }
 
             return record;

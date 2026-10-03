@@ -17,5 +17,9 @@ namespace MagicSchool.Contracts
         int DamageMitigated { get; }
         int HealingReceived { get; }
         int HealingLostToWound { get; }
+
+        // === time ===
+        float FightSeconds { get; }         // how long the round has lasted 
+        float SecondsAlive { get; }         // how long this unit lasted
     }
 }

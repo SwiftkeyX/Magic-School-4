@@ -4,6 +4,18 @@ namespace MagicSchool.CombatRecording
 {
     public class CombatRecord : ICombatRecord
     {
+        private readonly RoundClock _clock;
+        private float? _diedAt;                            
+
+        internal CombatRecord(RoundClock clock)
+        {
+            _clock = clock;
+        }
+
+        // ===================== time =====================
+        public float FightSeconds => _clock != null ? _clock.Elapsed : 0f;
+        public float SecondsAlive => _diedAt ?? FightSeconds;
+
         // ===================== as the source: what this unit did to others =====================
         public int DamageDealt { get; private set; }        // AutoAttackDamage + SkillDamage
         public int AutoAttackDamage { get; private set; }
@@ -33,6 +45,11 @@ namespace MagicSchool.CombatRecording
         {
             DamageTaken += landed;
             DamageMitigated += mitigated;
+        }
+
+        internal void MarkDied()
+        {
+            if (_diedAt == null) _diedAt = FightSeconds;
         }
 
         internal void AddHealingDone(int healed, int overhealed)

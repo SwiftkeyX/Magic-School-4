@@ -13,5 +13,14 @@ namespace MagicSchool.Combat.Placements
         [SerializeField] private List<HeroPlacement> _heroesPlacement = new List<HeroPlacement>();
 
         public IReadOnlyList<HeroPlacement> HeroesPlacement => _heroesPlacement;
+
+        // option to create BattlePlacementSO in code. Not as asset.
+        // e.g.     use when testing hero benchmark
+        public static BattlePlacementSO CreateRuntime(IEnumerable<HeroPlacement> placements)
+        {
+            BattlePlacementSO setup = CreateInstance<BattlePlacementSO>();
+            setup._heroesPlacement = new List<HeroPlacement>(placements);
+            return setup;
+        }
     }
 }
