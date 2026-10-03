@@ -12,6 +12,7 @@ namespace MagicSchool.Contracts
         event Action OnChanged;             // the stock or the player's gold changed - draw again. FLAGGING: we don't have to lump 2 event togehter.
 
         ShopOffer OfferAt(int slot);
+        IInspectable InspectableAt(int slot);   
         bool CanAfford(int slot);
         bool CanAffordRefresh { get; }
 

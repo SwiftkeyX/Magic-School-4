@@ -33,6 +33,7 @@ namespace MagicSchool.UI
         // ================== etc =======================
         private UIDrag _drag;
         private IShop _shop;
+        private IInspectorPanel _inspector;    
 
         // ================= setter & getter ===================
         // ...
@@ -55,6 +56,9 @@ namespace MagicSchool.UI
 
             // Wire up the "Lock" button to prevent the shop from rerolling itself after each round
             MakeLockButtonWork();
+
+            // Right-click a slot to see what it sells in the inspector
+            MakeSlotsInspectable();
 
             // the shop may have been bound before the panel was mounted
             ShowShop();
@@ -87,6 +91,31 @@ namespace MagicSchool.UI
                     onDrop: position => ResolveDrop(slot, position));
             }
         }
+
+        #region Inspect
+        // right-click a slot = show what it sells in the inspector
+        private void MakeSlotsInspectable()
+        {
+            foreach (VisualElement slot in _heroSlots)
+            {
+                slot.RegisterCallback<PointerDownEvent>(pointer =>
+                {
+                    if (pointer.button != 1 || _shop == null) return;
+
+                    _inspector ??= FindInspector();
+                    _inspector?.Inspect(_shop.InspectableAt(_heroSlots.IndexOf(slot)));
+                });
+            }
+        }
+
+        private static IInspectorPanel FindInspector()
+        {
+            foreach (MonoBehaviour behaviour in FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (behaviour is IInspectorPanel inspector) return inspector;
+
+            return null;
+        }
+        #endregion
 
         // =========================== Buy / cancel on release ===============================
         private void ResolveDrop(VisualElement slot, Vector2 releasePosition)

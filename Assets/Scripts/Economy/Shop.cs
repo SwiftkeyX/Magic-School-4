@@ -35,7 +35,8 @@ namespace MagicSchool.Economy
         public event Action OnChanged;
 
         public Shop(IWallet wallet, Bench bench, IReadOnlyList<HeroDataSO> heroes, IReadOnlyList<ItemDataSO> items,
-                    ShopOddsSO odds, Func<int> stageNumber, int slotCount, int refreshCost)
+                    ShopOddsSO odds, Func<int> stageNumber, int slotCount, int refreshCost,
+                    Func<HeroDataSO, Func<bool>, IInspectable> heroPreview)
         {
             _wallet = wallet;
             _odds = odds;
@@ -45,7 +46,7 @@ namespace MagicSchool.Economy
 
             _wallet.OnGoldChanged += _ => OnChanged?.Invoke();
 
-            BuildRoster(bench, heroes, items);
+            BuildRoster(bench, heroes, items, heroPreview);
 
             if (_odds != null && _odds.SlotCount != slotCount)
                 Debug.LogWarning($"[Shop] ShopOdds has item chances for {_odds.SlotCount} slots but the shop has {slotCount} - a slot with no entry always rolls a hero.");
@@ -58,6 +59,16 @@ namespace MagicSchool.Economy
             IShopEntry entry = _stock[slot];
 
             return entry == null ? default : new ShopOffer(entry.Name, entry.Price, entry.Kind);
+        }
+
+        // return inspectable of that specify slot
+        public IInspectable InspectableAt(int slot)
+        {
+            IShopEntry entry = _stock[slot];
+            if (entry == null) return null;
+
+            Func<bool> isNotEmpty = () => _stock[slot] == entry;
+            return entry.Preview(isNotEmpty);
         }
 
         public bool CanAfford(int slot) => _stock[slot] != null && _wallet.CanAfford(_stock[slot].Price);
@@ -126,7 +137,8 @@ namespace MagicSchool.Economy
         // ============================== private ==============================
         // Initialize the roster that shop going to randomize from
         //      1) the randomized hero are divided into tiers.
-        private void BuildRoster(Bench bench, IReadOnlyList<HeroDataSO> heroes, IReadOnlyList<ItemDataSO> items)
+        private void BuildRoster(Bench bench, IReadOnlyList<HeroDataSO> heroes, IReadOnlyList<ItemDataSO> items,
+                                 Func<HeroDataSO, Func<bool>, IInspectable> heroPreview)
         {
             if (heroes != null)
             {
@@ -134,7 +146,7 @@ namespace MagicSchool.Economy
                 {
                     if (hero == null) continue;
 
-                    HeroEntry entry = new HeroEntry(hero, bench);
+                    HeroEntry entry = new HeroEntry(hero, bench, heroPreview);
                     _heroes.Add(entry);
 
                     if (!_heroesByTier.TryGetValue(entry.Tier, out List<HeroEntry> tier))

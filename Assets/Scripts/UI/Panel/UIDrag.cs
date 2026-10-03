@@ -43,6 +43,10 @@ namespace MagicSchool.UI
             // pointer = the point you start clicking
             element.RegisterCallback<PointerDownEvent>(pointer =>
             {
+                // only the left button drags
+                bool isLeftButton = pointer.button != 0;
+                if (isLeftButton) return;
+
                 // try pick up
                 // e.g.     shop panel = a shop offer can be picked up. 
                 if (!canPickUp()) return;
