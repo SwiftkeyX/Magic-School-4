@@ -46,6 +46,9 @@ namespace MagicSchool.Core
             _wallet.OnGoldChanged += _ => OnChanged?.Invoke();
 
             BuildRoster(bench, heroes, items);
+
+            if (_odds != null && _odds.SlotCount != slotCount)
+                Debug.LogWarning($"[Shop] ShopOdds has item chances for {_odds.SlotCount} slots but the shop has {slotCount} - a slot with no entry always rolls a hero.");
         }
 
         // ============================== IShop ==============================
@@ -141,13 +144,14 @@ namespace MagicSchool.Core
         // randomize hero or item into every slot
         private void Roll()
         {
-            for (int i = 0; i < _stock.Length; i++) _stock[i] = Randomized();
+            for (int i = 0; i < _stock.Length; i++) _stock[i] = Randomized(i);
         }
 
         // randomize hero or item
-        private IShopEntry Randomized()
+        // each slot has its own item chance (see ShopOddsSO) - e.g. 0% = always a hero, 100% = always an item
+        private IShopEntry Randomized(int slot)
         {
-            bool rollsItem = _odds != null && _items.Count > 0 && UnityEngine.Random.Range(0, 100) < _odds.ItemChance;
+            bool rollsItem = _odds != null && _items.Count > 0 && UnityEngine.Random.Range(0, 100) < _odds.ItemChanceAt(slot);
 
             // roll the item into this slot
             if (rollsItem)

@@ -43,11 +43,11 @@ namespace MagicSchool.Core
             }
         }
 
-        // FIXLATER: let have 3 hero slot, and 2 item slot. don't let them lump together.
-        // Could you put each odd into each slot itself? 
-        // slot1-3 item chance are 0%, slot4-5 item chance are 100%
-        [Tooltip("Chance, in percent, that a slot rolls an item instead of a hero.")]
-        [SerializeField, Range(0, 100)] private int _itemChance = 20;
+        // each slot's roll chance to be a hero or a item
+        // e.g.     { 0, 0, 0, 100, 100 }   =>  slot 1-3 always a hero, slot 4-5 always an item
+        //          { 0, 0, 0, 100, 30 }    =>  slot 5 is an item 30% of the time, else a hero
+        [Tooltip("Per shop slot, left to right: chance in percent that the slot rolls an item instead of a hero. A slot with no entry always rolls a hero.")]
+        [SerializeField, Range(0, 100)] private int[] _itemChanceBySlot = { 0, 0, 0, 100, 100 };
 
         [Tooltip("Hero tier odds. Each row applies from its stage until the next row's. Keep them in stage order.")]
         [SerializeField] private TierOdds[] _tierOdds =
@@ -58,7 +58,11 @@ namespace MagicSchool.Core
         };
 
         // ===================== getter =====================
-        public int ItemChance => _itemChance;
+        public int SlotCount => _itemChanceBySlot != null ? _itemChanceBySlot.Length : 0;
+
+        // get _itemChanceBySlot of the specify slot
+        public int ItemChanceAt(int slot)
+            => _itemChanceBySlot != null && slot >= 0 && slot < _itemChanceBySlot.Length ? _itemChanceBySlot[slot] : 0;
 
         // the row in effect on this stage (1-based, as GameManager.StageNumber)
         public TierOdds OddsFor(int stageNumber)

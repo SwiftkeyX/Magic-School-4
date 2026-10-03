@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27c6e83be22df0b43b865f89bad3bc93, type: 3}
   m_Name: ShopOdds
   m_EditorClassIdentifier: MagicSchool.Core::MagicSchool.Core.ShopOddsSO
-  _itemChance: 20
+  _itemChanceBySlot: 0000000000000000000000006400000064000000
   _tierOdds:
   - FromStage: 1
     Common: 75
