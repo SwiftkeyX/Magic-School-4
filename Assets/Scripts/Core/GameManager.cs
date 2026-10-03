@@ -40,6 +40,10 @@ namespace MagicSchool.Core
         [SerializeField] private List<ItemDataSO> _shopItems;  // every item the shop can roll, into the same slots
         [SerializeField] private ShopOddsSO _shopOdds;         // hero-vs-item chance and tier odds by stage
 
+        [Header("Reward")]
+        [Tooltip("Offer an item card after every win. Now are exclude from the game")]
+        [SerializeField] private bool _useRewardPanel = false;
+
         [Header("Testing")]
         [SerializeField] private bool _isPlayerSeed;
         [Tooltip("Write every round's numbers to a CSV for balancing. Off in a real build - it writes a file.")]
@@ -134,7 +138,7 @@ namespace MagicSchool.Core
             MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             _banner = behaviours.OfType<IBannerPanel>().FirstOrDefault();
             _hint = behaviours.OfType<IHintPanel>().FirstOrDefault();
-            _reward = behaviours.OfType<IRewardPanel>().FirstOrDefault();
+            _reward = _useRewardPanel ? behaviours.OfType<IRewardPanel>().FirstOrDefault() : null;
             _scoreboard = behaviours.OfType<IScoreboardPanel>().FirstOrDefault();
 
             // bind the shop (logic) to shop panel
