@@ -32,6 +32,12 @@
     padding: 14px 16px;
 }
 
+/* Never taller than the screen: past this the table scrolls (see .score-table) instead of the
+   card running off the bottom. The title and subtitle stay put; the table - header row included - scrolls. */
+.scoreboard {
+    max-height: 90%;
+}
+
 .scoreboard__title {
     font-size: 20px;
     -unity-font-style: bold;
@@ -45,11 +51,47 @@
     margin-bottom: 10px;
 }
 
+/* ---------------- the scrolling table ---------------- */
+/* A ScrollView, so a big round - twelve enemies and a full team - scrolls rather than overflowing.
+   It takes whatever height the card has left after the title, and may shrink below its rows' total
+   height: that shrink is the whole point, it is what makes it scroll. */
+.score-table {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+}
+
+/* Unity's default scroller is a light grey bar with arrow buttons, loud on this dark card.
+   Keep only a thin, dim thumb - the same white-at-low-alpha every quiet line here uses. */
+.score-table .unity-scroller--vertical {
+    width: 8px;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.score-table .unity-scroller--vertical .unity-repeat-button {
+    display: none;
+}
+
+.score-table .unity-scroller--vertical .unity-base-slider__tracker {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-width: 0;
+}
+
+.score-table .unity-scroller--vertical .unity-base-slider__dragger {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-width: 0;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
 /* ---------------- rows ---------------- */
 .row {
     flex-direction: row;
     align-items: center;
-    padding: 6px 0; 
+    padding: 7px 0;
 }
 
 /* The header carries the only horizontal rule. Row separators at this density turn the table
@@ -75,7 +117,7 @@
     flex-grow: 0;
     flex-shrink: 0;
     width: 88%;
-    font-size: 12px;
+    font-size: 14px;
     color: rgb(232, 230, 240);
 }
 
@@ -86,7 +128,7 @@
     align-items: center;
     -unity-text-align: middle-left;
     -unity-font-style: bold;
-    padding-right: 6px;
+    padding-right: 7px;
     overflow: hidden;
 }
 
@@ -95,15 +137,15 @@
    written on it. No hero has art yet - every prefab still renders the same built-in Unity shape
    - so a picture here would be 23 identical squares and the names would be gone.
 
-   It is square and 50px because that is roughly the size a portrait will be, and the row height
+   It is square and 60px because that is roughly the size a portrait will be, and the row height
    it forces is what every other measurement in this panel is made against. Putting it in now
    means art can land later without moving anything. When it does: give .hero a background-image
    and drop the label. */
 .hero {
     flex-grow: 0;
     flex-shrink: 0;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     align-items: center;
     justify-content: center;
     background-color: rgb(228, 228, 234);
@@ -118,10 +160,10 @@
 /* The name written on the box, the way an item wears its own. Dark ink, because the box is
    light: the team blue and red are light colours and vanish against it, which is why the team
    rides the border instead. It wraps rather than ellipsing - the longest name here is
-   "Berserker", which takes two lines at this size and still has room to spare in 50px. */
+   "Berserker", which takes two lines at this size and still has room to spare in 60px. */
 .hero__name {
     width: 100%;
-    font-size: 10px;
+    font-size: 12px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
     white-space: normal;
@@ -184,11 +226,11 @@
 /* ---------------- bars ---------------- */
 /* A column holds its tracks one above the other. Dealt over taken reads as one hero's fight;
    the same two bars a column apart read as two unrelated facts. It also buys each bar twice the
-   width, and spends the row height that the 50px portrait opened up. */
+   width, and spends the row height that the 60px portrait opened up. */
 .column {
     flex-direction: column;
     justify-content: center;
-    padding-right: 10px;
+    padding-right: 12px;
 }
 
 /* One chart: the rail and the number at its tip. The margins are what put air between two
@@ -198,8 +240,8 @@
 .track {
     flex-direction: row;
     align-items: center;
-    max-height: 15px; 
-}  
+    max-height: 18px;
+}
 
 /* The rail is the space a bar is drawn in, and it is deliberately invisible: a visible track
    behind every bar puts four grey blocks on every row, and - worse - an empty track then looks
@@ -211,26 +253,26 @@
     flex-shrink: 1;
     flex-direction: row;
     align-items: center;
-    height: 10px;
-    padding-right: 6px;
+    height: 12px;
+    padding-right: 7px;
 }
 
 /* A 2px gap - not a border - is what separates one segment from the next. A stroke would add
-   ink that is not data, and at 10px tall it would swallow a short segment whole. */
+   ink that is not data, and at 12px tall it would swallow a short segment whole. */
 .seg {
     flex-grow: 0;
     flex-shrink: 0;
-    height: 10px;
+    height: 12px;
     margin-right: 2px;
 }
 
 /* The segment under the pointer. It grows rather than changing colour: every colour in this
-   panel already means something, so a hover tint would read as a sixth series, and at 10px a
+   panel already means something, so a hover tint would read as a sixth series, and at 12px a
    border would eat most of the fill. Height is not the encoding here - width is - so growing
    it cannot misstate the number. The rail centres it, and the row's own padding absorbs the
-   extra 2px above and below. */
+   extra 2-3px above and below. */
 .seg--hover {
-    height: 14px;
+    height: 17px;
 }
 
 /* Five series, ordered so no two neighbours collapse under red-green colour blindness
@@ -274,7 +316,7 @@
     position: absolute;
     translate: -50% -100%;
     padding: 2px 6px;
-    font-size: 11px;
+    font-size: 13px;
     -unity-font-style: bold;
     color: rgb(240, 240, 248);
     background-color: rgb(42, 39, 58);
@@ -292,8 +334,8 @@
 .track__value {
     flex-grow: 0;
     flex-shrink: 0;
-    width: 46px;
-    font-size: 12px;
+    width: 55px;
+    font-size: 14px;
     -unity-font-style: bold;
     -unity-text-align: middle-right;
     color: rgb(255, 255, 255);

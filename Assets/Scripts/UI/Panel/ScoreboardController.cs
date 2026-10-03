@@ -67,6 +67,15 @@ namespace MagicSchool.UI
             _table.Clear();
             _table.Add(BuildHeader());
 
+            // ScoreTable is a ScrollView - a new round starts at the top, not where the last one was left.
+            // Setting it now is not enough: once the new rows are laid out the ScrollView re-applies its
+            // old position (it opened scrolled to the very bottom), so it is set again after that layout.
+            if (_table is ScrollView scroll)
+            {
+                scroll.scrollOffset = Vector2.zero;
+                scroll.contentContainer.RegisterCallbackOnce<GeometryChangedEvent>(_ => scroll.scrollOffset = Vector2.zero);
+            }
+
             for (int i = 0; i < rows.Count; i++)
             {
                 _table.Add(BuildRow(rows[i], longest, striped: i % 2 == 1));
@@ -125,11 +134,13 @@ namespace MagicSchool.UI
             header.AddToClassList("row--header");
             header.Add(Cell("HERO", "cell--name", "cell--header"));
 
-            foreach (Chart chart in Charts) header.Add(BuildColumnHead(chart));
+            // FLAGGING: no used now
+            // foreach (Chart chart in Charts) header.Add(BuildColumnHead(chart));
 
             return header;
         }
 
+        // FLAGGING: no used now but worth keeping
         private static VisualElement BuildColumnHead(Chart column)
         {
             VisualElement head = new VisualElement();
@@ -412,7 +423,7 @@ namespace MagicSchool.UI
             // the segment part that did not count to total 
             // e.g. dmg dealt => overkill doesn't count to total dmg.
             // e.g. heal given => overhealed doesn't count to total heal. 
-            public readonly bool IsGhost;                    
+            public readonly bool IsGhost;
 
             public Segment(string name, string cssClass, Func<ICombatRecord, int> value, bool isGhost = false)
             {
