@@ -8,6 +8,7 @@ using MagicSchool.Combat.Placements;
 using MagicSchool.CombatRecording;
 using MagicSchool.Items;
 using MagicSchool.Core.States;
+using MagicSchool.Economy;
 using MagicSchool.Skills;
 
 namespace MagicSchool.Core

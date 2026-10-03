@@ -6,12 +6,11 @@ using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Items;
 
-namespace MagicSchool.Core
+namespace MagicSchool.Economy
 {
-    // FIXLATER: move the shop logic into its own namespace and .asmdef
     // The shop's rules: what each slot is selling, what it costs, buying and refreshing.
     // It draws nothing - the shop panel shows whatever this says (see IShop).
-    internal class Shop : IShop
+    public class Shop : IShop
     {
         private readonly IWallet _wallet;
         private readonly ShopOddsSO _odds;

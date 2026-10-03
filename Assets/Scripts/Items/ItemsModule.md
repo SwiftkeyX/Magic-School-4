@@ -17,5 +17,5 @@ exists, is a thing done *to* an item by something that already knows both - the 
 - `ItemDataSO` - the authored data: name, description, sprite, price. What `HeroDataSO` is to a hero.
 - `Item` - the MonoBehaviour standing in the world. Glue, like `Hero`: it holds its data and
   answers `IInspectableItem`, and has no logic of its own.
-- `ItemDrop` - where a new item lands in the world. The shop (`Core`) and the reward card (`UI`)
+- `ItemDrop` - where a new item lands in the world. The shop (`Economy`) and the reward card (`UI`)
   both drop through it, which is why it lives here: it is the one module both of them reference.

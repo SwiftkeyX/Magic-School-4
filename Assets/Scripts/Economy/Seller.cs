@@ -1,11 +1,11 @@
 using UnityEngine;
 using MagicSchool.Contracts;
 
-namespace MagicSchool.Core
+namespace MagicSchool.Economy
 {
     // Sell what player own. 
     // e.g.     heroes, items.
-    internal class Seller
+    public class Seller
     {
         private readonly IWallet _wallet;
 

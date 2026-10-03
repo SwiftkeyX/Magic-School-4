@@ -19,7 +19,8 @@ MagicSchool.Modifiers  -> Contracts, StatScaling
 MagicSchool.Skills     -> Contracts, Engine, StatScaling, Modifiers
 MagicSchool.Combat     -> Contracts, Engine, Skills, VFX, Modifiers
 MagicSchool.UI         -> Contracts, Combat, Items, Input
-MagicSchool.Core       -> Contracts, Engine, Skills, Combat, CombatRecording
+MagicSchool.Economy    -> Contracts, Combat, Items          wallet, shop, seller - see below
+MagicSchool.Core       -> Contracts, Engine, Skills, Combat, CombatRecording, Items, Economy
 MagicSchool.Player     -> Contracts, Combat, Core, Items, Input
 MagicSchool.Editor     -> Core                              (Editor-only)
 ```
@@ -57,6 +58,11 @@ Rules that aren't visible from any single file:
   Nothing should write one: this project is New-Input-System-only and `UnityEngine.Input`
   compiles fine then throws at runtime.
 
+- **`Economy` is gold in and gold out, and only `Core` references it.** `Wallet`, `Shop`,
+  `ShopEntry`, `ShopOddsSO` and `Seller` live there; `GameManager` builds them. `UI` still reads the
+  shop only through `IShop` (Contracts), so the panel never sees `Shop`. The folder is not `Shop/`
+  for the `StatScaling` reason: a namespace `MagicSchool.Shop` holding a class `Shop` cannot be used
+  unqualified.
 - **`Heroes/` and `Placements/` share one assembly on purpose.** A hero needs its hex and a hex
   tracks its occupant; that coupling is real, so `Combat` admits it rather than pretending otherwise.
   Splitting them was tried and doesn't work.
@@ -103,10 +109,10 @@ Rules that aren't visible from any single file:
   `OnHeroDied`, or a part's own `OnSkillHit`). Effects are applied through `IEffectable`, so
   nothing here knows the `Hero` type. `SkillLibrary.Resolve` maps a `SkillIdEnum` to its builder.
 - **`Core/`** — the composition root: `GameManager` (phase, winner, wiring), `HeroMover`,
-  `HeroSeller`, `HeroFormation`, `HeroSpawner`.
+  `HeroFormation`, `HeroSpawner`.
 
 **UI Toolkit panel pattern** (`Assets/UI Toolkit/`): one shared `UIDocument` on `MainScreen.uxml`, which has empty named containers as slots (`#ShopPanel` is wired up; `#BenchPanel`/`#TraitPanel`/`#HeroPanel` still empty). Each actual panel is its own `.uxml` file plus a small controller script (see `ShopPanelController.cs`) that clones its UXML into the matching-named slot at runtime. The convention: name a panel's root element in its own `.uxml` the same as the slot container waiting for it in `MainScreen.uxml` — the controller looks up the slot by reading its own root element's name, so no manual string field has to be kept in sync.
-- The Bench is deliberately **not** a UI Toolkit panel: it needs real `Hero` GameObjects standing on it (animated sprites, not flat icons), which `VisualElement` can't host. It's world-space instead, using the same `Hero`/Physics2D-drag approach as board placement (see `Assets/Scripts/Combat/Placements/Bench/`, `Assets/Prefabs/Bench/`). The `#BenchPanel` slot in `MainScreen.uxml` stays empty/unused for this reason. The Shop panel (buy heroes) is the UI Toolkit one: drag a shop slot's ghost outside the shop panel's bounds to buy, drop it back inside to cancel — see `ShopPanelController.ResolveDrop`. Selling is the same bounds read from the other direction: drop a held world-space `Hero` onto the shop and it's sold (`PlayerController.DropHero` → `GameManager.SellHero` → `HeroSeller`). Because the two drags live in different coordinate spaces, and `Player` may not reference `UI`, the shop answers `ISellZone.ContainsScreenPoint` rather than handing out its rect — it owns the screen→panel conversion, y-flip included. A drop only sells when no `IPlacement` is under the pointer, since the bench band sits directly above the shop.
+- The Bench is deliberately **not** a UI Toolkit panel: it needs real `Hero` GameObjects standing on it (animated sprites, not flat icons), which `VisualElement` can't host. It's world-space instead, using the same `Hero`/Physics2D-drag approach as board placement (see `Assets/Scripts/Combat/Placements/Bench/`, `Assets/Prefabs/Bench/`). The `#BenchPanel` slot in `MainScreen.uxml` stays empty/unused for this reason. The Shop panel (buy heroes) is the UI Toolkit one: drag a shop slot's ghost outside the shop panel's bounds to buy, drop it back inside to cancel — see `ShopPanelController.ResolveDrop`. Selling is the same bounds read from the other direction: drop a held world-space `Hero` onto the shop and it's sold (`Dragging.DropHero` → `GameManager.Sell` → `Seller`). Because the two drags live in different coordinate spaces, and `Player` may not reference `UI`, the shop answers `ISellZone.ContainsScreenPoint` rather than handing out its rect — it owns the screen→panel conversion, y-flip included. A drop only sells when no `IPlacement` is under the pointer, since the bench band sits directly above the shop.
 
 **Hero prefabs are all variants of `BaseHero`** (`Assets/Prefabs/Hero/BaseHero.prefab`). All 24 —
 including `Have Skill/` and `Dummy` — override only their name, sprite colour and root position;
@@ -127,15 +133,31 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   `PreparationState.OnEnter`). Without the restore a hero stays where the fight left it —
   including dead ones, since `HeroDead` never releases its hex — often on an enemy tile the
   player could never have placed it on.
-- Gold and the shop's rules work, and both live in `Core`: `Wallet` is the player's gold, `Shop` is
+- Gold and the shop's rules work, and both live in `Economy`: `Wallet` is the player's gold, `Shop` is
   what each slot sells, buying and refreshing. `ShopPanelController` only draws and turns a drag
   into "buy slot i" - it reads everything through `IShop` (Contracts), which `GameManager` hands it
-  via `IShopPanel.BindShop`, because `UI` may not reference `Core`. A hero's price comes from its
-  tier (`HeroPrice.Of`); `Shop.TryBuy` spends it, `HeroSeller.Sell` refunds it, Refresh costs
+  via `IShopPanel.BindShop`, because `UI` may not reference `Economy` or `Core`. A hero's price comes from its
+  tier (`HeroPrice.Of`); `Shop.TryBuy` spends it, `Seller.Sell` refunds it, Refresh costs
   `_refreshCost`, and `ResultState` pays `_stageIncome` after every fight. The shop's roster and
   numbers are on `GameManager` in the Inspector.
-- **Not built yet:** items in the shop and roll odds (Refresh picks uniformly from the roster).
-  Trait Panel and Hero Panel are still empty slots. There is no "Start Battle" button: combat is triggered by the space bar in
+- A shop slot sells a hero or an item. `Shop` holds `IShopEntry`s (`Economy/ShopEntry.cs`): a
+  `HeroEntry` delivers to the bench (and fails when it is full, so nothing is charged), an
+  `ItemEntry` drops a world-space `Item` through `ItemDrop` - the same spot the reward card uses,
+  searched for the first free place along the row rather than counted. Heroes come from
+  `_shopRoster`, items from `_shopItems`; an item's price is `ItemDataSO._price`. A loose item
+  dropped on the shop sells for its full price (`Dragging.DropItem` → `GameManager.Sell` →
+  `Seller`), in any phase - a hero only sells in Preparation. Heroes and items both sell through
+  `ISellable` (Contracts); `Seller` only knows `ICombatant` for a hero's extra cleanup (its placement and
+  board tracking), never `Hero` or `Item` themselves.
+- Refresh rolls each slot by `ShopOddsSO` (`Assets/Data/Shop/ShopOdds.asset`, on `GameManager._shopOdds`):
+  item-or-hero by that slot's entry in `_itemChanceBySlot` (`{0,0,0,100,100}`: slots 1-3 heroes,
+  4-5 items), then a hero's tier by the row of `_tierOdds` for the current stage - only tiers that
+  have heroes count, so a tier weighted 0 never comes up - then any hero of that tier. Repeats
+  across slots are allowed - there is no shared pool. `PreparationState.OnEnter` calls
+  `Shop.Restock()` - a free roll - so every stage, stage 1 included, opens on a new shop, unless the
+  player has clicked Lock (`IShop.ToggleLock`), which keeps the stock until they unlock it.
+  Refresh still works while locked.
+- **Not built yet:** Trait Panel and Hero Panel are still empty slots. There is no "Start Battle" button: combat is triggered by the space bar in
   `PlayerController.TryStartCombat`, which is temporary.
 - `BattlePlacementSO` (the Inspector list of starting `HeroPlacement`s, in `Assets/Data/BattleSetups/`)
   has been reset to defaults multiple times across past type changes — double-check its values

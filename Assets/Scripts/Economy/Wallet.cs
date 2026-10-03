@@ -1,10 +1,10 @@
 using System;
 using MagicSchool.Contracts;
 
-namespace MagicSchool.Core
+namespace MagicSchool.Economy
 {
     // the player's gold.
-    internal class Wallet : IWallet
+    public class Wallet : IWallet
     {
         public int Gold { get; private set; }
         public event Action<int> OnGoldChanged;

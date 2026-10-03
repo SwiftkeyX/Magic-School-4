@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using MagicSchool.Contracts;
 
-namespace MagicSchool.Core
+namespace MagicSchool.Economy
 {
     [CreateAssetMenu(fileName = "ShopOdds", menuName = "Magic School 4/Shop Odds")]
     public class ShopOddsSO : ScriptableObject

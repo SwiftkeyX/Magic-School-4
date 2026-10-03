@@ -3,7 +3,7 @@ using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Items;
 
-namespace MagicSchool.Core
+namespace MagicSchool.Economy
 {
     // One thing a shop slot can sell. 
     internal interface IShopEntry

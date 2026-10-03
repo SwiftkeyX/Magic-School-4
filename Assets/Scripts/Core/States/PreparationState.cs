@@ -2,6 +2,7 @@ using System.Linq;
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Engine;
+using MagicSchool.Economy;
 
 namespace MagicSchool.Core.States
 {
