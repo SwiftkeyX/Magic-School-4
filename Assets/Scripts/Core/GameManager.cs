@@ -13,8 +13,6 @@ using MagicSchool.Skills;
 
 namespace MagicSchool.Core
 {
-    // FLAGGING: The hero limit should stay in PlayerController.cs, 
-    // it was here now temporarily for quick demo.
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
