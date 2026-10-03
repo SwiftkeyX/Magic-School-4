@@ -31,6 +31,7 @@ namespace MagicSchool.Core
         public string Name => _data.Name;
         public int Price => _data.Price;
         public ShopOfferKindEnum Kind => ShopOfferKindEnum.Hero;
+        public HeroTierEnum Tier => _data.Tier;     
 
         public bool TryDeliver() => _bench != null && _bench.SpawnHeroOnBench(_data);
     }

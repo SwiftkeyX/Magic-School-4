@@ -546,6 +546,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c15d89114cbb478daa8343a04905d3c7, type: 2}
   - {fileID: 11400000, guid: 3ad0e98a5bdd4b55b163ebc32e4455e0, type: 2}
   - {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
+  _shopOdds: {fileID: 11400000, guid: e892444f78d247f42987d213bd487c0e, type: 2}
   _isPlayerSeed: 0
   _test: 1
 --- !u!4 &344829187

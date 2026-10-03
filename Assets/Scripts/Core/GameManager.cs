@@ -37,6 +37,7 @@ namespace MagicSchool.Core
         [SerializeField] private int _refreshCost = 1;         // gold for one re-roll of the whole shop
         [SerializeField] private List<HeroDataSO> _shopRoster; // every hero the shop can roll
         [SerializeField] private List<ItemDataSO> _shopItems;  // every item the shop can roll, into the same slots
+        [SerializeField] private ShopOddsSO _shopOdds;         // hero-vs-item chance and tier odds by stage
 
         [Header("Testing")]
         [SerializeField] private bool _isPlayerSeed;
@@ -88,6 +89,7 @@ namespace MagicSchool.Core
 
         // === forwarding ===
         internal BattleBoard Board => _board;
+        internal Shop Shop => _shop;
         internal HeroSeed Seed => _seed;
         internal HeroFormation Formation => _heroFormation;
         internal CombatRecorder Recorder => _recorder;
@@ -129,7 +131,7 @@ namespace MagicSchool.Core
             _wallet = new Wallet(_startingGold);
             _heroSeller = new HeroSeller(_wallet);
             _itemSeller = new ItemSeller(_wallet);
-            _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopSlots, _refreshCost);
+            _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopOdds, () => StageNumber, _shopSlots, _refreshCost);
             _heroFormation = new HeroFormation(_heroMover);
             _heroLimit = _startingHeroLimit;
             _stateMachine = new GameStateMachine(this);
