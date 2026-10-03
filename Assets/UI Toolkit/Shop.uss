@@ -86,6 +86,19 @@
     color: rgb(232, 84, 84);
 }
 
+/* a slot selling an item rather than a hero: a blue-tinted card, so the player can tell at a
+   glance which slots go to the bench and which land in the world. Only the colours change -
+   size and layout stay .hero-slot's, so a row mixing the two still lines up. */
+.hero-slot--item {
+    background-color: rgba(90, 140, 230, 0.18);
+    border-color: rgba(120, 170, 255, 0.45);
+}
+
+.hero-slot--item:hover {
+    background-color: rgba(90, 140, 230, 0.3);
+    border-color: rgba(140, 185, 255, 0.65);
+}
+
 /* the player's gold, in the box above Lock / Refresh */
 .gold-label {
     color: rgb(240, 200, 90);

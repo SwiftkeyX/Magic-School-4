@@ -14,6 +14,7 @@ namespace MagicSchool.Items
         // ================================= getter =================================
         public ItemDataSO Data => _data;
         public ICustomModifier Modifier => _modifier;
+        public int Price => _data != null ? _data.Price : 0;   
         // === IInspectableItem ===
         public string DisplayName => _data != null ? _data.Name : name;
         public string Description => _data != null ? _data.Description : string.Empty;

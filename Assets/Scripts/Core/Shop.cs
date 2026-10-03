@@ -4,6 +4,7 @@ using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
+using MagicSchool.Items;
 
 namespace MagicSchool.Core
 {
@@ -12,25 +13,23 @@ namespace MagicSchool.Core
     internal class Shop : IShop
     {
         private readonly IWallet _wallet;
-        private readonly Bench _bench;
-        private readonly IReadOnlyList<HeroDataSO> _roster;     // every hero the shop can roll
-        private readonly HeroDataSO[] _stock;                   // what each slot is selling. 
+        private readonly List<IShopEntry> _roster = new List<IShopEntry>();   // every hero and item the shop can roll
+        private readonly IShopEntry[] _stock;                                 // what each slot is selling.
 
         public int SlotCount => _stock.Length;
         public int Gold => _wallet.Gold;
         public int RefreshCost { get; }
         public event Action OnChanged;
 
-        public Shop(IWallet wallet, Bench bench, IReadOnlyList<HeroDataSO> roster, int slotCount, int refreshCost)
+        public Shop(IWallet wallet, Bench bench, IReadOnlyList<HeroDataSO> heroes, IReadOnlyList<ItemDataSO> items, int slotCount, int refreshCost)
         {
             _wallet = wallet;
-            _bench = bench;
-            _roster = roster ?? new List<HeroDataSO>();
-            _stock = new HeroDataSO[slotCount];
+            _stock = new IShopEntry[slotCount];
             RefreshCost = refreshCost;
 
             _wallet.OnGoldChanged += _ => OnChanged?.Invoke();
 
+            BuildRoster(bench, heroes, items);
             FillInOrder();
         }
 
@@ -38,9 +37,9 @@ namespace MagicSchool.Core
         // Get the shop offer of the specify slot
         public ShopOffer OfferAt(int slot)
         {
-            HeroDataSO data = _stock[slot];
+            IShopEntry entry = _stock[slot];
 
-            return data == null ? default : new ShopOffer(data.Name, data.Price);
+            return entry == null ? default : new ShopOffer(entry.Name, entry.Price, entry.Kind);
         }
 
         public bool CanAfford(int slot) => _stock[slot] != null && _wallet.CanAfford(_stock[slot].Price);
@@ -48,30 +47,31 @@ namespace MagicSchool.Core
 
         public bool TryBuy(int slot)
         {
-            HeroDataSO data = _stock[slot];
-            if (data == null) return false;
+            IShopEntry entry = _stock[slot];
+            if (entry == null) return false;
 
-            // can't buy hero because not enough money.
-            if (!_wallet.CanAfford(data.Price))
+            // can't buy because not enough money.
+            if (!_wallet.CanAfford(entry.Price))
             {
-                Debug.Log($"Not enough gold for '{data.Name}' ({data.Price} g).");
+                Debug.Log($"Not enough gold for '{entry.Name}' ({entry.Price} g).");
                 return false;
             }
- 
-            // if spawn hero don't work, no buy, return
-            if (_bench == null || !_bench.SpawnHeroOnBench(data)) return false;
 
-            // buy hero, empty the slot
+            // if it has nowhere to go, no buy, return
+            // e.g. a hero with the bench full, can't buy
+            if (!entry.TryDeliver()) return false;
+
+            // pay money (its mirror image is the refund in HeroSeller.Sell / ItemSeller.Sell)
+            _wallet.TrySpend(entry.Price);
+            Debug.Log($"Bought {entry.Kind} '{entry.Name}'.");
+            
+            // bought, empty the slot
             _stock[slot] = null;
-
-            // pay money (its mirror image is the refund in HeroSeller.Sell)
-            _wallet.TrySpend(data.Price);
-            Debug.Log($"Bought hero '{data.Name}'.");
 
             return true;
         }
 
-        // Re-roll every slot with a random hero. Costs gold.
+        // Re-roll every slot with a random hero or item. Costs gold.
         public bool TryRefresh()
         {
             if (!CanAffordRefresh)
@@ -87,6 +87,19 @@ namespace MagicSchool.Core
         }
 
         // ============================== private ==============================
+        // Initialize the roster that shop going to randomize from 
+        // FIXLATER: uniform over the pool for now - hero-vs-item odds and tier odds are the roll rules' job.
+        private void BuildRoster(Bench bench, IReadOnlyList<HeroDataSO> heroes, IReadOnlyList<ItemDataSO> items)
+        {
+            if (heroes != null)
+                foreach (HeroDataSO hero in heroes)
+                    if (hero != null) _roster.Add(new HeroEntry(hero, bench));
+
+            if (items != null)
+                foreach (ItemDataSO item in items)
+                    if (item != null && item.ItemId != ItemIdEnum.None) _roster.Add(new ItemEntry(item));
+        }
+
         // init the shop offer (stock)
         private void FillInOrder()
         {

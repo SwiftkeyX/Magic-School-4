@@ -18,12 +18,6 @@ namespace MagicSchool.UI
         [Tooltip("Draw the card as soon as the scene starts. Off once a stage win is what opens it.")]
         [SerializeField] private bool _showOnStart = true;
 
-        [Tooltip("Where a picked item lands in the world, for the player to drag onto a hero.")]
-        [SerializeField] private Vector3 _spawnPosition = new Vector3(-5.6f, -2f, 0f);
-
-        [Tooltip("How far along x each further pick lands, so they do not pile up on one spot.")]
-        [SerializeField] private float _spawnSpacing = 0.6f;
-
         // ================= VisualElement ======================
         // the slot of the offered item
         private List<VisualElement> _itemSlots;
@@ -32,9 +26,6 @@ namespace MagicSchool.UI
         private readonly Dictionary<VisualElement, ItemDataSO> _items = new Dictionary<VisualElement, ItemDataSO>();
 
         // ================= other ======================
-        // how many picks have been spawned, so the next spawned one lands beside the previous one
-        private int _spawnedCount;
-
         // is the reward choosed yet.
         private bool _isChoosing;
 
@@ -156,10 +147,9 @@ namespace MagicSchool.UI
             // an empty slot has nothing to give
             if (!_items.TryGetValue(slot, out ItemDataSO data) || data == null) return;
 
-            Vector3 where = _spawnPosition + new Vector3(_spawnedCount * _spawnSpacing, 0f, 0f);
-            if (Item.Spawn(data, where) == null) return;
+            // lands where a bought item does (see ItemDrop)
+            if (ItemDrop.Spawn(data) == null) return;
 
-            _spawnedCount++;
             _isChoosing = false;
             SetShown(false);
         }

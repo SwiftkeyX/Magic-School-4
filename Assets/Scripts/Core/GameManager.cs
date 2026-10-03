@@ -6,6 +6,7 @@ using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.CombatRecording;
+using MagicSchool.Items;
 using MagicSchool.Core.States;
 using MagicSchool.Skills;
 
@@ -35,6 +36,7 @@ namespace MagicSchool.Core
         [SerializeField] private int _shopSlots = 5;           // how many things the shop sells at once
         [SerializeField] private int _refreshCost = 1;         // gold for one re-roll of the whole shop
         [SerializeField] private List<HeroDataSO> _shopRoster; // every hero the shop can roll
+        [SerializeField] private List<ItemDataSO> _shopItems;  // every item the shop can roll, into the same slots
 
         [Header("Testing")]
         [SerializeField] private bool _isPlayerSeed;
@@ -46,6 +48,7 @@ namespace MagicSchool.Core
         private Shop _shop;
         private HeroMover _heroMover;
         private HeroSeller _heroSeller;
+        private ItemSeller _itemSeller;
         private HeroFormation _heroFormation;
         private HeroSeed _seed;
         private HeroSpawner _heroSpawner;
@@ -102,6 +105,11 @@ namespace MagicSchool.Core
             _heroSeller.Sell(hero);
         }
 
+        public void SellItem(Item item)
+        {
+            _itemSeller.Sell(item);
+        }
+
         // ======================================== life cycle ========================================
         // init dependency
         void Awake()
@@ -120,7 +128,8 @@ namespace MagicSchool.Core
             _heroSpawner = new HeroSpawner(_heroMover, _bench, _seed, _templateActions, _recorder);
             _wallet = new Wallet(_startingGold);
             _heroSeller = new HeroSeller(_wallet);
-            _shop = new Shop(_wallet, _bench, _shopRoster, _shopSlots, _refreshCost);
+            _itemSeller = new ItemSeller(_wallet);
+            _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopSlots, _refreshCost);
             _heroFormation = new HeroFormation(_heroMover);
             _heroLimit = _startingHeroLimit;
             _stateMachine = new GameStateMachine(this);

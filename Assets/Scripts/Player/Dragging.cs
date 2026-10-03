@@ -10,7 +10,9 @@ using MagicSchool.Input;
 namespace MagicSchool.Player
 {
     // Picking things up with the pointer, dragging around, and putting them down again.
-    // e.g. draggable are items, and hero
+    // e.g.     draggable are items, and hero
+    // Worth mentioning that there's also UIDrag.cs in this project. 
+    // That one was specifically for dragging the UI which is different from dragging the gameobject like this one.
     internal class Dragging
     {
         private readonly Camera _cam;
@@ -56,7 +58,7 @@ namespace MagicSchool.Player
 
             // if the object is sellable, drag it to shop, will turn on the shop hint
             // shop hint = make shop red to indicated it was focus
-            bool isSellable = _held is Hero;
+            bool isSellable = _held is Hero || _held is Item;
             RefreshSellHint(isSellable && IsPointerOverSellZone());
 
             // if still holding, return
@@ -205,22 +207,31 @@ namespace MagicSchool.Player
             GameManager.Instance.MoveHero(previousOwner, myPreviousPlacement);
         }
 
-        // an item can be dropped on 1 thing so far:
+        // an item can be dropped on 2 things:
         // 1) one of your heroes => that hero wears it, if it has a slot free
+        // 2) shop => sell that item
         private void DropItem(Item item, Vector3 worldPos)
         {
-            Hero hero = Picker.At<Hero>(worldPos);
-
             Release();
 
-            // wear the item to your hero
-            if (hero == null || hero.Team != _team) return;
+            // released over the shop = sell the item
+            if (IsPointerOverSellZone())
+            {
+                GameManager.Instance.SellItem(item);
+                return;
+            }
 
-            // only in preparation state, allow to wear item to the hero
-            if (IsPreparation) hero.TryWear(item);
+            // released over the hero, in preparation = wear item to hero 
+            else if (Picker.At<Hero>(worldPos) is Hero hero && IsPreparation)
+            {
+                if (hero == null || hero.Team != _team) return;
+
+                hero.TryWear(item);
+                return;
+            }
         }
 
-        // put back whatever is held, as far as it can be put back
+        // put back whatever is held, back to its old placement
         private void Cancel()
         {
             // only a hero has somewhere to be put back to; an item stays where it is

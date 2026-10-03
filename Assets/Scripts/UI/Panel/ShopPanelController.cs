@@ -13,6 +13,9 @@ namespace MagicSchool.UI
         // a slot the player can't pay for shows its price in red (see Shop.uss)
         private const string UnaffordableClass = "hero-slot--unaffordable";
 
+        // a slot selling an item rather than a hero looks different (see Shop.uss)
+        private const string ItemClass = "hero-slot--item";
+
         // ================= SerializeField ======================
         [SerializeField] private VisualTreeAsset _ghostAsset;
 
@@ -178,6 +181,7 @@ namespace MagicSchool.UI
             if (priceLabel != null) priceLabel.text = offer.IsEmpty ? string.Empty : $"{offer.Price} g";
 
             slot.EnableInClassList(UnaffordableClass, !offer.IsEmpty && !_shop.CanAfford(index));
+            slot.EnableInClassList(ItemClass, !offer.IsEmpty && offer.Kind == ShopOfferKindEnum.Item);
         }
         #endregion
 

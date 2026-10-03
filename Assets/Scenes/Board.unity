@@ -471,18 +471,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _board: {fileID: 1120158067}
   _bench: {fileID: 477776518}
+  _templateActions: {fileID: 11400000, guid: 31d48e144b9be4e40b79fd94b16f49ed, type: 2}
   _stages:
   - {fileID: 11400000, guid: a1bc08e4eaade5847bc4d0739fe6222e, type: 2}
   - {fileID: 11400000, guid: 380e2c38de65be64c804d958858fd2a9, type: 2}
   - {fileID: 11400000, guid: 27b17649b72c6184a8f83274789aedc1, type: 2}
   - {fileID: 11400000, guid: 9515de3f25526504fab19967eb317ce6, type: 2}
   - {fileID: 11400000, guid: 3e3c748c11858a4418ae61fb7362cf42, type: 2}
-  _templateActions: {fileID: 11400000, guid: 31d48e144b9be4e40b79fd94b16f49ed, type: 2}
-  _isPlayerSeed: 0
-  _test: 1
   _startingHeroLimit: 5
   _startingGold: 10
   _stageIncome: 5
+  _shopSlots: 5
+  _refreshCost: 1
   _shopRoster:
   - {fileID: 11400000, guid: e7d86f4be25b22c498716c553aa2a217, type: 2}
   - {fileID: 11400000, guid: b9caac36cc1f73a4e90b0610299f9762, type: 2}
@@ -525,8 +525,29 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 81eb954f0f0758046a44fafb654cecf8, type: 2}
   - {fileID: 11400000, guid: 4d94970f942efaf49894b0f8effce564, type: 2}
   - {fileID: 11400000, guid: 3d1fd9f49fe056c4792347e23d1460bb, type: 2}
-  _shopSlots: 5
-  _refreshCost: 1
+  _shopItems:
+  - {fileID: 11400000, guid: c1345137b9a34636af5362cd13a0cc20, type: 2}
+  - {fileID: 11400000, guid: 9c42e1bfd7e341b6a3b5a2dfa1de318d, type: 2}
+  - {fileID: 11400000, guid: 8b49a667d55349aa96b2cb6c337ecd1c, type: 2}
+  - {fileID: 11400000, guid: 925852153a804c2faff0bb1d75d3f4b2, type: 2}
+  - {fileID: 11400000, guid: e69c8790035f45298f5707543d232d7e, type: 2}
+  - {fileID: 11400000, guid: 1b9f77e8cbae45c99a76530c87fbaf4b, type: 2}
+  - {fileID: 11400000, guid: ace662b6646d4bce9feb723acbb30177, type: 2}
+  - {fileID: 11400000, guid: 4b1ca47991a74d3bb26c06634de12e9e, type: 2}
+  - {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
+  - {fileID: 11400000, guid: 5246c8f15feb4bf5a5dba61af0c84f23, type: 2}
+  - {fileID: 11400000, guid: b564a36140cc4cf694711925250095e6, type: 2}
+  - {fileID: 11400000, guid: b419a1ead2734b3e8fc4628d49897b51, type: 2}
+  - {fileID: 11400000, guid: a787e2c2a0514c0c84baa16405cbd33c, type: 2}
+  - {fileID: 11400000, guid: 403cb0d677914ecfbbaf24d40b8257d5, type: 2}
+  - {fileID: 11400000, guid: bf25cf80e930466fb6b44b08a7b4d0df, type: 2}
+  - {fileID: 11400000, guid: c68e4f48393f4bfcafade28d4bb7487a, type: 2}
+  - {fileID: 11400000, guid: 47a670d32c704490831aff3de49f58bc, type: 2}
+  - {fileID: 11400000, guid: c15d89114cbb478daa8343a04905d3c7, type: 2}
+  - {fileID: 11400000, guid: 3ad0e98a5bdd4b55b163ebc32e4455e0, type: 2}
+  - {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
+  _isPlayerSeed: 0
+  _test: 1
 --- !u!4 &344829187
 Transform:
   m_ObjectHideFlags: 0
@@ -1039,8 +1060,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3ad0e98a5bdd4b55b163ebc32e4455e0, type: 2}
   - {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
   _showOnStart: 1
-  _spawnPosition: {x: -5.6, y: -2, z: 0}
-  _spawnSpacing: 0.6
 --- !u!114 &1091040817
 MonoBehaviour:
   m_ObjectHideFlags: 0
