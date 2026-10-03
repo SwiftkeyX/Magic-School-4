@@ -147,3 +147,10 @@
     margin-bottom: 4px;
     width: 100%;
 }
+
+/* the Lock box while the shop is locked: gold, the colour the shop already uses for money and
+   prices, so "this stock is being kept" reads as part of the shop rather than a warning. */
+.refresh-slot--locked {
+    background-color: rgba(240, 200, 90, 0.22);
+    border-color: rgba(240, 200, 90, 0.75);
+}

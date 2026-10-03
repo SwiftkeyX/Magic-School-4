@@ -32,6 +32,7 @@ namespace MagicSchool.Core
         public int SlotCount => _stock.Length;
         public int Gold => _wallet.Gold;
         public int RefreshCost { get; }
+        public bool IsLocked { get; private set; }
         public event Action OnChanged;
 
         public Shop(IWallet wallet, Bench bench, IReadOnlyList<HeroDataSO> heroes, IReadOnlyList<ItemDataSO> items,
@@ -93,7 +94,18 @@ namespace MagicSchool.Core
         // A new shop at the start of every stage. Free, unlike Refresh.
         public void Restock()
         {
+            // if the shop is locked, return
+            if (IsLocked) return;
+
             Roll();
+            OnChanged?.Invoke();
+        }
+
+        // lock or unlock the shop
+        // lock the shop prevent the shop from rerolling on itself.
+        public void ToggleLock()
+        {
+            IsLocked = !IsLocked;
             OnChanged?.Invoke();
         }
 

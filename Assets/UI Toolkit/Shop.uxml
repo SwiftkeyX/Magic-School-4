@@ -5,8 +5,8 @@
             <ui:VisualElement name="Gold" class="refresh-slot" style="flex-grow: 1;">
                 <ui:Label name="GoldValue" text="0 g" class="hero-slot-label gold-label"/>
             </ui:VisualElement>
-            <ui:VisualElement class="refresh-slot" style="flex-grow: 1;">
-                <ui:Label text="Lock" class="hero-slot-label"/>
+            <ui:VisualElement name="Lock" class="refresh-slot" style="flex-grow: 1;">
+                <ui:Label name="LockLabel" text="Lock" class="hero-slot-label"/>
             </ui:VisualElement>
             <ui:VisualElement name="Refresh" class="refresh-slot" style="flex-grow: 1;">
                 <ui:Label name="RefreshLabel" text="Refresh" class="hero-slot-label"/>

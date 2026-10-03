@@ -16,6 +16,9 @@ namespace MagicSchool.UI
         // a slot selling an item rather than a hero looks different (see Shop.uss)
         private const string ItemClass = "hero-slot--item";
 
+        // the Lock box lights up while the shop is locked (see Shop.uss)
+        private const string LockedClass = "refresh-slot--locked";
+
         // ================= SerializeField ======================
         [SerializeField] private VisualTreeAsset _ghostAsset;
 
@@ -24,6 +27,8 @@ namespace MagicSchool.UI
         private List<VisualElement> _heroSlots;     // slot i shows the shop's offer i
         private Label _goldValue;
         private Label _refreshLabel;
+        private VisualElement _lock;
+        private Label _lockLabel;
 
         // ================== etc =======================
         private UIDrag _drag;
@@ -39,12 +44,17 @@ namespace MagicSchool.UI
             _shopPanel = panel.Q<VisualElement>("ShopPanel");
             _goldValue = panel.Q<Label>("GoldValue");
             _refreshLabel = panel.Q<Label>("RefreshLabel");
+            _lock = panel.Q<VisualElement>("Lock");
+            _lockLabel = panel.Q<Label>("LockLabel");
 
             // Make hero slot draggable
             MakeShopUIDraggable();
 
             // Wire up the "Refresh" button to re-roll all hero slots
             MakeRefreshButtonWork();
+
+            // Wire up the "Lock" button to prevent the shop from rerolling itself after each round
+            MakeLockButtonWork();
 
             // the shop may have been bound before the panel was mounted
             ShowShop();
@@ -126,6 +136,16 @@ namespace MagicSchool.UI
         }
         #endregion
 
+        #region Lock
+        // If a shop is locked, prevent the re-rolled at the start of the next stage.
+        private void MakeLockButtonWork()
+        {
+            if (_lock == null) return;
+
+            _lock.RegisterCallback<PointerUpEvent>(pointer => _shop?.ToggleLock());
+        }
+        #endregion
+
         // =========================== Show the shop ===============================
         #region Show
         // === IShopPanel ===
@@ -161,6 +181,10 @@ namespace MagicSchool.UI
             if (_goldValue != null) _goldValue.text = _shop != null ? $"{_shop.Gold} g" : string.Empty;
             
             if (_refreshLabel != null) _refreshLabel.text = _shop != null ? $"Refresh ({_shop.RefreshCost} g)" : "Refresh";
+
+            bool locked = _shop != null && _shop.IsLocked;
+            if (_lockLabel != null) _lockLabel.text = locked ? "Locked" : "Lock";
+            _lock?.EnableInClassList(LockedClass, locked);
 
             if (_heroSlots != null)
             {
