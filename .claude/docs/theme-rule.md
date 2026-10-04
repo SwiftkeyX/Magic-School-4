@@ -93,13 +93,19 @@ A chain that cannot fill "Pairs with" stands alone and needs another look.
 
 ## Target
 
-About 10 for the first version, then iterate. With 26 non-tank heroes and 9 tanks, roughly
-6 offensive and 4 defensive.
+10 themes for the first version, then iterate.
+
+A theme holds several chains, and a chain's base is 3 heroes (rule 7). There are 35 heroes: 26
+non-tank and 9 tanks. 10 themes with two chains each would need 60 hero places, so it does not fit
+on heroes alone. (proposed) What makes it fit:
+
+- Each theme starts with one chain. More chains are added when the theme proves fun.
+- A hero may sit in two chains (rule 6).
+- Items fill chain places too - an item can be the generator or the payoff, as in Backpack Battles
+  where every piece is an item.
 
 ## Not decided here
 
-- Is the target 10 chains (Burn, Frost, Shield...) or 10 themes (Status, ...)? The list in `themes.md`
-  is at chain level, so this page reads it as 10 chains grouped into a few themes.
 - The aligning mechanic (star shape, items on hexes). It should differ per hero, but it can wait -
   chains are designed as if an item simply belongs to a hero.
 - Team size at late game against room for items on the board.
