@@ -1,0 +1,11 @@
+#  , Synergy   , Kind      , Currency           , Generators              , Payoff        , State today
+1  , Fire      , offensive , burning enemies    , Dragon + War Cleric     , Imp           , works but slow
+2  , Frost     , offensive , frost on enemies   , gap                     , Frost Witch   , payoff and currency are gaps
+3  , Venom     , offensive , poison stacks      , Goblin Archer + Warlock , Naga          , needs small changes
+4  , Tempo     , offensive , bonus attack speed , Dryad + Archangel       , Werewolf      , works today
+5  , Precision , offensive , crit chance        , gap                     , Fencer        , payoff works - no generator
+6  , Blood     , offensive , healing done       , Priest + Lich           , Reaper        , payoff is a gap
+7  , Arcana    , offensive , casts              , mana items              , Dwarf         , payoff works - items only
+8  , Bulwark   , defensive , shield on the team , Rock Golem + Templar    , Shield Knight , payoff is a gap
+9  , Giant     , defensive , bonus health       , Troll + Husk            , Ettin         , works today
+10 , Control   , defensive , stunned enemies    , Knight + Centaur        , Rogue         , payoff is a gap
