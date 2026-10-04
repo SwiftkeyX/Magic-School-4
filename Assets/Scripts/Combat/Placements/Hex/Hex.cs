@@ -12,6 +12,7 @@ namespace MagicSchool.Combat.Placements
 
         // ========================== getter & setter ==========================
         public string Name => gameObject.name;
+        public HexNumber Number => _hexPlacement;
 
         // === line from front ===
         public int LinesFromFront { get; private set; } = -1;

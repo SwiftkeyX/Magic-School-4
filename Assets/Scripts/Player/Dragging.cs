@@ -125,10 +125,12 @@ namespace MagicSchool.Player
         }
 
         // There's some hero that player shouldn't allow to drag
-        // e.g. enemy
+        // e.g. enemy - unless the dev's stage edit mode is on (read StageEditor.cs)
         private bool CanDragThisHero(Hero hero)
         {
-            return hero != null && hero.Team == _team;
+            if (hero == null) return false;
+
+            return hero.Team == _team || GameManager.Instance.StageEditor != null;
         }
 
         private void Grab(IDraggable target)
@@ -180,7 +182,10 @@ namespace MagicSchool.Player
             // released over the shop = sell a hero.
             if (targetPlacement == null && IsPointerOverSellZone())
             {
-                GameManager.Instance.Sell(hero);
+                // an enemy is only ever held in stage edit mode, and it is removed, not sold - no gold for it
+                if (hero.Team != _team) GameManager.Instance.StageEditor?.RemoveEnemy(hero);
+                else GameManager.Instance.Sell(hero);
+
                 Release();
                 return;
             }
@@ -262,6 +267,9 @@ namespace MagicSchool.Player
         private bool ValidatePlacement(IPlacement placement, Hero hero)
         {
             bool validate = false;
+
+            // stage edit mode: an enemy only stands on its own side's hex - never the bench, and no hero limit
+            if (hero.Team != _team) return placement is Hex enemyHex && enemyHex.GetTeam() == hero.Team;
 
             // if placement is bench, allow the placement
             if (placement is BenchSlot)

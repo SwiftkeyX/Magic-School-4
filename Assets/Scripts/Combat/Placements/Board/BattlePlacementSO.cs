@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using MagicSchool.Contracts;
 
 namespace MagicSchool.Combat.Placements
 {
@@ -21,6 +22,14 @@ namespace MagicSchool.Combat.Placements
             BattlePlacementSO setup = CreateInstance<BattlePlacementSO>();
             setup._heroesPlacement = new List<HeroPlacement>(placements);
             return setup;
+        }
+
+        // swap one team's placements for new ones, the other team's stay as they are.
+        // e.g.     the stage editor saves the enemy team it was shown on the board
+        public void ReplaceTeam(TeamEnum team, IEnumerable<HeroPlacement> placements)
+        {
+            _heroesPlacement.RemoveAll(placement => placement.hexPlacement.team == team);
+            _heroesPlacement.AddRange(placements);
         }
     }
 }
