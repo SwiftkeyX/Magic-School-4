@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.StatScaling;
 using static MagicSchool.Skills.SkillFactory;
@@ -15,9 +16,13 @@ namespace MagicSchool.Skills
         private const float TotalCastTime = IntervalBetweenShot * (ShotCount - 1);
 
         // passive
-        private const float AttackSpeedPerBurnTick = 2f;   // +2% base AS
-        // FLAGGING: the roster sheet gives no length - the rest of the fight, same as Harpy's growth
+        private const float AttackSpeedPerBurningEnemy = 25f;   // +25% base AS
+        private const int MaxBurningEnemies = 5;                // the top: +125%
         private const float RestOfFight = -1f;
+
+        // one bundle, built once and granted again whenever the count changes. Its strength is the count.
+        private readonly ICustomModifier _fanned = BundleRefresh(RestOfFight,
+            Buff(ModifierEnum.AS, (StatEnum.AS, AttackSpeedPerBurningEnemy, ScaleFromEnum.Base)));
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ImpSkill(registry);
 
@@ -32,20 +37,24 @@ namespace MagicSchool.Skills
              + "been caught once.";
 
         public override string PassiveDescription
-            => $"Gains {AttackSpeedPerBurnTick}% attack speed every time an enemy takes a burn tick.";
+            => $"Gains {AttackSpeedPerBurningEnemy}% attack speed for every enemy that is burning, "
+             + $"up to {MaxBurningEnemies} enemies.";
 
         // ============================== passive ==============================
         public override bool HasAutoAttackPassive => true;
 
-        // an enemy took a burn tick - gain attack speed.
-        // A fresh bundle every time, so the ticks stack
-        public override void OnHeroBurned(ICombatant burned)
-        {
-            if (burned.Team == Caster.Team) return;
+        // the number of burning enemies changes when one catches fire, stops burning, or dies.
+        public override void OnBurnChanged(ICombatant hero) => FanTheFlames();
+        public override void OnHeroDied(ICombatant dead) => FanTheFlames();
 
-            Caster.AddModifier(
-                BundleStack(RestOfFight, Buff(ModifierEnum.AS, (StatEnum.AS, AttackSpeedPerBurnTick, ScaleFromEnum.Base))),
-                Caster as IHeroStats);
+        // count the enemies burning right now, and be that much faster.
+        private void FanTheFlames()
+        {
+            int burning = 0;
+            foreach (ICombatant enemy in Caster.FindAllEnemies())
+                if (enemy.IsAlive && enemy.HasStatus(ModifierEnum.Burn)) burning++;
+
+            Caster.AddModifier(_fanned, Caster as IHeroStats, amplifier: Mathf.Min(burning, MaxBurningEnemies));
         }
 
         // ============================== active ==============================

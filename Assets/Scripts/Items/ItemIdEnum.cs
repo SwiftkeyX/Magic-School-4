@@ -33,5 +33,9 @@ namespace MagicSchool.Items
         FarsightLens = 18,
         LongshotQuiver = 19,
         VitalisWeave = 20,
+        ManaflowBand = 22,
+
+        // ======================================= Theme =======================================
+        EmberBrand = 21,
     }
 }

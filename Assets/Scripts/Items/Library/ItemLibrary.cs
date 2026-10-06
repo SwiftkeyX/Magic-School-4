@@ -39,6 +39,10 @@ namespace MagicSchool.Items
                 { ItemIdEnum.FarsightLens,    FarsightLens.Build },
                 { ItemIdEnum.LongshotQuiver,  LongshotQuiver.Build },
                 { ItemIdEnum.VitalisWeave,    VitalisWeave.Build },
+                { ItemIdEnum.ManaflowBand,    ManaflowBand.Build },
+
+                // theme
+                { ItemIdEnum.EmberBrand,      EmberBrand.Build },
             };
 
         /// Return a modifier that match itemID.

@@ -16,10 +16,14 @@ namespace MagicSchool.Modifiers
         // the amount of bonus stat give by all modifier
         private readonly float[] _bonus = new float[StatSlots];
 
-        private static readonly int StatSlots = 11;
+        // one slot per StatEnum member, so the last member + 1
+        private static readonly int StatSlots = (int)StatEnum.BurnOnAttack + 1;
 
         // tracking if the bonus stat from modifier is stale 
         private bool _isBonusStale = true;
+
+        // the one burn this hero can carry - read Burn.cs
+        private readonly Burn _burn = new Burn();
 
         // =================================== life cycle ===================================
         // update all current modifier duration, removing any that just expired
@@ -106,6 +110,9 @@ namespace MagicSchool.Modifiers
         // Return available status modifier
         public bool GetStatusModifier(ModifierEnum type)
         {
+            // burn is not in the modifier list, it keeps its own time
+            if (type == ModifierEnum.Burn) return _burn.IsBurning;
+
             foreach (ActiveCustomModifier tracker in _activeModifiers)
                 foreach (IModifier modifier in tracker.CustomModifier.GetModifiers())
                     if (modifier.GetModifierEnum() == type) return true;
@@ -135,6 +142,11 @@ namespace MagicSchool.Modifiers
         // read Shield.cs
         public float ShieldTotal => Shield.Total(_activeModifiers);
         public float AbsorbDamage(float damage) => Shield.Absorb(_activeModifiers, damage);
+
+        // =================================== burn ===================================
+        // read Burn.cs
+        public void Ignite(float damagePerSecond, float duration, IEffectable source) => _burn.Ignite(damagePerSecond, duration, source);
+        public bool TickBurn(float deltaTime, out int damage, out IEffectable source) => _burn.Tick(deltaTime, out damage, out source);
 
         // =================================== private ===================================
         // Add every active modifier up.

@@ -7,9 +7,8 @@ namespace MagicSchool.Skills
     internal class DragonSkill : SkillDefinition
     {
         private const float DamageRatio = 300f;
-        private const float BurnTotal = 150f;       // over the whole burn, not per tick
-        private const float BurnDuration = 3f;
-        private const float BurnInterval = 1f;
+        private const float BurnPerSecond = 30f;
+        private const float BurnDuration = 5f;
         private const float ConeLength = 3.5f;       // world units from his tip outward
         private const float ConeWidth = 3.5f;        // world units across the open end
 
@@ -20,8 +19,8 @@ namespace MagicSchool.Skills
         public override string SkillName => "Dragon Breath";
 
         public override string Description
-            => $"Breathes a cone of fire at the densest cluster: {DamageRatio}% AP, then burns them for "
-             + $"{BurnTotal}% AP over {BurnDuration} seconds.";
+            => $"Breathes a cone of fire at the densest cluster: {DamageRatio}% AP, and sets them burning for "
+             + $"{BurnPerSecond}% AP every second for {BurnDuration} seconds.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
@@ -33,7 +32,7 @@ namespace MagicSchool.Skills
                 target: AimTargetEnum.ClusteredCircle,
                 tuning: TuneAOE(length: ConeLength, width: ConeWidth, offset: AOEOffsetEnum.Tip),
                 Damage(EffectRecipientEnum.EnemiesInArea, (StatEnum.AP, DamageRatio)),
-                Burn(EffectRecipientEnum.EnemiesInArea, BurnInterval, BurnDuration, (StatEnum.AP, BurnTotal))
+                Burn(EffectRecipientEnum.EnemiesInArea, BurnDuration, (StatEnum.AP, BurnPerSecond))
             );
 
             return Flow(onStart: breath);

@@ -17,6 +17,8 @@ namespace MagicSchool.Contracts
         MR = 16,
         Shield = 17,
         CritChance = 18,
+        ManaPerAttack = 21,
+        BurnOnAttack = 22,      // his auto attacks set the target burning, for this much damage per second
 
         // ======================================= Debuff =======================================
         DefendShred = 13,
@@ -28,5 +30,6 @@ namespace MagicSchool.Contracts
         ManaBlocked = 11,
         AutoAttackWasReplaced = 12,
         Untargetable = 19,      
+        Burn = 20,              // takes damage every second - Modifiers/Burn.cs
     }
 }

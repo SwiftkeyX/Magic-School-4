@@ -79,7 +79,7 @@ namespace MagicSchool.Combat.Heroes
         public ICombatant PickAutoAttackTarget(ICombatant target) => _skill.PickAutoAttackTarget(target);
         public bool TriggerOnCombatStart() => _skill.TriggerOnCombatStart();
         public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);
-        public void TriggerOnHeroBurned(ICombatant burned) => _skill.TriggerOnHeroBurned(burned);
+        public void TriggerOnBurnChanged(ICombatant hero) => _skill.TriggerOnBurnChanged(hero);
         public float GetCastTime() => _skill.GetCastTime();
         public bool IsSkillRepeating() => _skill.IsSkillRepeating();
 
@@ -97,6 +97,7 @@ namespace MagicSchool.Combat.Heroes
 
         // ======================================== stat ========================================
         public void GainMana(int amount) => Stat.AddMana(amount);      // return true if mana if capped
+        public int ManaPerAttack => Stat.ManaPerAttack;
         public bool IsManaCapped() => Stat.IsManaCapped();
         public void SpendMana() => Stat.SpendMana();                   // called once a cast actually happened
         public void TickModifiers(float deltaTime) => Stat.TickModifiers(deltaTime);
@@ -134,14 +135,20 @@ namespace MagicSchool.Combat.Heroes
 
             OnDamaged?.Invoke(new DamageEvent(source, this, kind, outcome));
 
-            // if take burn, annouce it.
-            if (kind == DamageKindEnum.Burn) AnnounceBurn();
-
-            // if (other status) add here;
-            // ...
-
             // return how much damage was done
             return outcome.Landed;
+        }
+
+        public void Ignite(float damagePerSecond, float duration, IEffectable source)
+        {
+            // a dead or vanished hero can't be set on fire
+            if (!IsAlive || HasStatus(ModifierEnum.Untargetable)) return;
+
+            bool wasBurning = Stat.IsBurning;
+            Stat.Ignite(damagePerSecond, duration, source);
+
+            // he just caught fire, announce it.
+            if (!wasBurning && Stat.IsBurning) AnnounceBurnChanged();
         }
 
         // === IHeroStats ===
@@ -230,6 +237,7 @@ namespace MagicSchool.Combat.Heroes
             if (!IsInCombat) return;
 
             TickModifiers(Time.deltaTime);
+            TickBurn(Time.deltaTime);
 
             // update auto attack cooldown
             _attackCooldown.Tick(Time.deltaTime, AttackSpeed);
@@ -274,12 +282,25 @@ namespace MagicSchool.Combat.Heroes
             _stateMachine.ChangeState(HeroStateEnum.Idle);
         }
 
-        private void AnnounceBurn()
+        // a burning hero takes damage every second, until the fire is out.
+        private void TickBurn(float deltaTime)
+        {
+            if (!IsAlive || !Stat.IsBurning) return;
+
+            if (Stat.TickBurn(deltaTime, out int damage, out IEffectable source))
+                TakeDamage(damage, source, DamageKindEnum.Burn);
+
+            // the fire just went out, announce it.
+            if (!Stat.IsBurning) AnnounceBurnChanged();
+        }
+
+        // tell every other hero that this one caught fire, or stopped burning.
+        private void AnnounceBurnChanged()
         {
             foreach (ICombatant combatant in new List<ICombatant>(HeroesOnBoard))
             {
                 if (combatant is Hero hero && hero != this && hero.IsAlive)
-                    hero.TriggerOnHeroBurned(this);
+                    hero.TriggerOnBurnChanged(this);
             }
         }
         #endregion

@@ -26,5 +26,7 @@ namespace MagicSchool.Contracts
         DamageReduction = 9,
         CritChance = 10,        
         Omnivamp = 11,          
+        ManaPerAttack = 12,     // mana gained from one auto attack
+        BurnOnAttack = 13,      // damage per second of the burn his auto attacks set. 0 = they set none
     }
 }

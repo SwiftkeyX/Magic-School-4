@@ -18,6 +18,8 @@ namespace MagicSchool.Combat.Heroes.Stats
         private int _currentHP;
         private int _currentMana;
 
+        private const float BaseManaPerAttack = 10f;    // every hero gains this much mana from one auto attack
+
         // ========================================== stat getter ==========================================
         public float GetBaseStat(StatEnum type) => _base[type];
         public bool IsManaCapped() => _currentMana >= MaxMana;
@@ -40,6 +42,7 @@ namespace MagicSchool.Combat.Heroes.Stats
         public int StartMana => Mathf.RoundToInt(GetFinalStat(StatEnum.StartMana));
         public int MaxMana => Mathf.RoundToInt(GetFinalStat(StatEnum.MaxMana));
         public float DamageReductionPercent => Mathf.RoundToInt(GetFinalStat(StatEnum.DamageReduction));
+        public int ManaPerAttack => Mathf.RoundToInt(GetFinalStat(StatEnum.ManaPerAttack));
         public int CurrentHP => _currentHP;
         public int CurrentMana => _currentMana;
 
@@ -51,6 +54,11 @@ namespace MagicSchool.Combat.Heroes.Stats
         // === shield ===
         public int Shield => Mathf.FloorToInt(_statModifier.ShieldTotal);
         public void ConsumeShield(int amount) => _statModifier.AbsorbDamage(amount);
+
+        // === burn ===
+        public bool IsBurning => HasStatus(ModifierEnum.Burn);
+        public void Ignite(float damagePerSecond, float duration, IEffectable source) => _statModifier.Ignite(damagePerSecond, duration, source);
+        public bool TickBurn(float deltaTime, out int damage, out IEffectable source) => _statModifier.TickBurn(deltaTime, out damage, out source);
 
         // === other ===
         public float ModifierRemaining(int index) => _statModifier.GetRemainingDuration(index);
@@ -97,6 +105,8 @@ namespace MagicSchool.Combat.Heroes.Stats
             _base[StatEnum.DamageReduction] = 0f;
             _base[StatEnum.CritChance] = so.CritChance;
             _base[StatEnum.Omnivamp] = 0f;
+            _base[StatEnum.ManaPerAttack] = BaseManaPerAttack;
+            _base[StatEnum.BurnOnAttack] = 0f;
 
             // there's chance MaxHP is modified at the start, so set _currentHP to MaxHP accordingly  
             _currentHP = MaxHP;

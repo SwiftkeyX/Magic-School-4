@@ -17,28 +17,52 @@ namespace MagicSchool.Combat.Heroes
         private static readonly Color BlueSkillTextColor = new Color(0.4f, 0.85f, 1f);
         private static readonly Color RedSkillTextColor = new Color(1f, 0.55f, 0.3f);
 
+        private static readonly Color BurnTint = new Color(1f, 0.45f, 0.1f);
+        private const float BurnTintStrength = 0.65f;
+
         [SerializeField] private FloatingText _skillCastTextPrefab;
 
         private Hero _me;
         private SpriteRenderer _sprite;
+        private Color _ownColor;        // the colour this hero has when nothing tints him
+        private bool _isTinted;
 
         void Awake()
         {
             _me = GetComponent<Hero>();
             _sprite = GetComponent<SpriteRenderer>();
+            _ownColor = _sprite.color;
         }
 
         void LateUpdate()
         {
             if (_me == null || !_me.IsInitialized) return;
 
-            // if a hero is vanished, don't draw him 
+            HideWhileVanished();
+            TintWhileBurning();
+        }
+
+        // if a hero is vanished, don't draw him 
+        private void HideWhileVanished()
+        {
             bool isShown = !_me.HasStatus(ModifierEnum.Untargetable);
             if (_sprite.enabled == isShown) return;
             _sprite.enabled = isShown;
 
             // don't draw the canvas of him too.
             foreach (Canvas bar in GetComponentsInChildren<Canvas>(true)) bar.enabled = isShown;
+        }
+
+        // if a hero is burning, draw him orange. The alpha is left alone, the dead visual owns it.
+        private void TintWhileBurning()
+        {
+            bool isBurning = _me.IsAlive && _me.HasStatus(ModifierEnum.Burn);
+            if (_isTinted == isBurning) return;
+            _isTinted = isBurning;
+
+            Color c = isBurning ? Color.Lerp(_ownColor, BurnTint, BurnTintStrength) : _ownColor;
+            c.a = _sprite.color.a;
+            _sprite.color = c;
         }
 
         // When hero die, set his sprite transparent to indicate that he is dead.

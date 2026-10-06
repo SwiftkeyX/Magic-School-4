@@ -7,7 +7,7 @@ namespace MagicSchool.Combat.Heroes.States
     internal class HeroAttack : HeroState
     {
         public override HeroStateEnum StateType => HeroStateEnum.Attack;
-        private const int ManaPerAttack = 10;
+        private const float BurnOnAttackDuration = 5f;
         private const float DashDuration = 0.2f;
         private const float DashDistance = 0.5f;
 
@@ -110,6 +110,10 @@ namespace MagicSchool.Combat.Heroes.States
                 // if caster have omnivamp, heals off the damage dealt
                 Omnivamp.Apply(_me, landed);
 
+                // if his auto attacks set things on fire, the target burns. e.g. Ember Brand
+                float burnPerSecond = _me.GetStat(StatEnum.BurnOnAttack);
+                if (burnPerSecond > 0f) target.Ignite(burnPerSecond, BurnOnAttackDuration, _me);
+
                 // attack animation: dash toward the enemy, then back to where we started
                 AttackAnimation(target);
             }
@@ -118,7 +122,7 @@ namespace MagicSchool.Combat.Heroes.States
             _me.SpendAttack();
 
             // after attack gain mana
-            if (!_me.HasStatus(ModifierEnum.ManaBlocked)) _me.GainMana(ManaPerAttack);
+            if (!_me.HasStatus(ModifierEnum.ManaBlocked)) _me.GainMana(_me.ManaPerAttack);
         }
 
         private void AttackAnimation(ICombatant target)

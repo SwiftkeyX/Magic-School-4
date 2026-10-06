@@ -28,11 +28,17 @@ namespace MagicSchool.Skills
                                                        params StatRatio[] ratios)
             => new AttackSkillEffect(recipient, ratios, new Cadence(interval, duration));
 
-        // the same to DamageOverTime(), but it also flag itself as a burn
-        // e.g.     Dragon's breath, War Cleric's fire.
-        public static AttackSkillEffect Burn(EffectRecipientEnum recipient, float interval, float duration,
-                                             params StatRatio[] ratios)
-            => new AttackSkillEffect(recipient, ratios, new Cadence(interval, duration), kind: DamageKindEnum.Burn);
+        // set the recipients burning for `duration` seconds. The ratios are the damage PER SECOND.
+        // e.g.     Burn(EnemiesInArea, 5f, (StatEnum.AP, 30f))     Dragon's breath: 30% AP every second for 5 seconds
+        public static BurnSkillEffect Burn(EffectRecipientEnum recipient, float duration, params StatRatio[] perSecond)
+            => new BurnSkillEffect(recipient, perSecond, duration);
+
+        // the same to Burn(), for a zone: whoever stands in it is set burning again every `zoneInterval`,
+        // so he keeps burning for `duration` seconds after he leaves or the zone ends.
+        // e.g.     War Cleric's fire
+        public static BurnSkillEffect BurnInZone(EffectRecipientEnum recipient, float duration, float zoneInterval,
+                                                 float zoneDuration, params StatRatio[] perSecond)
+            => new BurnSkillEffect(recipient, perSecond, duration, new Cadence(zoneInterval, zoneDuration));
 
 
         // ================================== heal ==================================
