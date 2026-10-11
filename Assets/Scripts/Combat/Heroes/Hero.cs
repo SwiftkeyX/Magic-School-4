@@ -14,7 +14,7 @@ namespace MagicSchool.Combat.Heroes
     /// 1) It's the ONLY Monobehavior for the Hero, so it's here so we could make hero interact with Unity.
     /// 2) it act like a glue, which mean itself don't contain any real logic.
     /// </summary>
-    public class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable
+    public class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISpawner
     {
         // ======================================== Dependency ========================================
         private HeroDataSO _SOData;
@@ -24,6 +24,7 @@ namespace MagicSchool.Combat.Heroes
         private HeroVisuals _visuals;
         private HeroSkill _skill;
         private HeroItems _items;
+        private HeroSpawn _spawn;
         private AttackCooldown _attackCooldown;
         private Stat _stat;
         private TeamEnum _team;
@@ -79,6 +80,7 @@ namespace MagicSchool.Combat.Heroes
         public ICombatant PickAutoAttackTarget(ICombatant target) => _skill.PickAutoAttackTarget(target);
         public bool TriggerOnCombatStart() => _skill.TriggerOnCombatStart();
         public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);
+        public void TriggerOnDeath() => _skill.TriggerOnDeath();
         public void TriggerOnHeroBurned(ICombatant burned) => _skill.TriggerOnHeroBurned(burned);
         public float GetCastTime() => _skill.GetCastTime();
         public bool IsSkillRepeating() => _skill.IsSkillRepeating();
@@ -104,6 +106,7 @@ namespace MagicSchool.Combat.Heroes
         // ======================================== combat event ========================================
         public event Action<DamageEvent> OnDamaged;
         public event Action<HealEvent> OnHealed;
+        public event Action<HeroDataSO, TeamEnum, IPlacement, BattleBoard> OnSpawnRequested;
 
         // ======================================== interface method ========================================
         // === IEffectable ===
@@ -143,6 +146,9 @@ namespace MagicSchool.Combat.Heroes
             // return how much damage was done
             return outcome.Landed;
         }
+
+        // === ISpawner ===
+        public int SpawnUnitsNearby(int count) => _spawn.SpawnNearby(_SOData.SpawnUnit, count);
 
         // === IHeroStats ===
         public int CurrentHP => Stat.CurrentHP;
@@ -207,6 +213,7 @@ namespace MagicSchool.Combat.Heroes
             _visuals = GetComponent<HeroVisuals>();
             _skill = new HeroSkill(this, skill);
             _items = new HeroItems(this);
+            _spawn = new HeroSpawn(this, _board, (unit, unitTeam, placement, onBoard) => OnSpawnRequested?.Invoke(unit, unitTeam, placement, onBoard));
             _findEnemy = new FindTarget(this, _board);
             _attackCooldown = new AttackCooldown();
             _stateMachine = new HeroStateMachine(this, new MovementConfig(_moveSpeed, _walkCurve, _attackCurve));
