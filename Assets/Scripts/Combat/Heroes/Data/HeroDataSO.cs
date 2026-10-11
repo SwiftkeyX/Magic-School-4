@@ -28,6 +28,8 @@ namespace MagicSchool.Combat.Heroes
         [SerializeField] private int _maxMana = 50;
         [SerializeField] private float _critChance = 25f;   
         [SerializeField] private SkillIdEnum _skillId = SkillIdEnum.None;
+        [Tooltip("The unit this hero's skill puts on the board. e.g. Big Slime -> Small Slime. Empty for almost everyone.")]
+        [SerializeField] private HeroDataSO _spawnUnit;
         // FLAGGING: a dummy should be its own unit type, not a Hero. Let's see later if it make sense.
         [SerializeField] private bool _isDummy = false; // A dummy never walks or attacks 
 
@@ -48,6 +50,7 @@ namespace MagicSchool.Combat.Heroes
         public int MaxMana => _maxMana;
         public float CritChance => _critChance;
         public SkillIdEnum SkillId => _skillId;
+        public HeroDataSO SpawnUnit => _spawnUnit;
         public bool IsDummy => _isDummy;
     }
 }
