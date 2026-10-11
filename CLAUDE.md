@@ -22,7 +22,7 @@ MagicSchool.UI         -> Contracts, Combat, Items, Input
 MagicSchool.Economy    -> Contracts, Combat, Items          wallet, shop, seller - see below
 MagicSchool.Core       -> Contracts, Engine, Skills, Combat, CombatRecording, Items, Economy
 MagicSchool.Player     -> Contracts, Combat, Core, Items, Input
-MagicSchool.Editor     -> Core                              (Editor-only)
+MagicSchool.Editor     -> Core, Combat                      (Editor-only)
 ```
 
 Rules that aren't visible from any single file:
@@ -157,8 +157,43 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   `Shop.Restock()` - a free roll - so every stage, stage 1 included, opens on a new shop, unless the
   player has clicked Lock (`IShop.ToggleLock`), which keeps the stock until they unlock it.
   Refresh still works while locked.
+- Right-click a shop slot to inspect it (`ShopPanelController.MakeSlotsInspectable` → `IShop.InspectableAt`).
+  A slot holds data, not a live object, so it shows a stand-in: `ItemPreview` (Economy) or `HeroPreview`
+  (Combat - it builds the skill through `SkillLibrary` with no caster, which only builds the text). `Economy`
+  cannot reference `Skills`, so `GameManager` hands the shop the `HeroPreview` factory. The preview's
+  `IsAlive` is "the slot still sells this", so buying or re-rolling closes the inspector. `UIDrag` only
+  drags on the left button, so a right-click on a slot inspects instead of picking it up.
+- Balancing: every `CombatRecord` knows `FightSeconds` / `SecondsAlive` (a `RoundClock` per round, stopped in
+  `ResultState`; a death is the damage event that takes HP to 0), so the `_test` CSV in `BalanceLogs/` has
+  per-second rates. **Magic School 4 > Balance > Run Hero Benchmark** (`Core/Benchmark/HeroBenchmark`,
+  menu in `Core/Editor/HeroBenchmarkMenu`) runs every shop hero alone vs `Data/Benchmark/BenchDummy`
+  (2000 HP, DF 30, topped up below half): a 30s damage test (DPS at 15s and 30s), a 30s AoE test (a tight
+  cluster of 4 dummies around one clear nearest target; `aoe_gain` = AoE DPS / single-target DPS) and a tank test (100 raw damage/s until
+  death or 30s). It runs outside the game's states, 8 heroes at once, each on its own hidden copy of the
+  `BattleBoard` (a hero only sees its own board's heroes, so lanes cannot touch each other), in fixed 1/30s
+  steps (`Time.captureDeltaTime`) with vSync, the frame cap, cameras and UI off - about 47s for all 35 -
+  and writes `BalanceLogs/benchmark-*.csv` with each hero vs its role's median, flagged beyond +-20%.
+  **Run Hero Benchmark (Selected)** tests only the HeroDataSOs selected in the Project window (seconds per
+  hero) and borrows every other hero's numbers from the newest full report for the peer comparison; it
+  writes `benchmark-selected-*.csv`. Ally-support skills still read low (no allies in any test), and heroes
+  of a role share stats, so the tank test only separates heroes whose skills defend them.
+- Stage editing (dev tool): tick `GameManager._stageEditMode` and, in Preparation, enemies drag between
+  red hexes like your own heroes do, and dropping one on the shop removes it (no gold). **Magic School 4 >
+  Stage Editor** adds the HeroDataSOs selected in the Project window as enemies and saves the enemy team
+  into the current stage's `BattlePlacementSO` or a new one - red entries only, blue ones are kept.
+  `Core/StageEditor` is the runtime half (`GameManager.StageEditor` is null while the mode is off, which is
+  what `Dragging` checks); `Core/Editor/StageEditorMenu` only writes the asset. The menu goes through
+  `StageEditor` for anything team-specific because `Editor` does not reference `Contracts`.
+- The reward card (`RewardPanelController`, an item pick after each win) is **unwired, not deleted**:
+  `GameManager._useRewardPanel` is off, so `GameManager.Reward` is null and every use of it is
+  null-safe - a win goes straight on. The panel's own `_showOnStart` is off too. Tick both to bring it back.
 - **Not built yet:** Trait Panel and Hero Panel are still empty slots. There is no "Start Battle" button: combat is triggered by the space bar in
   `PlayerController.TryStartCombat`, which is temporary.
+- The run is 10 stages: `GameManager._stages` points at `Assets/Data/BattleSetups/Campaign/Stage 01`-`10`
+  (3 enemies on stage 1 up to 12 on stage 10, tier mix tracking the shop odds; stage 5 and 10 are the
+  bosses). Heroes of one role share the same stats whatever their tier, so difficulty comes from
+  enemy count and skills. Hero A (`SuperTank.asset`, 2000 HP, no skill) is enemy-only - it is not in
+  the shop roster. The old 5 `Build demo/` stages are kept but unused.
 - `BattlePlacementSO` (the Inspector list of starting `HeroPlacement`s, in `Assets/Data/BattleSetups/`)
   has been reset to defaults multiple times across past type changes — double-check its values
   before relying on it.
