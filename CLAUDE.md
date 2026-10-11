@@ -193,7 +193,16 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   (3 enemies on stage 1 up to 12 on stage 10, tier mix tracking the shop odds; stage 5 and 10 are the
   bosses). Heroes of one role share the same stats whatever their tier, so difficulty comes from
   enemy count and skills. Hero A (`SuperTank.asset`, 2000 HP, no skill) is enemy-only - it is not in
-  the shop roster. The old 5 `Build demo/` stages are kept but unused.
+  the shop roster. The enemy roster is designed in the sheet's `Enemies` tab and built into
+  `Assets/Data/Heroes/Stats/Enemy/` (prefabs in `Assets/Prefabs/Hero/Enemy/`). The three tanks are built,
+  on a shop tank's stats until stats are decided: Minotaur (single-target stun), Basilisk (+DF every
+  cast) and Big Slime (splits into 2 Small Slimes on death). They are not in any stage yet - add them
+  with the Stage Editor. The old 5 `Build demo/` stages are kept but unused.
+- A hero can put units on the board mid-fight: a skill calls `ISpawner.SpawnUnitsNearby` (Contracts) on
+  its caster, `Hero` picks the nearest free hexes (`Combat/Heroes/HeroSpawn`) and raises
+  `OnSpawnRequested`, and `HeroSpawner` - which subscribes to every hero it builds - spawns them. The
+  unit comes from `HeroDataSO._spawnUnit`, because `Skills` cannot name a hero. `SkillDefinition.OnDeath`
+  is the caster's own death; `OnHeroDied` is everyone else's.
 - `BattlePlacementSO` (the Inspector list of starting `HeroPlacement`s, in `Assets/Data/BattleSetups/`)
   has been reset to defaults multiple times across past type changes — double-check its values
   before relying on it.

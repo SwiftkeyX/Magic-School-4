@@ -78,6 +78,10 @@ namespace MagicSchool.Skills
         // e.g. Troll gains health whenever an enemy dies
         public virtual void OnHeroDied(ICombatant dead) { }
 
+        // If the caster himself dies, play OnDeath.
+        // e.g. Big Slime splits into Small Slimes
+        public virtual void OnDeath() { }
+
         // If any hero takes a burn tick, play OnHeroBurned.
         // e.g. Imp gains attack speed whenever an enemy burns
         public virtual void OnHeroBurned(ICombatant burned) { }
