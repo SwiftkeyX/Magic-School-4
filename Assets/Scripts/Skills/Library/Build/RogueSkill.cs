@@ -15,7 +15,7 @@ namespace MagicSchool.Skills
         private const int ChargeRange = 4;
         private const float ChargeDuration = 0.3f;
         private const float HitboxHalfWidth = 1.25f;
-        private const float CollideDamage = 200f;
+        private const float CollideDamage = 50f;  
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new RogueSkill(registry);
 

@@ -6,7 +6,7 @@ namespace MagicSchool.Skills
 {
     internal class OrcBlademasterSkill : SkillDefinition
     {
-        private const float DamagePerTick = 80f;
+        private const float DamagePerTick = 320f;
         private const float TickInterval = 0.5f;
         private const float Duration = 4f;
 
