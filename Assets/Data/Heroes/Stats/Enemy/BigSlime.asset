@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b55b0dd9ae9b645ad69373b7cb4ae9, type: 3}
+  m_Name: BigSlime
+  m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Heroes.HeroDataSO
+  _prefab: {fileID: 8947555842475497492, guid: a251abe490941e2458d3c34d5ae2efae, type: 3}
+  _name: Big Slime
+  _tier: 0
+  _role: 1
+  _hp: 800
+  _attack: 45
+  _defend: 40
+  _magic: 100
+  _magicResist: 40
+  _attackSpeed: 0.6
+  _range: 1
+  _startMana: 30
+  _maxMana: 90
+  _critChance: 25
+  _skillId: 40
+  _spawnUnit: {fileID: 11400000, guid: 149c91b73156a8144bf4597344bc6186, type: 2}
+  _isDummy: 0

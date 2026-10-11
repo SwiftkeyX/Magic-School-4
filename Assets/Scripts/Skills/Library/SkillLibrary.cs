@@ -13,6 +13,7 @@ namespace MagicSchool.Skills
         private static readonly Dictionary<SkillIdEnum, Func<TemplateActionRegistrySO, SkillDefinition>> Builders =
             new Dictionary<SkillIdEnum, Func<TemplateActionRegistrySO, SkillDefinition>>
             {
+                // =================== player side ===================
                 { SkillIdEnum.Werewolf      , WerewolfSkill.Build       },
                 { SkillIdEnum.Naga          , NagaSkill.Build           },
                 { SkillIdEnum.ShieldKnight  , ShieldKnightSkill.Build   },
@@ -48,6 +49,11 @@ namespace MagicSchool.Skills
                 { SkillIdEnum.GoblinArcher  , GoblinArcherSkill.Build   },
                 { SkillIdEnum.Fencer        , FencerSkill.Build         },
                 { SkillIdEnum.Priest        , PriestSkill.Build         },
+
+                // =================== enemy side ===================
+                { SkillIdEnum.Minotaur      , MinotaurSkill.Build       },
+                { SkillIdEnum.BigSlime      , BigSlimeSkill.Build       },
+                { SkillIdEnum.Basilisk      , BasiliskSkill.Build       },
             };
 
         /// Return a skill that match skillID's TemplateAction.

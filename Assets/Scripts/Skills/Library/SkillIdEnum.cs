@@ -9,6 +9,7 @@ namespace MagicSchool.Skills
     {
         None = 0,
 
+        // =================== player side ===================
         Werewolf = 1,
         Naga = 2,
         ShieldKnight = 3,
@@ -47,5 +48,10 @@ namespace MagicSchool.Skills
         GoblinArcher = 36,
         Fencer = 37,
         Priest = 38,
+
+        // =================== enemy side ===================
+        Minotaur = 39,
+        BigSlime = 40,
+        Basilisk = 41,
     }
 }
