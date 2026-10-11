@@ -549,6 +549,7 @@ MonoBehaviour:
   _useRewardPanel: 0
   _isPlayerSeed: 0
   _test: 1
+  _stageEditMode: 1
 --- !u!4 &344829187
 Transform:
   m_ObjectHideFlags: 0

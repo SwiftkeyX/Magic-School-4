@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using MagicSchool.Contracts;
 
 namespace MagicSchool.Combat.Placements
 {
@@ -21,6 +22,21 @@ namespace MagicSchool.Combat.Placements
             BattlePlacementSO setup = CreateInstance<BattlePlacementSO>();
             setup._heroesPlacement = new List<HeroPlacement>(placements);
             return setup;
+        }
+
+        // Changing team formation by editing this SO. 
+        // e.g.     stage editor mode, want to override new enemy formation to current SO. 
+        public void ReplaceTeam(TeamEnum team, IEnumerable<HeroPlacement> placements)
+        {
+            // removing all hero that belong the specify team first
+            _heroesPlacement.RemoveAll(placement =>
+            {
+                bool sameTeam = placement.hexPlacement.team == team;
+                return sameTeam;
+            });
+
+            // re-add hero that belong to specify team
+            _heroesPlacement.AddRange(placements);
         }
     }
 }

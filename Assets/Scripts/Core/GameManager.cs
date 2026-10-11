@@ -46,6 +46,8 @@ namespace MagicSchool.Core
         [SerializeField] private bool _isPlayerSeed;
         [Tooltip("Write every round's numbers to a CSV for balancing. Off in a real build - it writes a file.")]
         [SerializeField] private bool _test;
+        [Tooltip("Dev tool: drag, add and remove enemies in Preparation, then save them from Magic School 4 > Stage Editor.")]
+        [SerializeField] private bool _stageEditMode;
 
         private BattlePlacementSO _currentStage;
         private Wallet _wallet;
@@ -55,6 +57,7 @@ namespace MagicSchool.Core
         private HeroFormation _heroFormation;
         private HeroSeed _seed;
         private HeroSpawner _heroSpawner;
+        private StageEditor _stageEditor;
         private CombatRecorder _recorder;
         private GameSpeed _speed;
         private CombatCsvLog _balanceLog;
@@ -79,6 +82,7 @@ namespace MagicSchool.Core
         internal int StageNumber => _stageIndex + 1;
         public int HeroLimit => _heroLimit;
         public int SpeedMultiplier => _speed == null ? 1 : _speed.Multiplier;
+        public StageEditor StageEditor => _stageEditMode ? _stageEditor : null;    
         internal bool IsRunCleared => Winner == TeamEnum.Blue && _stageIndex + 1 >= StageCount;
 
         // ======================================== setter ========================================
@@ -127,7 +131,8 @@ namespace MagicSchool.Core
 
             if (_test) _balanceLog = new CombatCsvLog(Path.Combine(Application.dataPath, "..", "BalanceLogs"));
 
-            _heroSpawner = new HeroSpawner(_heroMover, _bench, _seed, _templateActions, _recorder);
+            _stageEditor = new StageEditor(this);
+            _heroSpawner = new HeroSpawner(_heroMover, _templateActions, _recorder, _bench, _seed, _stageEditor);
             _wallet = new Wallet(_startingGold);
             _seller = new Seller(_wallet);
             _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopOdds, () => StageNumber, _shopSlots, _refreshCost,
