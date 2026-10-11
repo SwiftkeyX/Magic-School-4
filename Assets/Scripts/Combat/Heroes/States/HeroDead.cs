@@ -13,6 +13,7 @@ namespace MagicSchool.Combat.Heroes.States
         {
             _me.SetDeadVisual();
 
+            _me.TriggerOnDeath();
             AnnounceDeath();
         }
 

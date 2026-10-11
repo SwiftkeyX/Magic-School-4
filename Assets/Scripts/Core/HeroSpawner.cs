@@ -41,6 +41,10 @@ namespace MagicSchool.Core
                 hero.OnHealed += _recorder.Record;
             }
 
+            // a hero may ask for units of its own in the middle of a fight 
+            // e.g.     Big Slime splits into smaller slime
+            hero.OnSpawnRequested += SpawnHero;
+
             // move them to "placement"
             _heroMover.MoveThisHeroTo(hero, placement);
         }
