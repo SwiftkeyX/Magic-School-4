@@ -54,7 +54,7 @@ namespace MagicSchool.Core.Benchmark
 
                 // its own spawner: 
                 // but the same recorder, so every lane's numbers land in one place
-                new HeroSpawner(new HeroMover(), null, seed, game.TemplateActions, game.Recorder);
+                new HeroSpawner(new HeroMover(), game.TemplateActions, game.Recorder, seed: seed);
 
                 lanes.Add(new Lane(board, seed));
             }

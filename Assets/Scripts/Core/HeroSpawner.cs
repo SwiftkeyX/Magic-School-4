@@ -14,8 +14,8 @@ namespace MagicSchool.Core
         private readonly TemplateActionRegistrySO _templateActions;
         private readonly CombatRecorder _recorder;
 
-        public HeroSpawner(HeroMover heroMover, Bench bench, HeroSeed seed,
-                           TemplateActionRegistrySO templateActions, CombatRecorder recorder)
+        public HeroSpawner(HeroMover heroMover, TemplateActionRegistrySO templateActions, CombatRecorder recorder,
+                           Bench bench = null, HeroSeed seed = null, StageEditor stageEditor = null)
         {
             _heroMover = heroMover;
             _templateActions = templateActions;
@@ -23,6 +23,7 @@ namespace MagicSchool.Core
 
             if (bench != null) bench.OnSpawnRequested += SpawnHero;
             if (seed != null) seed.OnSpawnRequested += SpawnHero;
+            if (stageEditor != null) stageEditor.OnSpawnRequested += SpawnHero;
         }
 
         // basically spawn hero

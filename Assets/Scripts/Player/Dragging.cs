@@ -28,6 +28,7 @@ namespace MagicSchool.Player
         // ============================= getter =============================
         public bool IsHolding => _held as Object != null;
         private bool IsPreparation => GameManager.Instance.Phase == GamePhaseEnum.Preparation;
+        private bool _isStageEditor => GameManager.Instance.StageEditor != null;
 
         public Dragging(Camera cam, BattleBoard board, ISellZone sellZone, TeamEnum team, PlayerTeamSize teamSize)
         {
@@ -125,10 +126,16 @@ namespace MagicSchool.Player
         }
 
         // There's some hero that player shouldn't allow to drag
-        // e.g. enemy
+        // e.g.     player allow to drag his own hero
+        //          player don't allow to drag enemy
+        //          player allow to drag enemy in the stage editor mode
         private bool CanDragThisHero(Hero hero)
         {
-            return hero != null && hero.Team == _team;
+            if (hero == null) return false;
+
+            bool isMyHero = hero.Team == _team;
+
+            return isMyHero || _isStageEditor;
         }
 
         private void Grab(IDraggable target)
@@ -264,7 +271,7 @@ namespace MagicSchool.Player
             bool validate = false;
 
             // if placement is bench, allow the placement
-            if (placement is BenchSlot)
+            if (placement is BenchSlot && hero.Team == _team)
             {
                 validate = true;
             }
@@ -274,7 +281,7 @@ namespace MagicSchool.Player
             // p.s. Hex could only belong to either Red or Blue team
             else if (placement is Hex targetHex)
             {
-                bool correctTeam = targetHex.GetTeam() == _team;
+                bool correctTeam = targetHex.GetTeam() == hero.Team;
                 if (!correctTeam) return false;
 
                 // if hero is tracked, then this is just re-positioning, no new hero added
