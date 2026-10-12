@@ -16,103 +16,72 @@ MonoBehaviour:
   - dataSO: {fileID: 11400000, guid: 837f311f6c69ecc4f9db29af65ca8b4c, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 0
+      column: 4
       row: 2
   - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 0
+      column: 4
       row: 5
   - dataSO: {fileID: 11400000, guid: 332908cda09db9745af288f5883f93f4, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 1
+      column: 5
       row: 1
   _deployZone:
-  - team: 0
-    column: 0
+  - column: 0
     row: 0
-  - team: 0
-    column: 0
+  - column: 0
     row: 1
-  - team: 0
-    column: 0
+  - column: 0
     row: 2
-  - team: 0
-    column: 0
+  - column: 0
     row: 3
-  - team: 0
-    column: 0
+  - column: 0
     row: 4
-  - team: 0
-    column: 0
+  - column: 0
     row: 5
-  - team: 0
-    column: 0
+  - column: 0
     row: 6
-  - team: 0
-    column: 1
+  - column: 1
     row: 0
-  - team: 0
-    column: 1
+  - column: 1
     row: 1
-  - team: 0
-    column: 1
+  - column: 1
     row: 2
-  - team: 0
-    column: 1
+  - column: 1
     row: 3
-  - team: 0
-    column: 1
+  - column: 1
     row: 4
-  - team: 0
-    column: 1
+  - column: 1
     row: 5
-  - team: 0
-    column: 1
+  - column: 1
     row: 6
-  - team: 0
-    column: 2
+  - column: 2
     row: 0
-  - team: 0
-    column: 2
+  - column: 2
     row: 1
-  - team: 0
-    column: 2
+  - column: 2
     row: 2
-  - team: 0
-    column: 2
+  - column: 2
     row: 3
-  - team: 0
-    column: 2
+  - column: 2
     row: 4
-  - team: 0
-    column: 2
+  - column: 2
     row: 5
-  - team: 0
-    column: 2
+  - column: 2
     row: 6
-  - team: 0
-    column: 3
+  - column: 3
     row: 0
-  - team: 0
-    column: 3
+  - column: 3
     row: 1
-  - team: 0
-    column: 3
+  - column: 3
     row: 2
-  - team: 0
-    column: 3
+  - column: 3
     row: 3
-  - team: 0
-    column: 3
+  - column: 3
     row: 4
-  - team: 0
-    column: 3
+  - column: 3
     row: 5
-  - team: 0
-    column: 3
+  - column: 3
     row: 6

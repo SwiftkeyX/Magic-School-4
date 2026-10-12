@@ -16,133 +16,97 @@ MonoBehaviour:
   - dataSO: {fileID: 11400000, guid: 0f3d014677dfab3469e35a31cbe4aeab, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 0
+      column: 4
       row: 3
   - dataSO: {fileID: 11400000, guid: e3572f7949186fc4191265167e10d06c, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 0
+      column: 4
       row: 2
   - dataSO: {fileID: 11400000, guid: dc1c3d91f1638e84081e8a7a65529145, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 0
+      column: 4
       row: 4
   - dataSO: {fileID: 11400000, guid: f09a9975497d1fe4597a86bb7d6cc48a, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 2
+      column: 6
       row: 3
   - dataSO: {fileID: 11400000, guid: 2bbb40098e2c2cf4bb28cc25df079d26, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 2
+      column: 6
       row: 2
   - dataSO: {fileID: 11400000, guid: 3a61bc0bafdd7ed46a0764d47e74c65b, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 3
+      column: 7
       row: 3
   - dataSO: {fileID: 11400000, guid: e55e93ecd34e44c429e32be0e761a605, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 3
+      column: 7
       row: 2
   - dataSO: {fileID: 11400000, guid: 81eb954f0f0758046a44fafb654cecf8, type: 2}
     team: 1
     hexPlacement:
-      team: 1
-      column: 3
+      column: 7
       row: 4
   _deployZone:
-  - team: 0
-    column: 0
+  - column: 0
     row: 0
-  - team: 0
-    column: 0
+  - column: 0
     row: 1
-  - team: 0
-    column: 0
+  - column: 0
     row: 2
-  - team: 0
-    column: 0
+  - column: 0
     row: 3
-  - team: 0
-    column: 0
+  - column: 0
     row: 4
-  - team: 0
-    column: 0
+  - column: 0
     row: 5
-  - team: 0
-    column: 0
+  - column: 0
     row: 6
-  - team: 0
-    column: 1
+  - column: 1
     row: 0
-  - team: 0
-    column: 1
+  - column: 1
     row: 1
-  - team: 0
-    column: 1
+  - column: 1
     row: 2
-  - team: 0
-    column: 1
+  - column: 1
     row: 3
-  - team: 0
-    column: 1
+  - column: 1
     row: 4
-  - team: 0
-    column: 1
+  - column: 1
     row: 5
-  - team: 0
-    column: 1
+  - column: 1
     row: 6
-  - team: 0
-    column: 2
+  - column: 2
     row: 0
-  - team: 0
-    column: 2
+  - column: 2
     row: 1
-  - team: 0
-    column: 2
+  - column: 2
     row: 2
-  - team: 0
-    column: 2
+  - column: 2
     row: 3
-  - team: 0
-    column: 2
+  - column: 2
     row: 4
-  - team: 0
-    column: 2
+  - column: 2
     row: 5
-  - team: 0
-    column: 2
+  - column: 2
     row: 6
-  - team: 0
-    column: 3
+  - column: 3
     row: 0
-  - team: 0
-    column: 3
+  - column: 3
     row: 1
-  - team: 0
-    column: 3
+  - column: 3
     row: 2
-  - team: 0
-    column: 3
+  - column: 3
     row: 3
-  - team: 0
-    column: 3
+  - column: 3
     row: 4
-  - team: 0
-    column: 3
+  - column: 3
     row: 5
-  - team: 0
-    column: 3
+  - column: 3
     row: 6
