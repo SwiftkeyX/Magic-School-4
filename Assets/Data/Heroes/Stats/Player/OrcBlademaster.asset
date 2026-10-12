@@ -25,5 +25,16 @@ MonoBehaviour:
   _range: 1
   _startMana: 0
   _maxMana: 60
+  _critChance: 25
   _skillId: 4
+  _spawnUnit: {fileID: 0}
+  _alignMarks:
+  - direction: 0
+    modifier: 6
+    amount: 20
+    percentOf: 1
+  - direction: 3
+    modifier: 6
+    amount: 20
+    percentOf: 1
   _isDummy: 0
