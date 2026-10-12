@@ -40,7 +40,14 @@ namespace MagicSchool.Core
 
                 if (heroPlacement.team != team) continue;
 
-                OnSpawnRequested.Invoke(data, heroPlacement.team, _board.Hexs[placement], _board);
+                // guard
+                if (!_board.Hexs.TryGetValue(placement, out Hex hex))
+                {
+                    DebugTool.LogError($"Can't seed {data.name}. {_placementSO.name} puts it on hex {placement.column},{placement.row}, which this board doesn't have.");
+                    continue;
+                }
+
+                OnSpawnRequested.Invoke(data, heroPlacement.team, hex, _board);
             }
         }
     }
