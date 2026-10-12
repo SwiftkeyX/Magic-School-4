@@ -16,7 +16,7 @@ namespace MagicSchool.Modifiers
         // the amount of bonus stat give by all modifier
         private readonly float[] _bonus = new float[StatSlots];
 
-        private static readonly int StatSlots = 11;
+        private static readonly int StatSlots = 13;
 
         // tracking if the bonus stat from modifier is stale 
         private bool _isBonusStale = true;

@@ -7,7 +7,6 @@ namespace MagicSchool.Combat.Heroes.States
     internal class HeroAttack : HeroState
     {
         public override HeroStateEnum StateType => HeroStateEnum.Attack;
-        private const int ManaPerAttack = 10;
         private const float DashDuration = 0.2f;
         private const float DashDistance = 0.5f;
 
@@ -118,7 +117,7 @@ namespace MagicSchool.Combat.Heroes.States
             _me.SpendAttack();
 
             // after attack gain mana
-            if (!_me.HasStatus(ModifierEnum.ManaBlocked)) _me.GainMana(ManaPerAttack);
+            if (!_me.HasStatus(ModifierEnum.ManaBlocked)) _me.GainMana(Mathf.RoundToInt(_me.GetStat(StatEnum.ManaPerAttack)));
         }
 
         private void AttackAnimation(ICombatant target)
