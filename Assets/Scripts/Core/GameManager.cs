@@ -21,6 +21,8 @@ namespace MagicSchool.Core
         [Header("Scene")]
         [SerializeField] private BattleBoard _board;
         [SerializeField] private Bench _bench;
+        [Tooltip("Where the heroes that fought are sent after every fight. The player can take heroes off it but not put them on.")]
+        [SerializeField] private Bench _spareBench;
         [SerializeField] private TemplateActionRegistrySO _templateActions;
 
         [Header("Stages")]
@@ -137,7 +139,7 @@ namespace MagicSchool.Core
             _seller = new Seller(_wallet);
             _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopOdds, () => StageNumber, _shopSlots, _refreshCost,
                              (data, isStillOffered) => new HeroPreview(data, SkillLibrary.Resolve(data.SkillId, _templateActions), isStillOffered));
-            _heroFormation = new HeroFormation(_heroMover);
+            _heroFormation = new HeroFormation(_heroMover, _spareBench, _bench);
             _heroLimit = _startingHeroLimit;
             _stateMachine = new GameStateMachine(this);
 

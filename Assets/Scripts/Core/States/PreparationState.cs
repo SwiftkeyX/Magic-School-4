@@ -91,11 +91,11 @@ namespace MagicSchool.Core.States
                 _game.Seed.SpawnTeamOnBoard(TeamEnum.Blue);
             }
 
-            // if not seeded, reset, and restore the formation
+            // if not seeded, reset, and send everyone who fought to the spare bench
             else
             {
                 ResetTeam(TeamEnum.Blue);
-                _game.Formation.Restore();
+                _game.Formation.ReturnToSpareBench();
             }
         }
 

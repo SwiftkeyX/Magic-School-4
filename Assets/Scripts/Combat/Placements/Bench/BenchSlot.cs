@@ -5,9 +5,13 @@ namespace MagicSchool.Combat.Placements
 {
     public class BenchSlot : MonoBehaviour, IPlacement
     {
+        [Tooltip("May the player drop a hero here? False for the spare bench: heroes are only ever sent to spare after a fight.")]
+        [SerializeField] private bool _acceptsDrop = true;
+
         private IPlaceable _occupant;
 
         // ==================== getter ===================
+        public bool AcceptsDrop => _acceptsDrop;
         public IPlaceable Occupant => _occupant;
         public bool Reserved => _occupant != null;
 
