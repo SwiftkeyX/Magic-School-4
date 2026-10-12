@@ -16,18 +16,28 @@ MonoBehaviour:
   - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
     team: 1
     hexPlacement:
-      column: 5
-      row: 1
+      column: 3
+      row: 2
   - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
     team: 1
     hexPlacement:
-      column: 5
+      column: 3
+      row: 3
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+    team: 1
+    hexPlacement:
+      column: 3
       row: 4
-  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+  - dataSO: {fileID: 11400000, guid: 332908cda09db9745af288f5883f93f4, type: 2}
     team: 1
     hexPlacement:
-      column: 5
-      row: 5
+      column: 4
+      row: 2
+  - dataSO: {fileID: 11400000, guid: 332908cda09db9745af288f5883f93f4, type: 2}
+    team: 1
+    hexPlacement:
+      column: 4
+      row: 3
   _deployZone:
   - column: 0
     row: 0
@@ -37,12 +47,6 @@ MonoBehaviour:
     row: 2
   - column: 0
     row: 3
-  - column: 0
-    row: 4
-  - column: 0
-    row: 5
-  - column: 0
-    row: 6
   - column: 1
     row: 0
   - column: 1
@@ -53,36 +57,12 @@ MonoBehaviour:
     row: 3
   - column: 1
     row: 4
-  - column: 1
-    row: 5
-  - column: 1
-    row: 6
   - column: 2
     row: 0
   - column: 2
     row: 1
   - column: 2
-    row: 2
-  - column: 2
-    row: 3
-  - column: 2
     row: 4
   - column: 2
     row: 5
-  - column: 2
-    row: 6
-  - column: 3
-    row: 0
-  - column: 3
-    row: 1
-  - column: 3
-    row: 2
-  - column: 3
-    row: 3
-  - column: 3
-    row: 4
-  - column: 3
-    row: 5
-  - column: 3
-    row: 6
-  _boardLayout: {fileID: 4391576941862811623, guid: e04b55e61d71ef04dbe0b62c3e1ef485, type: 3}
+  _boardLayout: {fileID: 7792403832837219978, guid: 3172940d3688d494c9d02380de64668f, type: 3}
