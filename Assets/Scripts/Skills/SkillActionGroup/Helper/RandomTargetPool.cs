@@ -10,9 +10,7 @@ namespace MagicSchool.Skills
     /// 2) (There is other case but not implement yet) ...
     /// 
     /// README:
-    /// Pseudo-random rather than random: everyone in the bag is dealt once before anyone is dealt
-    /// twice, so a 4 shot volley over 4 enemies always covers all 4 - which plain Random.Range does
-    /// not. The bag re-shuffles each time it empties, so the order still differs every pass.
+    /// Pseudo-random rather than random: everyone in the bag is dealt once before anyone is dealt twice
     internal class RandomTargetPool
     {
         private readonly ITargeter _owner;
