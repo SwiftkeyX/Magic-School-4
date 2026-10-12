@@ -14,13 +14,15 @@ namespace MagicSchool.Core
     ///     move enemy          - drag an enemy to another enemy hex 
     ///     add new enemy       - TryAddEnemy puts a new enemy on the free enemy hex
     ///     remove enemy        - drop an enemy on the shop
-    ///     save formation      - ReadEnemyTeam is what the board holds right now; the menu writes it into an asset
+    ///     paint deploy zone   - click an empty player hex to put it in or out of the zone
+    ///     save formation      - ReadEnemyTeam() and ReadDeployZone() are what the board holds right now; the menu writes them into an asset
     ///
     /// Tick GameManager._stageEditMode to use this tool.
     /// </summary>
     public class StageEditor
     {
         private const TeamEnum EnemyTeam = TeamEnum.Red;
+        private const TeamEnum PlayerTeam = TeamEnum.Blue;
 
         private readonly GameManager _game;
 
@@ -62,14 +64,34 @@ namespace MagicSchool.Core
                 .ToList();
         }
 
+        // get current deploy zone 
+        public List<HexNumber> ReadDeployZone() => _game.Board.ReadDeployZone();
+
+        // ======================================== deploy zone ========================================
+        // Toggle hex into deploy zone
+        public bool TryToggleDeployHex(Hex hex)
+        {
+            if (hex == null || !CanEditNow || hex.GetTeam() != PlayerTeam) return false;
+
+            _game.Board.ToggleInDeployZone(hex);
+            return true;
+        }
+
         // ======================================== write ========================================
         // how many enemies now?
         public int EnemyCountIn(BattlePlacementSO stage)
             => stage.HeroesPlacement.Count(placement => placement.hexPlacement.team == EnemyTeam);
 
+        // how many hexes in the deploy zone now?
+        public int DeployZoneCountIn(BattlePlacementSO stage) => stage.DeployZone.Count;
+
         // overwrite enemy team's SO to the specify one
         public void WriteEnemyTeam(BattlePlacementSO stage, IEnumerable<HeroPlacement> team)
             => stage.ReplaceTeam(EnemyTeam, team);
+
+        // overwrite the deploy zone's SO to the specify one
+        public void WriteDeployZone(BattlePlacementSO stage, IEnumerable<HexNumber> zone)
+            => stage.ReplaceDeployZone(zone);
 
         // ======================================== private ========================================
         private Hex FirstFreeEnemyHex()

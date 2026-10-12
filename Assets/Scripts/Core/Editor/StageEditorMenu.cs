@@ -12,9 +12,9 @@ namespace MagicSchool.Editor
     // the Editor half of StageEditor.cs: everything that needs the Project window or writes an asset.
     // All menu:
     //      1. Add Selected Heroes As Enemies      - spawn the selected HeroDataSOs (in project window) as enemies
-    //      2. Save Enemy Team To Current Stage    - overwrite the enemy team of the current stage
-    //      3. Save Enemy Team As New Stage...     - write the enemy team into a new BattlePlacementSO
-    // 
+    //      2. Save To Current Stage               - overwrite the enemy team and the deploy zone of the current stage
+    //      3. Save As New Stage...                - write the enemy team and the deploy zone into a new BattlePlacementSO
+    //
     // All three need: 
     //      GameManager's "Stage Edit Mode" ticked > Play mode > Preparation state
     internal static class StageEditorMenu
@@ -43,7 +43,7 @@ namespace MagicSchool.Editor
             }
         }
 
-        [MenuItem(Menu + "Save Enemy Team To Current Stage")]
+        [MenuItem(Menu + "Save To Current Stage")]
         private static void SaveToCurrent()
         {
             if (!TryReadTeam(out StageEditor editor, out List<HeroPlacement> team)) return;
@@ -51,28 +51,33 @@ namespace MagicSchool.Editor
             BattlePlacementSO stage = editor.CurrentStage;
             if (stage == null || !AssetDatabase.Contains(stage))
             {
-                Debug.LogWarning("[StageEditor] the current stage is not an asset - use Save Enemy Team As New Stage.");
+                Debug.LogWarning("[StageEditor] the current stage is not an asset - use Save As New Stage.");
                 return;
             }
 
-            int before = editor.EnemyCountIn(stage);
+            int enemiesBefore = editor.EnemyCountIn(stage);
+            int zoneBefore = editor.DeployZoneCountIn(stage);
+            int zoneAfter = editor.ReadDeployZone().Count;
+
             bool confirmed = EditorUtility.DisplayDialog("Overwrite stage",
-                $"Replace the enemy team of '{stage.name}'?\n\n{before} enemies now, {team.Count} after.", "Overwrite", "Cancel");
+                $"Replace the enemy team and the deploy zone of '{stage.name}'?\n\n" +
+                $"Enemies: {enemiesBefore} now, {team.Count} after.\n" +
+                $"Deploy zone: {zoneBefore} hexes now, {zoneAfter} after.", "Overwrite", "Cancel");
             if (!confirmed) return;
 
             Write(editor, stage, team);
         }
 
-        [MenuItem(Menu + "Save Enemy Team As New Stage...")]
+        [MenuItem(Menu + "Save As New Stage...")]
         private static void SaveAsNew()
         {
             if (!TryReadTeam(out StageEditor editor, out List<HeroPlacement> team)) return;
 
-            string path = EditorUtility.SaveFilePanelInProject("Save enemy team", "New Stage", "asset",
-                                                               "Where to save the enemy team", DefaultFolder);
+            string path = EditorUtility.SaveFilePanelInProject("Save stage", "New Stage", "asset",
+                                                               "Where to save the enemy team and the deploy zone", DefaultFolder);
             if (string.IsNullOrEmpty(path)) return;
 
-            // picked an existing stage: keep the asset (and everything pointing at it), swap its enemy team
+            // picked an existing stage: keep the asset (and everything pointing at it), swap its enemy team and zone
             BattlePlacementSO existing = AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(path);
             if (existing != null)
             {
@@ -88,13 +93,16 @@ namespace MagicSchool.Editor
         // ======================================== helper ========================================
         private static void Write(StageEditor editor, BattlePlacementSO stage, List<HeroPlacement> team)
         {
+            var zone = editor.ReadDeployZone();
+
             editor.WriteEnemyTeam(stage, team);
+            editor.WriteDeployZone(stage, zone);
 
             EditorUtility.SetDirty(stage);
             AssetDatabase.SaveAssetIfDirty(stage);
             EditorGUIUtility.PingObject(stage);
 
-            Debug.Log($"[StageEditor] saved {team.Count} enemies to {AssetDatabase.GetAssetPath(stage)}.");
+            Debug.Log($"[StageEditor] saved {team.Count} enemies and a deploy zone of {zone.Count} hexes to {AssetDatabase.GetAssetPath(stage)}.");
         }
 
         private static bool TryReadTeam(out StageEditor editor, out List<HeroPlacement> team)
@@ -103,10 +111,20 @@ namespace MagicSchool.Editor
             if (!TryGetEditor(out editor)) return false;
 
             team = editor.ReadEnemyTeam();
-            if (team.Count > 0) return true;
+            if (team.Count == 0)
+            {
+                Debug.LogWarning("[StageEditor] there is no enemy on the board to save.");
+                return false;
+            }
 
-            Debug.LogWarning("[StageEditor] there is no enemy on the board to save.");
-            return false;
+            // every stage must list its zone - an empty one would leave the player nowhere to stand
+            if (editor.ReadDeployZone().Count == 0)
+            {
+                Debug.LogWarning("[StageEditor] the deploy zone is empty - click at least one player hex to put it in the zone.");
+                return false;
+            }
+
+            return true;
         }
 
         // say why, rather than grey the menu out with no explanation
