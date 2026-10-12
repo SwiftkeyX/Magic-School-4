@@ -19,6 +19,8 @@ namespace MagicSchool.Core.States
             _game.Board.SetBattleOn(true);
             TriggerCombatStart();
 
+            _game.Board.ShowDeployZone(TeamEnum.Blue, false);
+
             // remember the team's formation at the start
             _game.Formation.Remember(_game.Board.HeroesOnBoard, TeamEnum.Blue);
 

@@ -9,15 +9,14 @@ using MagicSchool.Combat.Placements;
 namespace MagicSchool.Core
 {
     /// <summary>
-    /// Dev tool: build a enemy team during play mode. 
+    /// Dev tool: during play mode, build a enemy team, add/remove deploy zone. 
     /// This fix the problem of manualy typing enemy team into a BattlePlacementSO.
     ///     move enemy          - drag an enemy to another enemy hex 
     ///     add new enemy       - TryAddEnemy puts a new enemy on the free enemy hex
     ///     remove enemy        - drop an enemy on the shop
     ///     save formation      - ReadEnemyTeam is what the board holds right now; the menu writes it into an asset
     ///
-    /// Only reachable while GameManager._stageEditMode is ticked - GameManager.StageEditor is null otherwise.
-    /// Writing the asset is Editor-only, so that half lives in Core/Editor/StageEditorMenu.cs.
+    /// Tick GameManager._stageEditMode to use this tool.
     /// </summary>
     public class StageEditor
     {

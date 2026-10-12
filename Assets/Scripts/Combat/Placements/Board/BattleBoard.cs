@@ -104,6 +104,34 @@ namespace MagicSchool.Combat.Placements
             return reserver != null && reserver != asker;
         }
 
+        // =================================== Deploy zone ===================================
+        /// <summary>
+        /// The list of hexes the player can put a hero on during Preparation. 
+        /// Each stage have different deploy zone.
+        /// </summary>
+
+        // Set the deploy zone to the board
+        public void SetDeployZone(IReadOnlyList<HexNumber> zone)
+        {
+            var inZone = new HashSet<HexNumber>(zone);
+
+            foreach (KeyValuePair<HexNumber, Hex> pair in _hexs)
+            {
+                pair.Value.SetInDeployZone(inZone.Contains(pair.Key));
+            }
+        }
+
+        // Show the deploy zone
+        public void ShowDeployZone(TeamEnum side, bool isShown)
+        {
+            foreach (KeyValuePair<HexNumber, Hex> pair in _hexs)
+            {
+                if (pair.Key.team != side) continue;
+
+                pair.Value.SetDimmed(isShown && !pair.Value.IsInDeployZone);
+            }
+        }
+
         // =================================== Between stages ===================================
         // Wipe one team off the board
         // e.g. after player is winning, clear enemy team 
