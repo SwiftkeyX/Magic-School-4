@@ -72,7 +72,7 @@ namespace MagicSchool.Core.States
             if (stage == null) return;
 
             _game.Board.SetDeployZone(stage.DeployZone);
-            _game.Board.ShowDeployZone(TeamEnum.Blue, true);
+            _game.Board.ShowDeployZone(true);
 
             // every stage must list its zone
             // without one the player can't place a single hero

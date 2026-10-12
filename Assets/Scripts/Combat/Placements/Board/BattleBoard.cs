@@ -8,6 +8,14 @@ namespace MagicSchool.Combat.Placements
     // FIXLATER: Could you tidy up the battleboard, there's too many public function, and some of it do similar thing.
     public class BattleBoard : MonoBehaviour
     {
+        [Header("Hex colours")]
+        [Tooltip("In Preparation: a hex in the player's deploy zone.")]
+        [SerializeField] private Color _zoneColor = new Color(0.353f, 0.608f, 1f);
+        [Tooltip("In Preparation: every hex outside the deploy zone.")]
+        [SerializeField] private Color _outsideColor = new Color(1f, 0.353f, 0.353f);
+        [Tooltip("Outside Preparation: every hex. The zone only matters while placing.")]
+        [SerializeField] private Color _neutralColor = new Color(0.45f, 0.52f, 0.65f);
+
         // track every hex
         private Dictionary<HexNumber, Hex> _hexs = new Dictionary<HexNumber, Hex>();
 
@@ -25,7 +33,7 @@ namespace MagicSchool.Combat.Placements
         void Awake()
         {
             InitializeHex();
-            FrontLines.Assign(_hexs);
+            ShowDeployZone(false);
         }
 
         // =================================== initialzie ===================================
@@ -34,31 +42,31 @@ namespace MagicSchool.Combat.Placements
         {
             var allHexes = new List<Hex>(GetComponentsInChildren<Hex>(true));
 
-            foreach (var sideGroup in allHexes.GroupBy(h => h.transform.parent.name))
+            // one grid for the whole board: columns numbered left to right, rows top to bottom.
+            // measured from the board itself, so a copy of the board somewhere else numbers the same
+            var columns = allHexes
+                .GroupBy(h => Mathf.RoundToInt(PositionOnBoard(h).x * 10f))
+                .OrderBy(g => g.Key)
+                .ToList();
+
+            int columnIndex = 0;
+            foreach (var column in columns)
             {
-                TeamEnum side = sideGroup.Key == "BlueSideHex" ? TeamEnum.Blue : TeamEnum.Red;
-
-                var columns = sideGroup
-                    .GroupBy(h => Mathf.RoundToInt(h.transform.localPosition.x * 10f))
-                    .OrderBy(g => g.Key)
-                    .ToList();
-
-                int columnIndex = 0;
-                foreach (var column in columns)
+                var sortedRows = column.OrderByDescending(h => PositionOnBoard(h).y).ToList();
+                int rowIndex = 0;
+                foreach (var hex in sortedRows)
                 {
-                    var sortedRows = column.OrderByDescending(h => h.transform.localPosition.y).ToList();
-                    int rowIndex = 0;
-                    foreach (var hex in sortedRows)
-                    {
-                        HexNumber hexKey = new HexNumber(side, columnIndex, rowIndex);
-                        _hexs[hexKey] = hex;
-                        hex.Init(this, hexKey);
-                        rowIndex++;
-                    }
-                    columnIndex++;
+                    HexNumber hexKey = new HexNumber(columnIndex, rowIndex);
+
+                    _hexs[hexKey] = hex;
+                    hex.Init(this, hexKey);
+                    rowIndex++;
                 }
+                columnIndex++;
             }
         }
+
+        private Vector3 PositionOnBoard(Hex hex) => transform.InverseTransformPoint(hex.transform.position);
 
         // =================================== hero tracking ===================================
         // when initialize, every hero need to be tracked on the board.
@@ -121,16 +129,16 @@ namespace MagicSchool.Combat.Placements
             }
         }
 
-        // Show the deploy zone
-        public void ShowDeployZone(TeamEnum side, bool isShown)
+        // Show the deploy zone by setting the hex's color to blue
+        public void ShowDeployZone(bool isShown)
         {
-            foreach (KeyValuePair<HexNumber, Hex> pair in _hexs)
+            foreach (Hex hex in _hexs.Values)
             {
-                if (pair.Key.team != side) continue;
-
-                pair.Value.SetDimmed(isShown && !pair.Value.IsInDeployZone);
+                hex.SetColor(isShown ? ZoneColorOf(hex) : _neutralColor);
             }
         }
+
+        private Color ZoneColorOf(Hex hex) => hex.IsInDeployZone ? _zoneColor : _outsideColor;
 
         // Toggle on/off a specify hex into a deploy zone 
         // e.g.     stage editor mode, toggle the hex by clicking hexes
@@ -138,7 +146,7 @@ namespace MagicSchool.Combat.Placements
         {
             hex.SetInDeployZone(!hex.IsInDeployZone);
 
-            hex.SetDimmed(!hex.IsInDeployZone);
+            hex.SetColor(ZoneColorOf(hex));
         }
 
         // Get deploy zone (the list of deploy hex)

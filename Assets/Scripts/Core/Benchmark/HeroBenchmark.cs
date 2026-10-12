@@ -46,16 +46,16 @@ namespace MagicSchool.Core.Benchmark
         // a hero this far from its role's median is flagged
         private const float FlagBand = 0.2f;
 
-        private static readonly HexNumber HeroHex = new HexNumber(TeamEnum.Blue, 3, 3);    // front of the player side
-        private static readonly HexNumber DummyHex = new HexNumber(TeamEnum.Red, 0, 3);    // right next to it
+        private static readonly HexNumber HeroHex = new HexNumber(3, 3);    // left of the middle of the board
+        private static readonly HexNumber DummyHex = new HexNumber(4, 3);   // right next to it
 
         // dummy cluster position in AoE test
         private static readonly HexNumber[] ClusterHexes =
         {
             DummyHex,
-            new HexNumber(TeamEnum.Red, 0, 2),
-            new HexNumber(TeamEnum.Red, 1, 2),
-            new HexNumber(TeamEnum.Red, 1, 3),
+            new HexNumber(4, 2),
+            new HexNumber(5, 2),
+            new HexNumber(5, 3),
         };
 
         // =================================== run ===================================

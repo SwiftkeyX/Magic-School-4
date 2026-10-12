@@ -11,10 +11,10 @@ namespace MagicSchool.Core
     /// <summary>
     /// Dev tool: during play mode, build a enemy team, add/remove deploy zone. 
     /// This fix the problem of manualy typing enemy team into a BattlePlacementSO.
-    ///     move enemy          - drag an enemy to another enemy hex 
-    ///     add new enemy       - TryAddEnemy puts a new enemy on the free enemy hex
+    ///     move enemy          - drag an enemy to any free hex (not deploy zone)
+    ///     add new enemy       - TryAddEnemy puts a new enemy on a free hex (not deploy zone)
     ///     remove enemy        - drop an enemy on the shop
-    ///     paint deploy zone   - click an empty player hex to put it in or out of the zone
+    ///     paint deploy zone   - click an empty hex to put it in or out of the zone
     ///     save formation      - ReadEnemyTeam() and ReadDeployZone() are what the board holds right now; the menu writes them into an asset
     ///
     /// Tick GameManager._stageEditMode to use this tool.
@@ -22,7 +22,6 @@ namespace MagicSchool.Core
     public class StageEditor
     {
         private const TeamEnum EnemyTeam = TeamEnum.Red;
-        private const TeamEnum PlayerTeam = TeamEnum.Blue;
 
         private readonly GameManager _game;
 
@@ -58,7 +57,7 @@ namespace MagicSchool.Core
             return _game.Board.HeroesOnBoard
                 .OfType<Hero>()
                 .Where(hero => hero != null && hero.Team == EnemyTeam && hero.CurrentHex != null)
-                .Select(hero => new HeroPlacement(hero.Data, hero.CurrentHex.Number))
+                .Select(hero => new HeroPlacement(hero.Data, hero.Team, hero.CurrentHex.Number))
                 .OrderBy(placement => placement.hexPlacement.column)
                 .ThenBy(placement => placement.hexPlacement.row)
                 .ToList();
@@ -71,7 +70,8 @@ namespace MagicSchool.Core
         // Toggle hex into deploy zone
         public bool TryToggleDeployHex(Hex hex)
         {
-            if (hex == null || !CanEditNow || hex.GetTeam() != PlayerTeam) return false;
+            if (hex == null || !CanEditNow) return false;
+            if (_game.Board.WhoReservedThisHex(hex) != null) return false;
 
             _game.Board.ToggleInDeployZone(hex);
             return true;
@@ -80,7 +80,7 @@ namespace MagicSchool.Core
         // ======================================== write ========================================
         // how many enemies now?
         public int EnemyCountIn(BattlePlacementSO stage)
-            => stage.HeroesPlacement.Count(placement => placement.hexPlacement.team == EnemyTeam);
+            => stage.HeroesPlacement.Count(placement => placement.team == EnemyTeam);
 
         // how many hexes in the deploy zone now?
         public int DeployZoneCountIn(BattlePlacementSO stage) => stage.DeployZone.Count;
@@ -94,13 +94,14 @@ namespace MagicSchool.Core
             => stage.ReplaceDeployZone(zone);
 
         // ======================================== private ========================================
+        // an enemy may stand on any hex outside the deploy zone.
         private Hex FirstFreeEnemyHex()
         {
             BattleBoard board = _game.Board;
 
             return board.Hexs
-                .Where(pair => pair.Key.team == EnemyTeam && board.WhoReservedThisHex(pair.Value) == null)
-                .OrderBy(pair => pair.Key.column)
+                .Where(pair => !pair.Value.IsInDeployZone && board.WhoReservedThisHex(pair.Value) == null)
+                .OrderByDescending(pair => pair.Key.column)
                 .ThenBy(pair => pair.Key.row)
                 .Select(pair => pair.Value)
                 .FirstOrDefault();

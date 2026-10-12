@@ -276,17 +276,15 @@ namespace MagicSchool.Player
                 validate = slot.AcceptsDrop;
             }
 
-            // if placement is hex, check the which team hex belong to, and current hero limit
+            // if placement is hex, check the deploy zone, and current hero limit
             // if correct, allow the placement
-            // p.s. Hex could only belong to either Red or Blue team
+            // p.s. a hex either belongs deploy zone or not, deploy zone is the zone player can place heroes in
             else if (placement is Hex targetHex)
             {
-                bool correctTeam = targetHex.GetTeam() == hero.Team;
-                if (!correctTeam) return false;
-
-                // the player's heroes can only stand inside deploy zone
+                // if it is my hero, the hex must be deploy zone                
+                // if it is enemy, the hex must not be deploy zone
                 bool isMyHero = hero.Team == _team;
-                if (isMyHero && !targetHex.IsInDeployZone) return false;
+                if (isMyHero != targetHex.IsInDeployZone) return false;
 
                 // if hero is tracked, then this is just re-positioning, no new hero added
                 bool isDropHeroTracked = _board.HeroesOnBoard.Any(tracked => (Hero)tracked == hero);

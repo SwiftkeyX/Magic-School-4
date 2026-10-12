@@ -14,12 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
   _heroesPlacement:
   - dataSO: {fileID: 11400000, guid: 53666a18ce11078449166e3ff6e5d59d, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 0
       row: 0
   - dataSO: {fileID: 11400000, guid: e55e93ecd34e44c429e32be0e761a605, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 3
       row: 6
+  _deployZone: []

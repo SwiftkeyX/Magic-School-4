@@ -34,11 +34,15 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Screeches at the current target for {DamageRatio}% AD.";
 
+        // COMMENTED OUT with the melee stance, see OnCombatStart
+        // public override string PassiveDescription
+        //     => $"Her stance is locked in when combat starts. Placed in the first {MeleeLines} column "
+        //      + $"she become melee and gains {AttackPerCast}% AD every cast; anywhere else she fights at range "
+        //      + $"and gains {AttackSpeedPerAttack}% attack speed every auto attack. With more than "
+        //      + $"{BothBonusesAttack} AD and {BothBonusesAttackSpeed} attack speed she gets both.";
         public override string PassiveDescription
-            => $"Her stance is locked in when combat starts. Placed in the first {MeleeLines} column "
-             + $"she become melee and gains {AttackPerCast}% AD every cast; anywhere else she fights at range "
-             + $"and gains {AttackSpeedPerAttack}% attack speed every auto attack. With more than "
-             + $"{BothBonusesAttack} AD and {BothBonusesAttackSpeed} attack speed she gets both.";
+            => $"She fights at range and gains {AttackSpeedPerAttack}% attack speed every auto attack. With more than "
+             + $"{BothBonusesAttack} AD and {BothBonusesAttackSpeed} attack speed she also gains {AttackPerCast}% AD every cast.";
 
         // ============================== passive ==============================
         public override bool HasAutoAttackPassive => true;
@@ -47,7 +51,6 @@ namespace MagicSchool.Skills
         public override bool OnCombatStart()
         {
             if (Caster is not IHeroStats stats) return false;
-            int line = Caster.LinesFromFront;
 
             // if harpy achieve the condition, gain both stance
             if (stats.GetStat(StatEnum.ATK) > BothBonusesAttack && stats.GetStat(StatEnum.AS) > BothBonusesAttackSpeed)
@@ -55,13 +58,17 @@ namespace MagicSchool.Skills
                 _stance = STANCE.both;
             }
 
-            // if harpy was place in the first MeleeLines, cut her attack range data to 1.
-            else if (line >= 0 && line < MeleeLines)
-            {
-                _stance = STANCE.melee;
-                float cut = stats.GetBaseStat(StatEnum.Range) - MeleeRange;
-                Grow(Debuff(ModifierEnum.Range, cut));
-            }
+            // COMMENTED OUT: the melee stance read which column she stood in, counted from the front line.
+            // The board is losing its red and blue sides, so there is no front line left to count from.
+            // int line = Caster.LinesFromFront;
+            //
+            // // if harpy was place in the first MeleeLines, cut her attack range data to 1.
+            // else if (line >= 0 && line < MeleeLines)
+            // {
+            //     _stance = STANCE.melee;
+            //     float cut = stats.GetBaseStat(StatEnum.Range) - MeleeRange;
+            //     Grow(Debuff(ModifierEnum.Range, cut));
+            // }
 
             // else harpy was range.
             else
