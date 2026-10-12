@@ -270,10 +270,10 @@ namespace MagicSchool.Player
         {
             bool validate = false;
 
-            // if placement is bench, allow the placement
-            if (placement is BenchSlot && hero.Team == _team)
+            // if placement is a bench slot and accept drop, allow the placement
+            if (placement is BenchSlot slot && hero.Team == _team)
             {
-                validate = true;
+                validate = slot.AcceptsDrop;
             }
 
             // if placement is hex, check the which team hex belong to, and current hero limit

@@ -18,13 +18,15 @@ namespace MagicSchool.Combat.Placements
 
         public event Action<HeroDataSO, TeamEnum, IPlacement, BattleBoard> OnSpawnRequested;
 
+        // find the first slot that hasn't been used yet. 
+        public BenchSlot FindFreeSlot() => _benchSlots.FirstOrDefault(slot => !slot.Reserved);
+
         /// <summary>
         /// Spawn hero on the bench. Returns false (and spawns nothing) if the bench is full.
         /// </summary>
         public bool SpawnHeroOnBench(HeroDataSO data)
         {
-            // find the first slot that hasn't been used yet
-            BenchSlot freeSlot = _benchSlots.FirstOrDefault(slot => !slot.Reserved);
+            BenchSlot freeSlot = FindFreeSlot();
 
             if (freeSlot == null)
             {
