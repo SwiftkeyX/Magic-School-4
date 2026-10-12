@@ -28,6 +28,11 @@ MonoBehaviour:
       team: 1
       column: 0
       row: 5
+  - dataSO: {fileID: 11400000, guid: 03d052ead6319ee4fbcac688402e60d5, type: 2}
+    hexPlacement:
+      team: 1
+      column: 3
+      row: 0
   - dataSO: {fileID: 11400000, guid: 149c91b73156a8144bf4597344bc6186, type: 2}
     hexPlacement:
       team: 1

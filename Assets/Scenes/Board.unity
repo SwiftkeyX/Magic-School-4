@@ -473,6 +473,7 @@ MonoBehaviour:
   _bench: {fileID: 477776518}
   _templateActions: {fileID: 11400000, guid: 31d48e144b9be4e40b79fd94b16f49ed, type: 2}
   _stages:
+  - {fileID: 11400000, guid: f1f20519aa303bb45af437699e5a06a3, type: 2}
   - {fileID: 11400000, guid: 2d446f207d917b8429ccea9bee81b9da, type: 2}
   - {fileID: 11400000, guid: aa49272f1ca41bb4294e16d84579e8df, type: 2}
   - {fileID: 11400000, guid: 1383a043c9758a94ba89bd801dff0846, type: 2}
