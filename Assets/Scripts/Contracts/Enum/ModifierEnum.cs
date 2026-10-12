@@ -17,6 +17,7 @@ namespace MagicSchool.Contracts
         MR = 16,
         Shield = 17,
         CritChance = 18,
+        ManaPerAttack = 20,
 
         // ======================================= Debuff =======================================
         DefendShred = 13,

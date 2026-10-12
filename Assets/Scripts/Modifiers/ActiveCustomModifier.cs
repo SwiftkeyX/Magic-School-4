@@ -42,6 +42,7 @@ namespace MagicSchool.Modifiers
             { ModifierEnum.MR             , StatEnum.MR }             ,
             { ModifierEnum.CritChance     , StatEnum.CritChance }     ,
             { ModifierEnum.Omnivamp       , StatEnum.Omnivamp }       ,
+            { ModifierEnum.ManaPerAttack  , StatEnum.ManaPerAttack }  ,
             // ...
 
             // debuff
