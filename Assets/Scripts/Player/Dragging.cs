@@ -284,6 +284,10 @@ namespace MagicSchool.Player
                 bool correctTeam = targetHex.GetTeam() == hero.Team;
                 if (!correctTeam) return false;
 
+                // the player's heroes can only stand inside deploy zone
+                bool isMyHero = hero.Team == _team;
+                if (isMyHero && !targetHex.IsInDeployZone) return false;
+
                 // if hero is tracked, then this is just re-positioning, no new hero added
                 bool isDropHeroTracked = _board.HeroesOnBoard.Any(tracked => (Hero)tracked == hero);
                 if (isDropHeroTracked)

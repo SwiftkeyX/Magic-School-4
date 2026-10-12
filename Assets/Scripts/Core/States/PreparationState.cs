@@ -1,6 +1,7 @@
 using System.Linq;
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
+using MagicSchool.Combat.Placements;
 using MagicSchool.Engine;
 using MagicSchool.Economy;
 
@@ -25,6 +26,8 @@ namespace MagicSchool.Core.States
             _game.ClearPendingRequests();
 
             SeedNewEnemies();
+
+            ApplyDeployZone();
 
             ResetPlayerTeam();
 
@@ -60,6 +63,23 @@ namespace MagicSchool.Core.States
 
             // spawn enemy team in preparation state
             _game.Seed.SpawnTeamOnBoard(TeamEnum.Red);
+        }
+
+        // Specify which hex player can put the hero on
+        private void ApplyDeployZone()
+        {
+            BattlePlacementSO stage = _game.GetStage(_game.StageIndex);
+            if (stage == null) return;
+
+            _game.Board.SetDeployZone(stage.DeployZone);
+            _game.Board.ShowDeployZone(TeamEnum.Blue, true);
+
+            // every stage must list its zone
+            // without one the player can't place a single hero
+            if (stage.DeployZone.Count == 0)
+            {
+                DebugTool.LogError($"{stage.name} has no deploy zone, so no hero can be placed. Add hexes to its Deploy Zone list.");
+            }
         }
 
         private void ResetPlayerTeam()
