@@ -68,6 +68,48 @@ namespace MagicSchool.Combat.Placements
 
         private Vector3 PositionOnBoard(Hex hex) => transform.InverseTransformPoint(hex.transform.position);
 
+        // =================================== Layout ===================================
+        /// <summary>
+        /// We have different board layout. 
+        /// e.g.    Square shape
+        ///         ...
+        /// 
+        /// These method are to initialize different board layout. 
+        /// </summary>
+
+        // a board prefab
+        private GameObject _layoutPrefab;
+
+        public void SetLayout(GameObject layoutPrefab)
+        {
+            // if it was the same board layout, return
+            if (layoutPrefab == null || layoutPrefab == _layoutPrefab) return;
+
+            // remove old hex from previous board
+            RemoveHexes();
+
+            // init the new board layout
+            Instantiate(layoutPrefab, transform);
+            _layoutPrefab = layoutPrefab;
+            InitializeHex();
+            ShowDeployZone(false);
+        }
+
+        private void RemoveHexes()
+        {
+            _hexs.Clear();
+            _reservedBy.Clear();
+
+            foreach (Transform child in transform.Cast<Transform>().ToList())
+            {
+                bool holdsHexes = child.GetComponentInChildren<Hex>(true) != null;
+                if (!holdsHexes) continue;
+
+                child.SetParent(null);
+                Destroy(child.gameObject);
+            }
+        }
+
         // =================================== hero tracking ===================================
         // when initialize, every hero need to be tracked on the board.
         // If they didn't get tracked, those heroes will be invisible to other hero.

@@ -25,11 +25,16 @@ namespace MagicSchool.Core.States
             _game.SetWinner(null);
             _game.ClearPendingRequests();
 
-            SeedNewEnemies();
+            // clear the previous board
+            ClearBoard();
+            
+            // init new board layout
+            ApplyLayout();
+
+            // seed hero on the new board 
+            SeedTeams();
 
             ApplyDeployZone();
-
-            ResetPlayerTeam();
 
             _game.Shop.Restock();
 
@@ -52,17 +57,54 @@ namespace MagicSchool.Core.States
             _game.ChangeState(GamePhaseEnum.Combat);
         }
 
-        private void SeedNewEnemies()
+        // Take everyone off the board
+        // e.g.     the last stage's enemies, and the player's team
+        private void ClearBoard()
         {
             // wipe all enemies
             _game.Board.ClearTeam(TeamEnum.Red);
 
+            // if player was seeded, wipe the old team too. It is seeded again in SeedTeams()
+            if (_game.IsPlayerSeed)
+            {
+                _game.Board.ClearTeam(TeamEnum.Blue);
+            }
+
+            // if not seeded, reset, and send everyone who fought to the spare bench
+            else
+            {
+                ResetTeam(TeamEnum.Blue);
+                _game.Formation.ReturnToSpareBench();
+            }
+        }
+
+        // Initialize new board layout
+        private void ApplyLayout()
+        {
+            BattlePlacementSO stage = _game.GetStage(_game.StageIndex);
+            if (stage == null) return;
+
+            // every stage must name its board
+            if (stage.BoardLayout == null)
+            {
+                DebugTool.LogError($"{stage.name} has no board layout, so the board keeps the hexes it has. Set its Board Layout.");
+                return;
+            }
+
+            _game.Board.SetLayout(stage.BoardLayout);
+        }
+
+        private void SeedTeams()
+        {
             // switch to this stage's seed, before anything spawns from it
             // context: this stage = could be a same stage that was repeated or new stage.
             _game.Seed.SwitchSeed(_game.GetStage(_game.StageIndex));
 
             // spawn enemy team in preparation state
             _game.Seed.SpawnTeamOnBoard(TeamEnum.Red);
+
+            // spawn player team too, if the player was seeded
+            if (_game.IsPlayerSeed) _game.Seed.SpawnTeamOnBoard(TeamEnum.Blue);
         }
 
         // Specify which hex player can put the hero on
@@ -79,23 +121,6 @@ namespace MagicSchool.Core.States
             if (stage.DeployZone.Count == 0)
             {
                 DebugTool.LogError($"{stage.name} has no deploy zone, so no hero can be placed. Add hexes to its Deploy Zone list.");
-            }
-        }
-
-        private void ResetPlayerTeam()
-        {
-            // if player was seeded, clear old team, then seed again.
-            if (_game.IsPlayerSeed)
-            {
-                _game.Board.ClearTeam(TeamEnum.Blue);
-                _game.Seed.SpawnTeamOnBoard(TeamEnum.Blue);
-            }
-
-            // if not seeded, reset, and send everyone who fought to the spare bench
-            else
-            {
-                ResetTeam(TeamEnum.Blue);
-                _game.Formation.ReturnToSpareBench();
             }
         }
 

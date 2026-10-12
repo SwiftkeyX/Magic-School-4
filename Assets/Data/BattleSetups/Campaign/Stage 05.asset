@@ -105,3 +105,4 @@ MonoBehaviour:
     row: 5
   - column: 3
     row: 6
+  _boardLayout: {fileID: 4391576941862811623, guid: e04b55e61d71ef04dbe0b62c3e1ef485, type: 3}

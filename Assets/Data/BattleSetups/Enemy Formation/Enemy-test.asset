@@ -39,31 +39,12 @@ MonoBehaviour:
       column: 7
       row: 4
   _deployZone:
-  - column: 2
-    row: 0
-  - column: 2
-    row: 1
-  - column: 2
-    row: 2
-  - column: 2
-    row: 3
-  - column: 2
+  - column: 0
     row: 4
-  - column: 2
+  - column: 0
     row: 5
-  - column: 2
-    row: 6
-  - column: 3
-    row: 0
-  - column: 3
-    row: 1
-  - column: 3
-    row: 2
-  - column: 3
-    row: 3
-  - column: 3
+  - column: 1
     row: 4
-  - column: 3
+  - column: 1
     row: 5
-  - column: 3
-    row: 6
+  _boardLayout: {fileID: 7792403832837219978, guid: 3172940d3688d494c9d02380de64668f, type: 3}

@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b15591f0aa582343bd08d00a02b4206, type: 3}
+  m_Name: Ring-test
+  m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
+  _heroesPlacement:
+  - dataSO: {fileID: 11400000, guid: 323550731efc8b341ace76ed3fed3a5c, type: 2}
+    team: 1
+    hexPlacement:
+      column: 5
+      row: 1
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+    team: 1
+    hexPlacement:
+      column: 5
+      row: 2
+  - dataSO: {fileID: 11400000, guid: 837f311f6c69ecc4f9db29af65ca8b4c, type: 2}
+    team: 1
+    hexPlacement:
+      column: 5
+      row: 3
+  - dataSO: {fileID: 11400000, guid: 03d052ead6319ee4fbcac688402e60d5, type: 2}
+    team: 1
+    hexPlacement:
+      column: 6
+      row: 2
+  _deployZone:
+  - column: 0
+    row: 0
+  - column: 0
+    row: 1
+  - column: 0
+    row: 2
+  - column: 0
+    row: 3
+  - column: 1
+    row: 0
+  - column: 1
+    row: 1
+  - column: 1
+    row: 2
+  - column: 1
+    row: 3
+  - column: 1
+    row: 4
+  - column: 2
+    row: 0
+  - column: 2
+    row: 1
+  - column: 2
+    row: 2
+  - column: 2
+    row: 3
+  _boardLayout: {fileID: 4852310069501842058, guid: 5e7f1deb3247bc94fa8b550c64c3f35f, type: 3}

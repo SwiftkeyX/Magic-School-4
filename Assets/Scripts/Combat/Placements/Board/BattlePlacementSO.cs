@@ -16,8 +16,12 @@ namespace MagicSchool.Combat.Placements
         [Tooltip("Hexes the player may put a hero on this stage. Every stage must list them: empty = nowhere.")]
         [SerializeField] private List<HexNumber> _deployZone = new List<HexNumber>();
 
+        [Tooltip("The board this stage is fought on.")]
+        [SerializeField] private GameObject _boardLayout;
+
         public IReadOnlyList<HeroPlacement> HeroesPlacement => _heroesPlacement;
         public IReadOnlyList<HexNumber> DeployZone => _deployZone;
+        public GameObject BoardLayout => _boardLayout;
 
         // option to create BattlePlacementSO in code. Not as asset.
         // e.g.     use when testing hero benchmark
