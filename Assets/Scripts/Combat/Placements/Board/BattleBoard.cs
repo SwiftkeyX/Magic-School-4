@@ -132,6 +132,26 @@ namespace MagicSchool.Combat.Placements
             }
         }
 
+        // Toggle on/off a specify hex into a deploy zone 
+        // e.g.     stage editor mode, toggle the hex by clicking hexes
+        public void ToggleInDeployZone(Hex hex)
+        {
+            hex.SetInDeployZone(!hex.IsInDeployZone);
+
+            hex.SetDimmed(!hex.IsInDeployZone);
+        }
+
+        // Get deploy zone (the list of deploy hex)
+        public List<HexNumber> ReadDeployZone()
+        {
+            return _hexs
+                .Where(pair => pair.Value.IsInDeployZone)
+                .Select(pair => pair.Key)
+                .OrderBy(number => number.column)
+                .ThenBy(number => number.row)
+                .ToList();
+        }
+
         // =================================== Between stages ===================================
         // Wipe one team off the board
         // e.g. after player is winning, clear enemy team 

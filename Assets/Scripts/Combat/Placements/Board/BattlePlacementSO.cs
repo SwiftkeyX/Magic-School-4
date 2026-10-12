@@ -42,5 +42,12 @@ namespace MagicSchool.Combat.Placements
             // re-add hero that belong to specify team
             _heroesPlacement.AddRange(placements);
         }
+
+        // Changing the deploy zone by editing this SO.
+        // e.g.     stage editor mode, want to override the painted deploy zone to current SO.
+        public void ReplaceDeployZone(IEnumerable<HexNumber> zone)
+        {
+            _deployZone = new List<HexNumber>(zone);
+        }
     }
 }
