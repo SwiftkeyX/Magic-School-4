@@ -53,5 +53,7 @@ namespace MagicSchool.Skills
         Minotaur = 39,
         BigSlime = 40,
         Basilisk = 41,
+        GoblinSlinger = 42,
+        KoboldSkirmisher = 43,
     }
 }
