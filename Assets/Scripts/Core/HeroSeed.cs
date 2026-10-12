@@ -38,9 +38,9 @@ namespace MagicSchool.Core
                 HeroDataSO data = heroPlacement.dataSO;
                 HexNumber placement = heroPlacement.hexPlacement;
 
-                if (placement.team != team) continue;
+                if (heroPlacement.team != team) continue;
 
-                OnSpawnRequested.Invoke(data, placement.team, _board.Hexs[placement], _board);
+                OnSpawnRequested.Invoke(data, heroPlacement.team, _board.Hexs[placement], _board);
             }
         }
     }

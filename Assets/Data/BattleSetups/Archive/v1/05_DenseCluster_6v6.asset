@@ -14,62 +14,75 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattlePlacementSO
   _heroesPlacement:
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 0
     hexPlacement:
       team: 0
       column: 3
       row: 2
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 0
     hexPlacement:
       team: 0
       column: 3
       row: 3
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 0
     hexPlacement:
       team: 0
       column: 3
       row: 4
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 0
     hexPlacement:
       team: 0
       column: 2
       row: 2
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 0
     hexPlacement:
       team: 0
       column: 2
       row: 3
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 0
     hexPlacement:
       team: 0
       column: 2
       row: 4
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 0
       row: 2
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 0
       row: 3
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 0
       row: 4
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 1
       row: 2
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 1
       row: 3
   - dataSO: {fileID: 11400000, guid: adf80ad0a967efc419020cf4f1a3ad9b, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 1
       row: 4
+  _deployZone: []

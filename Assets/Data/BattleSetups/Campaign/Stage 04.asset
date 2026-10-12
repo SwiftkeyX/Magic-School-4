@@ -14,31 +14,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
   _heroesPlacement:
   - dataSO: {fileID: 11400000, guid: 2a1cf15a07e0dff4386f17605b31d532, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 0
       row: 3
   - dataSO: {fileID: 11400000, guid: 73b3853130bb12a489fffe28539d20f4, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 0
       row: 2
   - dataSO: {fileID: 11400000, guid: 7148633b51aa2b843ae02cdfe72752d8, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 1
       row: 0
   - dataSO: {fileID: 11400000, guid: c89100b4b11c04842a71fca916c1d4c1, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 1
       row: 6
   - dataSO: {fileID: 11400000, guid: 9636cb18892805344858c7b35439a83c, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 3
       row: 3
   - dataSO: {fileID: 11400000, guid: 76e948a66c5e474439a5a33fcd03137a, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 3

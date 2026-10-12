@@ -14,22 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattlePlacementSO
   _heroesPlacement:
   - dataSO: {fileID: 11400000, guid: 80781ac126a9ad64998c2067475a6bc5, type: 2}
+    team: 0
     hexPlacement:
       team: 0
       column: 3
       row: 3
   - dataSO: {fileID: 11400000, guid: 83ba46c23e0d667408f6f8bfd6d943de, type: 2}
+    team: 0
     hexPlacement:
       team: 0
       column: 1
       row: 3
   - dataSO: {fileID: 11400000, guid: 80781ac126a9ad64998c2067475a6bc5, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 0
       row: 3
   - dataSO: {fileID: 11400000, guid: 83ba46c23e0d667408f6f8bfd6d943de, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 2
       row: 3
+  _deployZone: []

@@ -35,7 +35,7 @@ namespace MagicSchool.Combat.Placements
             // removing all hero that belong the specify team first
             _heroesPlacement.RemoveAll(placement =>
             {
-                bool sameTeam = placement.hexPlacement.team == team;
+                bool sameTeam = placement.team == team;
                 return sameTeam;
             });
 

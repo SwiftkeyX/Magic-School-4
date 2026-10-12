@@ -14,16 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
   _heroesPlacement:
   - dataSO: {fileID: 11400000, guid: 837f311f6c69ecc4f9db29af65ca8b4c, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 0
       row: 2
   - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 0
       row: 5
   - dataSO: {fileID: 11400000, guid: 332908cda09db9745af288f5883f93f4, type: 2}
+    team: 1
     hexPlacement:
       team: 1
       column: 1

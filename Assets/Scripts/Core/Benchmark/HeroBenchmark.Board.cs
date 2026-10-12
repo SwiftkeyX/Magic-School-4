@@ -94,8 +94,8 @@ namespace MagicSchool.Core.Benchmark
             foreach (Lane lane in lanes)
             {
                 List<HeroPlacement> placements = new List<HeroPlacement>();
-                placements.Add(new HeroPlacement(lane.Result.Hero, HeroHex));
-                foreach (HexNumber hex in dummyHexes) placements.Add(new HeroPlacement(dummy, hex));
+                placements.Add(new HeroPlacement(lane.Result.Hero, TeamEnum.Blue, HeroHex));
+                foreach (HexNumber hex in dummyHexes) placements.Add(new HeroPlacement(dummy, TeamEnum.Red, hex));
 
                 lane.Seed.SwitchSeed(BattlePlacementSO.CreateRuntime(placements));
                 lane.Seed.SpawnTeamOnBoard(TeamEnum.Blue);

@@ -15,19 +15,11 @@ namespace MagicSchool.Combat.Placements
         public string Name => gameObject.name;
         public HexNumber Number => _hexPlacement;
 
-        // === line from front ===
-        public int LinesFromFront { get; private set; } = -1;
-        internal void SetLinesFromFront(int lines) => LinesFromFront = lines;
-
         // === deploy zone ===
         // Is this hex the one player can put a hero on? 
         // (See BattleBoard.SetDeployZone)
         public bool IsInDeployZone { get; private set; }
         internal void SetInDeployZone(bool value) => IsInDeployZone = value;
-
-        // === dimming ===
-        private const float DimBrightness = 0.9f;  
-        private Color _normalColor;
 
         // ===================================== life cycle =====================================
         void Start()
@@ -42,12 +34,6 @@ namespace MagicSchool.Combat.Placements
             _hexPlacement = hexPlacement;
             _neighbors = null;
         }
-
-        public TeamEnum GetTeam()
-        {
-            return _hexPlacement.team;
-        }
-
 
         // ===================================== placement interface =====================================
         // A hero commits to this hex before it gets here - reserve it so nobody else walks in,
@@ -150,23 +136,13 @@ namespace MagicSchool.Combat.Placements
         }
         #endregion
         
-        // ===================================== dimming =====================================
-        // Draw this hex dark
-        // e.g.     a hex outside the deploy zone is dimmed during Preparation
-        internal void SetDimmed(bool isDimmed)
+        // ===================================== other =====================================
+        internal void SetColor(Color color)
         {
-            // the first call, init
-            if (_sprite == null)
-            {
-                _sprite = GetComponent<SpriteRenderer>();
-                if (_sprite == null) return;
+            if (_sprite == null) _sprite = GetComponent<SpriteRenderer>();
+            if (_sprite == null) return;
 
-                _normalColor = _sprite.color;
-            }
-
-            Color dimColor = new Color(_normalColor.r * DimBrightness, _normalColor.g * DimBrightness, _normalColor.b * DimBrightness, _normalColor.a);
-
-            _sprite.color = isDimmed ? dimColor : _normalColor;
+            _sprite.color = color;
         }
     }
 }
