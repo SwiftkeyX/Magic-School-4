@@ -12,9 +12,10 @@ namespace MagicSchool.Editor
     // the Editor half of StageEditor.cs: everything that needs the Project window or writes an asset.
     // All menu:
     //      1. Add Selected Heroes As Enemies      - spawn the selected HeroDataSOs (in project window) as enemies
-    //      2. Save Enemy Team To Current Stage    - overwrite the enemy team of the current stage
-    //      3. Save Enemy Team As New Stage...     - write the enemy team into a new BattlePlacementSO
-    // 
+    //      2. Save To Current Stage               - overwrite the enemy team and deploy zone of the current stage
+    //      3. Save As New Stage...                - write the enemy team and deploy zone into a new BattlePlacementSO
+    // The deploy zone is painted on the board: click an empty player hex to put it in or out (dark = out).
+    //
     // All three need: 
     //      GameManager's "Stage Edit Mode" ticked > Play mode > Preparation state
     internal static class StageEditorMenu
@@ -43,7 +44,7 @@ namespace MagicSchool.Editor
             }
         }
 
-        [MenuItem(Menu + "Save Enemy Team To Current Stage")]
+        [MenuItem(Menu + "Save To Current Stage")]
         private static void SaveToCurrent()
         {
             if (!TryReadTeam(out StageEditor editor, out List<HeroPlacement> team)) return;
@@ -51,24 +52,29 @@ namespace MagicSchool.Editor
             BattlePlacementSO stage = editor.CurrentStage;
             if (stage == null || !AssetDatabase.Contains(stage))
             {
-                Debug.LogWarning("[StageEditor] the current stage is not an asset - use Save Enemy Team As New Stage.");
+                Debug.LogWarning("[StageEditor] the current stage is not an asset - use Save As New Stage.");
                 return;
             }
 
-            int before = editor.EnemyCountIn(stage);
+            int enemiesBefore = editor.EnemyCountIn(stage);
+            string zoneBefore = DescribeZone(editor.DeployZoneCountIn(stage));
+            string zoneAfter = DescribeZone(editor.ReadDeployZone().Count);
+
             bool confirmed = EditorUtility.DisplayDialog("Overwrite stage",
-                $"Replace the enemy team of '{stage.name}'?\n\n{before} enemies now, {team.Count} after.", "Overwrite", "Cancel");
+                $"Replace the enemy team and deploy zone of '{stage.name}'?\n\n" +
+                $"Enemies: {enemiesBefore} now, {team.Count} after.\n" +
+                $"Deploy zone: {zoneBefore} now, {zoneAfter} after.", "Overwrite", "Cancel");
             if (!confirmed) return;
 
             Write(editor, stage, team);
         }
 
-        [MenuItem(Menu + "Save Enemy Team As New Stage...")]
+        [MenuItem(Menu + "Save As New Stage...")]
         private static void SaveAsNew()
         {
             if (!TryReadTeam(out StageEditor editor, out List<HeroPlacement> team)) return;
 
-            string path = EditorUtility.SaveFilePanelInProject("Save enemy team", "New Stage", "asset",
+            string path = EditorUtility.SaveFilePanelInProject("Save stage", "New Stage", "asset",
                                                                "Where to save the enemy team", DefaultFolder);
             if (string.IsNullOrEmpty(path)) return;
 
@@ -88,14 +94,20 @@ namespace MagicSchool.Editor
         // ======================================== helper ========================================
         private static void Write(StageEditor editor, BattlePlacementSO stage, List<HeroPlacement> team)
         {
+            var zone = editor.ReadDeployZone();
+
             editor.WriteEnemyTeam(stage, team);
+            editor.WriteDeployZone(stage, zone);
 
             EditorUtility.SetDirty(stage);
             AssetDatabase.SaveAssetIfDirty(stage);
             EditorGUIUtility.PingObject(stage);
 
-            Debug.Log($"[StageEditor] saved {team.Count} enemies to {AssetDatabase.GetAssetPath(stage)}.");
+            Debug.Log($"[StageEditor] saved {team.Count} enemies and a deploy zone of {DescribeZone(zone.Count)} to {AssetDatabase.GetAssetPath(stage)}.");
         }
+
+        // an empty zone means nothing is limited
+        private static string DescribeZone(int hexCount) => hexCount == 0 ? "the whole side" : $"{hexCount} hexes";
 
         private static bool TryReadTeam(out StageEditor editor, out List<HeroPlacement> team)
         {

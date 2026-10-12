@@ -1,6 +1,7 @@
 using System.Linq;
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
+using MagicSchool.Combat.Placements;
 using MagicSchool.Engine;
 using MagicSchool.Economy;
 
@@ -25,6 +26,9 @@ namespace MagicSchool.Core.States
             _game.ClearPendingRequests();
 
             SeedNewEnemies();
+
+            // before the player's team is reset: a hero that has to stay on the board is put inside the new zone
+            ApplyDeployZone();
 
             ResetPlayerTeam();
 
@@ -62,6 +66,23 @@ namespace MagicSchool.Core.States
             _game.Seed.SpawnTeamOnBoard(TeamEnum.Red);
         }
 
+        // limit where the player may put heroes to this stage's zone, and show it
+        private void ApplyDeployZone()
+        {
+            BattlePlacementSO stage = _game.GetStage(_game.StageIndex);
+            if (stage == null) return;
+
+            _game.Board.SetDeployZone(stage.DeployZone);
+            _game.Board.ShowDeployZone(true);
+
+            // an empty zone is the whole side, so it can't be too small
+            int zoneSize = stage.DeployZone.Count;
+            if (zoneSize > 0 && zoneSize < _game.HeroLimit)
+            {
+                DebugTool.LogWarning($"{stage.name}: the deploy zone has {zoneSize} hexes but the player may field {_game.HeroLimit} heroes.");
+            }
+        }
+
         private void ResetPlayerTeam()
         {
             // if player was seeded, clear old team, then seed again.
@@ -71,11 +92,11 @@ namespace MagicSchool.Core.States
                 _game.Seed.SpawnTeamOnBoard(TeamEnum.Blue);
             }
 
-            // if not seeded, reset, and restore the formation
+            // if not seeded, reset, and send everyone back to the bench
             else
             {
                 ResetTeam(TeamEnum.Blue);
-                _game.Formation.Restore();
+                _game.Formation.ReturnToBench();
             }
         }
 

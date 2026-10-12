@@ -19,6 +19,9 @@ namespace MagicSchool.Core.States
             _game.Board.SetBattleOn(true);
             TriggerCombatStart();
 
+            // the zone is only about where heroes may be placed, so it goes off screen for the fight
+            _game.Board.ShowDeployZone(false);
+
             // remember the team's formation at the start
             _game.Formation.Remember(_game.Board.HeroesOnBoard, TeamEnum.Blue);
 

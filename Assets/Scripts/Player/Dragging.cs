@@ -94,6 +94,13 @@ namespace MagicSchool.Player
                 Grab(item);
                 return;
             }
+
+            // stage editor: a click on an empty player hex puts it in or out of the deploy zone
+            if (_isStageEditor && IsPreparation)
+            {
+                Hex hex = Picker.At<Hex>(worldPos);
+                if (hex != null) GameManager.Instance.StageEditor.TryToggleDeployHex(hex);
+            }
         }
 
         private IDraggable TryPickHero(Vector3 worldPos)
@@ -283,6 +290,9 @@ namespace MagicSchool.Player
             {
                 bool correctTeam = targetHex.GetTeam() == hero.Team;
                 if (!correctTeam) return false;
+
+                // this stage only lets heroes stand on some of the hexes
+                if (!targetHex.IsDeployable) return false;
 
                 // if hero is tracked, then this is just re-positioning, no new hero added
                 bool isDropHeroTracked = _board.HeroesOnBoard.Any(tracked => (Hero)tracked == hero);

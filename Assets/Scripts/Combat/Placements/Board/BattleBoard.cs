@@ -104,6 +104,43 @@ namespace MagicSchool.Combat.Placements
             return reserver != null && reserver != asker;
         }
 
+        // =================================== Deploy zone ===================================
+        // Which hexes a hero may be put on during Preparation, set per stage.
+        // Only a side that has hexes in the zone is limited: a zone of blue hexes leaves every red hex open,
+        // and an empty zone leaves the whole board open.
+        public void SetDeployZone(IReadOnlyList<HexNumber> zone)
+        {
+            var open = new HashSet<HexNumber>(zone);
+            var limitedSides = new HashSet<TeamEnum>(zone.Select(number => number.team));
+
+            foreach (KeyValuePair<HexNumber, Hex> pair in _hexs)
+            {
+                bool isLimited = limitedSides.Contains(pair.Key.team);
+                pair.Value.SetDeployable(!isLimited || open.Contains(pair.Key));
+            }
+        }
+
+        // The zone of one side as it stands right now. Empty when the whole side is open.
+        public List<HexNumber> ReadDeployZone(TeamEnum team)
+        {
+            var side = _hexs.Where(pair => pair.Key.team == team).ToList();
+
+            List<HexNumber> open = side
+                .Where(pair => pair.Value.IsDeployable)
+                .Select(pair => pair.Key)
+                .OrderBy(number => number.column)
+                .ThenBy(number => number.row)
+                .ToList();
+
+            return open.Count == side.Count ? new List<HexNumber>() : open;
+        }
+
+        // Draw the hexes outside the zone dark, so the player sees where the team may stand.
+        public void ShowDeployZone(bool isShown)
+        {
+            foreach (Hex hex in _hexs.Values) hex.ShowDeployable(isShown);
+        }
+
         // =================================== Between stages ===================================
         // Wipe one team off the board
         // e.g. after player is winning, clear enemy team 

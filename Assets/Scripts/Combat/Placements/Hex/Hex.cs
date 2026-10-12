@@ -18,6 +18,29 @@ namespace MagicSchool.Combat.Placements
         public int LinesFromFront { get; private set; } = -1;
         internal void SetLinesFromFront(int lines) => LinesFromFront = lines;
 
+        // === deploy zone ===
+        // May a hero be put on this hex during Preparation? Set per stage, see BattleBoard.SetDeployZone.
+        // It says nothing about the fight: once combat starts every hex can be walked on.
+        private const float BlockedBrightness = 0.3f;    // how dark a hex outside the zone is drawn
+
+        private SpriteRenderer _sprite;
+        private Color _openColor;
+        private bool _isZoneShown;
+
+        public bool IsDeployable { get; private set; } = true;
+
+        public void SetDeployable(bool isDeployable)
+        {
+            IsDeployable = isDeployable;
+            RefreshZoneLook();
+        }
+
+        internal void ShowDeployable(bool isShown)
+        {
+            _isZoneShown = isShown;
+            RefreshZoneLook();
+        }
+
         // ===================================== life cycle =====================================
         void Start()
         {
@@ -35,6 +58,23 @@ namespace MagicSchool.Combat.Placements
         public TeamEnum GetTeam()
         {
             return _hexPlacement.team;
+        }
+
+        // a hex outside the deploy zone is drawn dark, but only while the zone is being shown
+        private void RefreshZoneLook()
+        {
+            if (_sprite == null)
+            {
+                _sprite = GetComponent<SpriteRenderer>();
+                if (_sprite == null) return;
+
+                _openColor = _sprite.color;
+            }
+
+            bool isBlocked = _isZoneShown && !IsDeployable;
+            Color blockedColor = new Color(_openColor.r * BlockedBrightness, _openColor.g * BlockedBrightness, _openColor.b * BlockedBrightness, _openColor.a);
+
+            _sprite.color = isBlocked ? blockedColor : _openColor;
         }
 
         // ===================================== placement interface =====================================

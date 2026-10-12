@@ -137,7 +137,7 @@ namespace MagicSchool.Core
             _seller = new Seller(_wallet);
             _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopOdds, () => StageNumber, _shopSlots, _refreshCost,
                              (data, isStillOffered) => new HeroPreview(data, SkillLibrary.Resolve(data.SkillId, _templateActions), isStillOffered));
-            _heroFormation = new HeroFormation(_heroMover);
+            _heroFormation = new HeroFormation(_heroMover, _bench, _board);
             _heroLimit = _startingHeroLimit;
             _stateMachine = new GameStateMachine(this);
 

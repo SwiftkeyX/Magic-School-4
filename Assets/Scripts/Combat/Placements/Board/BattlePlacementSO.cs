@@ -13,7 +13,11 @@ namespace MagicSchool.Combat.Placements
     {
         [SerializeField] private List<HeroPlacement> _heroesPlacement = new List<HeroPlacement>();
 
+        [Tooltip("Hexes the player may put a hero on this stage. Empty = the whole player side.")]
+        [SerializeField] private List<HexNumber> _deployZone = new List<HexNumber>();
+
         public IReadOnlyList<HeroPlacement> HeroesPlacement => _heroesPlacement;
+        public IReadOnlyList<HexNumber> DeployZone => _deployZone;
 
         // option to create BattlePlacementSO in code. Not as asset.
         // e.g.     use when testing hero benchmark
@@ -37,6 +41,14 @@ namespace MagicSchool.Combat.Placements
 
             // re-add hero that belong to specify team
             _heroesPlacement.AddRange(placements);
+        }
+
+        // Changing one side's deploy zone by editing this SO.
+        // e.g.     stage editor mode, want to override the player's deploy zone on current SO.
+        public void ReplaceDeployZone(TeamEnum team, IEnumerable<HexNumber> zone)
+        {
+            _deployZone.RemoveAll(number => number.team == team);
+            _deployZone.AddRange(zone);
         }
     }
 }

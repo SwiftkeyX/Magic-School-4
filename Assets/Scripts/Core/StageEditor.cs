@@ -14,7 +14,8 @@ namespace MagicSchool.Core
     ///     move enemy          - drag an enemy to another enemy hex 
     ///     add new enemy       - TryAddEnemy puts a new enemy on the free enemy hex
     ///     remove enemy        - drop an enemy on the shop
-    ///     save formation      - ReadEnemyTeam is what the board holds right now; the menu writes it into an asset
+    ///     paint deploy zone   - click an empty player hex to put it in or out of the zone (dark = out)
+    ///     save formation      - ReadEnemyTeam and ReadDeployZone are what the board holds right now; the menu writes them into an asset
     ///
     /// Only reachable while GameManager._stageEditMode is ticked - GameManager.StageEditor is null otherwise.
     /// Writing the asset is Editor-only, so that half lives in Core/Editor/StageEditorMenu.cs.
@@ -22,6 +23,7 @@ namespace MagicSchool.Core
     public class StageEditor
     {
         private const TeamEnum EnemyTeam = TeamEnum.Red;
+        private const TeamEnum PlayerTeam = TeamEnum.Blue;
 
         private readonly GameManager _game;
 
@@ -63,16 +65,44 @@ namespace MagicSchool.Core
                 .ToList();
         }
 
+        // the player's deploy zone as painted right now. Empty when the whole side is open.
+        public List<HexNumber> ReadDeployZone() => _game.Board.ReadDeployZone(PlayerTeam);
+
+        // ======================================== deploy zone ========================================
+        // put a player hex in the deploy zone, or take it out
+        public bool TryToggleDeployHex(Hex hex)
+        {
+            if (hex == null || !CanEditNow || hex.GetTeam() != PlayerTeam) return false;
+
+            // a zone with no hex would be saved as "the whole side", which is the opposite of what was painted
+            bool isLastOne = hex.IsDeployable && OpenPlayerHexCount() == 1;
+            if (isLastOne) return false;
+
+            hex.SetDeployable(!hex.IsDeployable);
+            return true;
+        }
+
         // ======================================== write ========================================
         // how many enemies now?
         public int EnemyCountIn(BattlePlacementSO stage)
             => stage.HeroesPlacement.Count(placement => placement.hexPlacement.team == EnemyTeam);
 
+        // how many hexes in the player's zone now? 0 = the whole side
+        public int DeployZoneCountIn(BattlePlacementSO stage)
+            => stage.DeployZone.Count(number => number.team == PlayerTeam);
+
         // overwrite enemy team's SO to the specify one
         public void WriteEnemyTeam(BattlePlacementSO stage, IEnumerable<HeroPlacement> team)
             => stage.ReplaceTeam(EnemyTeam, team);
 
+        // overwrite the player's deploy zone on the SO
+        public void WriteDeployZone(BattlePlacementSO stage, IEnumerable<HexNumber> zone)
+            => stage.ReplaceDeployZone(PlayerTeam, zone);
+
         // ======================================== private ========================================
+        private int OpenPlayerHexCount()
+            => _game.Board.Hexs.Count(pair => pair.Key.team == PlayerTeam && pair.Value.IsDeployable);
+
         private Hex FirstFreeEnemyHex()
         {
             BattleBoard board = _game.Board;
