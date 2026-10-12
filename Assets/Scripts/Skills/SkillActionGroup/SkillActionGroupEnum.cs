@@ -27,6 +27,7 @@ namespace MagicSchool.Skills
         Assigned = 7,
         NearestAlly = 8,
         LowestHealthAlly = 9,
+        FurthestEach = 10,          
 
         // ...
     }

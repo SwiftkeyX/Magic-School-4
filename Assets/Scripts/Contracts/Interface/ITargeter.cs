@@ -10,6 +10,7 @@ namespace MagicSchool.Contracts
         ICombatant FindNearestEnemy();
         ICombatant FindNearestEnemyTo(ICombatant target);
         ICombatant FindFurthestEnemy(int reachRange);
+        IReadOnlyList<ICombatant> FindFurthestEnemies(int reachRange, int count = 1);
         IPlacement FindClusteredCircle(int reachRange, float blastRadius, bool isJump);
         ICombatant FindClusteredLaser(int reachRange, float beamHalfWidth);
         IPlacement FindClusteredCharge(int reachRange, float chargeHalfWidth, bool maxRange = false);
