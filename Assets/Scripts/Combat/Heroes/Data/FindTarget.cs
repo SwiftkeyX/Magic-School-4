@@ -70,16 +70,27 @@ namespace MagicSchool.Combat.Heroes
         }
 
         // Picks furthest enemy within reachRange
-        public ICombatant FindFurthestEnemy(int reachRange)
+        public ICombatant FindFurthestEnemy(int reachRange) => FindFurthestEnemies(reachRange).FirstOrDefault();
+
+        // Picks [count] furthest enemies within reachRange
+        // furthest first, second furthest, third furthest, and so on ...
+        // e.g.     Goblin Slinger shoots the 2 furthest enemies
+        public IReadOnlyList<ICombatant> FindFurthestEnemies(int reachRange, int count = 1)
         {
             var enemyDistances = _scan.Distances().Where(e => e.dist <= reachRange).ToList();
 
-            if (enemyDistances.Count == 0) return null;
+            if (enemyDistances.Count == 0) return Array.Empty<ICombatant>();
 
+            // the furthest one - a tie is broken the same way it is for every other pick
             float furthestDist = enemyDistances.Max(e => e.dist);
             var tiedFurthest = enemyDistances.Where(e => e.dist >= furthestDist - TieEpsilon).Select(e => e.target).ToList();
+            ICombatant furthest = BreakTie(tiedFurthest, _currentTarget);
 
-            return BreakTie(tiedFurthest, _currentTarget);
+            // then everyone else, by distance
+            var picked = new List<ICombatant> { furthest };
+            picked.AddRange(enemyDistances.Where(e => e.target != furthest).OrderByDescending(e => e.dist).Select(e => e.target));
+
+            return picked.Take(count).ToList();
         }
 
         // Pick a placement where:

@@ -1,14 +1,22 @@
+using System.Collections.Generic;
 using MagicSchool.Contracts;
 
 namespace MagicSchool.Skills
 {
-    /// A runner whose inner action is a Projectile.
-    /// It's the only one that can aim AimTargetEnum.Random, which mean it pick the the random target for the Projectile. 
+    /// A runner that repeating the projectile.
+    /// e.g.    Skeleton shoot 4 projectile in sequence at furthest enemy
+    /// 
+    /// Additional target logic:
+    ///         Random              Pick the random enemy inside the specify radius from the target point
+    ///         FurthestEach        Pick [count] furthest enemy, different each time
     internal class FireTimingRunnerProjectile : FireTimingRunnerBase<FireTimingRunnerProjectileTuning>
     {
         // ======================================= tune able =======================================
         private int _randomPoolRadius;
         private RandomTargetPool _randomTargets;
+
+        private IReadOnlyList<ICombatant> _furthestTargets;
+        private int _nextFurthest;
 
         protected override void ApplyTypedTuning(FireTimingRunnerProjectileTuning tuning)
         {
@@ -22,11 +30,21 @@ namespace MagicSchool.Skills
         {
             AimTargetEnum shotAimTarget = _innerAimTarget;
             ICombatant shotTarget = _assignedTarget;
-            
-            // if aim = random, the runner have to be the organizer for picking the random unit.
+
+            // if aim = random, the runner pick the random enemy itself.
             if (_innerAimTarget == AimTargetEnum.Random)
             {
                 ICombatant chosen = PickRandomTarget();
+                if (chosen == null) return;
+
+                shotAimTarget = AimTargetEnum.Assigned;
+                shotTarget = chosen;
+            }
+
+            // if aim = furthest each, the runner pick the furthest enemy itself.
+            else if (_innerAimTarget == AimTargetEnum.FurthestEach)
+            {
+                ICombatant chosen = PickNextFurthestTarget();
                 if (chosen == null) return;
 
                 shotAimTarget = AimTargetEnum.Assigned;
@@ -46,12 +64,32 @@ namespace MagicSchool.Skills
         }
 
         // ======================================= private =======================================
-        // pick random target using Imp logic
+        // pick random target inside the specify radius
+        // e.g.     Imp shoot the projectile to random enemy inside 2 radius
         private ICombatant PickRandomTarget()
         {
             if (_randomTargets == null) _randomTargets = new RandomTargetPool(_me, _randomPoolRadius);
 
             return _randomTargets.Next();
+        }
+
+        // pick several furthest enemy but different one each time
+        // e.g.     Goblin Slinger shoots the 2 furthest enemies
+        private ICombatant PickNextFurthestTarget()
+        {
+            // find [count] furthest target
+            if (_furthestTargets == null)
+            {
+                int reachRange = (_innerTuning as ProjectileTuning)?.Range ?? int.MaxValue;
+                _furthestTargets = _me.FindFurthestEnemies(reachRange, _count);
+            }
+
+            // if target died mid logic, select the next furthest one 
+            while (_nextFurthest < _furthestTargets.Count && !_furthestTargets[_nextFurthest].IsAlive) _nextFurthest++;
+
+            if (_nextFurthest >= _furthestTargets.Count) return null;
+
+            return _furthestTargets[_nextFurthest++];
         }
     }
 }

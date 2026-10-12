@@ -6,7 +6,8 @@ using UnityEngine;
 namespace MagicSchool.Skills
 {
     /// A template action whose only job is to repeat another template action several times.
-    /// e.g. Skeleton Archer's 4 sequential shots, or a volley of 8 arrows at once => those are projectile being repeated several time
+    /// e.g.    Skeleton Archer's 4 sequential shots
+    ///         a volley of 8 arrows at once 
     internal abstract class FireTimingRunnerBase<TTuning> : TemplateAction<TTuning>
         where TTuning : FireTimingRunnerTuning
     {
@@ -19,8 +20,8 @@ namespace MagicSchool.Skills
 
         // ======================================= tune able =======================================
         protected Tuning _innerTuning;
+        protected int _count = 1;
         private FireTimingModeEnum _mode = FireTimingModeEnum.AtOnce;
-        private int _count = 1;
         private float _interval;
 
         // ======================================= Event =======================================
