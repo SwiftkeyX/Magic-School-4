@@ -178,7 +178,6 @@ namespace MagicSchool.UI
         // =========================== Show the shop ===============================
         #region Show
         // === IShopPanel ===
-        // ASKING: why is OnChanged also do -= ShowShop
         public void BindShop(IShop shop)
         {
             if (_shop != null) _shop.OnChanged -= ShowShop;
