@@ -78,6 +78,40 @@ namespace MagicSchool.Combat.Placements
 
         public bool IsAdjacentTo(Hex other) => GetNeighbors().Contains(other);
 
+        // The 6 neighbors sit ~53 or ~63 degrees apart, so 20 either way can only catch one.
+        private const float DirectionTolerance = 20f;
+
+        // Get the hex from specify direction
+        public Hex GetNeighbor(HexDirectionEnum direction)
+        {
+            float wanted = AngleOf(direction);
+
+            // Find the hex using angle from itself to target
+            foreach (Hex neighbor in GetNeighbors())
+            {
+                Vector2 offset = neighbor.transform.position - transform.position;
+                float angle = Mathf.Atan2(offset.y, offset.x) * Mathf.Rad2Deg;
+
+                if (Mathf.Abs(Mathf.DeltaAngle(angle, wanted)) <= DirectionTolerance) return neighbor;
+            }
+
+            return null;
+        }
+
+        // Get the angle from specify direction enum
+        private static float AngleOf(HexDirectionEnum direction)
+        {
+            switch (direction)
+            {
+                case HexDirectionEnum.N: return 90f;
+                case HexDirectionEnum.NE: return 26.57f;
+                case HexDirectionEnum.SE: return -26.57f;
+                case HexDirectionEnum.S: return -90f;
+                case HexDirectionEnum.SW: return -153.43f;
+                default: return 153.43f;    // NW
+            }
+        }
+
         // Generalizes IsAdjacentTo to N hex-hops via BFS, for heroes whose attack range is > 1.
         // BFS over the neighbor graph rather than raw world-space distance, since hex spacing
         // isn't uniform (same-column neighbors are ~1.0 apart, diagonal ~1.118 apart) - a
@@ -135,7 +169,7 @@ namespace MagicSchool.Combat.Placements
             }
         }
         #endregion
-        
+
         // ===================================== other =====================================
         internal void SetColor(Color color)
         {

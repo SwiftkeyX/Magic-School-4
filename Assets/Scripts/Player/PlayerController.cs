@@ -21,6 +21,7 @@ namespace MagicSchool.Player
         private ISellZone _sellZone;
         private Dragging _dragging;
         private ZonePainting _zonePainting;
+        private AlignHighlight _alignHighlight;
         private TeamEnum _team;
         private PlayerTeamSize _teamSize;
 
@@ -41,6 +42,7 @@ namespace MagicSchool.Player
             _teamSize = new PlayerTeamSize(_heroCountPanel, _board);
             _dragging = new Dragging(_cam, _board, _sellZone, _team, _teamSize);
             _zonePainting = new ZonePainting(_cam, _dragging);
+            _alignHighlight = new AlignHighlight(_cam, _dragging, _board, _team);
         }
 
         void Update()
@@ -53,6 +55,7 @@ namespace MagicSchool.Player
             TryInspect();
             _dragging?.Tick();
             _zonePainting?.Tick();
+            _alignHighlight?.Tick();
             _teamSize?.RefreshHeroCountPanel();
         }
 

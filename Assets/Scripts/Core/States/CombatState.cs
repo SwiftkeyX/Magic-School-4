@@ -17,6 +17,9 @@ namespace MagicSchool.Core.States
         {
             // FLAGGING: both can be combine later.
             _game.Board.SetBattleOn(true);
+
+            _game.RefreshAligning();
+
             TriggerCombatStart();
 
             _game.Board.ShowDeployZone(false);

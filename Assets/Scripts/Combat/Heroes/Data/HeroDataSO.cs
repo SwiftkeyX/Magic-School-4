@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using MagicSchool.Contracts;
+using MagicSchool.Combat.Align;
 using MagicSchool.Combat.Heroes.Stats;
 using MagicSchool.Skills;
 
@@ -30,6 +32,8 @@ namespace MagicSchool.Combat.Heroes
         [SerializeField] private SkillIdEnum _skillId = SkillIdEnum.None;
         [Tooltip("The unit this hero's skill puts on the board. e.g. Big Slime -> Small Slime. Empty for almost everyone.")]
         [SerializeField] private HeroDataSO _spawnUnit;
+        [Tooltip("Aligning bonus for this hero.")]
+        [SerializeField] private List<AlignMark> _alignMarks = new List<AlignMark>();
         // FLAGGING: a dummy should be its own unit type, not a Hero. Let's see later if it make sense.
         [SerializeField] private bool _isDummy = false; // A dummy never walks or attacks 
 
@@ -51,6 +55,7 @@ namespace MagicSchool.Combat.Heroes
         public float CritChance => _critChance;
         public SkillIdEnum SkillId => _skillId;
         public HeroDataSO SpawnUnit => _spawnUnit;
+        public IReadOnlyList<AlignMark> AlignMarks => _alignMarks;
         public bool IsDummy => _isDummy;
     }
 }

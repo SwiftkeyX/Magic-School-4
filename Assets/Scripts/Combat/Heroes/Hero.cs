@@ -4,6 +4,7 @@ using UnityEngine;
 using MagicSchool.Combat.Heroes.States;
 using MagicSchool.Combat.Heroes.Stats;
 using MagicSchool.Contracts;
+using MagicSchool.Combat.Align;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Skills;
 
@@ -91,6 +92,7 @@ namespace MagicSchool.Combat.Heroes
         public string SkillName => _skill != null ? _skill.SkillName : string.Empty;
         public string SkillDescription => _skill != null ? _skill.Description : string.Empty;
         public string PassiveDescription => _skill != null ? _skill.PassiveDescription : string.Empty;
+        public string AlignDescription => _SOData != null ? AlignText.Describe(_SOData.AlignMarks) : string.Empty;
         public string DisplayName => _SOData != null ? _SOData.Name : name;
 
         // ======================================== attack ========================================

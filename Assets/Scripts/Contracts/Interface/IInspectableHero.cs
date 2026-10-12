@@ -8,5 +8,6 @@ namespace MagicSchool.Contracts
         string SkillDescription { get; }
         bool HasAutoAttackPassive { get; }
         string PassiveDescription { get; }
+        string AlignDescription { get; }    
     }
 }

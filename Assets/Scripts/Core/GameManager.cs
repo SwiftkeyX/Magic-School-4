@@ -3,6 +3,7 @@ using System.Linq;
 using System.IO;
 using UnityEngine;
 using MagicSchool.Contracts;
+using MagicSchool.Combat.Align;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.CombatRecording;
@@ -57,6 +58,7 @@ namespace MagicSchool.Core
         private HeroMover _heroMover;
         private Seller _seller;
         private HeroFormation _heroFormation;
+        private AlignBonuses _alignBonuses;
         private HeroSeed _seed;
         private HeroSpawner _heroSpawner;
         private StageEditor _stageEditor;
@@ -109,14 +111,22 @@ namespace MagicSchool.Core
         internal IRewardPanel Reward => _reward;
         internal IScoreboardPanel Scoreboard => _scoreboard;
         internal void ChangeState(GamePhaseEnum next) => _stateMachine.ChangeState(next);
-        public void MoveHero(ICombatant hero, IPlacement placement) => _heroMover.MoveThisHeroTo(hero, placement);
+        public void MoveHero(ICombatant hero, IPlacement placement)
+        {
+            _heroMover.MoveThisHeroTo(hero, placement);
+            RefreshAligning();
+        }
 
         public void Sell(ISellable sellable)
         {
             if (sellable is ICombatant && Phase != GamePhaseEnum.Preparation) return;
 
             _seller.Sell(sellable);
+            RefreshAligning();
         }
+
+        // refresh the aligning bonus
+        internal void RefreshAligning() => _alignBonuses.Refresh(_board, TeamEnum.Blue);
 
         // ======================================== life cycle ========================================
         // init dependency
@@ -125,6 +135,7 @@ namespace MagicSchool.Core
             Instance = this;
 
             _heroMover = new HeroMover();
+            _alignBonuses = new AlignBonuses();
             _seed = new HeroSeed(GetStage(_stageIndex), _board);
             _recorder = new CombatRecorder();
 

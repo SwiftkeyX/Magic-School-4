@@ -27,6 +27,7 @@ namespace MagicSchool.Player
 
         // ============================= getter =============================
         public bool IsHolding => _held as Object != null;
+        public Hero HeldHero => IsHolding ? _held as Hero : null;
         private bool IsPreparation => GameManager.Instance.Phase == GamePhaseEnum.Preparation;
         private bool _isStageEditor => GameManager.Instance.StageEditor != null;
 

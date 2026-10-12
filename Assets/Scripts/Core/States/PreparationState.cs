@@ -36,6 +36,8 @@ namespace MagicSchool.Core.States
 
             ApplyDeployZone();
 
+            _game.RefreshAligning();
+
             _game.Shop.Restock();
 
             _game.Hint?.ShowPreparation(_game.StageNumber, _game.StageCount);

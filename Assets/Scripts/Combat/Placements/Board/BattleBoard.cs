@@ -15,6 +15,8 @@ namespace MagicSchool.Combat.Placements
         [SerializeField] private Color _outsideColor = new Color(1f, 0.353f, 0.353f);
         [Tooltip("Outside Preparation: every hex. The zone only matters while placing.")]
         [SerializeField] private Color _neutralColor = new Color(0.45f, 0.52f, 0.65f);
+        [Tooltip("Aligning, while a hero is held: a hex the held hero would mark, dropped where the pointer is.")]
+        [SerializeField] private Color _markedByHeldColor = new Color(0.4f, 0.9f, 0.5f);
 
         // track every hex
         private Dictionary<HexNumber, Hex> _hexs = new Dictionary<HexNumber, Hex>();
@@ -200,6 +202,17 @@ namespace MagicSchool.Combat.Placements
                 .OrderBy(number => number.column)
                 .ThenBy(number => number.row)
                 .ToList();
+        }
+
+        // =================================== Aligning ===================================
+        // paint the marked hexes over the deploy zone's colours.
+        public void ShowAlignMarks(ICollection<Hex> marked, ICollection<Hex> markedByHeld)
+        {
+            foreach (Hex hex in _hexs.Values)
+            {
+                if (markedByHeld.Contains(hex)) hex.SetColor(_markedByHeldColor);
+                else hex.SetColor(ZoneColorOf(hex));
+            }
         }
 
         // =================================== Between stages ===================================
