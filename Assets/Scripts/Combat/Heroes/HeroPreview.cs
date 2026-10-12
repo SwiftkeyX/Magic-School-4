@@ -1,5 +1,6 @@
 using System;
 using MagicSchool.Contracts;
+using MagicSchool.Combat.Align;
 using MagicSchool.Combat.Heroes.Stats;
 using MagicSchool.Skills;
 
@@ -33,6 +34,7 @@ namespace MagicSchool.Combat.Heroes
         public string SkillDescription => _skill.Description;
         public bool HasAutoAttackPassive => _skill.HasAutoAttackPassive;
         public string PassiveDescription => _skill.PassiveDescription;
+        public string AlignDescription => AlignText.Describe(_data.AlignMarks);
 
         // === IHeroStats ===
         public float GetStat(StatEnum type) => _stat.GetFinalStat(type);

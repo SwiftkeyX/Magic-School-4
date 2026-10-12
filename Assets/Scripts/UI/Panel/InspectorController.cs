@@ -13,8 +13,8 @@ namespace MagicSchool.UI
         private VisualElement _hpBar, _manaBar, _statGrid;
         private VisualElement _hpFill, _manaFill;
         private Label _statAtk, _statDef, _statMag, _statMr, _statAs, _statRange;
-        private VisualElement _activeSection, _passiveSection, _itemSection;
-        private Label _activeName, _activeBody, _passiveBody, _itemBody;
+        private VisualElement _activeSection, _passiveSection, _alignSection, _itemSection;
+        private Label _activeName, _activeBody, _passiveBody, _alignBody, _itemBody;
         private IInspectable _shown;
 
         // Some part of the inspector are always change dynamically 
@@ -90,6 +90,8 @@ namespace MagicSchool.UI
             _activeBody = Panel.Q<Label>("ActiveBody");
             _passiveSection = Panel.Q<VisualElement>("PassiveSection");
             _passiveBody = Panel.Q<Label>("PassiveBody");
+            _alignSection = Panel.Q<VisualElement>("AlignSection");
+            _alignBody = Panel.Q<Label>("AlignBody");
             _itemSection = Panel.Q<VisualElement>("ItemSection");
             _itemBody = Panel.Q<Label>("ItemBody");
         }
@@ -107,12 +109,6 @@ namespace MagicSchool.UI
             SetShown(_statGrid, true);
 
             _heroTeam.text = hero.Team.ToString().ToUpperInvariant();
-            _statAtk.text = hero.AttackDamage.ToString();
-            _statDef.text = hero.Defence.ToString();
-            _statMag.text = hero.Magic.ToString();
-            _statMr.text = hero.MagicResist.ToString();
-            _statAs.text = hero.AttackSpeed.ToString("0.00");
-            _statRange.text = hero.Range.ToString();
 
             ShowAbility(hero);
             Refresh();
@@ -121,6 +117,7 @@ namespace MagicSchool.UI
         // resolve ability text
         private void ShowAbility(IInspectableHero unit)
         {
+            // show active ability
             bool hasActive = unit.HasSkill;
             SetShown(_activeSection, hasActive);
             if (hasActive)
@@ -131,7 +128,7 @@ namespace MagicSchool.UI
                     : unit.SkillDescription;
             }
 
-            // only two heroes have one - an empty PASSIVE heading on the other fifteen reads as a bug
+            // show passive ability
             bool hasPassive = unit.HasAutoAttackPassive;
             SetShown(_passiveSection, hasPassive);
             if (hasPassive)
@@ -140,6 +137,11 @@ namespace MagicSchool.UI
                     ? "No description written yet."
                     : unit.PassiveDescription;
             }
+
+            // show align ability
+            bool hasMarks = !string.IsNullOrEmpty(unit.AlignDescription);
+            SetShown(_alignSection, hasMarks);
+            if (hasMarks) _alignBody.text = unit.AlignDescription;
         }
 
         private void UnShowHero()
@@ -150,6 +152,7 @@ namespace MagicSchool.UI
             SetShown(_statGrid, false);
             SetShown(_activeSection, false);
             SetShown(_passiveSection, false);
+            SetShown(_alignSection, false);
         }
 
         // ============================================= item =============================================
@@ -172,10 +175,17 @@ namespace MagicSchool.UI
 
         // FLAGGING: those helper look so generic that it don't have to be in this class. Let leave it here for now.
         // ============================================= helper =============================================
-        // update bar to hp and mana
+        // update hp bar, mana bar, and stat numbers
         private void Refresh()
         {
             if (!(_shown is IInspectableHero hero)) return;
+
+            _statAtk.text = hero.AttackDamage.ToString();
+            _statDef.text = hero.Defence.ToString();
+            _statMag.text = hero.Magic.ToString();
+            _statMr.text = hero.MagicResist.ToString();
+            _statAs.text = hero.AttackSpeed.ToString("0.00");
+            _statRange.text = hero.Range.ToString();
 
             SetBar(_hpFill, _hpLabel, hero.CurrentHP, hero.MaxHP);
             SetBar(_manaFill, _manaLabel, hero.CurrentMana, hero.MaxMana);

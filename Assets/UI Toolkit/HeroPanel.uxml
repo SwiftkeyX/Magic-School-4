@@ -73,6 +73,12 @@
                 <ui:Label text="PASSIVE" class="section__kicker"/>
                 <ui:Label name="PassiveBody" text="While transformed his auto attack becomes a three beat combo - box, then triangle, then circle - and each beat lands harder than the one before it." class="section__body"/>
             </ui:VisualElement>
+            <!-- Aligning: the hexes this hero marks and what an ally standing there gets, one line per
+                 bonus. Hidden at runtime for a hero with no marks. -->
+            <ui:VisualElement name="AlignSection" class="section">
+                <ui:Label text="ALIGNING" class="section__kicker"/>
+                <ui:Label name="AlignBody" text="+30% attack speed" class="section__body"/>
+            </ui:VisualElement>
         </ui:ScrollView>
     </ui:VisualElement>
 </ui:UXML>
