@@ -29,8 +29,9 @@ MonoBehaviour:
   _skillId: 12
   _spawnUnit: {fileID: 0}
   _alignMarks:
-  - direction: 4
-    distance: 1
+  - hexes:
+    - direction: 4
+      distance: 1
     modifier: 0
     amount: 200
     percentOf: -1
