@@ -10,7 +10,7 @@ namespace MagicSchool.Editor
     // Magic School 4 > Align Editor
     // A editor window for editing each hero's align mark.
     // Solved problem that we need to manually typing directions and distances in the Inspector.
-    // 
+    //
     // NOTE: The editor also work during Play mode
     internal class AlignEditorWindow : EditorWindow
     {
@@ -167,6 +167,7 @@ namespace MagicSchool.Editor
 
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.LabelField("Click a hex to give it to the selected bonus. Click it again to take it away.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.LabelField("Right-click a marked hex to make it a wearing hex: an item lying there is worn by the hero. Right-click again to undo.", EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.LabelField("The enemy is to the right.", EditorStyles.wordWrappedMiniLabel);
 
             float size = (Reach * 2 + 1) * RowStep + 20f;
@@ -192,12 +193,23 @@ namespace MagicSchool.Editor
                         : ColorOf(mark);
                     DrawHex(position, fill, isOutlined: mark >= 0 && mark == _selectedMark);
 
+                    bool isWearing = mark >= 0 && IsWearing(marks, mark, offset);
+
                     string label = isHero ? "hero"
+                        : isWearing ? $"{mark + 1} ITEM\n{NameOf(offset)}"
                         : mark >= 0 ? $"{mark + 1}\n{NameOf(offset)}"
                         : NameOf(offset);
                     DrawLabel(position, label);
 
-                    if (!isHero && IsClicked(position))
+                    // right-click a marked hex: an item lying there is worn, or no longer is
+                    if (mark >= 0 && IsClicked(position, button: 1))
+                    {
+                        SetWearing(marks, mark, offset, !isWearing);
+                        Event.current.Use();
+                        Repaint();
+                    }
+
+                    if (!isHero && IsClicked(position, button: 0))
                     {
                         Toggle(marks, offset);
                         Event.current.Use();
@@ -280,10 +292,10 @@ namespace MagicSchool.Editor
             GUI.Label(new Rect(centre.x - 30f, centre.y - 16f, 60f, 32f), text, style);
         }
 
-        private static bool IsClicked(Vector2 centre)
+        private static bool IsClicked(Vector2 centre, int button)
         {
             Event e = Event.current;
-            if (e.type != EventType.MouseDown || e.button != 0) return false;
+            if (e.type != EventType.MouseDown || e.button != button) return false;
 
             return Vector2.Distance(e.mousePosition, centre) < RowStep * 0.45f;
         }
@@ -409,6 +421,25 @@ namespace MagicSchool.Editor
             added.FindPropertyRelative("distance").intValue = steps;
             added.FindPropertyRelative("thenDirection").intValue = thenDirection;
             added.FindPropertyRelative("thenDistance").intValue = thenSteps;
+            added.FindPropertyRelative("isWearing").boolValue = false;
+        }
+
+        // Is this hex of the bonus a wearing hex?
+        private static bool IsWearing(SerializedProperty marks, int mark, Vector2Int offset)
+        {
+            SerializedProperty hexes = marks.GetArrayElementAtIndex(mark).FindPropertyRelative("hexes");
+            int index = IndexOfHex(hexes, offset);
+
+            return index >= 0 && hexes.GetArrayElementAtIndex(index).FindPropertyRelative("isWearing").boolValue;
+        }
+
+        private static void SetWearing(SerializedProperty marks, int mark, Vector2Int offset, bool isWearing)
+        {
+            SerializedProperty hexes = marks.GetArrayElementAtIndex(mark).FindPropertyRelative("hexes");
+            int index = IndexOfHex(hexes, offset);
+            if (index < 0) return;
+
+            hexes.GetArrayElementAtIndex(index).FindPropertyRelative("isWearing").boolValue = isWearing;
         }
 
         // A new, empty bonus, and select it. Unity fills a new list entry with a copy of the last one, so wipe it.

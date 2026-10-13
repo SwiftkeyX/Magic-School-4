@@ -26,7 +26,12 @@ namespace MagicSchool.Combat.Align
                 .Where(mark => mark.HasSelfBonus)
                 .Select(mark => "Self, per ally aligned: " + Bonus(mark.selfModifier, mark.selfAmount, mark.selfPercentOf));
 
-            return string.Join("\n", allyBonus.Concat(selfBonus));
+            // an item lying on a wearing hex is worn by the hero
+            var wearing = marks
+                .Where(mark => mark.HasWearingHex)
+                .Select(mark => "Wears an item placed on a wearing hex");
+
+            return string.Join("\n", allyBonus.Concat(selfBonus).Concat(wearing).Distinct());
         }
 
         private static string Bonus(ModifierEnum modifier, float value, StatEnum percentOf)

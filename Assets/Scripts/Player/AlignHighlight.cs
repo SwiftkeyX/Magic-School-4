@@ -34,6 +34,13 @@ namespace MagicSchool.Player
             bool isPreparation = GameManager.Instance.Phase == GamePhaseEnum.Preparation;
             Hero held = _dragging.HeldHero;
 
+            // holding an item: light up the hexes where a placed hero would wear it
+            if (isPreparation && _dragging.HeldItem != null)
+            {
+                Show(InDeployZone(AligningHex.WearingHexes(_board, _team)), new HashSet<Hex>());
+                return;
+            }
+
             // an enemy held in the stage editor shows nothing: an enemy's marks do nothing
             if (!isPreparation || held == null || held.Team != _team)
             {
@@ -46,10 +53,15 @@ namespace MagicSchool.Player
             HashSet<Hex> firstBonus = InDeployZone(hexesByBonus[0]);
             HashSet<Hex> secondBonus = InDeployZone(hexesByBonus[1]);
 
+            Show(firstBonus, secondBonus);
+        }
+
+        // mark those hexes with different colour
+        private void Show(HashSet<Hex> firstBonus, HashSet<Hex> secondBonus)
+        {
             // repaint only when something moved
             if (_isShown && firstBonus.SetEquals(_firstBonus) && secondBonus.SetEquals(_secondBonus)) return;
 
-            // mark those hexes with different colour 
             _firstBonus = firstBonus;
             _secondBonus = secondBonus;
             _isShown = true;
