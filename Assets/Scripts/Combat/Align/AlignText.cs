@@ -34,24 +34,28 @@ namespace MagicSchool.Combat.Align
             // a percent of the hero's own stat reads as a percent; anything else is the plain number
             string amount = percentOf == StatEnum.None ? $"{value:0.#}" : $"{value:0.#}%";
 
+            // a bonus can take away: -10 max mana
+            string signed = (value < 0f ? "" : "+") + amount;
+
             switch (modifier)
             {
-                case ModifierEnum.AS: return $"+{amount} attack speed";
-                case ModifierEnum.ATK: return $"+{amount} AD";
-                case ModifierEnum.AP: return $"+{amount} AP";
-                case ModifierEnum.DF: return $"+{amount} DF";
-                case ModifierEnum.MR: return $"+{amount} MR";
-                case ModifierEnum.BonusHP: return $"+{amount} max HP";
-                case ModifierEnum.StartMana: return $"+{amount} starting mana";
-                case ModifierEnum.ManaPerAttack: return $"+{amount} mana per attack";
-                case ModifierEnum.Range: return $"+{amount} range";
+                case ModifierEnum.AS: return $"{signed} attack speed";
+                case ModifierEnum.ATK: return $"{signed} AD";
+                case ModifierEnum.AP: return $"{signed} AP";
+                case ModifierEnum.DF: return $"{signed} DF";
+                case ModifierEnum.MR: return $"{signed} MR";
+                case ModifierEnum.BonusHP: return $"{signed} max HP";
+                case ModifierEnum.StartMana: return $"{signed} starting mana";
+                case ModifierEnum.ManaPerAttack: return $"{signed} mana per attack";
+                case ModifierEnum.MaxMana: return $"{signed} max mana";
+                case ModifierEnum.Range: return $"{signed} range";
 
                 // these three are already counted in percent
-                case ModifierEnum.CritChance: return $"+{amount}% crit chance";
+                case ModifierEnum.CritChance: return $"{signed}% crit chance";
                 case ModifierEnum.Omnivamp: return $"heals for {amount}% of damage dealt";
                 case ModifierEnum.DamageReduction: return $"takes {amount}% less damage";
 
-                default: return $"+{amount} {modifier}";
+                default: return $"{signed} {modifier}";
             }
         }
     }

@@ -34,15 +34,15 @@ MonoBehaviour:
     modifier: 8
     amount: 30
     percentOf: 3
-    selfModifier: 0
-    selfAmount: 0
+    selfModifier: 21
+    selfAmount: -10
     selfPercentOf: -1
   - direction: 3
     distance: 1
     modifier: 8
     amount: 30
     percentOf: 3
-    selfModifier: 0
-    selfAmount: 0
+    selfModifier: 21
+    selfAmount: -10
     selfPercentOf: -1
   _isDummy: 0
