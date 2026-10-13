@@ -64,8 +64,6 @@ namespace MagicSchool.Combat.Heroes
         public void UntrackFromBoard() { if (_board != null) _board.UntrackThisHero(this); }
 
         // ======================================== visuals ========================================
-        public void SetDeadVisual() => _visuals.SetDeadVisual();
-        public void SetAliveVisual() => _visuals.SetAliveVisual();
         public void PlaySkillCastEffect(string skillName) => _visuals.PlaySkillCastEffect(skillName);
 
         // ======================================== items ========================================
@@ -275,8 +273,6 @@ namespace MagicSchool.Combat.Heroes
 
             // the modifier from items is also reset, so re-grant it.
             _items.ReGrantAll();
-
-            SetAliveVisual();
 
             // ChangeState, not Start: the Dead state has to be left properly, and a hero that
             // survived is already mid-state rather than un-started.

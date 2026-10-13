@@ -4,16 +4,9 @@ using MagicSchool.Contracts;
 
 namespace MagicSchool.Combat.Heroes
 {
-    /// <summary>
-    /// The presentation layer for hero - as opposed to the state Hero itself holds, or the logic layer (the states).
-    /// This is still unstable though. I think it would be changed a lot from now.
-    /// </summary>
     [RequireComponent(typeof(SpriteRenderer))]
     internal class HeroVisuals : MonoBehaviour
     {
-        private const float DeadAlpha = 0.3f;
-        private const float AliveAlpha = 1f;
-
         private static readonly Color BlueSkillTextColor = new Color(0.4f, 0.85f, 1f);
         private static readonly Color RedSkillTextColor = new Color(1f, 0.55f, 0.3f);
 
@@ -33,28 +26,14 @@ namespace MagicSchool.Combat.Heroes
             if (_me == null || !_me.IsInitialized) return;
 
             // if a hero is vanished, don't draw him 
-            bool isShown = !_me.HasStatus(ModifierEnum.Untargetable);
+            // the same goes for a dead hero. The player's dead are not destroyed: they are revived for
+            // the next stage, and drawn again then.
+            bool isShown = _me.IsAlive && !_me.HasStatus(ModifierEnum.Untargetable);
             if (_sprite.enabled == isShown) return;
             _sprite.enabled = isShown;
 
             // don't draw the canvas of him too.
             foreach (Canvas bar in GetComponentsInChildren<Canvas>(true)) bar.enabled = isShown;
-        }
-
-        // When hero die, set his sprite transparent to indicate that he is dead.
-        public void SetDeadVisual()
-        {
-            Color c = _sprite.color;
-            c.a = DeadAlpha;
-            _sprite.color = c;
-        }
-
-        // Counterpart to SetDeadVisual, no longer set the sprite to transparent
-        public void SetAliveVisual()
-        {
-            Color c = _sprite.color;
-            c.a = AliveAlpha;
-            _sprite.color = c;
         }
 
         // Floating skill-name text above the hero when its skill actually casts
