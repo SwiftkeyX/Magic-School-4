@@ -30,7 +30,11 @@ MonoBehaviour:
   _spawnUnit: {fileID: 0}
   _alignMarks:
   - direction: 4
+    distance: 1
     modifier: 0
     amount: 200
     percentOf: -1
+    selfModifier: 0
+    selfAmount: 0
+    selfPercentOf: -1
   _isDummy: 0

@@ -9,7 +9,7 @@ using MagicSchool.Input;
 
 namespace MagicSchool.Player
 {
-    // Aligning, while the player holds one of his heroes, light up the marked hex
+    // Aligning, while the player holds one of his heroes, hightlight the marked hex
     internal class AlignHighlight
     {
         private readonly Camera _cam;
@@ -17,8 +17,8 @@ namespace MagicSchool.Player
         private readonly BattleBoard _board;
         private readonly TeamEnum _team;
 
-        private HashSet<Hex> _marked = new HashSet<Hex>();
-        private HashSet<Hex> _markedByHeld = new HashSet<Hex>();
+        private HashSet<Hex> _firstBonus = new HashSet<Hex>();
+        private HashSet<Hex> _secondBonus = new HashSet<Hex>();
         private bool _isShown;
 
         public AlignHighlight(Camera cam, Dragging dragging, BattleBoard board, TeamEnum team)
@@ -41,31 +41,35 @@ namespace MagicSchool.Player
                 return;
             }
 
-            HashSet<Hex> marked = InZone(AligningHex.MarkedHexes(_board, _team, except: held));
-            HashSet<Hex> markedByHeld = InZone(MarkedFromPointer(held));
+            // if holded hero was on top of the hex, get hexes that was going to be marked
+            List<Hex>[] hexesByBonus = MarkedFromPointer(held);
+            HashSet<Hex> firstBonus = InDeployZone(hexesByBonus[0]);
+            HashSet<Hex> secondBonus = InDeployZone(hexesByBonus[1]);
 
             // repaint only when something moved
-            if (_isShown && marked.SetEquals(_marked) && markedByHeld.SetEquals(_markedByHeld)) return;
+            if (_isShown && firstBonus.SetEquals(_firstBonus) && secondBonus.SetEquals(_secondBonus)) return;
 
-            _marked = marked;
-            _markedByHeld = markedByHeld;
+            // mark those hexes with different colour 
+            _firstBonus = firstBonus;
+            _secondBonus = secondBonus;
             _isShown = true;
-            _board.ShowAlignMarks(_marked, _markedByHeld);
+            _board.ShowAlignMarks(_firstBonus, _secondBonus);
         }
 
-        // what the held hero would mark, dropped on the hex under the pointer
-        private IEnumerable<Hex> MarkedFromPointer(Hero held)
+        // if hero was holded on top of the hex, get hexes that was going to be marked
+        private List<Hex>[] MarkedFromPointer(Hero held)
         {
             Vector3 worldPos = PlayerInputSystem.GetMouseWorldPosition(_cam);
             Hex pointed = Picker.At<Hex>(worldPos);
 
-            // the held hero can only be dropped inside the zone
-            if (pointed == null || !pointed.IsInDeployZone) return new List<Hex>();
+            if (pointed == null || !pointed.IsInDeployZone) return new[] { new List<Hex>(), new List<Hex>() };
 
-            return AligningHex.MarkedHexes(held, pointed);
+            return AligningHex.MarkedHexesByBonus(held, pointed);
         }
 
-        private static HashSet<Hex> InZone(IEnumerable<Hex> hexes)
+        // the marked hexes can only be in deploy zone.
+        // (See BattleBoard.SetDeployZone)
+        private static HashSet<Hex> InDeployZone(IEnumerable<Hex> hexes)
         {
             var inZone = new HashSet<Hex>();
             foreach (Hex hex in hexes)
@@ -76,7 +80,7 @@ namespace MagicSchool.Player
             return inZone;
         }
 
-        // back to the plain deploy zone. Outside Preparation the board has already repainted itself.
+        // Hide the highlight of the marked hex
         private void Hide(bool isPreparation)
         {
             if (!_isShown) return;

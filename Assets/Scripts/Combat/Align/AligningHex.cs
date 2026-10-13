@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 
@@ -8,39 +7,26 @@ namespace MagicSchool.Combat.Align
     /// <summary>
     /// The aligning mechanic: a hero marks some of the hexes around it, and an ally standing on a marked hex will grant a bonus.
     /// </summary>
-    
-    // Get hexes that was marked by aligning mechanic 
+
+    // Get hexes that was marked by aligning mechanic
     public static class AligningHex
     {
-        // Get the list of marked hex by the specify hero
-        public static List<Hex> MarkedHexes(Hero giver, Hex standingOn)
+        // Get the marked hexes of the specify hero as two lists.
+        // Each one give different bonus:
+        // e.g.     Elf: N and S give AP                    => [0] = N hex, S hex     [1] = empty
+        // e.g.     Random Hero: N gives AP, S gives AD     => [0] = N hex            [1] = S hex
+        public static List<Hex>[] MarkedHexesByBonus(Hero giver, Hex standingOn)
         {
-            var marked = new List<Hex>();
+            var hexesByBonus = new[] { new List<Hex>(), new List<Hex>() };
 
-            foreach (AlignMark mark in giver.Data.AlignMarks)
+            IReadOnlyList<AlignMark> marks = giver.Data.AlignMarks;
+            for (int i = 0; i < marks.Count; i++)
             {
-                Hex hex = standingOn.GetNeighbor(mark.direction);
-                if (hex != null) marked.Add(hex);
+                int bonus = i == 1 ? 1 : 0;
+                hexesByBonus[bonus].AddRange(marks[i].GetMarkedHexes(standingOn));
             }
 
-            return marked;
-        }
-
-        // Get the list of makred hex from a specify team.
-        // `except` is left out: a hero being dragged is still tracked on the hex it was picked up from.
-        public static List<Hex> MarkedHexes(BattleBoard board, TeamEnum team, Hero except = null)
-        {
-            var marked = new List<Hex>();
-
-            foreach (ICombatant combatant in board.HeroesOnBoard)
-            {
-                if (!(combatant is Hero giver) || giver == except || giver.Team != team) continue;
-                if (giver.CurrentHex == null) continue;
-
-                marked.AddRange(MarkedHexes(giver, giver.CurrentHex));
-            }
-
-            return marked;
+            return hexesByBonus;
         }
     }
 }

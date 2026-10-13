@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 using MagicSchool.Contracts;
 
 namespace MagicSchool.Combat.Placements
@@ -15,8 +16,11 @@ namespace MagicSchool.Combat.Placements
         [SerializeField] private Color _outsideColor = new Color(1f, 0.353f, 0.353f);
         [Tooltip("Outside Preparation: every hex. The zone only matters while placing.")]
         [SerializeField] private Color _neutralColor = new Color(0.45f, 0.52f, 0.65f);
-        [Tooltip("Aligning, while a hero is held: a hex the held hero would mark, dropped where the pointer is.")]
-        [SerializeField] private Color _markedByHeldColor = new Color(0.4f, 0.9f, 0.5f);
+        [Tooltip("Aligning, while a hero is held: a hex the held hero would mark with its first bonus.")]
+        [SerializeField] private Color _firstBonusColor = new Color(1f, 0.62f, 0.2f);
+        [Tooltip("Aligning, while a hero is held: a hex the held hero would mark with its second bonus.")]
+        [FormerlySerializedAs("_markedByHeldColor")]
+        [SerializeField] private Color _secondBonusColor = new Color(0.4f, 0.9f, 0.5f);
 
         // track every hex
         private Dictionary<HexNumber, Hex> _hexs = new Dictionary<HexNumber, Hex>();
@@ -157,6 +161,7 @@ namespace MagicSchool.Combat.Placements
         }
 
         // =================================== Deploy zone ===================================
+        // ASKING: Could we move deploy zone out to its own script?
         /// <summary>
         /// The list of hexes the player can put a hero on during Preparation. 
         /// Each stage have different deploy zone.
@@ -205,12 +210,15 @@ namespace MagicSchool.Combat.Placements
         }
 
         // =================================== Aligning ===================================
-        // paint the marked hexes over the deploy zone's colours.
-        public void ShowAlignMarks(ICollection<Hex> marked, ICollection<Hex> markedByHeld)
+        // paint the held hero's marked hexes over the deploy zone's colours, one colour for each bonus.
+        public void ShowAlignMarks(ICollection<Hex> firstBonus, ICollection<Hex> secondBonus)
         {
             foreach (Hex hex in _hexs.Values)
             {
-                if (markedByHeld.Contains(hex)) hex.SetColor(_markedByHeldColor);
+                if (firstBonus.Contains(hex)) hex.SetColor(_firstBonusColor);
+
+                else if (secondBonus.Contains(hex)) hex.SetColor(_secondBonusColor);
+
                 else hex.SetColor(ZoneColorOf(hex));
             }
         }

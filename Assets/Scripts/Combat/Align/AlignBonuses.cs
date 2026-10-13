@@ -6,10 +6,11 @@ using MagicSchool.Combat.Placements;
 namespace MagicSchool.Combat.Align
 {
     /// <summary>
-    /// Remember the bonuses from the aligning mechanic are giving right now. 
+    /// Remember the bonuses from the aligning mechanic that are applying right now. 
     /// So we can control when to give the bonus or take bonus back.
     /// e.g.    the player drags an Elf behind Ettin    => Refresh: the Elf gains +30% attack speed
     ///         the player drags the Elf away again     => Refresh: the Elf loses the bonus
+    /// (read AlignMark.cs and AlignHex.cs)
     /// </summary>
     public class AlignBonuses
     {
@@ -22,28 +23,42 @@ namespace MagicSchool.Combat.Align
         //      when the fight starts, refresh
         public void Refresh(BattleBoard board, TeamEnum team)
         {
+            // Wipe every modifier given by the aligning mechanic 
             TakeBack();
 
+            // loop through every combatant on the board.
+            // if the mark from each combatant is aligned, give bonus to self/receiver. 
             foreach (ICombatant combatant in new List<ICombatant>(board.HeroesOnBoard))
             {
-                if (!(combatant is Hero giver) || giver.Team != team || !giver.IsAlive) continue;
+                if (!(combatant is Hero me) || me.Team != team || !me.IsAlive) continue;
 
-                Hex standingOn = giver.CurrentHex;
+                Hex standingOn = me.CurrentHex;
                 if (standingOn == null) continue;
 
-                foreach (AlignMark mark in giver.Data.AlignMarks)
+                // loop through every mark own by this hero
+                foreach (AlignMark mark in me.Data.AlignMarks)
                 {
-                    // the board's edge: no hex on that side
-                    Hex marked = standingOn.GetNeighbor(mark.direction);
-                    if (marked == null) continue;
+                    // loop through every hex that was marked
+                    foreach (Hex marked in mark.GetMarkedHexes(standingOn))
+                    {
+                        // get who is standing on the marked hex
+                        if (!(board.WhoReservedThisHex(marked) is Hero receiver) || receiver.Team != team) continue;
 
-                    if (!(board.WhoReservedThisHex(marked) is Hero receiver) || receiver.Team != team) continue;
+                        // this mark give bonus to the receiver
+                        if (mark.HasAllyBonus) Give(receiver, mark.BuildAllyModifier(), me);
 
-                    ICustomModifier bonus = mark.BuildModifier();
-                    receiver.AddModifier(bonus, giver);
-                    _given.Add((receiver, bonus));
+                        // this mark give bonus to self
+                        if (mark.HasSelfBonus) Give(me, mark.BuildSelfModifier(), me);
+                    }
                 }
             }
+        }
+
+        // Add modifier to the specify hero
+        private void Give(Hero receiver, ICustomModifier bonus, Hero giver)
+        {
+            receiver.AddModifier(bonus, giver);
+            _given.Add((receiver, bonus));
         }
 
         // Wipe every modifier given by the aligning mechanic  
