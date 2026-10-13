@@ -90,10 +90,13 @@ namespace MagicSchool.Combat.Align
     }
 
     /// <summary>
-    /// A hex that was marked by the aligning mechanic, 
+    /// A hex that was marked by the aligning mechanic,
     /// keep a direction from the hero, and how many hexes away.
-    /// e.g.    SW, 1   => the hex behind-below the hero
-    /// e.g.    NE, 2   => 2 hexes ahead-above the hero
+    /// e.g.    SW, 1               => the hex south-east from the hero for 1 hex
+    /// e.g.    NE, 2               => the hex north-east from the hero for 2 hex
+    /// 
+    /// A hex that is not on a straight line from the hero needs a second direction.
+    /// e.g.    NE, 1, then SE, 1   => the hex north-east for 1 hex, then south-east for 1 hex
     /// </summary>
     [Serializable]
     public struct AlignHex
@@ -104,8 +107,30 @@ namespace MagicSchool.Combat.Align
         [Tooltip("How many hexes away in that direction.")]
         public int distance;
 
-        public int Distance => Mathf.Max(1, distance);
+        [Tooltip("For a hex off the straight lines: the direction to turn to after the first direction.")]
+        public HexDirectionEnum thenDirection;
 
-        public Hex GetHex(Hex standingOn) => standingOn.GetNeighbor(direction, Distance);
+        [Tooltip("How many hexes away in that then direction.")]
+        public int thenDistance;
+
+        public int Distance => Mathf.Max(1, distance);
+        public bool HasTurn => thenDistance > 0;
+
+        public Hex GetHex(Hex standingOn)
+        {
+            // if no turn, return
+            if (!HasTurn) return standingOn.GetNeighbor(direction, Distance);
+
+            // if turn, walk first
+            Hex hex = Walk(standingOn, direction, Distance, thenDirection, thenDistance);
+            if (hex != null) return hex;
+            return Walk(standingOn, thenDirection, thenDistance, direction, Distance);
+        }
+
+        private static Hex Walk(Hex from, HexDirectionEnum first, int firstSteps, HexDirectionEnum second, int secondSteps)
+        {
+            Hex corner = from.GetNeighbor(first, firstSteps);
+            return corner == null ? null : corner.GetNeighbor(second, secondSteps);
+        }
     }
 }
