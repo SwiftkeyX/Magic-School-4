@@ -11,8 +11,6 @@ namespace MagicSchool.Combat.Heroes.States
 
         public override void OnEnter()
         {
-            _me.SetDeadVisual();
-
             _me.TriggerOnDeath();
             AnnounceDeath();
         }
