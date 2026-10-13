@@ -17,7 +17,7 @@ namespace MagicSchool.Combat.Placements
 
         // === deploy zone ===
         // Is this hex the one player can put a hero on? 
-        // (See BattleBoard.SetDeployZone)
+        // (See DeployZone.cs)
         public bool IsInDeployZone { get; private set; }
         internal void SetInDeployZone(bool value) => IsInDeployZone = value;
 
