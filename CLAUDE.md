@@ -85,6 +85,18 @@ Rules that aren't visible from any single file:
   in `Dictionary<HexNumber, Hex>` derived from position rather than hardcoded, so it survives layout
   changes. Owns hero tracking (`HeroesOnBoard`) and hex reservations (`_reservedBy`), and carries
   `IsBattleOn`, pushed down by `GameManager` so a hero never reaches for that singleton.
+- **Board layouts** - the board owns no hexes. A layout is a prefab holding the hexes of one board shape
+  (in `Assets/Prefabs/Board/`, built from `Board/Hex.prefab`: `Square Layout`, 8 columns of 7, and
+  `Hexagon Layout`, 37 hexes in columns of 4 5 6 7 6 5 4; `Hourglass Layout`, 47 in 7 6 5 4 3 4 5 6 7;
+  `Ring Layout`, the hexagon minus its centre 7, 30 hexes; `Diamond Layout`, 47 in 2 3 4 5 6 7 6 5 4 3 2;
+  `Wide Square Layout`, 16 columns of 7 - the square at twice the width, the left 8 columns being the player's
+  whole deploy zone; its first column sits at x -5.5, not centred, to clear the spare bench on the left;
+  each has a `<Shape>-test` stage in `BattleSetups/Enemy Formation/`), and every stage names
+  the one it is fought on in `BattlePlacementSO._boardLayout`. `PreparationState` empties the board
+  (enemies wiped, the player's team to the spare bench), then `BattleBoard.SetLayout` destroys the old
+  hexes and instantiates the stage's - skipped when the layout is the same as the last stage's. A
+  stage's hex numbers (enemy placements, deploy zone) only mean something on its own layout. The
+  layout instance inside `BattleBoard.prefab` is only there to be seen in the Editor.
 - **`Combat/Placements/Hex/HexPathfinder.cs`** — **A\***, not greedy and not BFS. Returns ONE step
   toward a hex adjacent to the target; A* so equally-short routes tie-break toward the target
   instead of by discovery order. The step returned can look like backward progress when routing
@@ -98,9 +110,12 @@ Rules that aren't visible from any single file:
   sprites with no colliders; that path throws `MissingComponentException`). A hero reserves its
   destination hex the moment it *commits* to a step, not on arrival — reserving on arrival would let
   two heroes target the same free hex in one frame.
-- **`Combat/Placements/Hex/HexNumber.cs`** — `struct HexNumber { TeamEnum team; int column; int row; }`.
-  Must stay a `struct`: value equality is what makes the dictionary lookups work: a `class` here
-  would silently break them into reference equality.
+- **`Combat/Placements/Hex/HexNumber.cs`** — `struct HexNumber { int column; int row; }`. The board
+  is one grid of 8 columns (0 = far left) with row 0 at the top of each column; a hex's number carries
+  no team. A unit's side is on its `HeroPlacement.team`, not on the hex it stands on. Must stay a
+  `struct`: value equality is what makes the dictionary lookups work: a `class` here would silently
+  break them into reference equality. A hex belongs to no team at all: it is in the
+  player's deploy zone or it is not.
 - **`Skills/`** — a skill is a `SkillDefinition` holding one `SkillFlow` for its active:
   `Flow(onStart, onHit, onExpired)`. Each of the three slots holds one `SkillPart` - one piece of the
   skill, which picks a `TemplateAction` (projectile / AoE / move / cast) - or several that start
@@ -124,15 +139,83 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
 ## What's built vs. pending
 
 - Movement, A* pathfinding and hex reservation work.
-- Combat works: auto-attack on an attack-speed cooldown, mana (10 per attack, `HeroAttack.ManaPerAttack`),
+- Combat works: auto-attack on an attack-speed cooldown, mana (10 per attack, the base of `StatEnum.ManaPerAttack`, set in `Stat`),
   skill cast when mana caps and spent in `HeroCast.OnEnter`, damage/heal via `CombatMath`, and
   modifiers/statuses through `Stat`/`ModifierResolver`.
-- Skills are built for 8 heroes (Vharn, Sithra, Bulwark, Roland, Quatre, Solace, Vesper, Pip).
-- Between stages the player's team is revived *and* walked back to the hexes it started the
-  fight on (`HeroFormation`, snapshot in `CombatState.OnEnter`, restore in
-  `PreparationState.OnEnter`). Without the restore a hero stays where the fight left it —
-  including dead ones, since `HeroDead` never releases its hex — often on an enemy tile the
-  player could never have placed it on.
+- Every hero in `Data/Heroes/Stats/Player/` has a skill script in `Skills/Library/Build/`.
+- Aligning (the game's synergy, in place of traits): a hero marks some of the 6 hexes around itself and an
+  ally standing on a marked hex gets a bonus. The code is in `Combat/Align/` (`MagicSchool.Combat.Align`) - a
+  folder of `Combat`, not its own assembly: `HeroDataSO` holds the marks while `Aligning` needs `Hero`, `Hex` and
+  `BattleBoard`, so a separate module would have to sit both under and over `Combat`. Marks are data, `HeroDataSO._alignMarks`: one `AlignMark`
+  is one bonus and every hex that gives it - `hexes` (a list of `AlignHex`: direction, and `distance` - how
+  many hexes away in a straight line, 1 = adjacent, heroes in between do not block it and a missing hex on
+  the way ends it; a hex off the straight lines adds a turn, `thenDirection` / `thenDistance`, 0 = none, and
+  the two legs are tried in either order so a board edge does not lose it), then modifier, amount, and `percentOf` - None for a flat amount, else a percent of the
+  receiver's own base stat. A hero with two different bonuses has two marks. A mark can also pay its owner:
+  `selfModifier` / `selfAmount` / `selfPercentOf` are given to the owner once for every one of the mark's
+  hexes an ally stands on; `selfAmount` 0 means none, and an ally `amount` of 0 makes it a self-only mark.
+  Elf is the one hero with a self bonus so far (`ModifierEnum.MaxMana` -10 per hex: an amount can be
+  negative); no hero uses distance 2+ or a second mark yet. `AlignBonuses.Refresh` (owned by `GameManager`, `RefreshAligning`) takes back every bonus it gave and gives them again
+  for where everyone stands now: after every `GameManager.MoveHero` and `Sell`, when a stage opens, and once more in
+  `CombatState.OnEnter` - so the inspector's numbers follow the placing. The bonuses are ordinary rest-of-fight
+  modifiers; `Aligning` only answers which hexes are marked. The inspector rewrites its stat numbers every frame. Player
+  team only: an enemy's marks do nothing. Directions are `HexDirectionEnum` (N NE SE S SW NW, the player
+  faces right, so SW/NW are behind) and `Hex.GetNeighbor(direction)` finds the hex by angle. While the
+  player holds one of his heroes in Preparation, `Player/AlignHighlight` (ticked after `Dragging`) has the
+  board tint the zone hexes the held hero would mark from the hex under the pointer, one colour for each
+  of its marks: orange for the first mark's hexes, green for the second's, and a third is painted like
+  the first (`AligningHex.MarkedHexesByBonus`, `BoardColours.ShowAlignMarks`, colours in the Inspector).
+  Placed heroes' marks are not shown. **Magic School 4 > Align Editor** (`Core/Editor/AlignEditorWindow`) edits a
+  hero's marks by clicking hexes around it instead of typing directions in the Inspector: heroes on the left,
+  the hexes within 3 in the middle (every one can be marked - the window works out the turn), one box per `AlignMark` on the
+  right. It works through `SerializedObject` on the `HeroDataSO`, outside Play mode, because `Editor` does not
+  reference `Contracts` and so cannot name the modifier and stat enums. The inspector panel lists a hero's marks under ALIGNING (`IInspectableHero.AlignDescription`, written by `AlignText`, hidden when empty). The nine
+  shop heroes all have marks, in three teams of three designed in the sheet's `Aligning` tab (Ettin / Dryad /
+  Elf, Orc Blademaster / Werewolf / Shield Knight, Skeleton Archer / Reaper / Centaur); `_shopRoster` holds
+  only those nine. The teams are being redesigned as three teams of five that share heroes (each carry -
+  Elf, Werewolf, Skeleton Archer - in one team, every other hero in two). Only the Elf team is done, and
+  the assets are ahead of the sheet: a spread fan where every mark is 2 hexes away - Dryad 2 N of Elf,
+  Reaper 2 S, Ettin 2 NE, Orc 2 SE (Elf N/S, Ettin SW/NW, Orc NW/SW, Dryad SE/S, Reaper N/NE). It needs 5
+  rows by 3 columns, which none of the Stage 01 deploy zones has (8-13 hexes on the Hexagon board), so it
+  is played on `Enemy Formation/Wide Square-test` (the `Wide Square Layout`, zone = the left 8 columns). The other two teams no longer line up until their turn.
+- Items on hexes (aligning's second filler, because five heroes cannot fill many marks): in Preparation
+  an item dropped on a free deploy-zone hex lies there (`Dragging.DropItem` -> `GameManager.PutItemOnHex`
+  -> `BattleBoard.Items`, a `HexItems`), and it takes the hex - no hero can be placed on it; it does not
+  block walking. A single marked hex is a wearing hex when its `AlignHex.isWearing` is ticked - the option is per hex,
+  not per bonus, set by right-clicking the hex in the Align Editor: `AlignBonuses.Refresh` gives the mark's
+  owner the modifier of an item lying on one, through the same give-and-take-back list as
+  every other bonus. An item is not an ally: it gives no ally bonus and never triggers the self bonus,
+  which is what keeps hero pairs mattering. Two heroes whose wearing hexes overlap both wear the item
+  (left alone for now). Wearing by dropping an item on a hero still works beside it. While an item is held
+  the board lights up the team's wearing hexes. Items keep their hexes between stages unless the next
+  stage's board differs, then `PreparationState.ReturnItems` moves them to the loose row. `HexItems` only
+  knows `IEquipment`, so `Combat` still does not reference `Items`. No hero has a wearing hex yet.
+- A stat needs a slot in `ModifierResolver.StatSlots` or no modifier can ever change it - the count was one
+  short once and Omnivamp modifiers silently did nothing. Current mana follows `StartMana` when a modifier
+  changes it after the stats are built (`Stat.FollowStartMana`), the way current HP follows max HP.
+- Between stages the player's team is revived and put back on the hexes it started the fight on
+  (`PreparationState.ReturnTeam` -> `HeroFormation.ReturnToStartingPlacement`), so a formation is kept from
+  fight to fight. Only when the next stage is fought on a different board layout - its hexes are about to be
+  destroyed - does the team go to the spare bench instead, which is how it used to be after every fight; a
+  kept hex can lie outside the next stage's deploy zone. What follows describes that spare-bench path.
+- The spare-bench path: the team is revived *and* sent to the spare bench (`HeroFormation`,
+  snapshot in `CombatState.OnEnter`, `ReturnToSpareBench` in `PreparationState.OnEnter`), so the
+  player places it again inside the next stage's deploy zone. Without this a hero stays where the
+  fight left it — including dead ones, since `HeroDead` never releases its hex — often on an enemy
+  tile the player could never have placed it on. The spare bench (`SpareBench` in the scene, on
+  `GameManager._spareBench`, 12 slots left of the board) is a second `Bench` whose slots have
+  `BenchSlot._acceptsDrop` off: the player takes heroes off it but `Dragging` refuses a drop onto
+  it. If it is ever full the hero goes to the normal bench, then back to the hex it started on.
+- Every stage has a deploy zone: `BattlePlacementSO._deployZone` lists the hexes the player may put
+  a hero on, and an empty list means nowhere (`PreparationState` logs an error). `PreparationState`
+  pushes it into `DeployZone.Set` (`BattleBoard.DeployZone`), which sets `Hex.IsInDeployZone`;
+  `Dragging.ValidatePlacement` lets a player hero onto a hex inside it and an enemy (stage editor)
+  onto a hex outside it, anywhere on the board. A hex has no colour of its own: the board paints the
+  zone blue and every other hex red in Preparation, and the whole board neutral otherwise
+  (`BoardColours.ShowDeployZone` - `BattleBoard.Colours` makes every "what colour is this hex" decision, `DeployZone` only knows which hexes are in it; colours on `BattleBoard` in the Inspector) - the zone limits placing,
+  never walking. `BattleSetups/` holds only `Campaign/` and `Enemy Formation/`;
+  the old test setups (`Archive/`, `ClusterTests/`, `Phase1Seeds/`, `Build demo/`) were deleted and
+  live in git history.
 - Gold and the shop's rules work, and both live in `Economy`: `Wallet` is the player's gold, `Shop` is
   what each slot sells, buying and refreshing. `ShopPanelController` only draws and turns a drag
   into "buy slot i" - it reads everything through `IShop` (Contracts), which `GameManager` hands it
@@ -177,10 +260,17 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   hero) and borrows every other hero's numbers from the newest full report for the peer comparison; it
   writes `benchmark-selected-*.csv`. Ally-support skills still read low (no allies in any test), and heroes
   of a role share stats, so the tank test only separates heroes whose skills defend them.
+- Adding a hero while testing (dev tool): **Magic School 4 > Add Selected Heroes To Bench**
+  (`Core/Editor/AddHeroMenu`) puts the HeroDataSOs selected in the Project window on the player's bench for
+  free, any hero, enemy-only ones included - Play mode only, through `GameManager.AddHeroToBench`. The Align
+  Editor's "Add to bench" button does the same for the hero it is editing.
 - Stage editing (dev tool): tick `GameManager._stageEditMode` and, in Preparation, enemies drag between
-  red hexes like your own heroes do, and dropping one on the shop removes it (no gold). **Magic School 4 >
+  the hexes outside the deploy zone like your own heroes do inside it, and dropping one on the shop removes it (no gold). **Magic School 4 >
   Stage Editor** adds the HeroDataSOs selected in the Project window as enemies and saves the enemy team
   into the current stage's `BattlePlacementSO` or a new one - red entries only, blue ones are kept.
+  The same save writes the deploy zone: in the mode, clicking an empty hex puts it in or out of
+  the zone (blue = in, red = out), and a save with an empty zone is refused. The click is read in
+  `Player/ZonePainting`, ticked after `Dragging` so a click that picked something up never paints.
   `Core/StageEditor` is the runtime half (`GameManager.StageEditor` is null while the mode is off, which is
   what `Dragging` checks); `Core/Editor/StageEditorMenu` only writes the asset. The menu goes through
   `StageEditor` for anything team-specific because `Editor` does not reference `Contracts`.
@@ -194,10 +284,11 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   bosses). Heroes of one role share the same stats whatever their tier, so difficulty comes from
   enemy count and skills. Hero A (`SuperTank.asset`, 2000 HP, no skill) is enemy-only - it is not in
   the shop roster. The enemy roster is designed in the sheet's `Enemies` tab and built into
-  `Assets/Data/Heroes/Stats/Enemy/` (prefabs in `Assets/Prefabs/Hero/Enemy/`). The three tanks are built,
-  on a shop tank's stats until stats are decided: Minotaur (single-target stun), Basilisk (+DF every
-  cast) and Big Slime (splits into 2 Small Slimes on death). They are not in any stage yet - add them
-  with the Stage Editor. The old 5 `Build demo/` stages are kept but unused.
+  `Assets/Data/Heroes/Stats/Enemy/` (prefabs in `Assets/Prefabs/Hero/Enemy/`). The tanks and marksmen
+  are built, on their shop role's stats until stats are decided: Minotaur (single-target stun), Basilisk
+  (+DF every cast), Big Slime (splits into 2 Small Slimes on death), Goblin Slinger (shoots the 2
+  furthest enemies) and Kobold Skirmisher (3 shots at random enemies). Supports, fighters and the
+  assassin are still only in the sheet. None is in a stage yet - add them with the Stage Editor.
 - A hero can put units on the board mid-fight: a skill calls `ISpawner.SpawnUnitsNearby` (Contracts) on
   its caster, `Hero` picks the nearest free hexes (`Combat/Heroes/HeroSpawn`) and raises
   `OnSpawnRequested`, and `HeroSpawner` - which subscribes to every hero it builds - spawns them. The
