@@ -31,9 +31,9 @@ MonoBehaviour:
   _alignMarks:
   - hexes:
     - direction: 4
-      distance: 1
+      distance: 2
     - direction: 5
-      distance: 1
+      distance: 2
     modifier: 5
     amount: 30
     percentOf: 5

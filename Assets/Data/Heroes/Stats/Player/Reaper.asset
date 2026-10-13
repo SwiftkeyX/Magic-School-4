@@ -30,10 +30,10 @@ MonoBehaviour:
   _spawnUnit: {fileID: 0}
   _alignMarks:
   - hexes:
+    - direction: 0
+      distance: 2
     - direction: 1
-      distance: 1
-    - direction: 4
-      distance: 1
+      distance: 2
     modifier: 18
     amount: 25
     percentOf: -1

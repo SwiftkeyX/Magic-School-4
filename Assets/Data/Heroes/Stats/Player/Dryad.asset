@@ -24,16 +24,16 @@ MonoBehaviour:
   _attackSpeed: 0.7
   _range: 4
   _startMana: 20
-  _maxMana: 80
+  _maxMana: 120
   _critChance: 25
   _skillId: 10
   _spawnUnit: {fileID: 0}
   _alignMarks:
   - hexes:
-    - direction: 1
-      distance: 1
     - direction: 2
-      distance: 1
+      distance: 2
+    - direction: 3
+      distance: 2
     modifier: 20
     amount: 5
     percentOf: -1
