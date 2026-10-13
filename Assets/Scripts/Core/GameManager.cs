@@ -125,6 +125,10 @@ namespace MagicSchool.Core
             RefreshAligning();
         }
 
+        // Dev tool: put a hero on the bench for free, skipping the shop. False when the bench is full.
+        // (See Magic School 4 > Add Selected Heroes To Bench)
+        public bool AddHeroToBench(HeroDataSO data) => data != null && _bench.SpawnHeroOnBench(data);
+
         // refresh the aligning bonus
         internal void RefreshAligning() => _alignBonuses.Refresh(_board, TeamEnum.Blue);
 

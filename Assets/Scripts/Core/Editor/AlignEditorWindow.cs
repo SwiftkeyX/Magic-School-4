@@ -156,7 +156,16 @@ namespace MagicSchool.Editor
         private void DrawHexes(SerializedProperty marks)
         {
             EditorGUILayout.BeginVertical();
+            EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(_hero.name, EditorStyles.boldLabel);
+
+            // Play mode only: get this hero onto the bench without rolling the shop for it
+            using (new EditorGUI.DisabledScope(!AddHeroMenu.CanAdd))
+            {
+                if (GUILayout.Button("Add to bench", EditorStyles.miniButton, GUILayout.Width(90f))) AddHeroMenu.Add(_hero);
+            }
+
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.LabelField("Click a hex to give it to the selected bonus. Click it again to take it away.", EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.LabelField("The enemy is to the right.", EditorStyles.wordWrappedMiniLabel);
 
