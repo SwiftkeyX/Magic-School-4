@@ -12,9 +12,9 @@ namespace MagicSchool.Combat.Align
     // But it was fine for now. I need to make it fast first.
 
     /// <summary>
-    /// AlignMark = a list of hexes that give the same bonus. 
+    /// AlignMark = a list of hexes that give the same bonus.
     /// p.s. a hero with two different bonuses has two AlignMarks.
-    /// 
+    ///
     /// Three main things it does:
     ///     1. Keep a list hexes that was marked
     ///     2. Keep a modifier that was granted to the ally standing on a marked hex
@@ -70,6 +70,25 @@ namespace MagicSchool.Combat.Align
             return marked;
         }
 
+        // Get the marked hexes that are wearing hexes: an item lying on one is worn by this hero.
+        public List<Hex> GetWearingHexes(Hex standingOn)
+        {
+            var wearing = new List<Hex>();
+            if (hexes == null) return wearing;
+
+            foreach (AlignHex alignHex in hexes)
+            {
+                if (!alignHex.isWearing) continue;
+
+                Hex hex = alignHex.GetHex(standingOn);
+                if (hex != null) wearing.Add(hex);
+            }
+
+            return wearing;
+        }
+
+        public bool HasWearingHex => hexes != null && hexes.Exists(alignHex => alignHex.isWearing);
+
         // Get bonus modifier for ally
         public ICustomModifier BuildAllyModifier() => Build(modifier, amount, percentOf);
 
@@ -94,7 +113,7 @@ namespace MagicSchool.Combat.Align
     /// keep a direction from the hero, and how many hexes away.
     /// e.g.    SW, 1               => the hex south-east from the hero for 1 hex
     /// e.g.    NE, 2               => the hex north-east from the hero for 2 hex
-    /// 
+    ///
     /// A hex that is not on a straight line from the hero needs a second direction.
     /// e.g.    NE, 1, then SE, 1   => the hex north-east for 1 hex, then south-east for 1 hex
     /// </summary>
@@ -112,6 +131,9 @@ namespace MagicSchool.Combat.Align
 
         [Tooltip("How many hexes away in that then direction.")]
         public int thenDistance;
+
+        [Tooltip("An item lying on this hex is worn by the hero. The item gives its own effect only: it is not an ally, so it gives no ally bonus and no self bonus.")]
+        public bool isWearing;
 
         public int Distance => Mathf.Max(1, distance);
         public bool HasTurn => thenDistance > 0;

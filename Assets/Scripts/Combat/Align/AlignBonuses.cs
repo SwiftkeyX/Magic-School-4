@@ -6,7 +6,7 @@ using MagicSchool.Combat.Placements;
 namespace MagicSchool.Combat.Align
 {
     /// <summary>
-    /// Remember the bonuses from the aligning mechanic that are applying right now. 
+    /// Remember the bonuses from the aligning mechanic that are applying right now.
     /// So we can control when to give the bonus or take bonus back.
     /// e.g.    the player drags an Elf behind Ettin    => Refresh: the Elf gains +30% attack speed
     ///         the player drags the Elf away again     => Refresh: the Elf loses the bonus
@@ -23,11 +23,11 @@ namespace MagicSchool.Combat.Align
         //      when the fight starts, refresh
         public void Refresh(BattleBoard board, TeamEnum team)
         {
-            // Wipe every modifier given by the aligning mechanic 
+            // Wipe every modifier given by the aligning mechanic
             TakeBack();
 
             // loop through every combatant on the board.
-            // if the mark from each combatant is aligned, give bonus to self/receiver. 
+            // if the mark from each combatant is aligned, give bonus to self/receiver.
             foreach (ICombatant combatant in new List<ICombatant>(board.HeroesOnBoard))
             {
                 if (!(combatant is Hero me) || me.Team != team || !me.IsAlive) continue;
@@ -38,6 +38,13 @@ namespace MagicSchool.Combat.Align
                 // loop through every mark own by this hero
                 foreach (AlignMark mark in me.Data.AlignMarks)
                 {
+                    // an item lying on a wearing hex: this hero wears it.
+                    // An item is not an ally, so it fills nothing else: no ally bonus, no self bonus.
+                    foreach (Hex wearing in mark.GetWearingHexes(standingOn))
+                    {
+                        Wear(me, board.Items.ItemOn(wearing));
+                    }
+
                     // loop through every hex that was marked
                     foreach (Hex marked in mark.GetMarkedHexes(standingOn))
                     {
@@ -54,6 +61,14 @@ namespace MagicSchool.Combat.Align
             }
         }
 
+        // The hero wears an item that lies on one of its wearing hexes
+        private void Wear(Hero wearer, IEquipment item)
+        {
+            if (item == null || item.Modifier == null) return;
+
+            Give(wearer, item.Modifier, wearer);
+        }
+
         // Add modifier to the specify hero
         private void Give(Hero receiver, ICustomModifier bonus, Hero giver)
         {
@@ -61,7 +76,7 @@ namespace MagicSchool.Combat.Align
             _given.Add((receiver, bonus));
         }
 
-        // Wipe every modifier given by the aligning mechanic  
+        // Wipe every modifier given by the aligning mechanic
         private void TakeBack()
         {
             foreach ((Hero receiver, ICustomModifier modifier) in _given)

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 
@@ -27,6 +28,24 @@ namespace MagicSchool.Combat.Align
             }
 
             return hexesByBonus;
+        }
+
+        // Get every wearing hex of the consuming team: the hexes where an item would be worn by someone.
+        public static List<Hex> WearingHexes(BattleBoard board, TeamEnum team)
+        {
+            var wearing = new List<Hex>();
+
+            foreach (ICombatant combatant in board.HeroesOnBoard)
+            {
+                if (!(combatant is Hero hero) || hero.Team != team || hero.CurrentHex == null) continue;
+
+                foreach (AlignMark mark in hero.Data.AlignMarks)
+                {
+                    wearing.AddRange(mark.GetWearingHexes(hero.CurrentHex));
+                }
+            }
+
+            return wearing;
         }
     }
 }
