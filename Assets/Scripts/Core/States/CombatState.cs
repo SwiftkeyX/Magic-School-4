@@ -22,7 +22,7 @@ namespace MagicSchool.Core.States
 
             TriggerCombatStart();
 
-            _game.Board.ShowDeployZone(false);
+            _game.Board.Colours.ShowDeployZone(false);
 
             // remember the team's formation at the start
             _game.Formation.Remember(_game.Board.HeroesOnBoard, TeamEnum.Blue);

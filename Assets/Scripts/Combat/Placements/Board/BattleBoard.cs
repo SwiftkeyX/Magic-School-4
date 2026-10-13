@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 using MagicSchool.Contracts;
 
 namespace MagicSchool.Combat.Placements
@@ -10,36 +9,35 @@ namespace MagicSchool.Combat.Placements
     public class BattleBoard : MonoBehaviour
     {
         [Header("Hex colours")]
-        [Tooltip("In Preparation: a hex in the player's deploy zone.")]
-        [SerializeField] private Color _zoneColor = new Color(0.353f, 0.608f, 1f);
-        [Tooltip("In Preparation: every hex outside the deploy zone.")]
-        [SerializeField] private Color _outsideColor = new Color(1f, 0.353f, 0.353f);
-        [Tooltip("Outside Preparation: every hex. The zone only matters while placing.")]
-        [SerializeField] private Color _neutralColor = new Color(0.45f, 0.52f, 0.65f);
-        [Tooltip("Aligning, while a hero is held: a hex the held hero would mark with its first bonus.")]
-        [SerializeField] private Color _firstBonusColor = new Color(1f, 0.62f, 0.2f);
-        [Tooltip("Aligning, while a hero is held: a hex the held hero would mark with its second bonus.")]
-        [FormerlySerializedAs("_markedByHeldColor")]
-        [SerializeField] private Color _secondBonusColor = new Color(0.4f, 0.9f, 0.5f);
+        [SerializeField] private BoardColours _colours = new BoardColours();
 
         // track every hex
-        private Dictionary<HexNumber, Hex> _hexs = new Dictionary<HexNumber, Hex>();
+        private readonly Dictionary<HexNumber, Hex> _hexs = new Dictionary<HexNumber, Hex>();
 
         // track every hero on the battle board
         private List<ICombatant> _heroesOnBoard = new List<ICombatant>();
         private Dictionary<Hex, ICombatant> _reservedBy = new Dictionary<Hex, ICombatant>();
 
+        // other
+        private DeployZone _deployZone;
+
         // ======================== Setter & Getter ========================
         public IReadOnlyDictionary<HexNumber, Hex> Hexs => _hexs;
         public IReadOnlyList<ICombatant> HeroesOnBoard => _heroesOnBoard;
+
+        public DeployZone DeployZone => _deployZone;
+        public BoardColours Colours => _colours;
 
         public bool IsBattleOn { get; private set; }
         public void SetBattleOn(bool isOn) => IsBattleOn = isOn;
 
         void Awake()
         {
+            _colours.Init(_hexs);
+            _deployZone = new DeployZone(_hexs, _colours);
+
             InitializeHex();
-            ShowDeployZone(false);
+            _colours.ShowDeployZone(false);
         }
 
         // =================================== initialzie ===================================
@@ -98,7 +96,7 @@ namespace MagicSchool.Combat.Placements
             Instantiate(layoutPrefab, transform);
             _layoutPrefab = layoutPrefab;
             InitializeHex();
-            ShowDeployZone(false);
+            _colours.ShowDeployZone(false);
         }
 
         private void RemoveHexes()
@@ -158,69 +156,6 @@ namespace MagicSchool.Combat.Placements
         {
             ICombatant reserver = WhoReservedThisHex(hex);
             return reserver != null && reserver != asker;
-        }
-
-        // =================================== Deploy zone ===================================
-        // ASKING: Could we move deploy zone out to its own script?
-        /// <summary>
-        /// The list of hexes the player can put a hero on during Preparation. 
-        /// Each stage have different deploy zone.
-        /// </summary>
-
-        // Set the deploy zone to the board
-        public void SetDeployZone(IReadOnlyList<HexNumber> zone)
-        {
-            var inZone = new HashSet<HexNumber>(zone);
-
-            foreach (KeyValuePair<HexNumber, Hex> pair in _hexs)
-            {
-                pair.Value.SetInDeployZone(inZone.Contains(pair.Key));
-            }
-        }
-
-        // Show the deploy zone by setting the hex's color to blue
-        public void ShowDeployZone(bool isShown)
-        {
-            foreach (Hex hex in _hexs.Values)
-            {
-                hex.SetColor(isShown ? ZoneColorOf(hex) : _neutralColor);
-            }
-        }
-
-        private Color ZoneColorOf(Hex hex) => hex.IsInDeployZone ? _zoneColor : _outsideColor;
-
-        // Toggle on/off a specify hex into a deploy zone 
-        // e.g.     stage editor mode, toggle the hex by clicking hexes
-        public void ToggleInDeployZone(Hex hex)
-        {
-            hex.SetInDeployZone(!hex.IsInDeployZone);
-
-            hex.SetColor(ZoneColorOf(hex));
-        }
-
-        // Get deploy zone (the list of deploy hex)
-        public List<HexNumber> ReadDeployZone()
-        {
-            return _hexs
-                .Where(pair => pair.Value.IsInDeployZone)
-                .Select(pair => pair.Key)
-                .OrderBy(number => number.column)
-                .ThenBy(number => number.row)
-                .ToList();
-        }
-
-        // =================================== Aligning ===================================
-        // paint the held hero's marked hexes over the deploy zone's colours, one colour for each bonus.
-        public void ShowAlignMarks(ICollection<Hex> firstBonus, ICollection<Hex> secondBonus)
-        {
-            foreach (Hex hex in _hexs.Values)
-            {
-                if (firstBonus.Contains(hex)) hex.SetColor(_firstBonusColor);
-
-                else if (secondBonus.Contains(hex)) hex.SetColor(_secondBonusColor);
-
-                else hex.SetColor(ZoneColorOf(hex));
-            }
         }
 
         // =================================== Between stages ===================================

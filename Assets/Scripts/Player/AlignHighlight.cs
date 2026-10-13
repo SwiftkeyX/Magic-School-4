@@ -53,7 +53,7 @@ namespace MagicSchool.Player
             _firstBonus = firstBonus;
             _secondBonus = secondBonus;
             _isShown = true;
-            _board.ShowAlignMarks(_firstBonus, _secondBonus);
+            _board.Colours.ShowAlignMarks(_firstBonus, _secondBonus);
         }
 
         // if hero was holded on top of the hex, get hexes that was going to be marked
@@ -68,7 +68,7 @@ namespace MagicSchool.Player
         }
 
         // the marked hexes can only be in deploy zone.
-        // (See BattleBoard.SetDeployZone)
+        // (See DeployZone.cs)
         private static HashSet<Hex> InDeployZone(IEnumerable<Hex> hexes)
         {
             var inZone = new HashSet<Hex>();
@@ -86,7 +86,7 @@ namespace MagicSchool.Player
             if (!_isShown) return;
 
             _isShown = false;
-            if (isPreparation) _board.ShowDeployZone(true);
+            if (isPreparation) _board.Colours.ShowDeployZone(true);
         }
     }
 }

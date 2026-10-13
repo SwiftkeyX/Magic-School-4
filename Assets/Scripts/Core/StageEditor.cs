@@ -64,7 +64,7 @@ namespace MagicSchool.Core
         }
 
         // get current deploy zone 
-        public List<HexNumber> ReadDeployZone() => _game.Board.ReadDeployZone();
+        public List<HexNumber> ReadDeployZone() => _game.Board.DeployZone.GetDeployZone();
 
         // ======================================== deploy zone ========================================
         // Toggle hex into deploy zone
@@ -73,7 +73,7 @@ namespace MagicSchool.Core
             if (hex == null || !CanEditNow) return false;
             if (_game.Board.WhoReservedThisHex(hex) != null) return false;
 
-            _game.Board.ToggleInDeployZone(hex);
+            _game.Board.DeployZone.Toggle(hex);
             return true;
         }
 

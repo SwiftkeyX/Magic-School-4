@@ -115,8 +115,8 @@ namespace MagicSchool.Core.States
             BattlePlacementSO stage = _game.GetStage(_game.StageIndex);
             if (stage == null) return;
 
-            _game.Board.SetDeployZone(stage.DeployZone);
-            _game.Board.ShowDeployZone(true);
+            _game.Board.DeployZone.Set(stage.DeployZone);
+            _game.Board.Colours.ShowDeployZone(true);
 
             // every stage must list its zone
             // without one the player can't place a single hero
