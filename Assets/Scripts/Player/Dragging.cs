@@ -11,7 +11,7 @@ namespace MagicSchool.Player
 {
     // Picking things up with the pointer, dragging around, and putting them down again.
     // e.g.     draggable are items, and hero
-    // Worth mentioning that there's also UIDrag.cs in this project. 
+    // Worth mentioning that there's also UIDrag.cs in this project.
     // That one was specifically for dragging the UI which is different from dragging the gameobject like this one.
     internal class Dragging
     {
@@ -28,6 +28,7 @@ namespace MagicSchool.Player
         // ============================= getter =============================
         public bool IsHolding => _held as Object != null;
         public Hero HeldHero => IsHolding ? _held as Hero : null;
+        public Item HeldItem => IsHolding ? _held as Item : null;
         private bool IsPreparation => GameManager.Instance.Phase == GamePhaseEnum.Preparation;
         private bool _isStageEditor => GameManager.Instance.StageEditor != null;
 
@@ -67,7 +68,7 @@ namespace MagicSchool.Player
             bool stillHolding = PlayerInputSystem.IsPointerDown && !PlayerInputSystem.DragReleasedThisFrame;
             if (stillHolding) return;
 
-            // if releasing, drop the hero 
+            // if releasing, drop the hero
             Drop(worldPos);
         }
 
@@ -123,6 +124,15 @@ namespace MagicSchool.Player
                 wearer.TryTakeOff(item);
             }
 
+            // if the item lies on a hex, take it off the hex
+            else if (_board.Items.HexOf(item) != null)
+            {
+                // if not in preparation state, not allow to take an item off the board.
+                if (!IsPreparation) return null;
+
+                GameManager.Instance.TakeItemOffHex(item);
+            }
+
             return item;
         }
 
@@ -172,7 +182,7 @@ namespace MagicSchool.Player
 
         // hero could be drop on 2 thing:
         // 1) placement => put that hero on a placement
-        // 2) shop => sell that hero 
+        // 2) shop => sell that hero
         private void DropHero(Hero hero, Vector3 worldPos)
         {
             IPlacement targetPlacement = Picker.At<IPlacement>(worldPos);
@@ -215,9 +225,10 @@ namespace MagicSchool.Player
             GameManager.Instance.MoveHero(previousOwner, myPreviousPlacement);
         }
 
-        // an item can be dropped on 2 things:
-        // 1) one of your heroes => that hero wears it, if it has a slot free
-        // 2) shop => sell that item
+        // an item can be dropped on 3 things:
+        // 1) shop => sell that item
+        // 2) one of your heroes => that hero wears it, if it has a slot free
+        // 3) a free hex of the deploy zone => it lies on that hex, for a hero whose wearing hex that is
         private void DropItem(Item item, Vector3 worldPos)
         {
             Release();
@@ -229,13 +240,22 @@ namespace MagicSchool.Player
                 return;
             }
 
-            // released over the hero, in preparation = wear item to hero 
-            else if (Picker.At<Hero>(worldPos) is Hero hero && IsPreparation)
+            // anything else is placing, which is only allowed in preparation
+            if (!IsPreparation) return;
+
+            // released over the hero = wear item to hero
+            if (Picker.At<Hero>(worldPos) is Hero hero)
             {
                 if (hero == null || hero.Team != _team) return;
 
                 hero.TryWear(item);
                 return;
+            }
+
+            // released over a free hex of the deploy zone = lay the item on that hex
+            if (Picker.At<Hex>(worldPos) is Hex hex && hex.IsInDeployZone && _board.WhoReservedThisHex(hex) == null)
+            {
+                GameManager.Instance.PutItemOnHex(item, hex);
             }
         }
 
@@ -282,10 +302,13 @@ namespace MagicSchool.Player
             // p.s. a hex either belongs deploy zone or not, deploy zone is the zone player can place heroes in
             else if (placement is Hex targetHex)
             {
-                // if it is my hero, the hex must be deploy zone                
+                // if it is my hero, the hex must be deploy zone
                 // if it is enemy, the hex must not be deploy zone
                 bool isMyHero = hero.Team == _team;
                 if (isMyHero != targetHex.IsInDeployZone) return false;
+
+                // an item lying on the hex takes the hex
+                if (_board.Items.ItemOn(targetHex) != null) return false;
 
                 // if hero is tracked, then this is just re-positioning, no new hero added
                 bool isDropHeroTracked = _board.HeroesOnBoard.Any(tracked => (Hero)tracked == hero);
@@ -308,7 +331,7 @@ namespace MagicSchool.Player
             return validate;
         }
 
-        // Who is standing here? 
+        // Who is standing here?
         private Hero OccupantOf(IPlacement placement)
         {
             if (placement is Hex hex) return _board.WhoReservedThisHex(hex) as Hero;

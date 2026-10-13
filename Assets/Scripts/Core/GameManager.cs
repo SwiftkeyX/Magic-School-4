@@ -86,7 +86,7 @@ namespace MagicSchool.Core
         internal int StageNumber => _stageIndex + 1;
         public int HeroLimit => _heroLimit;
         public int SpeedMultiplier => _speed == null ? 1 : _speed.Multiplier;
-        public StageEditor StageEditor => _stageEditMode ? _stageEditor : null;    
+        public StageEditor StageEditor => _stageEditMode ? _stageEditor : null;
         internal bool IsRunCleared => Winner == TeamEnum.Blue && _stageIndex + 1 >= StageCount;
 
         // ======================================== setter ========================================
@@ -99,8 +99,8 @@ namespace MagicSchool.Core
 
         // === forwarding ===
         internal BattleBoard Board => _board;
-        internal IReadOnlyList<HeroDataSO> ShopRoster => _shopRoster;     
-        internal TemplateActionRegistrySO TemplateActions => _templateActions;     
+        internal IReadOnlyList<HeroDataSO> ShopRoster => _shopRoster;
+        internal TemplateActionRegistrySO TemplateActions => _templateActions;
         internal Shop Shop => _shop;
         internal HeroSeed Seed => _seed;
         internal HeroFormation Formation => _heroFormation;
@@ -128,6 +128,21 @@ namespace MagicSchool.Core
         // Dev tool: put a hero on the bench for free, skipping the shop. False when the bench is full.
         // (See Magic School 4 > Add Selected Heroes To Bench)
         public bool AddHeroToBench(HeroDataSO data) => data != null && _bench.SpawnHeroOnBench(data);
+
+        // Lay an item on a hex, or take it off again. A hero may wear an item lying on one of its
+        // wearing hexes, so both are a reason to work the aligning bonuses out again.
+        public bool PutItemOnHex(IEquipment item, Hex hex)
+        {
+            if (!_board.Items.Place(item, hex)) return false;
+
+            RefreshAligning();
+            return true;
+        }
+
+        public void TakeItemOffHex(IEquipment item)
+        {
+            if (_board.Items.Remove(item)) RefreshAligning();
+        }
 
         // refresh the aligning bonus
         internal void RefreshAligning() => _alignBonuses.Refresh(_board, TeamEnum.Blue);

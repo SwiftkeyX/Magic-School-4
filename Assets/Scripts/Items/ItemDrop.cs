@@ -14,6 +14,10 @@ namespace MagicSchool.Items
 
         public static Item Spawn(ItemDataSO data) => Item.Spawn(data, FreeSpot());
 
+        // Put an item that is already in the world back on the row.
+        // e.g.     the hex it lay on is gone with the old board
+        public static void MoveToFreeSpot(Item item) => item.transform.position = FreeSpot();
+
         private static Vector3 FreeSpot()
         {
             for (int i = 0; i < MaxSpots; i++)

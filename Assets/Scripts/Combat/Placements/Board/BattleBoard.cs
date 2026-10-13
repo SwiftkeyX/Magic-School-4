@@ -20,12 +20,14 @@ namespace MagicSchool.Combat.Placements
 
         // other
         private DeployZone _deployZone;
+        private readonly HexItems _items = new HexItems();      // the items lying on hexes
 
         // ======================== Setter & Getter ========================
         public IReadOnlyDictionary<HexNumber, Hex> Hexs => _hexs;
         public IReadOnlyList<ICombatant> HeroesOnBoard => _heroesOnBoard;
 
         public DeployZone DeployZone => _deployZone;
+        public HexItems Items => _items;
         public BoardColours Colours => _colours;
 
         public bool IsBattleOn { get; private set; }
@@ -74,11 +76,11 @@ namespace MagicSchool.Combat.Placements
 
         // =================================== Layout ===================================
         /// <summary>
-        /// We have different board layout. 
+        /// We have different board layout.
         /// e.g.    Square shape
         ///         ...
-        /// 
-        /// These method are to initialize different board layout. 
+        ///
+        /// These method are to initialize different board layout.
         /// </summary>
 
         // a board prefab
@@ -106,6 +108,9 @@ namespace MagicSchool.Combat.Placements
         {
             _hexs.Clear();
             _reservedBy.Clear();
+
+            // whoever changes the layout takes the items off first (See PreparationState), this only forgets the hexes
+            _items.TakeAll();
 
             foreach (Transform child in transform.Cast<Transform>().ToList())
             {
@@ -163,7 +168,7 @@ namespace MagicSchool.Combat.Placements
 
         // =================================== Between stages ===================================
         // Wipe one team off the board
-        // e.g. after player is winning, clear enemy team 
+        // e.g. after player is winning, clear enemy team
         public void ClearTeam(TeamEnum team)
         {
             List<ICombatant> leaving = _heroesOnBoard.Where(h => h != null && h.Team == team).ToList();
