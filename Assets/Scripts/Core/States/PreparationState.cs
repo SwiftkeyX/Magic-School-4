@@ -72,12 +72,26 @@ namespace MagicSchool.Core.States
                 _game.Board.ClearTeam(TeamEnum.Blue);
             }
 
-            // if not seeded, reset, and send everyone who fought to the spare bench
+            // if not seeded, reset, and put everyone who fought back where they started the fight
             else
             {
                 ResetTeam(TeamEnum.Blue);
-                _game.Formation.ReturnToSpareBench();
+
+                // FLAGGING: the team used to go to the spare bench after every fight, to be placed again by hand
+                // _game.Formation.ReturnToSpareBench();
+                ReturnTeam();
             }
+        }
+
+        // Once the fight end, return the team to its original position (position before the fight start).
+        // if the board is not the same layout, return hero to the spare bench instead.
+        private void ReturnTeam()
+        {
+            BattlePlacementSO stage = _game.GetStage(_game.StageIndex);
+            bool isSameBoard = stage == null || stage.BoardLayout == null || _game.Board.HasLayout(stage.BoardLayout);
+
+            if (isSameBoard) _game.Formation.ReturnToStartingPlacement();
+            else _game.Formation.ReturnToSpareBench();
         }
 
         // Initialize new board layout

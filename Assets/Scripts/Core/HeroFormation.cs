@@ -33,6 +33,19 @@ namespace MagicSchool.Core
             }
         }
 
+        // After a fight, player's heroes go back to the placement each one started the fight on.
+        public void ReturnToStartingPlacement()
+        {
+            foreach (KeyValuePair<ICombatant, IPlacement> stood in _formation)
+            {
+                if (IsGone(stood.Key)) continue;
+
+                _heroMover.MoveThisHeroTo(stood.Key, stood.Value);
+            }
+
+            _formation.Clear();
+        }
+
         // After a fight, player's heroes on the board goes to the spare bench.
         public void ReturnToSpareBench()
         {

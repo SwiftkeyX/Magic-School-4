@@ -84,6 +84,9 @@ namespace MagicSchool.Combat.Placements
         // a board prefab
         private GameObject _layoutPrefab;
 
+        // Is the board built from this layout right now?
+        public bool HasLayout(GameObject layoutPrefab) => layoutPrefab != null && layoutPrefab == _layoutPrefab;
+
         public void SetLayout(GameObject layoutPrefab)
         {
             // if it was the same board layout, return
