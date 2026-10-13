@@ -29,16 +29,11 @@ MonoBehaviour:
   _skillId: 10
   _spawnUnit: {fileID: 0}
   _alignMarks:
-  - direction: 1
-    distance: 1
-    modifier: 20
-    amount: 5
-    percentOf: -1
-    selfModifier: 0
-    selfAmount: 0
-    selfPercentOf: -1
-  - direction: 2
-    distance: 1
+  - hexes:
+    - direction: 1
+      distance: 1
+    - direction: 2
+      distance: 1
     modifier: 20
     amount: 5
     percentOf: -1
