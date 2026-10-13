@@ -18,6 +18,7 @@ namespace MagicSchool.Contracts
         Shield = 17,
         CritChance = 18,
         ManaPerAttack = 20,
+        MaxMana = 21,
 
         // ======================================= Debuff =======================================
         DefendShred = 13,
@@ -28,6 +29,6 @@ namespace MagicSchool.Contracts
         Transformed = 10,
         ManaBlocked = 11,
         AutoAttackWasReplaced = 12,
-        Untargetable = 19,      
+        Untargetable = 19,
     }
 }
