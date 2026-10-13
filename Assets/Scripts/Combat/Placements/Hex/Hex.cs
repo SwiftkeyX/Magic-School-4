@@ -98,6 +98,18 @@ namespace MagicSchool.Combat.Placements
             return null;
         }
 
+        // Get the hex from specify direction by [distance]
+        public Hex GetNeighbor(HexDirectionEnum direction, int distance)
+        {
+            Hex hex = this;
+            for (int step = 0; step < distance && hex != null; step++)
+            {
+                hex = hex.GetNeighbor(direction);
+            }
+
+            return hex;
+        }
+
         // Get the angle from specify direction enum
         private static float AngleOf(HexDirectionEnum direction)
         {

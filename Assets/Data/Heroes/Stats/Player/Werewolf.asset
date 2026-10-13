@@ -30,11 +30,19 @@ MonoBehaviour:
   _spawnUnit: {fileID: 0}
   _alignMarks:
   - direction: 0
+    distance: 1
     modifier: 9
     amount: 15
     percentOf: -1
+    selfModifier: 0
+    selfAmount: 0
+    selfPercentOf: -1
   - direction: 3
+    distance: 1
     modifier: 9
     amount: 15
     percentOf: -1
+    selfModifier: 0
+    selfAmount: 0
+    selfPercentOf: -1
   _isDummy: 0
