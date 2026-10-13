@@ -15,9 +15,9 @@ MonoBehaviour:
   _itemChanceBySlot: 0000000000000000000000006400000064000000
   _tierOdds:
   - FromStage: 1
-    Common: 75
-    Uncommon: 25
-    Rare: 0
+    Common: 33
+    Uncommon: 33
+    Rare: 33
   - FromStage: 4
     Common: 50
     Uncommon: 40
