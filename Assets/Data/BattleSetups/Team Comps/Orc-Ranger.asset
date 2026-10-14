@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b15591f0aa582343bd08d00a02b4206, type: 3}
+  m_Name: Orc-Ranger
+  m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
+  _heroesPlacement:
+  - dataSO: {fileID: 11400000, guid: 32ec63790ae82b342bcce0520067c869, type: 2}
+    team: 0
+    hexPlacement:
+      column: 3
+      row: 2
+    item: {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
+  - dataSO: {fileID: 11400000, guid: 0b00076b3dc75394d8144c4dbe4989b8, type: 2}
+    team: 0
+    hexPlacement:
+      column: 5
+      row: 3
+    item: {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
+  - dataSO: {fileID: 11400000, guid: 0f207332a3e601b46b3c098900106a8f, type: 2}
+    team: 0
+    hexPlacement:
+      column: 7
+      row: 4
+    item: {fileID: 0}
+  _deployZone: []
+  _boardLayout: {fileID: 2821033882997051323, guid: d07d3d269e6884b42a2b2daced65229a, type: 3}
+  _itemsOnHexes:
+  - item: {fileID: 11400000, guid: a787e2c2a0514c0c84baa16405cbd33c, type: 2}
+    hexPlacement:
+      column: 3
+      row: 3
+  - item: {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
+    hexPlacement:
+      column: 3
+      row: 4

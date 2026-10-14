@@ -30,14 +30,56 @@ MonoBehaviour:
   _spawnUnit: {fileID: 0}
   _alignMarks:
   - hexes:
+    - direction: 4
+      distance: 1
+      thenDirection: 3
+      thenDistance: 0
+      isWearing: 0
     - direction: 5
-      distance: 2
+      distance: 1
+      thenDirection: 5
+      thenDistance: 0
+      isWearing: 0
     - direction: 4
       distance: 2
+      thenDirection: 3
+      thenDistance: 0
+      isWearing: 1
+    - direction: 4
+      distance: 1
+      thenDirection: 5
+      thenDistance: 1
+      isWearing: 1
+    - direction: 5
+      distance: 2
+      thenDirection: 5
+      thenDistance: 0
+      isWearing: 1
     modifier: 6
-    amount: 20
+    amount: 0
     percentOf: 1
+    selfModifier: 6
+    selfAmount: 25
+    selfPercentOf: -1
+    selfWhenEmpty: 0
+    healFromAllyDamage: 0
+  - hexes:
+    - direction: 1
+      distance: 2
+      thenDirection: 0
+      thenDistance: 0
+      isWearing: 0
+    - direction: 2
+      distance: 2
+      thenDirection: 2
+      thenDistance: 0
+      isWearing: 0
+    modifier: 7
+    amount: 15
+    percentOf: -1
     selfModifier: 0
     selfAmount: 0
     selfPercentOf: -1
+    selfWhenEmpty: 0
+    healFromAllyDamage: 0
   _isDummy: 0

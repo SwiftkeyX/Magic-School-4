@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: MagicSchool.Items::MagicSchool.Items.ItemDataSO
   _prefab: {fileID: 1622558564318197876, guid: 1873d0ffaf3430a488c7956619e02e04, type: 3}
   _name: Reaver's Edge
-  _description: +12 Atk, +150 HP. A blade that feeds its bearer as much as it cuts.
+  _description: +30% Atk, heals for 15% of damage dealt. A blade that feeds its bearer as much as it cuts.
   _itemId: 5
