@@ -27,12 +27,17 @@ namespace MagicSchool.Combat.Align
                 .Select(mark => (mark.selfWhenEmpty ? "Self, per marked hex left empty: " : "Self, per ally aligned: ")
                                 + Bonus(mark.selfModifier, mark.selfAmount, mark.selfPercentOf));
 
+            // an ally standing on a marked hex is a generator: its damage heals the hero
+            var damageHeal = marks
+                .Where(mark => mark.HasDamageHeal)
+                .Select(mark => $"Self: heals for {mark.healFromAllyDamage:0.#}% of the damage an aligned ally deals");
+
             // an item lying on a wearing hex is worn by the hero
             var wearing = marks
                 .Where(mark => mark.HasWearingHex)
                 .Select(mark => "Wears an item placed on a wearing hex");
 
-            return string.Join("\n", allyBonus.Concat(selfBonus).Concat(wearing).Distinct());
+            return string.Join("\n", allyBonus.Concat(selfBonus).Concat(damageHeal).Concat(wearing).Distinct());
         }
 
         private static string Bonus(ModifierEnum modifier, float value, StatEnum percentOf)
