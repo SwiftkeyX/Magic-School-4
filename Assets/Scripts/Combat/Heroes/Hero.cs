@@ -29,7 +29,9 @@ namespace MagicSchool.Combat.Heroes
         private AttackCooldown _attackCooldown;
         private Stat _stat;
         private TeamEnum _team;
-        private bool _isDummy;                  // Temporary, tagged once at its source - see the FLAGGING on HeroDataSO._isDummy.
+        private int _star = HeroStar.Min;       // upgraded by combining copies (See HeroStar)
+        private Vector3 _baseScale;
+        private bool _isDummy;                 // Temporary, tagged once at its source - see the FLAGGING on HeroDataSO._isDummy.
 
         // ======================================== Etc ========================================
         [SerializeField] private float _moveSpeed = 1f;
@@ -48,7 +50,11 @@ namespace MagicSchool.Combat.Heroes
         public HeroStateEnum StateType => _stateMachine.CurrentType;
         public bool IsDummy => _isDummy;
         public HeroDataSO Data => _SOData;
-        public int Price => _SOData != null ? _SOData.Price : 0;   // what the shop charged for him, and what selling him refunds
+        public int Star => _star;
+        public bool CanUpgrade => _star < HeroStar.Max;
+
+        // what the shop charged for every copy that went into him, and what selling him refunds
+        public int Price => _SOData != null ? _SOData.Price * HeroStar.Copies(_star) : 0;
 
         // ======================================== state ========================================
         public void ChangeState(HeroStateEnum next) => _stateMachine.ChangeState(next);
@@ -91,7 +97,7 @@ namespace MagicSchool.Combat.Heroes
         public string SkillDescription => _skill != null ? _skill.Description : string.Empty;
         public string PassiveDescription => _skill != null ? _skill.PassiveDescription : string.Empty;
         public string AlignDescription => _SOData != null ? AlignText.Describe(_SOData.AlignMarks) : string.Empty;
-        public string DisplayName => _SOData != null ? _SOData.Name : name;
+        public string DisplayName => (_SOData != null ? _SOData.Name : name) + (_star > HeroStar.Min ? $" ({_star}-star)" : "");
 
         // ======================================== attack ========================================
         public bool IsAttackReady => _attackCooldown.IsReady(AttackSpeed);
@@ -213,7 +219,8 @@ namespace MagicSchool.Combat.Heroes
             _board = board;
             _team = team;
 
-            _stat = new Stat(_SOData);
+            _stat = new Stat(_SOData, _star);
+            _baseScale = transform.localScale;
             _isDummy = _SOData.IsDummy;
 
             _visuals = GetComponent<HeroVisuals>();
@@ -274,7 +281,7 @@ namespace MagicSchool.Combat.Heroes
         {
             if (!IsInitialized) return;
 
-            _stat = new Stat(_SOData);
+            _stat = new Stat(_SOData, _star);
             _attackCooldown = new AttackCooldown();
 
             // the modifier from items is also reset, so re-grant it.
@@ -283,6 +290,17 @@ namespace MagicSchool.Combat.Heroes
             // ChangeState, not Start: the Dead state has to be left properly, and a hero that
             // survived is already mid-state rather than un-started.
             _stateMachine.ChangeState(HeroStateEnum.Idle);
+        }
+
+        public bool Upgrade()
+        {
+            if (!IsInitialized || !CanUpgrade) return false;
+
+            _star++;
+            _stat = new Stat(_SOData, _star);
+            _items.ReGrantAll();
+            transform.localScale = _baseScale * HeroStar.Scale(_star);
+            return true;
         }
 
         private void AnnounceBurn()

@@ -29,6 +29,9 @@ namespace MagicSchool.Core.States
             // clear the previous board
             ClearBoard();
 
+            // copies bought mid-fight sat on the bench: now they can combine with the board too
+            _game.CombineCopies();
+
             // the items lying on hexes that are about to go
             ReturnItems();
 

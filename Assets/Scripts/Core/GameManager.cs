@@ -61,6 +61,7 @@ namespace MagicSchool.Core
         private AlignBonuses _alignBonuses;
         private HeroSeed _seed;
         private HeroSpawner _heroSpawner;
+        private HeroUpgrader _upgrader;
         private StageEditor _stageEditor;
         private CombatRecorder _recorder;
         private GameSpeed _speed;
@@ -162,6 +163,23 @@ namespace MagicSchool.Core
         // refresh the aligning bonus
         internal void RefreshAligning() => _alignBonuses.Refresh(_board, TeamEnum.Blue);
 
+        // Upgrading: combine every pair of copies of a hero. Only Preparation touches the board - mid-fight
+        // the benches combine alone, and they meet the board when the next Preparation starts.
+        // An upgraded hero's stats are built again, which drops its aligning bonuses, so they are given again.
+        internal void CombineCopies()
+        {
+            bool isPreparation = Phase == GamePhaseEnum.Preparation;
+
+            if (_upgrader.CombineAll(includeBoard: isPreparation) && isPreparation) RefreshAligning();
+        }
+
+        // a hero that lands on the bench is bought (or added by a dev tool): look for its copy.
+        // A hero spawned on a hex (a stage's seed, a loaded team comp, an enemy) never starts a combine.
+        private void CombineIfBenched(Hero hero)
+        {
+            if (hero.Team == TeamEnum.Blue && hero.CurrentPlacement is BenchSlot) CombineCopies();
+        }
+
         // ======================================== life cycle ========================================
         // init dependency
         void Awake()
@@ -180,6 +198,8 @@ namespace MagicSchool.Core
 
             _stageEditor = new StageEditor(this);
             _heroSpawner = new HeroSpawner(_heroMover, _templateActions, _recorder, _bench, _seed, _stageEditor);
+            _upgrader = new HeroUpgrader(_board, _bench, _spareBench);
+            _heroSpawner.OnSpawned += CombineIfBenched;
             _wallet = new Wallet(_startingGold);
             _seller = new Seller(_wallet);
             _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopOdds, () => StageNumber, _shopSlots, _refreshCost,

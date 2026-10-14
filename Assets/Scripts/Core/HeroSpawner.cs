@@ -14,6 +14,10 @@ namespace MagicSchool.Core
         private readonly TemplateActionRegistrySO _templateActions;
         private readonly CombatRecorder _recorder;
 
+        // a hero now exists and stands on its placement
+        // e.g.     GameManager checks a bought hero for a copy to combine with
+        public event System.Action<Hero> OnSpawned;
+
         public HeroSpawner(HeroMover heroMover, TemplateActionRegistrySO templateActions, CombatRecorder recorder,
                            Bench bench = null, HeroSeed seed = null, StageEditor stageEditor = null)
         {
@@ -47,6 +51,8 @@ namespace MagicSchool.Core
 
             // move them to "placement"
             _heroMover.MoveThisHeroTo(hero, placement);
+
+            OnSpawned?.Invoke(hero);
         }
     }
 }
