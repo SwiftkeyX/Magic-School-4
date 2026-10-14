@@ -7,7 +7,8 @@ namespace MagicSchool.Combat.Placements
     /// <summary>
     /// Answer what colour is this hex?
     /// e.g.    Preparation     => the deploy zone blue, others red
-    ///         a hero is held  => the hexes it would mark orange/green
+    ///         a hero is held  => the hexes it would mark orange/green, its wearing hexes purple
+    ///         an item is held => the team's wearing hexes purple
     ///         the fight       => the whole board gray
     /// </summary>
     [Serializable]
@@ -28,6 +29,9 @@ namespace MagicSchool.Combat.Placements
         [Tooltip("Aligning, while a hero is held: a hex the held hero would mark with its second bonus.")]
         [SerializeField] private Color _secondBonusColor = new Color(0.4f, 0.9f, 0.5f);
 
+        [Tooltip("Aligning, while a hero or an item is held: a wearing hex - an item lying there is worn. Painted over the bonus colours.")]
+        [SerializeField] private Color _wearingColor = new Color(0.85f, 0.4f, 1f);
+
         private IReadOnlyDictionary<HexNumber, Hex> _hexs;
         internal void Init(IReadOnlyDictionary<HexNumber, Hex> hexs) => _hexs = hexs;
 
@@ -45,11 +49,14 @@ namespace MagicSchool.Combat.Placements
         internal void ShowDeployZone(Hex hex) => hex.SetColor(ZoneColorOf(hex));
 
         // Repaint hexes that was marked (override deploy zone)
-        public void ShowAlignMarks(ICollection<Hex> firstBonus, ICollection<Hex> secondBonus)
+        // A wearing hex is a bonus hex too, so it is checked first: its own colour wins.
+        public void ShowAlignMarks(ICollection<Hex> firstBonus, ICollection<Hex> secondBonus, ICollection<Hex> wearing)
         {
             foreach (Hex hex in _hexs.Values)
             {
-                if (firstBonus.Contains(hex)) hex.SetColor(_firstBonusColor);
+                if (wearing.Contains(hex)) hex.SetColor(_wearingColor);
+
+                else if (firstBonus.Contains(hex)) hex.SetColor(_firstBonusColor);
 
                 else if (secondBonus.Contains(hex)) hex.SetColor(_secondBonusColor);
 

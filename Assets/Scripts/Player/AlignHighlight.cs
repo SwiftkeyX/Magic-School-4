@@ -19,6 +19,7 @@ namespace MagicSchool.Player
 
         private HashSet<Hex> _firstBonus = new HashSet<Hex>();
         private HashSet<Hex> _secondBonus = new HashSet<Hex>();
+        private HashSet<Hex> _wearing = new HashSet<Hex>();
         private bool _isShown;
 
         public AlignHighlight(Camera cam, Dragging dragging, BattleBoard board, TeamEnum team)
@@ -37,7 +38,7 @@ namespace MagicSchool.Player
             // holding an item: light up the hexes where a placed hero would wear it
             if (isPreparation && _dragging.HeldItem != null)
             {
-                Show(InDeployZone(AligningHex.WearingHexes(_board, _team)), new HashSet<Hex>());
+                Show(new HashSet<Hex>(), new HashSet<Hex>(), InDeployZone(AligningHex.WearingHexes(_board, _team)));
                 return;
             }
 
@@ -49,34 +50,42 @@ namespace MagicSchool.Player
             }
 
             // if holded hero was on top of the hex, get hexes that was going to be marked
-            List<Hex>[] hexesByBonus = MarkedFromPointer(held);
+            Hex pointed = PointedZoneHex();
+            if (pointed == null)
+            {
+                Show(new HashSet<Hex>(), new HashSet<Hex>(), new HashSet<Hex>());
+                return;
+            }
+
+            List<Hex>[] hexesByBonus = AligningHex.MarkedHexesByBonus(held, pointed);
             HashSet<Hex> firstBonus = InDeployZone(hexesByBonus[0]);
             HashSet<Hex> secondBonus = InDeployZone(hexesByBonus[1]);
+            HashSet<Hex> wearing = InDeployZone(AligningHex.WearingHexes(held, pointed));
 
-            Show(firstBonus, secondBonus);
+            Show(firstBonus, secondBonus, wearing);
         }
 
         // mark those hexes with different colour
-        private void Show(HashSet<Hex> firstBonus, HashSet<Hex> secondBonus)
+        private void Show(HashSet<Hex> firstBonus, HashSet<Hex> secondBonus, HashSet<Hex> wearing)
         {
             // repaint only when something moved
-            if (_isShown && firstBonus.SetEquals(_firstBonus) && secondBonus.SetEquals(_secondBonus)) return;
+            if (_isShown && firstBonus.SetEquals(_firstBonus) && secondBonus.SetEquals(_secondBonus)
+                && wearing.SetEquals(_wearing)) return;
 
             _firstBonus = firstBonus;
             _secondBonus = secondBonus;
+            _wearing = wearing;
             _isShown = true;
-            _board.Colours.ShowAlignMarks(_firstBonus, _secondBonus);
+            _board.Colours.ShowAlignMarks(_firstBonus, _secondBonus, _wearing);
         }
 
-        // if hero was holded on top of the hex, get hexes that was going to be marked
-        private List<Hex>[] MarkedFromPointer(Hero held)
+        // the deploy-zone hex under the pointer: where the held hero would stand
+        private Hex PointedZoneHex()
         {
             Vector3 worldPos = PlayerInputSystem.GetMouseWorldPosition(_cam);
             Hex pointed = Picker.At<Hex>(worldPos);
 
-            if (pointed == null || !pointed.IsInDeployZone) return new[] { new List<Hex>(), new List<Hex>() };
-
-            return AligningHex.MarkedHexesByBonus(held, pointed);
+            return pointed != null && pointed.IsInDeployZone ? pointed : null;
         }
 
         // the marked hexes can only be in deploy zone.

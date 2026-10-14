@@ -47,6 +47,10 @@ namespace MagicSchool.Combat.Placements
             _heroesPlacement.AddRange(placements);
         }
 
+        // Changing the board by editing this SO.
+        // e.g.     stage editor mode, a saved team comp remembers the board its hex numbers belong to.
+        public void SetBoardLayout(GameObject layoutPrefab) => _boardLayout = layoutPrefab;
+
         // Changing the deploy zone by editing this SO.
         // e.g.     stage editor mode, want to override the painted deploy zone to current SO.
         public void ReplaceDeployZone(IEnumerable<HexNumber> zone)
