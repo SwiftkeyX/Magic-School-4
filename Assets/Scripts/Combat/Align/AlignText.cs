@@ -21,10 +21,11 @@ namespace MagicSchool.Combat.Align
                 .Where(mark => mark.HasAllyBonus)
                 .Select(mark => Bonus(mark.modifier, mark.amount, mark.percentOf));
 
-            // what the hero itself gets, once for every marked hex an ally stands on
+            // what the hero itself gets, once for every marked hex an ally stands on (or that is left empty)
             var selfBonus = marks
                 .Where(mark => mark.HasSelfBonus)
-                .Select(mark => "Self, per ally aligned: " + Bonus(mark.selfModifier, mark.selfAmount, mark.selfPercentOf));
+                .Select(mark => (mark.selfWhenEmpty ? "Self, per marked hex left empty: " : "Self, per ally aligned: ")
+                                + Bonus(mark.selfModifier, mark.selfAmount, mark.selfPercentOf));
 
             // an item lying on a wearing hex is worn by the hero
             var wearing = marks

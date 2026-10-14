@@ -49,17 +49,26 @@ namespace MagicSchool.Combat.Align
                     foreach (Hex marked in mark.GetMarkedHexes(standingOn))
                     {
                         // get who is standing on the marked hex
-                        if (!(board.WhoReservedThisHex(marked) is Hero receiver) || receiver.Team != team) continue;
+                        Hero receiver = board.WhoReservedThisHex(marked) as Hero;
+                        bool isAlly = receiver != null && receiver.Team == team;
 
                         // this mark give bonus to the receiver
-                        if (mark.HasAllyBonus) Give(receiver, mark.BuildAllyModifier(), me);
+                        if (isAlly && mark.HasAllyBonus) Give(receiver, mark.BuildAllyModifier(), me);
 
-                        // this mark give bonus to self
-                        if (mark.HasSelfBonus) Give(me, mark.BuildSelfModifier(), me);
+                        // this mark give bonus to self: for an ally standing there,
+                        // or the opposite - for a hex left empty
+                        bool paysSelf = mark.selfWhenEmpty ? IsEmpty(board, marked) : isAlly;
+                        if (paysSelf && mark.HasSelfBonus) Give(me, mark.BuildSelfModifier(), me);
                     }
                 }
             }
         }
+
+        // Nobody stands on it, and the player could have put someone there.
+        // Outside the deploy zone a hex is always empty of the player's team, so it would pay for nothing.
+        // An item lying there is not someone.
+        private static bool IsEmpty(BattleBoard board, Hex hex)
+            => hex.IsInDeployZone && board.WhoReservedThisHex(hex) == null;
 
         // The hero wears an item that lies on one of its wearing hexes
         private void Wear(Hero wearer, IEquipment item)
