@@ -23,7 +23,7 @@ namespace MagicSchool.Skills
             // the horns - a box on the current target
             SkillPart gore = Part(registry,
                 source: ActionSourceEnum.Current,
-                action: TemplateActionEnum.BoxAOE,
+                action: TemplateActionEnum.CircleAOE,
                 target: AimTargetEnum.Current,
                 Damage(EffectRecipientEnum.EnemiesInArea, (StatEnum.ATK, DamageRatio)),
                 Apply(EffectRecipientEnum.EnemiesInArea, BundleRefresh(StunDuration, Status(ModifierEnum.Stun)))
