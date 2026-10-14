@@ -49,6 +49,10 @@ namespace MagicSchool.Combat.Align
         [Tooltip("None = the amount is added as it is. Otherwise the amount is a percent of this stat, read from this hero's own base stat.")]
         public StatEnum selfPercentOf;
 
+        [Tooltip("Off = the self bonus is given once for every one of this mark's hexes an ally stands on. " +
+                 "On = the opposite: once for every one of this mark's deploy-zone hexes nobody stands on.")]
+        public bool selfWhenEmpty;
+
         private const float RestOfFight = -1f;
 
         // =================================== getter ===================================
