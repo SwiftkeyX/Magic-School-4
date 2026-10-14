@@ -56,6 +56,7 @@ namespace MagicSchool.Skills
                 { SkillIdEnum.Basilisk      , BasiliskSkill.Build       },
                 { SkillIdEnum.GoblinSlinger , GoblinSlingerSkill.Build  },
                 { SkillIdEnum.KoboldSkirmisher, KoboldSkirmisherSkill.Build },
+                { SkillIdEnum.MinotaurKing  , MinotaurKingSkill.Build   },
             };
 
         /// Return a skill that match skillID's TemplateAction.
