@@ -144,6 +144,21 @@ namespace MagicSchool.Core
             if (_board.Items.Remove(item)) RefreshAligning();
         }
 
+        // Put an item on a hero, or take it off. A hero standing on an ally's wearing hex
+        // shares what it wears, so both are a reason to work the aligning bonuses out again.
+        public bool WearItem(Hero hero, IEquipment item)
+        {
+            if (!hero.TryWear(item)) return false;
+
+            RefreshAligning();
+            return true;
+        }
+
+        public void TakeItemOffHero(Hero hero, IEquipment item)
+        {
+            if (hero.TryTakeOff(item)) RefreshAligning();
+        }
+
         // refresh the aligning bonus
         internal void RefreshAligning() => _alignBonuses.Refresh(_board, TeamEnum.Blue);
 

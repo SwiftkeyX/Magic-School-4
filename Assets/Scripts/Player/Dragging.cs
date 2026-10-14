@@ -121,7 +121,7 @@ namespace MagicSchool.Player
                 // if not in preparation state, not allow to strip item off hero.
                 if (!IsPreparation) return null;
 
-                wearer.TryTakeOff(item);
+                GameManager.Instance.TakeItemOffHero(wearer, item);
             }
 
             // if the item lies on a hex, take it off the hex
@@ -227,7 +227,7 @@ namespace MagicSchool.Player
 
         // an item can be dropped on 3 things:
         // 1) shop => sell that item
-        // 2) one of your heroes => that hero wears it, if it has a slot free
+        // 2) one of your heroes => that hero wears it, if it isn't wearing one already
         // 3) a free hex of the deploy zone => it lies on that hex, for a hero whose wearing hex that is
         private void DropItem(Item item, Vector3 worldPos)
         {
@@ -248,7 +248,7 @@ namespace MagicSchool.Player
             {
                 if (hero == null || hero.Team != _team) return;
 
-                hero.TryWear(item);
+                GameManager.Instance.WearItem(hero, item);
                 return;
             }
 

@@ -41,11 +41,18 @@ namespace MagicSchool.Combat.Align
                 // loop through every mark own by this hero
                 foreach (AlignMark mark in me.Data.AlignMarks)
                 {
-                    // an item lying on a wearing hex: this hero wears it.
-                    // An item is not an ally, so it fills nothing else: no ally bonus, no self bonus.
                     foreach (Hex wearing in mark.GetWearingHexes(standingOn))
                     {
+                        // an item lying on a wearing hex: this hero wears it.
+                        // An item is not an ally, so it fills nothing else: no ally bonus, no self bonus.
                         Wear(me, board.Items.ItemOn(wearing));
+
+                        // an ally standing on a wearing hex: this hero wears what the ally wears, too.
+                        // Only what the ally wears itself - not what it is sharing from its own wearing hexes - so it never chains.
+                        if (board.WhoReservedThisHex(wearing) is Hero ally && ally != me && ally.Team == team)
+                        {
+                            foreach (IEquipment item in ally.WornItems) Wear(me, item);
+                        }
                     }
 
                     // loop through every hex that was marked
@@ -76,10 +83,11 @@ namespace MagicSchool.Combat.Align
         private static bool IsEmpty(BattleBoard board, Hex hex)
             => hex.IsInDeployZone && board.WhoReservedThisHex(hex) == null;
 
-        // The hero wears an item that lies on one of its wearing hexes
+        // The hero wears an item that lies on one of its wearing hexes, or that an ally standing there wears
         private void Wear(Hero wearer, IEquipment item)
         {
-            if (item == null || item.Modifier == null) return;
+            // `as Object`: a destroyed item still in a list is not == null through the interface (See HeroItems.ReGrantAll)
+            if (item as UnityEngine.Object == null || item.Modifier == null) return;
 
             Give(wearer, item.Modifier, wearer);
         }
