@@ -16,7 +16,7 @@ namespace MagicSchool.Editor
     {
         private const string HeroFolder = "Assets/Data/Heroes/Stats/Player";
 
-        private const int Reach = 3;                // how many hexes out from the hero the window draws
+        private const int Reach = 6;                // how many hexes out from the hero the window draws
         private const float ColumnStep = 46f;       // pixels between two columns
         private const float RowStep = 46f;          // pixels between two hexes of one column
 
@@ -43,6 +43,7 @@ namespace MagicSchool.Editor
         private string _heroSearch = string.Empty;
         private Vector2 _heroScroll;
         private Vector2 _markScroll;
+        private Vector2 _hexScroll;
 
         [MenuItem("Magic School 4/Align Editor")]
         private static void Open() => GetWindow<AlignEditorWindow>("Align Editor");
@@ -170,6 +171,9 @@ namespace MagicSchool.Editor
             EditorGUILayout.LabelField("Right-click a marked hex to make it a wearing hex: an item lying there is worn by the hero. Right-click again to undo.", EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.LabelField("The enemy is to the right.", EditorStyles.wordWrappedMiniLabel);
 
+            // the grid is about 600 pixels square at reach 6: scroll when the window is smaller than that
+            _hexScroll = EditorGUILayout.BeginScrollView(_hexScroll);
+
             float size = (Reach * 2 + 1) * RowStep + 20f;
             Rect area = GUILayoutUtility.GetRect(size, size, GUILayout.ExpandWidth(true));
             Vector2 centre = area.center;
@@ -218,6 +222,7 @@ namespace MagicSchool.Editor
                 }
             }
 
+            EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
         }
 
