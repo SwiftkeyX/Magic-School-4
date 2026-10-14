@@ -32,10 +32,10 @@ namespace MagicSchool.Combat.Align
                 .Where(mark => mark.HasDamageHeal)
                 .Select(mark => $"Self: heals for {mark.healFromAllyDamage:0.#}% of the damage an aligned ally deals");
 
-            // an item lying on a wearing hex is worn by the hero
+            // an item lying on a wearing hex, or worn by an ally standing there, is worn by the hero
             var wearing = marks
                 .Where(mark => mark.HasWearingHex)
-                .Select(mark => "Wears an item placed on a wearing hex");
+                .Select(mark => "Wears the item on a wearing hex, or the item of an ally standing there");
 
             return string.Join("\n", allyBonus.Concat(selfBonus).Concat(damageHeal).Concat(wearing).Distinct());
         }

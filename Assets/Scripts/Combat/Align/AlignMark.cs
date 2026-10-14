@@ -142,7 +142,8 @@ namespace MagicSchool.Combat.Align
         [Tooltip("How many hexes away in that then direction.")]
         public int thenDistance;
 
-        [Tooltip("An item lying on this hex is worn by the hero. The item gives its own effect only: it is not an ally, so it gives no ally bonus and no self bonus.")]
+        [Tooltip("An item lying on this hex is worn by the hero. The item gives its own effect only: it is not an ally, so it gives no ally bonus and no self bonus. " +
+                 "An ally standing on this hex shares the item it wears: the hero wears that too.")]
         public bool isWearing;
 
         public int Distance => Mathf.Max(1, distance);

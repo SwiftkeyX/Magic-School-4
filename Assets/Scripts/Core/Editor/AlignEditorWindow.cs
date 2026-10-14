@@ -168,7 +168,7 @@ namespace MagicSchool.Editor
 
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.LabelField("Click a hex to give it to the selected bonus. Click it again to take it away.", EditorStyles.wordWrappedMiniLabel);
-            EditorGUILayout.LabelField("Right-click a marked hex to make it a wearing hex: an item lying there is worn by the hero. Right-click again to undo.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.LabelField("Right-click a marked hex to make it a wearing hex: an item lying there, or the item of an ally standing there, is worn by the hero. Right-click again to undo.", EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.LabelField("The enemy is to the right.", EditorStyles.wordWrappedMiniLabel);
 
             // the grid is about 600 pixels square at reach 6: scroll when the window is smaller than that
