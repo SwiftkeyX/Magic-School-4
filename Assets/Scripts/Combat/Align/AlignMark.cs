@@ -53,11 +53,17 @@ namespace MagicSchool.Combat.Align
                  "On = the opposite: once for every one of this mark's deploy-zone hexes nobody stands on.")]
         public bool selfWhenEmpty;
 
+        [Header("Generator")]
+        [Tooltip("An ally standing on one of this mark's hexes is a generator: this hero heals for this percent of every damage it deals. " +
+                 "0 = none.")]
+        public float healFromAllyDamage;
+
         private const float RestOfFight = -1f;
 
         // =================================== getter ===================================
         public bool HasAllyBonus => amount != 0f;
         public bool HasSelfBonus => selfAmount != 0f;
+        public bool HasDamageHeal => healFromAllyDamage > 0f;
 
         // Get the hexes that was marked by this hero.
         public List<Hex> GetMarkedHexes(Hex standingOn)

@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
+using MagicSchool.StatScaling;
 
 namespace MagicSchool.Combat.Align
 {
@@ -15,6 +17,7 @@ namespace MagicSchool.Combat.Align
     public class AlignBonuses
     {
         private readonly List<(Hero receiver, ICustomModifier modifier)> _given = new List<(Hero, ICustomModifier)>();
+        private readonly List<(Hero generator, Action<DamageEvent> heal)> _links = new List<(Hero, Action<DamageEvent>)>();
 
         // FLAGGING: This isn't optimal obviously. But let leave it alone for the speed.
         // Take back every bonus, then give every ally standing on a marked hex its bonus.
@@ -59,6 +62,9 @@ namespace MagicSchool.Combat.Align
                         // or the opposite - for a hex left empty
                         bool paysSelf = mark.selfWhenEmpty ? IsEmpty(board, marked) : isAlly;
                         if (paysSelf && mark.HasSelfBonus) Give(me, mark.BuildSelfModifier(), me);
+
+                        // the ally is a generator: its damage heals this hero
+                        if (isAlly && mark.HasDamageHeal) LinkDamageHeal(receiver, me, mark.healFromAllyDamage);
                     }
                 }
             }
@@ -85,7 +91,17 @@ namespace MagicSchool.Combat.Align
             _given.Add((receiver, bonus));
         }
 
-        // Wipe every modifier given by the aligning mechanic
+        // Every damage the generator deals heals the payoff hero by [percent] of it
+        // e.g.     15% - the generator hits for 200 => Shield Knight heals 30
+        private void LinkDamageHeal(Hero generator, Hero payoff, float percent)
+        {
+            Action<DamageEvent> heal = hit => Omnivamp.HealFromDamage(payoff, hit.Outcome.Landed, percent, source: generator);
+
+            generator.OnDamageDealt += heal;
+            _links.Add((generator, heal));
+        }
+
+        // Wipe every modifier given by the aligning mechanic, and cut every generator link
         private void TakeBack()
         {
             foreach ((Hero receiver, ICustomModifier modifier) in _given)
@@ -96,6 +112,13 @@ namespace MagicSchool.Combat.Align
             }
 
             _given.Clear();
+
+            foreach ((Hero generator, Action<DamageEvent> heal) in _links)
+            {
+                if (generator != null) generator.OnDamageDealt -= heal;
+            }
+
+            _links.Clear();
         }
     }
 }

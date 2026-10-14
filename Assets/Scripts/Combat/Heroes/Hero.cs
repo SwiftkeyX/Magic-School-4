@@ -106,6 +106,7 @@ namespace MagicSchool.Combat.Heroes
         // ======================================== combat event ========================================
         public event Action<DamageEvent> OnDamaged;
         public event Action<HealEvent> OnHealed;
+        public event Action<DamageEvent> OnDamageDealt;     // this hero hurt someone - raised by the one who took it
         public event Action<HeroDataSO, TeamEnum, IPlacement, BattleBoard> OnSpawnRequested;
 
         // ======================================== interface method ========================================
@@ -135,7 +136,12 @@ namespace MagicSchool.Combat.Heroes
             Stat.ConsumeShield(absorbed);
             Stat.SetCurrentHP(outcome.NewHP);
 
-            OnDamaged?.Invoke(new DamageEvent(source, this, kind, outcome));
+            var damageEvent = new DamageEvent(source, this, kind, outcome);
+            OnDamaged?.Invoke(damageEvent);
+
+            // tell the dealer too
+            // e.g.     aligning: Shield Knight heals off the damage his generator deals
+            if (source is Hero dealer) dealer.OnDamageDealt?.Invoke(damageEvent);
 
             // if take burn, annouce it.
             if (kind == DamageKindEnum.Burn) AnnounceBurn();

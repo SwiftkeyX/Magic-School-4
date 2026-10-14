@@ -338,6 +338,7 @@ namespace MagicSchool.Editor
                 EditorGUILayout.PropertyField(mark.FindPropertyRelative("selfAmount"));
                 EditorGUILayout.PropertyField(mark.FindPropertyRelative("selfPercentOf"));
                 EditorGUILayout.PropertyField(mark.FindPropertyRelative("selfWhenEmpty"));
+                EditorGUILayout.PropertyField(mark.FindPropertyRelative("healFromAllyDamage"));
                 EditorGUILayout.EndVertical();
 
                 if (!isRemoved) continue;
@@ -462,6 +463,7 @@ namespace MagicSchool.Editor
             mark.FindPropertyRelative("selfAmount").floatValue = 0f;
             mark.FindPropertyRelative("selfPercentOf").intValue = NoStat;
             mark.FindPropertyRelative("selfWhenEmpty").boolValue = false;
+            mark.FindPropertyRelative("healFromAllyDamage").floatValue = 0f;
 
             _selectedMark = marks.arraySize - 1;
         }
