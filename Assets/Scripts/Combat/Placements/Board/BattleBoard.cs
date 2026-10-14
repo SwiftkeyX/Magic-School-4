@@ -86,6 +86,9 @@ namespace MagicSchool.Combat.Placements
         // a board prefab
         private GameObject _layoutPrefab;
 
+        // the layout the board is built from right now: null until the first stage sets one
+        public GameObject Layout => _layoutPrefab;
+
         // Is the board built from this layout right now?
         public bool HasLayout(GameObject layoutPrefab) => layoutPrefab != null && layoutPrefab == _layoutPrefab;
 

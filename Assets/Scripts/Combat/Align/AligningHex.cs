@@ -30,6 +30,19 @@ namespace MagicSchool.Combat.Align
             return hexesByBonus;
         }
 
+        // Get the wearing hexes of the specify hero: the hexes where an item would be worn by it.
+        public static List<Hex> WearingHexes(Hero giver, Hex standingOn)
+        {
+            var wearing = new List<Hex>();
+
+            foreach (AlignMark mark in giver.Data.AlignMarks)
+            {
+                wearing.AddRange(mark.GetWearingHexes(standingOn));
+            }
+
+            return wearing;
+        }
+
         // Get every wearing hex of the consuming team: the hexes where an item would be worn by someone.
         public static List<Hex> WearingHexes(BattleBoard board, TeamEnum team)
         {
@@ -39,10 +52,7 @@ namespace MagicSchool.Combat.Align
             {
                 if (!(combatant is Hero hero) || hero.Team != team || hero.CurrentHex == null) continue;
 
-                foreach (AlignMark mark in hero.Data.AlignMarks)
-                {
-                    wearing.AddRange(mark.GetWearingHexes(hero.CurrentHex));
-                }
+                wearing.AddRange(WearingHexes(hero, hero.CurrentHex));
             }
 
             return wearing;

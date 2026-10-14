@@ -16,12 +16,14 @@ namespace MagicSchool.Core
     ///     remove enemy        - drop an enemy on the shop
     ///     paint deploy zone   - click an empty hex to put it in or out of the zone
     ///     save formation      - ReadEnemyTeam() and ReadDeployZone() are what the board holds right now; the menu writes them into an asset
+    ///     team comp           - ReadPlayerTeam() saves the player's heroes on the board; LoadPlayerTeam() puts a saved comp back
     ///
     /// Tick GameManager._stageEditMode to use this tool.
     /// </summary>
     public class StageEditor
     {
         private const TeamEnum EnemyTeam = TeamEnum.Red;
+        private const TeamEnum PlayerTeam = TeamEnum.Blue;
 
         private readonly GameManager _game;
 
@@ -52,11 +54,16 @@ namespace MagicSchool.Core
 
         // ======================================== read ========================================
         // get every enemy on the board and the hex it stands on
-        public List<HeroPlacement> ReadEnemyTeam()
+        public List<HeroPlacement> ReadEnemyTeam() => ReadTeam(EnemyTeam);
+
+        // get every player hero on the board and the hex it stands on (the bench is not part of a comp)
+        public List<HeroPlacement> ReadPlayerTeam() => ReadTeam(PlayerTeam);
+
+        private List<HeroPlacement> ReadTeam(TeamEnum team)
         {
             return _game.Board.HeroesOnBoard
                 .OfType<Hero>()
-                .Where(hero => hero != null && hero.Team == EnemyTeam && hero.CurrentHex != null)
+                .Where(hero => hero != null && hero.Team == team && hero.CurrentHex != null)
                 .Select(hero => new HeroPlacement(hero.Data, hero.Team, hero.CurrentHex.Number))
                 .OrderBy(placement => placement.hexPlacement.column)
                 .ThenBy(placement => placement.hexPlacement.row)
@@ -92,6 +99,51 @@ namespace MagicSchool.Core
         // overwrite the deploy zone's SO to the specify one
         public void WriteDeployZone(BattlePlacementSO stage, IEnumerable<HexNumber> zone)
             => stage.ReplaceDeployZone(zone);
+
+        // ======================================== team comp ========================================
+        // A team comp is a BattlePlacementSO holding blue entries only, plus the board they were placed on:
+        // a hex number only means something on its own layout.
+        public int PlayerCountOnBoard => _game.Board.CountTeamOnBoard(PlayerTeam);
+        public int PlayerCountIn(BattlePlacementSO comp) => comp.HeroesPlacement.Count(placement => placement.team == PlayerTeam);
+
+        // overwrite the player team of the SO, and remember which board it stands on
+        public void WritePlayerTeam(BattlePlacementSO comp, IEnumerable<HeroPlacement> team)
+        {
+            comp.ReplaceTeam(PlayerTeam, team);
+            comp.SetBoardLayout(_game.Board.Layout);
+        }
+
+        // can the comp's hex numbers be read on the board as it is now?
+        public bool FitsThisBoard(BattlePlacementSO comp) => comp.BoardLayout == null || _game.Board.HasLayout(comp.BoardLayout);
+
+        // swap the player's team on the board for the comp's. The bench is left alone, and no gold changes hands.
+        // Returns how many heroes were put down.
+        public int LoadPlayerTeam(BattlePlacementSO comp)
+        {
+            if (comp == null || !CanEditNow) return 0;
+            if (OnSpawnRequested == null) { Debug.LogError("Can't load the team. Nothing is listening for spawn requests."); return 0; }
+
+            BattleBoard board = _game.Board;
+            board.ClearTeam(PlayerTeam);
+
+            int placed = 0;
+            foreach (HeroPlacement placement in comp.HeroesPlacement)
+            {
+                if (placement.team != PlayerTeam || placement.dataSO == null) continue;
+
+                if (!board.Hexs.TryGetValue(placement.hexPlacement, out Hex hex) || board.WhoReservedThisHex(hex) != null)
+                {
+                    Debug.LogWarning($"[StageEditor] skipped {placement.dataSO.name}: hex {placement.hexPlacement.column},{placement.hexPlacement.row} is missing or taken.");
+                    continue;
+                }
+
+                OnSpawnRequested.Invoke(placement.dataSO, PlayerTeam, hex, board);
+                placed++;
+            }
+
+            _game.RefreshAligning();
+            return placed;
+        }
 
         // ======================================== private ========================================
         // an enemy may stand on any hex outside the deploy zone.
