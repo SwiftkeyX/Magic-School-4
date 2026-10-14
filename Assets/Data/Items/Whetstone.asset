@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: MagicSchool.Items::MagicSchool.Items.ItemDataSO
   _prefab: {fileID: 1622558564318197876, guid: 1873d0ffaf3430a488c7956619e02e04, type: 3}
   _name: Whetstone
-  _description: +15 Atk. A rough stone kept in every duellist pocket. Sharpens the swing itself.
+  _description: +50% Atk. A rough stone kept in every duellist pocket. Sharpens the swing itself.
   _itemId: 2
