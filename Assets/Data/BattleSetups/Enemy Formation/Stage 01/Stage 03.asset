@@ -10,34 +10,39 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b15591f0aa582343bd08d00a02b4206, type: 3}
-  m_Name: Stage 01 - Formation 1
+  m_Name: Stage 03
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
   _heroesPlacement:
-  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+  - dataSO: {fileID: 11400000, guid: 323550731efc8b341ace76ed3fed3a5c, type: 2}
     team: 1
     hexPlacement:
-      column: 3
+      column: 6
       row: 2
+    item: {fileID: 0}
   - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
     team: 1
     hexPlacement:
-      column: 3
+      column: 6
       row: 3
-  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+    item: {fileID: 0}
+  - dataSO: {fileID: 11400000, guid: 323550731efc8b341ace76ed3fed3a5c, type: 2}
     team: 1
     hexPlacement:
-      column: 3
+      column: 6
       row: 4
+    item: {fileID: 0}
   - dataSO: {fileID: 11400000, guid: 332908cda09db9745af288f5883f93f4, type: 2}
     team: 1
     hexPlacement:
-      column: 4
-      row: 2
-  - dataSO: {fileID: 11400000, guid: 332908cda09db9745af288f5883f93f4, type: 2}
+      column: 7
+      row: 0
+    item: {fileID: 0}
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
     team: 1
     hexPlacement:
-      column: 4
-      row: 3
+      column: 11
+      row: 4
+    item: {fileID: 0}
   _deployZone:
   - column: 0
     row: 0
@@ -47,6 +52,8 @@ MonoBehaviour:
     row: 2
   - column: 0
     row: 3
+  - column: 0
+    row: 4
   - column: 1
     row: 0
   - column: 1
@@ -62,7 +69,40 @@ MonoBehaviour:
   - column: 2
     row: 1
   - column: 2
-    row: 4
+    row: 2
   - column: 2
-    row: 5
-  _boardLayout: {fileID: 7792403832837219978, guid: 3172940d3688d494c9d02380de64668f, type: 3}
+    row: 3
+  - column: 2
+    row: 4
+  - column: 3
+    row: 0
+  - column: 3
+    row: 1
+  - column: 3
+    row: 2
+  - column: 3
+    row: 3
+  - column: 3
+    row: 4
+  - column: 4
+    row: 0
+  - column: 4
+    row: 1
+  - column: 4
+    row: 2
+  - column: 4
+    row: 3
+  - column: 4
+    row: 4
+  - column: 5
+    row: 0
+  - column: 5
+    row: 1
+  - column: 5
+    row: 2
+  - column: 5
+    row: 3
+  - column: 5
+    row: 4
+  _boardLayout: {fileID: 2821033882997051323, guid: d07d3d269e6884b42a2b2daced65229a, type: 3}
+  _itemsOnHexes: []
