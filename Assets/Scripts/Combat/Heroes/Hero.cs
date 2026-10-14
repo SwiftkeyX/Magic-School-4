@@ -88,6 +88,7 @@ namespace MagicSchool.Combat.Heroes
         public void TriggerOnDeath() => _skill.TriggerOnDeath();
         public void TriggerOnHeroBurned(ICombatant burned) => _skill.TriggerOnHeroBurned(burned);
         public float GetCastTime() => _skill.GetCastTime();
+        public bool CanWalkWhileCasting() => _skill.CanWalkWhileCasting();
         public bool IsSkillRepeating() => _skill.IsSkillRepeating();
 
         // what the Hero Panel reads

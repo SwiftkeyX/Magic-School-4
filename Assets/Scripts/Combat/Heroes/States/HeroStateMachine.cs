@@ -33,7 +33,7 @@ namespace MagicSchool.Combat.Heroes.States
             _attack = new HeroAttack(hero, movement, transition);
             _dead = new HeroDead(hero, transition);
             _stunned = new HeroStunned(hero, transition);
-            _cast = new HeroCast(hero, transition);
+            _cast = new HeroCast(hero, movement, transition);
         }
 
         public void Start(HeroStateEnum initial)
