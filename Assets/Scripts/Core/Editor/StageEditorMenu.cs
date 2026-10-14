@@ -14,7 +14,8 @@ namespace MagicSchool.Editor
     //      1. Add Selected Heroes As Enemies      - spawn the selected HeroDataSOs (in project window) as enemies
     //      2. Save To Current Stage               - overwrite the enemy team and the deploy zone of the current stage
     //      3. Save As New Stage...                - write the enemy team and the deploy zone into a new BattlePlacementSO
-    //      4. Save Player Team As...              - write the player's heroes on the board into a team comp (Data/BattleSetups/Team Comps)
+    //      4. Save Player Team As...              - write the player's heroes on the board, the items they wear and the items
+    //                                               on hexes into a team comp (Data/BattleSetups/Team Comps)
     //      5. Load Selected Team Comp             - swap the player's heroes on the board for the comp selected in the Project window
     //
     // All of them need:
@@ -119,13 +120,15 @@ namespace MagicSchool.Editor
                 AssetDatabase.CreateAsset(comp, path);
             }
 
-            editor.WritePlayerTeam(comp, team);
+            List<ItemPlacement> itemsOnHexes = editor.ReadItemsOnHexes();
+            editor.WritePlayerTeam(comp, team, itemsOnHexes);
 
             EditorUtility.SetDirty(comp);
             AssetDatabase.SaveAssetIfDirty(comp);
             EditorGUIUtility.PingObject(comp);
 
-            Debug.Log($"[StageEditor] saved {team.Count} player heroes to {path}.");
+            int worn = team.Count(placement => placement.item != null);
+            Debug.Log($"[StageEditor] saved {team.Count} player heroes ({worn} wearing an item) and {itemsOnHexes.Count} items on hexes to {path}.");
         }
 
         [MenuItem(Menu + "Load Selected Team Comp", priority = 101)]
@@ -157,7 +160,8 @@ namespace MagicSchool.Editor
             int onBoard = editor.PlayerCountOnBoard;
             if (onBoard > 0 && !EditorUtility.DisplayDialog("Load team comp",
                     $"Replace the {onBoard} player heroes on the board with the {inComp} in '{comp.name}'?\n\n" +
-                    "The heroes on the board now are removed, not refunded. The bench is left alone.", "Load", "Cancel")) return;
+                    "The heroes on the board now are removed with their items, not refunded. Items lying on hexes go to the loose row. " +
+                    "The bench is left alone.", "Load", "Cancel")) return;
 
             int placed = editor.LoadPlayerTeam(comp);
             Debug.Log($"[StageEditor] loaded {placed} of {inComp} heroes from '{comp.name}'.");

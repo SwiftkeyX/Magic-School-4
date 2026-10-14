@@ -5,6 +5,7 @@ using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
+using MagicSchool.Items;
 
 namespace MagicSchool.Core
 {
@@ -16,7 +17,8 @@ namespace MagicSchool.Core
     ///     remove enemy        - drop an enemy on the shop
     ///     paint deploy zone   - click an empty hex to put it in or out of the zone
     ///     save formation      - ReadEnemyTeam() and ReadDeployZone() are what the board holds right now; the menu writes them into an asset
-    ///     team comp           - ReadPlayerTeam() saves the player's heroes on the board; LoadPlayerTeam() puts a saved comp back
+    ///     team comp           - ReadPlayerTeam() and ReadItemsOnHexes() save the player's heroes on the board, their items and
+    ///                           the items on hexes; LoadPlayerTeam() puts a saved comp back
     ///
     /// Tick GameManager._stageEditMode to use this tool.
     /// </summary>
@@ -64,9 +66,22 @@ namespace MagicSchool.Core
             return _game.Board.HeroesOnBoard
                 .OfType<Hero>()
                 .Where(hero => hero != null && hero.Team == team && hero.CurrentHex != null)
-                .Select(hero => new HeroPlacement(hero.Data, hero.Team, hero.CurrentHex.Number))
+                .Select(hero => new HeroPlacement(hero.Data, hero.Team, hero.CurrentHex.Number, WornItemData(hero)))
                 .OrderBy(placement => placement.hexPlacement.column)
                 .ThenBy(placement => placement.hexPlacement.row)
+                .ToList();
+        }
+
+        // the item the hero wears, as data. A hero wears one item at most (See HeroItems.Capacity)
+        private static ItemDataSO WornItemData(Hero hero)
+            => hero.WornItems.OfType<Item>().FirstOrDefault(item => item != null)?.Data;
+
+        // get every item lying on a hex and the hex it lies on
+        public List<ItemPlacement> ReadItemsOnHexes()
+        {
+            return _game.Board.Items.All()
+                .Where(pair => pair.item is Item item && item.Data != null)
+                .Select(pair => new ItemPlacement(((Item)pair.item).Data, pair.hex.Number))
                 .ToList();
         }
 
@@ -106,18 +121,20 @@ namespace MagicSchool.Core
         public int PlayerCountOnBoard => _game.Board.CountTeamOnBoard(PlayerTeam);
         public int PlayerCountIn(BattlePlacementSO comp) => comp.HeroesPlacement.Count(placement => placement.team == PlayerTeam);
 
-        // overwrite the player team of the SO, and remember which board it stands on
-        public void WritePlayerTeam(BattlePlacementSO comp, IEnumerable<HeroPlacement> team)
+        // overwrite the player team of the SO (worn items included) and the items on hexes, and remember which board it stands on
+        public void WritePlayerTeam(BattlePlacementSO comp, IEnumerable<HeroPlacement> team, IEnumerable<ItemPlacement> itemsOnHexes)
         {
             comp.ReplaceTeam(PlayerTeam, team);
+            comp.ReplaceItemsOnHexes(itemsOnHexes);
             comp.SetBoardLayout(_game.Board.Layout);
         }
 
         // can the comp's hex numbers be read on the board as it is now?
         public bool FitsThisBoard(BattlePlacementSO comp) => comp.BoardLayout == null || _game.Board.HasLayout(comp.BoardLayout);
 
-        // swap the player's team on the board for the comp's. The bench is left alone, and no gold changes hands.
-        // Returns how many heroes were put down.
+        // swap the player's team on the board for the comp's, with the items they wear and the items on hexes.
+        // The heroes on the board go with the items they wear; items already lying on hexes go to the loose row.
+        // The bench is left alone, and no gold changes hands. Returns how many heroes were put down.
         public int LoadPlayerTeam(BattlePlacementSO comp)
         {
             if (comp == null || !CanEditNow) return 0;
@@ -125,6 +142,10 @@ namespace MagicSchool.Core
 
             BattleBoard board = _game.Board;
             board.ClearTeam(PlayerTeam);
+            foreach (IEquipment lying in board.Items.TakeAll())
+            {
+                if (lying is Item item) ItemDrop.MoveToFreeSpot(item);
+            }
 
             int placed = 0;
             foreach (HeroPlacement placement in comp.HeroesPlacement)
@@ -139,6 +160,30 @@ namespace MagicSchool.Core
 
                 OnSpawnRequested.Invoke(placement.dataSO, PlayerTeam, hex, board);
                 placed++;
+
+                // the spawn is immediate, so the hero is on the hex now
+                if (placement.item is ItemDataSO itemData && board.WhoReservedThisHex(hex) is Hero hero)
+                {
+                    Item worn = Item.Spawn(itemData, hex.transform.position);
+                    if (worn != null && !hero.TryWear(worn)) ItemDrop.MoveToFreeSpot(worn);
+                }
+            }
+
+            foreach (ItemPlacement lying in comp.ItemsOnHexes)
+            {
+                if (!(lying.item is ItemDataSO itemData)) continue;
+
+                Item item = Item.Spawn(itemData, Vector3.zero);
+                if (item == null) continue;
+
+                // the hex must still be there and free - a hero or another item on it means it can't lie there
+                bool isLaid = board.Hexs.TryGetValue(lying.hexPlacement, out Hex hex)
+                              && board.WhoReservedThisHex(hex) == null
+                              && board.Items.Place(item, hex);
+                if (isLaid) continue;
+
+                Debug.LogWarning($"[StageEditor] {itemData.name} could not lie on hex {lying.hexPlacement.column},{lying.hexPlacement.row} - it went to the loose row.");
+                ItemDrop.MoveToFreeSpot(item);
             }
 
             _game.RefreshAligning();

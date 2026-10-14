@@ -40,6 +40,11 @@ namespace MagicSchool.Combat.Placements
             return null;
         }
 
+        // Every item lying on the board, with the hex it lies on
+        // e.g.     the stage editor saves them into a team comp
+        public List<(Hex hex, IEquipment item)> All()
+            => _itemOn.Where(pair => pair.Value as Object != null).Select(pair => (pair.Key, pair.Value)).ToList();
+
         // ======================================== setter ========================================
         // Lay the item on the hex. False when another item already lies there.
         public bool Place(IEquipment item, Hex hex)
