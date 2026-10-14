@@ -20,6 +20,7 @@ namespace MagicSchool.Skills
 
         protected ICombatant Caster { get; private set; }   // owner of this skill
         public float CastTime { get; private set; } // the animation's duration to play this specific skill
+        public bool CanWalkWhileCasting { get; private set; }   // a part just played lets the caster walk during CastTime
 
         public bool IsRepeating { get; private set; }
 
@@ -118,6 +119,7 @@ namespace MagicSchool.Skills
             if (Play(part, new TemplateActionCallbacks { OnSkillHit = part.OnSkillHit }, null, assignedTarget) == null) return false;
 
             CastTime = CastTimeOf(part);
+            CanWalkWhileCasting = WalksWhileCasting(part);
             return true;
         }
 
@@ -169,6 +171,7 @@ namespace MagicSchool.Skills
         Vector3? previousPosition)
         {
             float longestCast = 0f;
+            bool canWalk = false;
             TemplateAction leader = null;
 
             for (int i = 0; i < parts.Count; i++)
@@ -196,9 +199,11 @@ namespace MagicSchool.Skills
                 if (isLeading && played == null) return false;
                 if (isLeading) leader = played;
                 if (played != null) longestCast = Mathf.Max(longestCast, CastTimeOf(part));
+                if (played != null) canWalk |= WalksWhileCasting(part);
             }
 
             CastTime = longestCast;
+            CanWalkWhileCasting = canWalk;
             return true;
         }
 
@@ -249,5 +254,8 @@ namespace MagicSchool.Skills
         // e.g.     0.5 sec before shooting a projectile
         private static float CastTimeOf(SkillPart part)
             => part.Tuning?.CastTime ?? part.TemplateAction.CastTime;
+
+        // does the skill part let the caster walk during its cast time?
+        private static bool WalksWhileCasting(SkillPart part) => part.Tuning?.WalkWhileCasting ?? false;
     }
 }

@@ -6,6 +6,7 @@ namespace MagicSchool.Skills
     public class Tuning
     {
         public float? CastTime;          // how long the caster is locked out of auto attacking
+        public bool? WalkWhileCasting;   // the caster still walks toward its target during the cast time e.g. Orc Blademaster's storm
     }
 
     public class AOETuning : Tuning
