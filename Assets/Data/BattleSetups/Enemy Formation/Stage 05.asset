@@ -10,34 +10,39 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b15591f0aa582343bd08d00a02b4206, type: 3}
-  m_Name: Stage 01 - Formation 4
+  m_Name: Stage 05
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
   _heroesPlacement:
-  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+  - dataSO: {fileID: 11400000, guid: 323550731efc8b341ace76ed3fed3a5c, type: 2}
     team: 1
     hexPlacement:
-      column: 11
+      column: 6
+      row: 3
+    item: {fileID: 0}
+  - dataSO: {fileID: 11400000, guid: 323550731efc8b341ace76ed3fed3a5c, type: 2}
+    team: 1
+    hexPlacement:
+      column: 6
+      row: 4
+    item: {fileID: 0}
+  - dataSO: {fileID: 11400000, guid: 323550731efc8b341ace76ed3fed3a5c, type: 2}
+    team: 1
+    hexPlacement:
+      column: 8
+      row: 1
+    item: {fileID: 0}
+  - dataSO: {fileID: 11400000, guid: e2973ad7b1f34a79918c1367e14fa734, type: 2}
+    team: 1
+    hexPlacement:
+      column: 8
       row: 2
-  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
-    team: 1
-    hexPlacement:
-      column: 11
-      row: 3
-  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
-    team: 1
-    hexPlacement:
-      column: 11
-      row: 4
+    item: {fileID: 0}
   - dataSO: {fileID: 11400000, guid: 332908cda09db9745af288f5883f93f4, type: 2}
     team: 1
     hexPlacement:
-      column: 13
-      row: 3
-  - dataSO: {fileID: 11400000, guid: 332908cda09db9745af288f5883f93f4, type: 2}
-    team: 1
-    hexPlacement:
-      column: 13
+      column: 10
       row: 4
+    item: {fileID: 0}
   _deployZone:
   - column: 0
     row: 0
@@ -49,10 +54,6 @@ MonoBehaviour:
     row: 3
   - column: 0
     row: 4
-  - column: 0
-    row: 5
-  - column: 0
-    row: 6
   - column: 1
     row: 0
   - column: 1
@@ -63,10 +64,6 @@ MonoBehaviour:
     row: 3
   - column: 1
     row: 4
-  - column: 1
-    row: 5
-  - column: 1
-    row: 6
   - column: 2
     row: 0
   - column: 2
@@ -77,10 +74,6 @@ MonoBehaviour:
     row: 3
   - column: 2
     row: 4
-  - column: 2
-    row: 5
-  - column: 2
-    row: 6
   - column: 3
     row: 0
   - column: 3
@@ -91,10 +84,6 @@ MonoBehaviour:
     row: 3
   - column: 3
     row: 4
-  - column: 3
-    row: 5
-  - column: 3
-    row: 6
   - column: 4
     row: 0
   - column: 4
@@ -105,10 +94,6 @@ MonoBehaviour:
     row: 3
   - column: 4
     row: 4
-  - column: 4
-    row: 5
-  - column: 4
-    row: 6
   - column: 5
     row: 0
   - column: 5
@@ -119,36 +104,5 @@ MonoBehaviour:
     row: 3
   - column: 5
     row: 4
-  - column: 5
-    row: 5
-  - column: 5
-    row: 6
-  - column: 6
-    row: 0
-  - column: 6
-    row: 1
-  - column: 6
-    row: 2
-  - column: 6
-    row: 3
-  - column: 6
-    row: 4
-  - column: 6
-    row: 5
-  - column: 6
-    row: 6
-  - column: 7
-    row: 0
-  - column: 7
-    row: 1
-  - column: 7
-    row: 2
-  - column: 7
-    row: 3
-  - column: 7
-    row: 4
-  - column: 7
-    row: 5
-  - column: 7
-    row: 6
   _boardLayout: {fileID: 2821033882997051323, guid: d07d3d269e6884b42a2b2daced65229a, type: 3}
+  _itemsOnHexes: []
