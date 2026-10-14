@@ -55,5 +55,8 @@ namespace MagicSchool.Skills
         Basilisk = 41,
         GoblinSlinger = 42,
         KoboldSkirmisher = 43,
+
+        // =================== boss ===================
+        MinotaurKing = 44,
     }
 }
