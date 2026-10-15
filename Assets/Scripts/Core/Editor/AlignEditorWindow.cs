@@ -323,7 +323,7 @@ namespace MagicSchool.Editor
         private static Color ColorOf(int mark) => mark == 1 ? SecondBonusColor : FirstBonusColor;
 
         // ---------------------------------------- top: the patterns ----------------------------------------
-        // One tab per pattern. In the game, Q / E turns a hero from one pattern to the next, in this order.
+        // One tab per pattern. In the game, right-clicking while holding a hero turns it to the next pattern, in this order.
         private void DrawPatternTabs(SerializedProperty patterns)
         {
             EditorGUILayout.BeginHorizontal();
@@ -353,7 +353,7 @@ namespace MagicSchool.Editor
             EditorGUILayout.EndHorizontal();
 
             string rotates = patterns.arraySize > 1
-                ? $"{patterns.arraySize} patterns: Q / E turns this hero through them in the game."
+                ? $"{patterns.arraySize} patterns: right-clicking while holding this hero turns it through them in the game."
                 : "One pattern: this hero cannot rotate. Add a pattern to let it.";
             EditorGUILayout.LabelField(rotates, EditorStyles.wordWrappedMiniLabel);
         }

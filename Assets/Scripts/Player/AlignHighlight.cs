@@ -42,8 +42,23 @@ namespace MagicSchool.Player
                 return;
             }
 
+            if (!isPreparation)
+            {
+                Hide(isPreparation);
+                return;
+            }
+
+            // holding nothing: a placed hero under the pointer shows the hexes it marks from where it stands
+            if (held == null)
+            {
+                Hero hovered = HoveredPlacedHero();
+                if (hovered == null) Hide(isPreparation);
+                else ShowMarks(hovered, hovered.CurrentHex);
+                return;
+            }
+
             // an enemy held in the stage editor shows nothing: an enemy's marks do nothing
-            if (!isPreparation || held == null || held.Team != _team)
+            if (held.Team != _team)
             {
                 Hide(isPreparation);
                 return;
@@ -57,12 +72,26 @@ namespace MagicSchool.Player
                 return;
             }
 
-            List<Hex>[] hexesByBonus = AligningHex.MarkedHexesByBonus(held, pointed);
+            ShowMarks(held, pointed);
+        }
+
+        // the hexes the hero marks while standing on [standingOn], each bonus in its colour
+        private void ShowMarks(Hero hero, Hex standingOn)
+        {
+            List<Hex>[] hexesByBonus = AligningHex.MarkedHexesByBonus(hero, standingOn);
             HashSet<Hex> firstBonus = InDeployZone(hexesByBonus[0]);
             HashSet<Hex> secondBonus = InDeployZone(hexesByBonus[1]);
-            HashSet<Hex> wearing = InDeployZone(AligningHex.WearingHexes(held, pointed));
+            HashSet<Hex> wearing = InDeployZone(AligningHex.WearingHexes(hero, standingOn));
 
             Show(firstBonus, secondBonus, wearing);
+        }
+
+        // a player hero standing on a hex under the pointer - not one on a bench, and not an enemy: an enemy's marks do nothing
+        private Hero HoveredPlacedHero()
+        {
+            Hero hovered = Picker.At<Hero>(PlayerInputSystem.GetMouseWorldPosition(_cam));
+
+            return hovered != null && hovered.Team == _team && hovered.CurrentHex != null ? hovered : null;
         }
 
         // mark those hexes with different colour
