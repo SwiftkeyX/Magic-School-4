@@ -28,44 +28,45 @@ MonoBehaviour:
   _critChance: 25
   _skillId: 3
   _spawnUnit: {fileID: 0}
-  _alignMarks:
-  - hexes:
-    - direction: 5
-      distance: 2
-      thenDirection: 5
-      thenDistance: 0
-      isWearing: 1
-    - direction: 5
-      distance: 4
-      thenDirection: 5
-      thenDistance: 0
-      isWearing: 1
-    - direction: 4
-      distance: 2
-      thenDirection: 3
-      thenDistance: 0
-      isWearing: 0
-    - direction: 4
-      distance: 4
-      thenDirection: 3
-      thenDistance: 0
-      isWearing: 0
-    - direction: 4
-      distance: 3
-      thenDirection: 3
-      thenDistance: 0
-      isWearing: 0
-    - direction: 5
-      distance: 3
-      thenDirection: 5
-      thenDistance: 0
-      isWearing: 1
-    modifier: 2
-    amount: 15
-    percentOf: -1
-    selfModifier: 0
-    selfAmount: 0
-    selfPercentOf: -1
-    selfWhenEmpty: 0
-    healFromAllyDamage: 10
+  _alignPatterns:
+  - marks:
+    - hexes:
+      - direction: 5
+        distance: 2
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 1
+      - direction: 5
+        distance: 4
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 1
+      - direction: 4
+        distance: 2
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
+      - direction: 4
+        distance: 4
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
+      - direction: 4
+        distance: 3
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
+      - direction: 5
+        distance: 3
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 1
+      modifier: 2
+      amount: 15
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 10
   _isDummy: 0
