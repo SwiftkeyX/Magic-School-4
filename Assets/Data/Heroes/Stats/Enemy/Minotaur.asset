@@ -24,7 +24,7 @@ MonoBehaviour:
   _attackSpeed: 0.6
   _range: 1
   _startMana: 30
-  _maxMana: 90
+  _maxMana: 120
   _critChance: 25
   _skillId: 39
   _spawnUnit: {fileID: 0}
