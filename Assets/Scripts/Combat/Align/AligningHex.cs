@@ -20,7 +20,7 @@ namespace MagicSchool.Combat.Align
         {
             var hexesByBonus = new[] { new List<Hex>(), new List<Hex>() };
 
-            IReadOnlyList<AlignMark> marks = giver.Data.AlignMarks;
+            IReadOnlyList<AlignMark> marks = giver.AlignMarks;
             for (int i = 0; i < marks.Count; i++)
             {
                 int bonus = i == 1 ? 1 : 0;
@@ -35,7 +35,7 @@ namespace MagicSchool.Combat.Align
         {
             var wearing = new List<Hex>();
 
-            foreach (AlignMark mark in giver.Data.AlignMarks)
+            foreach (AlignMark mark in giver.AlignMarks)
             {
                 wearing.AddRange(mark.GetWearingHexes(standingOn));
             }

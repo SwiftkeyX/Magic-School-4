@@ -34,7 +34,7 @@ namespace MagicSchool.Combat.Heroes
         public string SkillDescription => _skill.Description;
         public bool HasAutoAttackPassive => _skill.HasAutoAttackPassive;
         public string PassiveDescription => _skill.PassiveDescription;
-        public string AlignDescription => AlignText.Describe(_data.AlignMarks);
+        public string AlignDescription => AlignText.Describe(_data.AlignMarksOf(0), 0, _data.AlignPatternCount);   // a bought hero starts on its first pattern
 
         // === IHeroStats ===
         public float GetStat(StatEnum type) => _stat.GetFinalStat(type);

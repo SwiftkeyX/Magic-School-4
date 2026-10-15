@@ -30,6 +30,7 @@ namespace MagicSchool.Combat.Heroes
         private Stat _stat;
         private TeamEnum _team;
         private int _star = HeroStar.Min;       // upgraded by combining copies (See HeroStar)
+        private int _alignPattern;              // which of its align patterns the hero is turned to (See AlignPattern)
         private Vector3 _baseScale;
         private bool _isDummy;                 // Temporary, tagged once at its source - see the FLAGGING on HeroDataSO._isDummy.
 
@@ -69,6 +70,25 @@ namespace MagicSchool.Combat.Heroes
         public void TrackOnBoard() { if (_board != null) _board.TrackThisHero(this); }
         public void UntrackFromBoard() { if (_board != null) _board.UntrackThisHero(this); }
 
+        // ======================================== aligning ========================================
+        // the marks of the pattern the hero is turned to
+        public IReadOnlyList<AlignMark> AlignMarks => _SOData != null ? _SOData.AlignMarksOf(_alignPattern) : new List<AlignMark>();
+        public int AlignPattern => _alignPattern;
+        public int AlignPatternCount => _SOData != null ? _SOData.AlignPatternCount : 1;
+
+        // turn to the next pattern (or the one before, step -1). False when the hero has one pattern only
+        public bool RotateAlign(int step = 1)
+        {
+            int count = AlignPatternCount;
+            if (count <= 1) return false;
+
+            _alignPattern = ((_alignPattern + step) % count + count) % count;
+            return true;
+        }
+
+        // e.g. a loaded team comp turns each hero the way it was saved. A pattern the hero no longer has is pattern 1
+        public void SetAlignPattern(int pattern) => _alignPattern = pattern >= 0 && pattern < AlignPatternCount ? pattern : 0;
+
         // ======================================== visuals ========================================
         public void PlaySkillCastEffect(string skillName) => _visuals.PlaySkillCastEffect(skillName);
 
@@ -97,7 +117,7 @@ namespace MagicSchool.Combat.Heroes
         public string SkillName => _skill != null ? _skill.SkillName : string.Empty;
         public string SkillDescription => _skill != null ? _skill.Description : string.Empty;
         public string PassiveDescription => _skill != null ? _skill.PassiveDescription : string.Empty;
-        public string AlignDescription => _SOData != null ? AlignText.Describe(_SOData.AlignMarks) : string.Empty;
+        public string AlignDescription => _SOData != null ? AlignText.Describe(AlignMarks, _alignPattern, AlignPatternCount) : string.Empty;
         public string DisplayName => (_SOData != null ? _SOData.Name : name) + (_star > HeroStar.Min ? $" ({_star}-star)" : "");
 
         // ======================================== attack ========================================

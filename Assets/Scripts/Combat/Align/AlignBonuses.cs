@@ -39,7 +39,7 @@ namespace MagicSchool.Combat.Align
                 if (standingOn == null) continue;
 
                 // loop through every mark own by this hero
-                foreach (AlignMark mark in me.Data.AlignMarks)
+                foreach (AlignMark mark in me.AlignMarks)
                 {
                     foreach (Hex wearing in mark.GetWearingHexes(standingOn))
                     {

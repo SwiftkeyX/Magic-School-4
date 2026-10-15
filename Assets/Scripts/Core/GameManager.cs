@@ -160,6 +160,17 @@ namespace MagicSchool.Core
             if (hero.TryTakeOff(item)) RefreshAligning();
         }
 
+        // Turn a player hero to its next align pattern (step -1: the one before). Preparation only:
+        // the bonuses are fixed by where everyone stood, and how they were turned, when the fight started.
+        public bool RotateAlign(Hero hero, int step)
+        {
+            if (Phase != GamePhaseEnum.Preparation || hero == null || hero.Team != TeamEnum.Blue) return false;
+            if (!hero.RotateAlign(step)) return false;
+
+            RefreshAligning();
+            return true;
+        }
+
         // refresh the aligning bonus
         internal void RefreshAligning() => _alignBonuses.Refresh(_board, TeamEnum.Blue);
 
