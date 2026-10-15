@@ -1,6 +1,7 @@
 using System.Linq;
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
+using MagicSchool.Skills;
 
 namespace MagicSchool.Core.States
 {
@@ -20,6 +21,8 @@ namespace MagicSchool.Core.States
 
             _game.RefreshAligning();
 
+            RebuildTunedSkills();
+
             TriggerCombatStart();
 
             _game.Board.Colours.ShowDeployZone(false);
@@ -31,6 +34,17 @@ namespace MagicSchool.Core.States
             _game.Recorder.BeginRound();
 
             _game.Hint?.ShowCombat(_game.StageNumber, _game.StageCount);
+        }
+
+        // A skill reads its numbers when it is built. Rebuild any whose numbers were changed in the
+        // Skill Tuner since, so the fight about to start plays the new ones. (read SkillTuning.cs)
+        private void RebuildTunedSkills()
+        {
+            foreach (ICombatant combatant in _game.Board.HeroesOnBoard.ToList())
+            {
+                if (combatant is Hero hero && hero.IsSkillOutdated)
+                    hero.RebuildSkill(SkillLibrary.Resolve(hero.Data.SkillId, _game.TemplateActions));
+            }
         }
 
         // Tell every hero on the board the fight has begun, both teams.

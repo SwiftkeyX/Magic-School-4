@@ -24,6 +24,7 @@ namespace MagicSchool.Combat.Heroes
         private FindTarget _findEnemy;
         private HeroVisuals _visuals;
         private HeroSkill _skill;
+        private int _skillTuningVersion;     // the SkillTuning.Version the skill was built with
         private HeroItems _items;
         private HeroSpawn _spawn;
         private AttackCooldown _attackCooldown;
@@ -112,6 +113,16 @@ namespace MagicSchool.Combat.Heroes
         public bool IsSkillRepeating() => _skill.IsSkillRepeating();
 
         // what the Hero Panel reads
+        // a skill reads its numbers once, when built; Skill Tuner changed one since
+        public bool IsSkillOutdated => _skillTuningVersion != SkillTuning.Version;
+
+        // swap in a freshly built skill, so a tuned number takes effect. Only between fights.
+        public void RebuildSkill(SkillDefinition skill)
+        {
+            _skill = new HeroSkill(this, skill);
+            _skillTuningVersion = SkillTuning.Version;
+        }
+
         public bool HasSkill => _skill != null && _skill.HasSkill;
         public bool HasAutoAttackPassive => _skill != null && _skill.HasAutoAttackPassive;
         public string SkillName => _skill != null ? _skill.SkillName : string.Empty;
@@ -246,6 +257,7 @@ namespace MagicSchool.Combat.Heroes
 
             _visuals = GetComponent<HeroVisuals>();
             _skill = new HeroSkill(this, skill);
+            _skillTuningVersion = SkillTuning.Version;
             _items = new HeroItems(this);
             _spawn = new HeroSpawn(this, _board, (unit, unitTeam, placement, onBoard) => OnSpawnRequested?.Invoke(unit, unitTeam, placement, onBoard));
             _findEnemy = new FindTarget(this, _board);
