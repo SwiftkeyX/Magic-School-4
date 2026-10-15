@@ -11,10 +11,10 @@ namespace MagicSchool.Player
 {
     // Picking things up with the pointer, dragging around, and putting them down again.
     // e.g.     draggable are items, and hero
-    // A hero can be held two ways:
+    // A hero or an item can be held two ways:
     //      drag  => press on it, move, release where it goes
     //      click => press and release on it without moving: it stays in hand, follows the pointer,
-    //               and the next press puts it down where the pointer is. Esc puts it back.
+    //               and the next press puts it down where the pointer is. Esc puts it back where it came from.
     // Worth mentioning that there's also UIDrag.cs in this project.
     // That one was specifically for dragging the UI which is different from dragging the gameobject like this one.
     internal class Dragging
@@ -34,13 +34,18 @@ namespace MagicSchool.Player
         private Vector2 _pressedAt;             // where the pointer was pressed to pick it up, in screen pixels
         private int _pressUsedFrame = -1;       // the frame a press put something down
 
+        // where a held item came from, so Esc can put it back: worn by a hero, lying on a hex, or loose where it lay
+        private Hero _itemWornBy;
+        private Hex _itemLayOn;
+        private Vector3 _itemLooseAt;
+
         // ============================= getter =============================
         public bool IsHolding => _held as Object != null;
         public Hero HeldHero => IsHolding ? _held as Hero : null;
         public Item HeldItem => IsHolding ? _held as Item : null;
         private bool IsPreparation => GameManager.Instance.Phase == GamePhaseEnum.Preparation;
 
-        // this frame's press already put a click-held hero down - nothing else should act on it (See ZonePainting)
+        // this frame's press already put a click-held hero or item down - nothing else should act on it (See ZonePainting)
         public bool UsedPressThisFrame => _pressUsedFrame == Time.frameCount;
         private bool _isStageEditor => GameManager.Instance.StageEditor != null;
 
@@ -56,8 +61,9 @@ namespace MagicSchool.Player
         // =================================== life cycle ===================================
         public void Tick()
         {
-            // guard - if not in preparation state, not allow to hold the hero.
-            if (!IsPreparation && _held is Hero) Cancel();
+            // guard - if not in preparation state, not allow to hold the hero,
+            // nor an item taken off a hero or a hex (only Preparation could take it off, so put it back)
+            if (!IsPreparation && (_held is Hero || IsItemFromBoard)) Cancel();
 
             Vector3 worldPos = PlayerInputSystem.GetMouseWorldPosition(_cam);
 
@@ -91,8 +97,8 @@ namespace MagicSchool.Player
             bool stillHolding = PlayerInputSystem.IsPointerDown && !PlayerInputSystem.DragReleasedThisFrame;
             if (stillHolding) return;
 
-            // released without moving = a click: a hero stays in hand until the next press
-            if (_held is Hero && IsClick())
+            // released without moving = a click: it stays in hand until the next press
+            if (IsClick())
             {
                 _isClickHold = true;
                 return;
@@ -101,6 +107,8 @@ namespace MagicSchool.Player
             // if releasing, drop the hero
             Drop(worldPos);
         }
+
+        private bool IsItemFromBoard => _held is Item && (_itemWornBy != null || _itemLayOn != null);
 
         // the pointer was released about where it was pressed
         private bool IsClick() => Vector2.Distance(PlayerInputSystem.PointerScreenPosition, _pressedAt) <= ClickSlop;
@@ -147,6 +155,11 @@ namespace MagicSchool.Player
             Item item = Picker.At<Item>(worldPos);
             if (item == null) { return null; }
 
+            // remember where it came from, for Esc
+            _itemWornBy = null;
+            _itemLayOn = null;
+            _itemLooseAt = item.transform.position;
+
             // if the item have wearer, take it off
             Hero wearer = item.GetComponentInParent<Hero>();
             if (wearer != null)
@@ -155,15 +168,17 @@ namespace MagicSchool.Player
                 if (!IsPreparation) return null;
 
                 GameManager.Instance.TakeItemOffHero(wearer, item);
+                _itemWornBy = wearer;
             }
 
             // if the item lies on a hex, take it off the hex
-            else if (_board.Items.HexOf(item) != null)
+            else if (_board.Items.HexOf(item) is Hex lyingOn)
             {
                 // if not in preparation state, not allow to take an item off the board.
                 if (!IsPreparation) return null;
 
                 GameManager.Instance.TakeItemOffHex(item);
+                _itemLayOn = lyingOn;
             }
 
             return item;
@@ -297,7 +312,6 @@ namespace MagicSchool.Player
         // put back whatever is held, back to its old placement
         private void Cancel()
         {
-            // only a hero has somewhere to be put back to; an item stays where it is
             if (_held is Hero hero)
             {
                 IPlacement placement = hero.CurrentPlacement;
@@ -306,7 +320,18 @@ namespace MagicSchool.Player
                 if (placement != null) placement.OnUnitPlaced(hero);
             }
 
+            if (_held is Item item) PutItemBack(item);
+
             Release();
+        }
+
+        // an item goes back to the hero that wore it, the hex it lay on, or the spot it lay loose
+        private void PutItemBack(Item item)
+        {
+            bool isBack = _itemWornBy != null ? GameManager.Instance.WearItem(_itemWornBy, item)
+                        : _itemLayOn != null && GameManager.Instance.PutItemOnHex(item, _itemLayOn);
+
+            if (!isBack) item.transform.position = _itemLooseAt;
         }
 
         // when stop holding, reset var
@@ -320,6 +345,8 @@ namespace MagicSchool.Player
             _heldHitbox = null;
             _held = null;
             _isClickHold = false;
+            _itemWornBy = null;
+            _itemLayOn = null;
         }
 
         // check the placement before placing the hero
