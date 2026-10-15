@@ -5,10 +5,10 @@ namespace MagicSchool.Skills
 {
     internal class PriestSkill : SkillDefinition
     {
-        private const float FairyDuration = 6f;
-        private const float FairyInterval = 1f;
-        private const float StingDamage = 60f;
-        private const float HealPercent = 100f;      
+        private static float FairyDuration => Tuned(6f);
+        private static float FairyInterval => Tuned(1f);
+        private static float StingDamage => Tuned(60f);
+        private static float HealPercent => Tuned(100f);      
 
         // what the fairy does every second - played by the Companion.cs, not by the flow
         private SkillPart _sting;

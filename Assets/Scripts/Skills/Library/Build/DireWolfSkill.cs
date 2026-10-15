@@ -7,19 +7,19 @@ namespace MagicSchool.Skills
     internal class DireWolfSkill : SkillDefinition
     {
         // buff
-        private const float AttackSpeedBuff = 200f;   // +200%
-        private const float BuffDuration = 5f;
+        private static float AttackSpeedBuff => Tuned(200f);   // +200%
+        private static float BuffDuration => Tuned(5f);
 
         // stun of DireWolf can grows with every x auto attacks
-        private const float StunDuration = 0.5f;
-        private const float StunPerGrowth = 0.5f;
-        private const int AttacksPerGrowth = 5;
+        private static float StunDuration => Tuned(0.5f);
+        private static float StunPerGrowth => Tuned(0.5f);
+        private static int AttacksPerGrowth => Tuned(5);
         private int _attackCount;
 
         // passive
-        private const float AttackCut = 50f;   // -50% base AD
-        private const float HealOnAA = 30f;
-        private const float RestOfFight = -1f;
+        private static float AttackCut => Tuned(50f);   // -50% base AD
+        private static float HealOnAA => Tuned(30f);
+        private static float RestOfFight => Tuned(-1f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new DireWolfSkill(registry);
 

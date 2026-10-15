@@ -5,8 +5,8 @@ namespace MagicSchool.Skills
 {
     internal class MinotaurSkill : SkillDefinition
     {
-        private const float DamageRatio = 120f;
-        private const float StunDuration = 2f;
+        private static float DamageRatio => Tuned(120f);
+        private static float StunDuration => Tuned(2f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new MinotaurSkill(registry);
 

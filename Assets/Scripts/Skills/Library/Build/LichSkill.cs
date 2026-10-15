@@ -6,11 +6,11 @@ namespace MagicSchool.Skills
 {
     internal class LichSkill : SkillDefinition
     {
-        private const float DamageRatio = 250f;
-        private const float OmnivampPercent = 40f;
-        private const float OmnivampDuration = 0.5f;
-        private const float BeamLength = 10f;
-        private const float BeamWidth = 3f;
+        private static float DamageRatio => Tuned(250f);
+        private static float OmnivampPercent => Tuned(40f);
+        private static float OmnivampDuration => Tuned(0.5f);
+        private static float BeamLength => Tuned(10f);
+        private static float BeamWidth => Tuned(3f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new LichSkill(registry);
 

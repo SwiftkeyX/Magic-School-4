@@ -6,9 +6,9 @@ namespace MagicSchool.Skills
 {
     internal class DryadSkill : SkillDefinition
     {
-        private const float DamageRatio = 170f;   // sheet: 170/255/420% AP
-        private const float ASbuff = 25f;
-        private const float WaveSize = 2f;        // Dryad's wave is the one projectile bigger than default
+        private static float DamageRatio => Tuned(170f);   // sheet: 170/255/420% AP
+        private static float ASbuff => Tuned(25f);
+        private static float WaveSize => Tuned(2f);        // Dryad's wave is the one projectile bigger than default
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new DryadSkill(registry);
 

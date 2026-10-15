@@ -6,10 +6,10 @@ namespace MagicSchool.Skills
 {
     internal class MonkSkill : SkillDefinition
     {
-        private const float DamageRatio = 150f;
-        private const float StunDuration = 1.5f;
-        private const float DamageReductionPercent = 30f;
-        private const float GuardDuration = 3f;
+        private static float DamageRatio => Tuned(150f);
+        private static float StunDuration => Tuned(1.5f);
+        private static float DamageReductionPercent => Tuned(30f);
+        private static float GuardDuration => Tuned(3f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new MonkSkill(registry);
 

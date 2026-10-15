@@ -6,11 +6,11 @@ namespace MagicSchool.Skills
 {
     internal class SkeletonArcherSkill : SkillDefinition
     {
-        private const float ADDamagePerShot = 125f;
-        private const float MGDamagePerShot = 125f;
-        private const int ShotCount = 4;
-        private const float IntervalBetweenShot = 0.1f;
-        private const float TotalCastTime = IntervalBetweenShot * (ShotCount - 1);
+        private static float ADDamagePerShot => Tuned(125f);
+        private static float MGDamagePerShot => Tuned(125f);
+        private static int ShotCount => Tuned(4);
+        private static float IntervalBetweenShot => Tuned(0.1f);
+        private static float TotalCastTime => IntervalBetweenShot * (ShotCount - 1);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new SkeletonArcherSkill(registry);
 

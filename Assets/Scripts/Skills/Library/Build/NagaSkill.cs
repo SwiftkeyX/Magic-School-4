@@ -6,9 +6,9 @@ namespace MagicSchool.Skills
 {
     internal class NagaSkill : SkillDefinition
     {
-        private const float DamageRatio = 160f;
-        private const float WoundDuration = 5f;
-        private const float WoundedAmplifier = 0.3f;
+        private static float DamageRatio => Tuned(160f);
+        private static float WoundDuration => Tuned(5f);
+        private static float WoundedAmplifier => Tuned(0.3f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new NagaSkill(registry);
 

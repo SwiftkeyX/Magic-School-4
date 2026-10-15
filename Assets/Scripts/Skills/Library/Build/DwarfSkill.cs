@@ -6,11 +6,11 @@ namespace MagicSchool.Skills
 {
     internal class DwarfSkill : SkillDefinition
     {
-        private const float ExplodeDmg = 240f;
+        private static float ExplodeDmg => Tuned(240f);
 
         // blast radius of the skill 
-        private const int StartBlastHexes = 1;
-        private const int MaxBlastHexes = 3;
+        private static int StartBlastHexes => Tuned(1);
+        private static int MaxBlastHexes => Tuned(3);
         private int _blastHexes = StartBlastHexes;
 
         private ProjectileTuning _shotTuning;

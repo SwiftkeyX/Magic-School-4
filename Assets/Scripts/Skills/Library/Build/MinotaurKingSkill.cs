@@ -7,9 +7,9 @@ namespace MagicSchool.Skills
     // Ground Slam only reaches the heroes right next to him, so the lesson is "don't pile your melee on him".
     internal class MinotaurKingSkill : SkillDefinition
     {
-        private const float DamageRatio = 150f;
-        private const float StunDuration = 1f;
-        private const float SlamDiameter = 3f;      // the ring of hexes around him, not the ring after (~2 away)
+        private static float DamageRatio => Tuned(150f);
+        private static float StunDuration => Tuned(1f);
+        private static float SlamDiameter => Tuned(3f);      // the ring of hexes around him, not the ring after (~2 away)
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new MinotaurKingSkill(registry);
 

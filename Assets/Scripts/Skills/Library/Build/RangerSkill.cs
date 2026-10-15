@@ -6,11 +6,11 @@ namespace MagicSchool.Skills
 {
     internal class RangerSkill : SkillDefinition
     {
-        private const float DamageRatio = 744f;
+        private static float DamageRatio => Tuned(744f);
 
         // buff - one for every enemy the shot hits
-        private const float AttackSpeedPerHit = 20f;   // +20% base AS
-        private const float BuffDuration = 7f;
+        private static float AttackSpeedPerHit => Tuned(20f);   // +20% base AS
+        private static float BuffDuration => Tuned(7f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new RangerSkill(registry);
 

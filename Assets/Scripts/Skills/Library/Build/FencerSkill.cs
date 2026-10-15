@@ -6,10 +6,10 @@ namespace MagicSchool.Skills
 {
     internal class FencerSkill : SkillDefinition
     {
-        private const int BaseStrikes = 3;
-        private const float CritChancePerStrike = 10f;      // every 10% crit chance adds 1 more strike
-        private const float StrikeDamage = 100f;
-        private const float StrikeInterval = 0.25f;         // time between two strikes
+        private static int BaseStrikes => Tuned(3);
+        private static float CritChancePerStrike => Tuned(10f);      // every 10% crit chance adds 1 more strike
+        private static float StrikeDamage => Tuned(100f);
+        private static float StrikeInterval => Tuned(0.25f);         // time between two strikes
 
         // he is gone from the board for as long as the strikes take
         private ICustomModifier _vanish;

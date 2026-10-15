@@ -6,24 +6,24 @@ namespace MagicSchool.Skills
 {
     internal class HarpySkill : SkillDefinition
     {
-        private const float DamageRatio = 200f;
+        private static float DamageRatio => Tuned(200f);
 
         // stance 
         private enum STANCE { melee, range, both }
         private STANCE _stance;
-        private const int MeleeLines = 2;
-        private const int MeleeRange = 1;
+        private static int MeleeLines => Tuned(2);
+        private static int MeleeRange => Tuned(1);
 
         // scaling
-        private const float AttackSpeedPerAttack = 2f;  // ranged: +2% base AS every auto attack
-        private const float AttackPerCast = 20f;        // melee: +20% base AD every cast
+        private static float AttackSpeedPerAttack => Tuned(2f);  // ranged: +2% base AS every auto attack
+        private static float AttackPerCast => Tuned(20f);        // melee: +20% base AD every cast
 
         // condition
-        private const float BothBonusesAttack = 100f;
-        private const float BothBonusesAttackSpeed = 1.5f;
+        private static float BothBonusesAttack => Tuned(100f);
+        private static float BothBonusesAttackSpeed => Tuned(1.5f);
 
         // other
-        private const float RestOfFight = -1f;
+        private static float RestOfFight => Tuned(-1f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new HarpySkill(registry);
 

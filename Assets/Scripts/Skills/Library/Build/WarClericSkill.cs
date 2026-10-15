@@ -6,19 +6,19 @@ namespace MagicSchool.Skills
 {
     internal class WarClericSkill : SkillDefinition
     {
-        private const float BurnPerTick = 60f;
-        private const float HealPerTick = 50f;
-        private const float TickInterval = 1f;
-        private const float Duration = 3f;
+        private static float BurnPerTick => Tuned(60f);
+        private static float HealPerTick => Tuned(50f);
+        private static float TickInterval => Tuned(1f);
+        private static float Duration => Tuned(3f);
 
         // DamageOverTime / HealOverTime 
-        private const float Ticks = Duration / TickInterval;
-        private const float TotalBurn = BurnPerTick * Ticks;
-        private const float TotalHeal = HealPerTick * Ticks;
+        private static float Ticks => Duration / TickInterval;
+        private static float TotalBurn => BurnPerTick * Ticks;
+        private static float TotalHeal => HealPerTick * Ticks;
 
         // area
-        private const int AreaHexes = 2;
-        private const float AreaDiameter = AreaHexes * 2f + 0.5f;
+        private static int AreaHexes => Tuned(2);
+        private static float AreaDiameter => AreaHexes * 2f + 0.5f;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new WarClericSkill(registry);
 

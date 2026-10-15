@@ -7,16 +7,16 @@ namespace MagicSchool.Skills
     internal class TrollSkill : SkillDefinition
     {
         // slam
-        private const float DamageRatio = 150f;
-        private const float WoundDuration = 6f;
+        private static float DamageRatio => Tuned(150f);
+        private static float WoundDuration => Tuned(6f);
 
         // area - the centre hex plus that many rings around it (hexes are ~1 apart)
-        private const int AreaHexes = 1;
-        private const float AreaDiameter = AreaHexes * 2f + 0.5f;
+        private static int AreaHexes => Tuned(1);
+        private static float AreaDiameter => AreaHexes * 2f + 0.5f;
 
         // passive
-        private const float BonusHPPerDeath = 300f;
-        private const float RestOfFight = -1f;
+        private static float BonusHPPerDeath => Tuned(300f);
+        private static float RestOfFight => Tuned(-1f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new TrollSkill(registry);
 

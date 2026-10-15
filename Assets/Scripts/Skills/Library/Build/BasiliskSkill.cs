@@ -5,8 +5,8 @@ namespace MagicSchool.Skills
 {
     internal class BasiliskSkill : SkillDefinition
     {
-        private const float BonusDF = 15f;
-        private const float BonusDuration = -1f;    // the rest of the fight
+        private static float BonusDF => Tuned(15f);
+        private static float BonusDuration => Tuned(-1f);    // the rest of the fight
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new BasiliskSkill(registry);
 

@@ -6,9 +6,9 @@ namespace MagicSchool.Skills
 {
     internal class BlacksmithSkill : SkillDefinition
     {
-        private const float DamageRatio = 180f;
-        private const float ShredDuration = -1f;
-        private const float ShredFromAP = 25f;
+        private static float DamageRatio => Tuned(180f);
+        private static float ShredDuration => Tuned(-1f);
+        private static float ShredFromAP => Tuned(25f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new BlacksmithSkill(registry);
 
