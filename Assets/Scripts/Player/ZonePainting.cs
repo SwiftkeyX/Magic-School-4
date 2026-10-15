@@ -26,7 +26,8 @@ namespace MagicSchool.Player
             if (!PlayerInputSystem.DragPressedThisFrame) return;
 
             // if player is dragging, the painting shouldn't work, return
-            if (_dragging.IsHolding) return;
+            // nor when this press just put a click-held hero down
+            if (_dragging.IsHolding || _dragging.UsedPressThisFrame) return;
 
             Vector3 worldPos = PlayerInputSystem.GetMouseWorldPosition(_cam);
             Hex hex = Picker.At<Hex>(worldPos);
