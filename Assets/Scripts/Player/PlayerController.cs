@@ -53,8 +53,7 @@ namespace MagicSchool.Player
             TryStartCombat();
             TryRestart();
             TrySetSpeed();
-            TryInspect();
-            TryRotateAlign();
+            if (!TryRotateAlign()) TryInspect();
             _dragging?.Tick();
             _zonePainting?.Tick();
             _alignHighlight?.Tick();
@@ -111,17 +110,15 @@ namespace MagicSchool.Player
             GameManager.Instance.Restart();
         }
 
-        // Q / E turns a hero to another of its align patterns: the hero being held, or else the one under the pointer.
-        // The held hero's highlight follows on the next tick (See AlignHighlight).
-        private void TryRotateAlign()
+        // Right-click while holding a hero turns it to its next align pattern, instead of inspecting.
+        // Only a held hero rotates. The highlight follows on the next tick (See AlignHighlight).
+        private bool TryRotateAlign()
         {
-            int step = PlayerInputSystem.RotatePressedThisFrame();
-            if (step == 0) return;
+            Hero held = _dragging?.HeldHero;
+            if (!PlayerInputSystem.InspectPressedThisFrame || held == null) return false;
 
-            Hero hero = _dragging?.HeldHero;
-            if (hero == null) hero = Picker.At<Hero>(PlayerInputSystem.GetMouseWorldPosition(_cam));
-
-            GameManager.Instance.RotateAlign(hero, step);
+            GameManager.Instance.RotateAlign(held, 1);
+            return true;
         }
 
         // Right-click a hero or an item to inspect it.
