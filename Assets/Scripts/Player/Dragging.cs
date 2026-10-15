@@ -11,6 +11,10 @@ namespace MagicSchool.Player
 {
     // Picking things up with the pointer, dragging around, and putting them down again.
     // e.g.     draggable are items, and hero
+    // A hero can be held two ways:
+    //      drag  => press on it, move, release where it goes
+    //      click => press and release on it without moving: it stays in hand, follows the pointer,
+    //               and the next press puts it down where the pointer is. Esc puts it back.
     // Worth mentioning that there's also UIDrag.cs in this project.
     // That one was specifically for dragging the UI which is different from dragging the gameobject like this one.
     internal class Dragging
@@ -21,15 +25,23 @@ namespace MagicSchool.Player
         private readonly TeamEnum _team;
         private readonly PlayerTeamSize _teamSize;
 
+        private const float ClickSlop = 10f;    // pixels the pointer may move between press and release and still be a click
+
         private IDraggable _held;
         private Collider2D _heldHitbox;
         private bool _sellHintShown;
+        private bool _isClickHold;              // picked up by a click: put down by the next press, not by a release
+        private Vector2 _pressedAt;             // where the pointer was pressed to pick it up, in screen pixels
+        private int _pressUsedFrame = -1;       // the frame a press put something down
 
         // ============================= getter =============================
         public bool IsHolding => _held as Object != null;
         public Hero HeldHero => IsHolding ? _held as Hero : null;
         public Item HeldItem => IsHolding ? _held as Item : null;
         private bool IsPreparation => GameManager.Instance.Phase == GamePhaseEnum.Preparation;
+
+        // this frame's press already put a click-held hero down - nothing else should act on it (See ZonePainting)
+        public bool UsedPressThisFrame => _pressUsedFrame == Time.frameCount;
         private bool _isStageEditor => GameManager.Instance.StageEditor != null;
 
         public Dragging(Camera cam, BattleBoard board, ISellZone sellZone, TeamEnum team, PlayerTeamSize teamSize)
@@ -64,13 +76,34 @@ namespace MagicSchool.Player
             bool isSellable = _held is ISellable;
             RefreshSellHint(isSellable && IsPointerOverSellZone());
 
+            // held by a click: the next press puts it down, Esc puts it back
+            if (_isClickHold)
+            {
+                if (PlayerInputSystem.CancelPressedThisFrame) { Cancel(); return; }
+                if (!PlayerInputSystem.DragPressedThisFrame) return;
+
+                _pressUsedFrame = Time.frameCount;
+                Drop(worldPos);
+                return;
+            }
+
             // if still holding, return
             bool stillHolding = PlayerInputSystem.IsPointerDown && !PlayerInputSystem.DragReleasedThisFrame;
             if (stillHolding) return;
 
+            // released without moving = a click: a hero stays in hand until the next press
+            if (_held is Hero && IsClick())
+            {
+                _isClickHold = true;
+                return;
+            }
+
             // if releasing, drop the hero
             Drop(worldPos);
         }
+
+        // the pointer was released about where it was pressed
+        private bool IsClick() => Vector2.Distance(PlayerInputSystem.PointerScreenPosition, _pressedAt) <= ClickSlop;
 
         // =================================== pick up ===================================
         // the pickup could be either hero, or item.
@@ -152,6 +185,8 @@ namespace MagicSchool.Player
         private void Grab(IDraggable target)
         {
             _held = target;
+            _isClickHold = false;
+            _pressedAt = PlayerInputSystem.PointerScreenPosition;
             _heldHitbox = target.transform.GetComponent<Collider2D>();
             if (_heldHitbox != null) _heldHitbox.enabled = false;
         }
@@ -284,6 +319,7 @@ namespace MagicSchool.Player
 
             _heldHitbox = null;
             _held = null;
+            _isClickHold = false;
         }
 
         // check the placement before placing the hero
