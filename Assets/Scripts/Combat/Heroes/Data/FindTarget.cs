@@ -55,6 +55,10 @@ namespace MagicSchool.Combat.Heroes
 
             if (enemySteps.Count == 0) return null;
 
+            // An enemy already within my range is picked before any other
+            var inRange = enemySteps.Where(e => IsInMyRange(e.target)).ToList();
+            if (inRange.Count > 0) enemySteps = inRange;
+
             int nearestSteps = enemySteps.Min(e => e.steps);
             var tiedNearest = enemySteps.Where(e => e.steps == nearestSteps).Select(e => e.target).ToList();
 
@@ -271,6 +275,13 @@ namespace MagicSchool.Combat.Heroes
 
             // 3) if nothing work, random between the tied
             return tied[UnityEngine.Random.Range(0, tied.Count)];   // spelt out: `using System` makes a bare Random ambiguous
+        }
+
+        private bool IsInMyRange(ICombatant target)
+        {
+            Hex myHex = _me.CurrentHex;
+            Hex targetHex = target.CurrentHex();
+            return myHex != null && targetHex != null && myHex.IsWithinRange(targetHex, _me.Range);
         }
 
         // A twin to FindCurrentTarget()
