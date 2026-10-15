@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using MagicSchool.Combat.Heroes.States;
 using MagicSchool.Combat.Heroes.Stats;
 using MagicSchool.Contracts;
-using MagicSchool.Combat.Align;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Skills;
 
@@ -14,8 +12,16 @@ namespace MagicSchool.Combat.Heroes
     /// Hero don't have any logic inside it BUT:
     /// 1) It's the ONLY Monobehavior for the Hero, so it's here so we could make hero interact with Unity.
     /// 2) it act like a glue, which mean itself don't contain any real logic.
+    ///
+    /// One class, six files:
+    ///     Hero.cs             => fields, Init, Update, and resetting/upgrading between stages
+    ///     Hero.Board.cs       => the board, its placement and reservation, aligning
+    ///     Hero.Combat.cs      => IEffectable (damage, heal, modifiers) and the combat events
+    ///     Hero.Stats.cs       => IHeroStats, mana, the attack cooldown
+    ///     Hero.Skill.cs       => skill triggers, and the text the Hero Panel reads
+    ///     Hero.Targeting.cs   => ITargeter, handed to FindTarget
     /// </summary>
-    public class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISpawner
+    public partial class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISpawner
     {
         // ======================================== Dependency ========================================
         private HeroDataSO _SOData;
@@ -62,34 +68,6 @@ namespace MagicSchool.Combat.Heroes
         public void ChangeState(HeroStateEnum next) => _stateMachine.ChangeState(next);
         public HeroStateEnum PreviousStateType => _stateMachine.PreviousType;
 
-        // ======================================== board ========================================
-        public ICombatant WhoReservedThisHex(Hex hex) => _board.WhoReservedThisHex(hex);
-        public bool IsHexReservedByOther(Hex hex) => _board.IsReservedByOther(hex, this);
-        public bool IsBattleOn => _board == null || _board.IsBattleOn;
-
-        public IReadOnlyList<ICombatant> HeroesOnBoard => _board != null ? _board.HeroesOnBoard : new List<ICombatant>();
-        public void TrackOnBoard() { if (_board != null) _board.TrackThisHero(this); }
-        public void UntrackFromBoard() { if (_board != null) _board.UntrackThisHero(this); }
-
-        // ======================================== aligning ========================================
-        // the marks of the pattern the hero is turned to
-        public IReadOnlyList<AlignMark> AlignMarks => _SOData != null ? _SOData.AlignMarksOf(_alignPattern) : new List<AlignMark>();
-        public int AlignPattern => _alignPattern;
-        public int AlignPatternCount => _SOData != null ? _SOData.AlignPatternCount : 1;
-
-        // turn to the next pattern (or the one before, step -1). False when the hero has one pattern only
-        public bool RotateAlign(int step = 1)
-        {
-            int count = AlignPatternCount;
-            if (count <= 1) return false;
-
-            _alignPattern = ((_alignPattern + step) % count + count) % count;
-            return true;
-        }
-
-        // e.g. a loaded team comp turns each hero the way it was saved. A pattern the hero no longer has is pattern 1
-        public void SetAlignPattern(int pattern) => _alignPattern = pattern >= 0 && pattern < AlignPatternCount ? pattern : 0;
-
         // ======================================== visuals ========================================
         public void PlaySkillCastEffect(string skillName) => _visuals.PlaySkillCastEffect(skillName);
 
@@ -100,150 +78,7 @@ namespace MagicSchool.Combat.Heroes
         public bool TryWear(IEquipment item) => _items != null && _items.TryWear(item);
         public bool TryTakeOff(IEquipment item) => _items != null && _items.TryTakeOff(item);
 
-        // ======================================== skill ========================================
-        public bool TriggerActiveSkill(bool isManaCapped) => _skill.TriggerOnCastSkill(isManaCapped);
-        public bool TriggerOnAutoAttack(ICombatant target) => _skill.TriggerOnAutoAttack(target);
-        public ICombatant PickAutoAttackTarget(ICombatant target) => _skill.PickAutoAttackTarget(target);
-        public bool TriggerOnCombatStart() => _skill.TriggerOnCombatStart();
-        public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);
-        public void TriggerOnDeath() => _skill.TriggerOnDeath();
-        public void TriggerOnHeroBurned(ICombatant burned) => _skill.TriggerOnHeroBurned(burned);
-        public float GetCastTime() => _skill.GetCastTime();
-        public bool CanWalkWhileCasting() => _skill.CanWalkWhileCasting();
-        public bool IsSkillRepeating() => _skill.IsSkillRepeating();
-
-        // what the Hero Panel reads
-        // a skill reads its numbers once, when built; Skill Tuner changed one since
-        public bool IsSkillOutdated => _skillTuningVersion != SkillTuning.Version;
-
-        // swap in a freshly built skill, so a tuned number takes effect. Only between fights.
-        public void RebuildSkill(SkillDefinition skill)
-        {
-            _skill = new HeroSkill(this, skill);
-            _skillTuningVersion = SkillTuning.Version;
-        }
-
-        public bool HasSkill => _skill != null && _skill.HasSkill;
-        public bool HasAutoAttackPassive => _skill != null && _skill.HasAutoAttackPassive;
-        public string SkillName => _skill != null ? _skill.SkillName : string.Empty;
-        public string SkillDescription => _skill != null ? _skill.Description : string.Empty;
-        public string PassiveDescription => _skill != null ? _skill.PassiveDescription : string.Empty;
-        public string AlignDescription => _SOData != null ? AlignText.Describe(AlignMarks, _alignPattern, AlignPatternCount) : string.Empty;
-        public string DisplayName => (_SOData != null ? _SOData.Name : name) + (_star > HeroStar.Min ? $" ({_star}-star)" : "");
-
-        // ======================================== attack ========================================
-        public bool IsAttackReady => _attackCooldown.IsReady(AttackSpeed);
-        public void SpendAttack() => _attackCooldown.Spend();
-
-        // ======================================== stat ========================================
-        public void GainMana(int amount) => Stat.AddMana(amount);      // return true if mana if capped
-        public bool IsManaCapped() => Stat.IsManaCapped();
-        public void SpendMana() => Stat.SpendMana();                   // called once a cast actually happened
-        public void TickModifiers(float deltaTime) => Stat.TickModifiers(deltaTime);
-
-        // ======================================== combat event ========================================
-        public event Action<DamageEvent> OnDamaged;
-        public event Action<HealEvent> OnHealed;
-        public event Action<DamageEvent> OnDamageDealt;     // this hero hurt someone - raised by the one who took it
-        public event Action<HeroDataSO, TeamEnum, IPlacement, BattleBoard> OnSpawnRequested;
-
-        // ======================================== interface method ========================================
-        // === IEffectable ===
-        public bool IsAlive => this != null && IsInitialized && StateType != HeroStateEnum.Dead;
-        public void AddModifier(ICustomModifier modifier, IHeroStats casterStats, float amplifier = 1f) => Stat.AddModifier(modifier, amplifier, casterStats, this);
-        public bool RemoveModifier(ICustomModifier modifier) => Stat.RemoveModifier(modifier);
-        public bool HasStatus(ModifierEnum status) => Stat.HasStatus(status);
-        public int ActiveModifierCount => Stat.ActiveModifierCount;
-        public float ModifierRemaining(int index) => Stat.ModifierRemaining(index);
-
-        public void Heal(float amount, IEffectable source)
-        {
-            HealOutcome outcome = CombatMath.ResolveHeal(amount, Stat.IsWounded, Stat.CurrentHP, Stat.MaxHP);
-            Stat.SetCurrentHP(outcome.NewHP);
-
-            OnHealed?.Invoke(new HealEvent(source, this, outcome));
-        }
-
-        public int TakeDamage(int damage, IEffectable source, DamageKindEnum kind)
-        {
-            // if target has vanish, the target don't take damage
-            if (HasStatus(ModifierEnum.Untargetable)) return 0;
-
-            // calculate damage
-            DamageOutcome outcome = CombatMath.ResolveDamage(damage, Stat.DF, Stat.DamageReductionPercent, Stat.CurrentHP, Stat.Shield, out int absorbed);
-            Stat.ConsumeShield(absorbed);
-            Stat.SetCurrentHP(outcome.NewHP);
-
-            var damageEvent = new DamageEvent(source, this, kind, outcome);
-            OnDamaged?.Invoke(damageEvent);
-
-            // tell the dealer too
-            // e.g.     aligning: Shield Knight heals off the damage his generator deals
-            if (source is Hero dealer) dealer.OnDamageDealt?.Invoke(damageEvent);
-
-            // if take burn, annouce it.
-            if (kind == DamageKindEnum.Burn) AnnounceBurn();
-
-            // if (other status) add here;
-            // ...
-
-            // return how much damage was done
-            return outcome.Landed;
-        }
-
-        // === ISpawner ===
-        public int SpawnUnitsNearby(int count) => _spawn.SpawnNearby(_SOData.SpawnUnit, count);
-
-        // === IHeroStats ===
-        public int CurrentHP => Stat.CurrentHP;
-        public int MaxHP => Stat.MaxHP;
-        public int Shield => Stat.Shield;
-        public int CurrentMana => Stat.CurrentMana;
-        public int MaxMana => Stat.MaxMana;
-        public int AttackDamage => Stat.Atk;
-        public int Defence => Stat.DF;
-        public int Magic => Stat.MG;
-        public int MagicResist => Stat.MR;
-        public float AttackSpeed => Stat.AttackSpeed;
-        public int Range => Stat.Range;
-        public bool IsStunned => Stat.IsStunned;
-        public bool IsWounded => Stat.IsWounded;
-        public float GetStat(StatEnum type) => Stat.GetFinalStat(type);
-        public float GetBaseStat(StatEnum type) => Stat.GetBaseStat(type);
-
-        // === IPlaceable ===
-        public Hex CurrentHex => _currentPlacement as Hex;
-        public Hex ReservedHex => _reservedHex;
-        public IPlacement CurrentPlacement => _currentPlacement;
-        public bool IsInCombat => _currentPlacement is Hex;
-        public void SetReservedHex(Hex hex)
-        {
-            if (_board != null) _board.UpdateReservation(this, _reservedHex, hex);
-
-            _reservedHex = hex;
-        }
-        public void SetCurrentPlacement(IPlacement placement) => _currentPlacement = placement;
-
-        // === ITargeter ===
-        public ICombatant FindCurrentTarget() => _findEnemy.FindCurrentTarget();
-        public ICombatant FindNearestEnemy() => _findEnemy.FindNearestEnemy();
-        public ICombatant FindNearestEnemyTo(ICombatant target) => _findEnemy.FindNearestEnemyTo(target);
-        public ICombatant FindFurthestEnemy(int reachRange) => _findEnemy.FindFurthestEnemy(reachRange);
-        public IReadOnlyList<ICombatant> FindFurthestEnemies(int reachRange, int count = 1) => _findEnemy.FindFurthestEnemies(reachRange, count);
-        public IPlacement FindClusteredCircle(int reachRange, float blastRadius, bool isJump) => _findEnemy.FindClusteredCircle(reachRange, blastRadius, isJump);
-        public IPlacement FindClusteredCharge(int reachRange, float chargeHalfWidth, bool maxRange = false) => _findEnemy.FindClusteredCharge(reachRange, chargeHalfWidth, maxRange);
-        public IPlacement FindRandomFreeHex(int reachRange) => _findEnemy.FindRandomFreeHex(reachRange);
-        public ICombatant FindClusteredLaser(int reachRange, float beamHalfWidth) => _findEnemy.FindClusteredLaser(reachRange, beamHalfWidth);
-        public IReadOnlyList<ICombatant> FindEnemiesNear(ICombatant target, int reachRange) => _findEnemy.FindEnemiesNear(target, reachRange);
-        public IReadOnlyList<ICombatant> FindAllEnemies() => _findEnemy.FindAllEnemies();
-        public IReadOnlyList<ICombatant> FindAllAllies() => _findEnemy.FindAllAllies();
-        public IReadOnlyList<ICombatant> FindRandomEnemies(int count) => _findEnemy.FindRandomEnemies(count);
-        public ICombatant FindNearestAlly() => _findEnemy.FindNearestAlly();
-        public ICombatant FindLowestHealthAlly() => _findEnemy.FindLowestHealthAlly();
-
-
         // ======================================== life cycle ========================================
-        #region Life Cycle
         // Give everything a hero needs to exist, in one call. 
         public void Init(HeroDataSO data, BattleBoard board, TeamEnum team, SkillDefinition skill = null)
         {
@@ -289,10 +124,7 @@ namespace MagicSchool.Combat.Heroes
 
             _stateMachine.Tick();
         }
-        #endregion
 
-        // ======================================== gizmo ========================================
-        #region Gizmo
         // draw gize between attacker and receiver to show which hero is attacking.
         void OnDrawGizmos()
         {
@@ -305,10 +137,7 @@ namespace MagicSchool.Combat.Heroes
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, target.transform.position);
         }
-        #endregion
 
-        // This is where a function with no where to live yet. group together.
-        #region Temporarily
         // when the stage is reset, make hero alive again.
         public void ResetForNewStage()
         {
@@ -335,15 +164,5 @@ namespace MagicSchool.Combat.Heroes
             transform.localScale = _baseScale * HeroStar.Scale(_star);
             return true;
         }
-
-        private void AnnounceBurn()
-        {
-            foreach (ICombatant combatant in new List<ICombatant>(HeroesOnBoard))
-            {
-                if (combatant is Hero hero && hero != this && hero.IsAlive)
-                    hero.TriggerOnHeroBurned(this);
-            }
-        }
-        #endregion
     }
 }
