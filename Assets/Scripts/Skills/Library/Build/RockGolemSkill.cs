@@ -6,8 +6,8 @@ namespace MagicSchool.Skills
 {
     internal class RockGolemSkill : SkillDefinition
     {
-        private const float ShieldAmount = 500f;
-        private const float ShieldDuration = 4f;
+        private static float ShieldAmount => Tuned(500f);
+        private static float ShieldDuration => Tuned(4f);
         private readonly ICustomModifier _shield = BundleRefresh(ShieldDuration, Shield(ShieldAmount));
 
 

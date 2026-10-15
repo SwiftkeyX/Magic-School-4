@@ -6,11 +6,11 @@ namespace MagicSchool.Skills
 {
     internal class ShieldKnightSkill : SkillDefinition
     {
-        private const float BraceDuration = 2f;
-        private const float TickInterval = 0.5f;
-        private const float HealAmount = 200f;
-        private const float SlamDamage = 120f;
-        private const float DamageReductionPercent = 25f;
+        private static float BraceDuration => Tuned(2f);
+        private static float TickInterval => Tuned(0.5f);
+        private static float HealAmount => Tuned(200f);
+        private static float SlamDamage => Tuned(120f);
+        private static float DamageReductionPercent => Tuned(25f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ShieldKnightSkill(registry);
 

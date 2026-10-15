@@ -8,14 +8,14 @@ namespace MagicSchool.Skills
     internal class HuskSkill : SkillDefinition
     {
         private static readonly StatEnum[] StolenStats = { StatEnum.MaxHP, StatEnum.DF, StatEnum.MR };
-        private const float StealPercent = 10f;
+        private static float StealPercent => Tuned(10f);
 
         // passive - every ally, for the rest of the fight
-        private const float RestOfFight = -1f;
+        private static float RestOfFight => Tuned(-1f);
 
         // active - random enemies, for a while
-        private const int EnemyCount = 4;
-        private const float StealDuration = 7f;
+        private static int EnemyCount => Tuned(4);
+        private static float StealDuration => Tuned(7f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new HuskSkill(registry);
 

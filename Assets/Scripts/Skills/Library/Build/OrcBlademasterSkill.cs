@@ -6,9 +6,9 @@ namespace MagicSchool.Skills
 {
     internal class OrcBlademasterSkill : SkillDefinition
     {
-        private const float DamagePerTick = 600f;
-        private const float TickInterval = 0.5f;
-        private const float Duration = 4f;
+        private static float DamagePerTick => Tuned(600f);
+        private static float TickInterval => Tuned(0.5f);
+        private static float Duration => Tuned(4f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new OrcBlademasterSkill(registry);
 

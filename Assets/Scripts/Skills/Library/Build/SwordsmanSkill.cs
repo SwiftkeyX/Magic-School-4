@@ -6,11 +6,11 @@ namespace MagicSchool.Skills
 {
     internal class SwordsmanSkill : SkillDefinition
     {
-        private const float ChargeTime = 3f;
-        private const float DamageRatio = 999f;
-        private const float OmnivampPercent = 100f;
+        private static float ChargeTime => Tuned(3f);
+        private static float DamageRatio => Tuned(999f);
+        private static float OmnivampPercent => Tuned(100f);
         // outlasts the charge, so the lifesteal is still up when the slash lands
-        private const float OmnivampDuration = ChargeTime + 0.5f;
+        private static float OmnivampDuration => ChargeTime + 0.5f;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new SwordsmanSkill(registry);
 

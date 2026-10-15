@@ -7,10 +7,10 @@ namespace MagicSchool.Skills
 {
     internal class ReaperSkill : SkillDefinition
     {
-        private const float MGDamagePerSnip = 100f;   // sheet: 100/150/400% AP
-        private const int SnipCount = 3;
-        private const float IntervalBetweenSnip = 0.2f;
-        private const float TotalCastTime = IntervalBetweenSnip * (SnipCount - 1);
+        private static float MGDamagePerSnip => Tuned(100f);   // sheet: 100/150/400% AP
+        private static int SnipCount => Tuned(3);
+        private static float IntervalBetweenSnip => Tuned(0.2f);
+        private static float TotalCastTime => IntervalBetweenSnip * (SnipCount - 1);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ReaperSkill(registry);
 

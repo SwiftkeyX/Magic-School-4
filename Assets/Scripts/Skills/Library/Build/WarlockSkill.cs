@@ -7,9 +7,9 @@ namespace MagicSchool.Skills
 {
     internal class WarlockSkill : SkillDefinition
     {
-        private const float CurseTotal = 300f;      // over the whole curse, not per tick
-        private const float CurseDuration = 4f;
-        private const float CurseInterval = 1f;
+        private static float CurseTotal => Tuned(300f);      // over the whole curse, not per tick
+        private static float CurseDuration => Tuned(4f);
+        private static float CurseInterval => Tuned(1f);
 
         // the curse itself - played on whoever the bolt hit, and again on whoever it jumps to
         private SkillPart _curse;

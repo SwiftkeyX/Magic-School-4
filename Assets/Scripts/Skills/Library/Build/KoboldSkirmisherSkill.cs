@@ -5,11 +5,11 @@ namespace MagicSchool.Skills
 {
     internal class KoboldSkirmisherSkill : SkillDefinition
     {
-        private const float DamagePerShot = 100f;
-        private const int ShotCount = 3;
-        private const float IntervalBetweenShot = 0.1f;
-        private const int RandomPoolRadius = 99;       // the whole board - any enemy can be picked
-        private const float TotalCastTime = IntervalBetweenShot * (ShotCount - 1);
+        private static float DamagePerShot => Tuned(100f);
+        private static int ShotCount => Tuned(3);
+        private static float IntervalBetweenShot => Tuned(0.1f);
+        private static int RandomPoolRadius => Tuned(99);       // the whole board - any enemy can be picked
+        private static float TotalCastTime => IntervalBetweenShot * (ShotCount - 1);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new KoboldSkirmisherSkill(registry);
 

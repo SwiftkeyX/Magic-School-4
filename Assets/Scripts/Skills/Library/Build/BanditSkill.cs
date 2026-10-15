@@ -7,9 +7,9 @@ namespace MagicSchool.Skills
 {
     internal class BanditSkill : SkillDefinition
     {
-        private const float DamageRatio = 160f;
-        private const float StealPercent = 30f;
-        private const float StealDuration = -1f;   // until the end of the fight
+        private static float DamageRatio => Tuned(160f);
+        private static float StealPercent => Tuned(30f);
+        private static float StealDuration => Tuned(-1f);   // until the end of the fight
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new BanditSkill(registry);
 

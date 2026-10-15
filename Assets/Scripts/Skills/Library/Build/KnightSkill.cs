@@ -6,12 +6,12 @@ namespace MagicSchool.Skills
 {
     internal class KnightSkill : SkillDefinition
     {
-        private const float StunDuration = 2f;
-        private const float LandingDamage = 200f;
-        private const float LandingDiameter = 4.5f;
-        private const int JumpRange = 4;
+        private static float StunDuration => Tuned(2f);
+        private static float LandingDamage => Tuned(200f);
+        private static float LandingDiameter => Tuned(4.5f);
+        private static int JumpRange => Tuned(4);
 
-        private const float LandingRadius = LandingDiameter / 2f;
+        private static float LandingRadius => LandingDiameter / 2f;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new KnightSkill(registry);
 

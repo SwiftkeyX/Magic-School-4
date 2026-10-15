@@ -7,14 +7,14 @@ namespace MagicSchool.Skills
     internal class TemplarSkill : SkillDefinition
     {
         // swipe
-        private const float DamageRatio = 150f;
-        private const float ConeLength = 2.5f;
-        private const float ConeWidth = 3f;
+        private static float DamageRatio => Tuned(150f);
+        private static float ConeLength => Tuned(2.5f);
+        private static float ConeWidth => Tuned(3f);
 
         // shield
-        private const float ShieldRatio = 300f;
-        private const float ShieldRatioPerHit = 50f;
-        private const float ShieldDuration = 4f;        // FLAGGING: the roster sheet gives no length - 4s is Rock Golem's
+        private static float ShieldRatio => Tuned(300f);
+        private static float ShieldRatioPerHit => Tuned(50f);
+        private static float ShieldDuration => Tuned(4f);        // FLAGGING: the roster sheet gives no length - 4s is Rock Golem's
 
         private readonly ICustomModifier _shield = BundleRefresh(ShieldDuration, Shield((StatEnum.DF, ShieldRatio)));
 

@@ -6,12 +6,12 @@ namespace MagicSchool.Skills
 {
     internal class DragonSkill : SkillDefinition
     {
-        private const float DamageRatio = 300f;
-        private const float BurnTotal = 150f;       // over the whole burn, not per tick
-        private const float BurnDuration = 3f;
-        private const float BurnInterval = 1f;
-        private const float ConeLength = 3.5f;       // world units from his tip outward
-        private const float ConeWidth = 3.5f;        // world units across the open end
+        private static float DamageRatio => Tuned(300f);
+        private static float BurnTotal => Tuned(150f);       // over the whole burn, not per tick
+        private static float BurnDuration => Tuned(3f);
+        private static float BurnInterval => Tuned(1f);
+        private static float ConeLength => Tuned(3.5f);       // world units from his tip outward
+        private static float ConeWidth => Tuned(3.5f);        // world units across the open end
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new DragonSkill(registry);
 

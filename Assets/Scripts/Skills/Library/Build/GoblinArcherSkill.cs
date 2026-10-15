@@ -7,10 +7,10 @@ namespace MagicSchool.Skills
 {
     internal class GoblinArcherSkill : SkillDefinition
     {
-        private const float VenomDuration = 5f;
-        private const float PoisonTotal = 240f;
-        private const float PoisonDuration = 2f;
-        private const float PoisonInterval = 0.5f;
+        private static float VenomDuration => Tuned(5f);
+        private static float PoisonTotal => Tuned(240f);
+        private static float PoisonDuration => Tuned(2f);
+        private static float PoisonInterval => Tuned(0.5f);
 
         private SkillPart _poison;
         private float _venomEndsAt;

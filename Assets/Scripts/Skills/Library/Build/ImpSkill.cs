@@ -7,17 +7,17 @@ namespace MagicSchool.Skills
 {
     internal class ImpSkill : SkillDefinition
     {
-        private const float ADDamagePerShot = 150f;   // sheet: 150/155/160% AD
-        private const float APDamagePerShot = 15f;    // sheet: 15/20/35% AP
-        private const int ShotCount = 5;
-        private const float IntervalBetweenShot = 0.1f;
-        private const int RandomPoolRadius = 2;        // sheet: "random enemies within 2 hexes of the current target"
-        private const float TotalCastTime = IntervalBetweenShot * (ShotCount - 1);
+        private static float ADDamagePerShot => Tuned(150f);   // sheet: 150/155/160% AD
+        private static float APDamagePerShot => Tuned(15f);    // sheet: 15/20/35% AP
+        private static int ShotCount => Tuned(5);
+        private static float IntervalBetweenShot => Tuned(0.1f);
+        private static int RandomPoolRadius => Tuned(2);        // sheet: "random enemies within 2 hexes of the current target"
+        private static float TotalCastTime => IntervalBetweenShot * (ShotCount - 1);
 
         // passive
-        private const float AttackSpeedPerBurnTick = 2f;   // +2% base AS
+        private static float AttackSpeedPerBurnTick => Tuned(2f);   // +2% base AS
         // FLAGGING: the roster sheet gives no length - the rest of the fight, same as Harpy's growth
-        private const float RestOfFight = -1f;
+        private static float RestOfFight => Tuned(-1f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ImpSkill(registry);
 

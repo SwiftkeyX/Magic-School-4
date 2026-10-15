@@ -5,8 +5,8 @@ namespace MagicSchool.Skills
 {
     internal class GoblinSlingerSkill : SkillDefinition
     {
-        private const float DamageRatio = 300f;
-        private const int TargetCount = 2;
+        private static float DamageRatio => Tuned(300f);
+        private static int TargetCount => Tuned(2);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new GoblinSlingerSkill(registry);
 

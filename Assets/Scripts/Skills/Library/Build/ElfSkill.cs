@@ -6,9 +6,9 @@ namespace MagicSchool.Skills
 {
     internal class ElfSkill : SkillDefinition
     {
-        private const float DamageRatio = 200f;
-        private const float ShredDuration = -1f;
-        private const float ShredFromAP = 20f;
+        private static float DamageRatio => Tuned(200f);
+        private static float ShredDuration => Tuned(-1f);
+        private static float ShredFromAP => Tuned(20f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ElfSkill(registry);
 

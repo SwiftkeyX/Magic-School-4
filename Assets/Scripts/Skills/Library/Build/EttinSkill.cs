@@ -6,10 +6,10 @@ namespace MagicSchool.Skills
 {
     internal class EttinSkill : SkillDefinition
     {
-        private const float FlatBonusHP = 250f;
-        private const float BonusHPFromAP = 100f;
-        private const float BonusDuration = -1f;    // the rest of the fight
-        private const float MaxHPPerAttack = 5f;
+        private static float FlatBonusHP => Tuned(250f);
+        private static float BonusHPFromAP => Tuned(100f);
+        private static float BonusDuration => Tuned(-1f);    // the rest of the fight
+        private static float MaxHPPerAttack => Tuned(5f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new EttinSkill(registry);
 
