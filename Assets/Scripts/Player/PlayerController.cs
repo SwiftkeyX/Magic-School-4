@@ -2,6 +2,7 @@ using System.Linq;
 using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.Core;
+using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Input;
 
@@ -53,6 +54,7 @@ namespace MagicSchool.Player
             TryRestart();
             TrySetSpeed();
             TryInspect();
+            TryRotateAlign();
             _dragging?.Tick();
             _zonePainting?.Tick();
             _alignHighlight?.Tick();
@@ -107,6 +109,19 @@ namespace MagicSchool.Player
             if (!PlayerInputSystem.RestartPressedThisFrame) return;
 
             GameManager.Instance.Restart();
+        }
+
+        // Q / E turns a hero to another of its align patterns: the hero being held, or else the one under the pointer.
+        // The held hero's highlight follows on the next tick (See AlignHighlight).
+        private void TryRotateAlign()
+        {
+            int step = PlayerInputSystem.RotatePressedThisFrame();
+            if (step == 0) return;
+
+            Hero hero = _dragging?.HeldHero;
+            if (hero == null) hero = Picker.At<Hero>(PlayerInputSystem.GetMouseWorldPosition(_cam));
+
+            GameManager.Instance.RotateAlign(hero, step);
         }
 
         // Right-click a hero or an item to inspect it.

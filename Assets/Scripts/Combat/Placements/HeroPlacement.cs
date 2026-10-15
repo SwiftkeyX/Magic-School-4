@@ -17,12 +17,16 @@ namespace MagicSchool.Combat.Placements
         [Tooltip("The item this hero wears (an ItemDataSO). Empty = nothing.")]
         public ScriptableObject item;
 
-        public HeroPlacement(HeroDataSO data, TeamEnum team, HexNumber hexPlacement, ScriptableObject item = null)
+        [Tooltip("Which of its align patterns the hero is turned to. 0 = the first.")]
+        public int alignPattern;
+
+        public HeroPlacement(HeroDataSO data, TeamEnum team, HexNumber hexPlacement, ScriptableObject item = null, int alignPattern = 0)
         {
             this.dataSO = data;
             this.team = team;
             this.hexPlacement = hexPlacement;
             this.item = item;
+            this.alignPattern = alignPattern;
         }
     }
 

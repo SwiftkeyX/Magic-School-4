@@ -12,6 +12,20 @@ namespace MagicSchool.Combat.Align
     // But it was fine for now. I need to make it fast first.
 
     /// <summary>
+    /// AlignPattern = one way a hero can be turned: every mark it has while turned this way.
+    /// A hero has one pattern or more, each authored by hand in the Align Editor - a pattern does not have to be
+    /// the one before it turned, it can mark other hexes or give other bonuses. Rotating a hero switches it to its next pattern.
+    /// e.g.    Elf: 6 patterns, the same fan turned 60 degrees each time
+    /// e.g.    a hero with 1 pattern cannot rotate
+    /// </summary>
+    [Serializable]
+    public class AlignPattern
+    {
+        [Tooltip("Every mark this hero has while turned this way.")]
+        public List<AlignMark> marks = new List<AlignMark>();
+    }
+
+    /// <summary>
     /// AlignMark = a list of hexes that give the same bonus.
     /// p.s. a hero with two different bonuses has two AlignMarks.
     ///

@@ -12,6 +12,17 @@ namespace MagicSchool.Combat.Align
     /// </summary>
     public static class AlignText
     {
+        // the marks of the pattern a hero is turned to, and which pattern that is when it has more than one
+        // e.g.    "+30% attack speed\nPattern 2 of 6 (Q / E to rotate)"
+        public static string Describe(IReadOnlyList<AlignMark> marks, int pattern, int patternCount)
+        {
+            string text = Describe(marks);
+            if (patternCount <= 1) return text;
+
+            string turned = $"Pattern {pattern + 1} of {patternCount} (Q / E to rotate)";
+            return string.IsNullOrEmpty(text) ? turned : text + "\n" + turned;
+        }
+
         public static string Describe(IReadOnlyList<AlignMark> marks)
         {
             if (marks == null || marks.Count == 0) return string.Empty;
