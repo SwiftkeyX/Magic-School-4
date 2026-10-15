@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MagicSchool.Contracts;
 using UnityEngine;
 
@@ -52,6 +53,15 @@ namespace MagicSchool.Skills
             _active?.Init(caster);
             _onAutoAttack?.Init(caster);
         }
+
+        // ============================================== tuning ==============================================
+        /// A skill number that Magic School 4 > Skill Tuner can change while the game runs (read SkillTuning.cs).
+        /// e.g.     private static float DamageRatio => Tuned(200f);
+        protected static float Tuned(float value, [CallerMemberName] string name = "", [CallerFilePath] string file = "")
+            => SkillTuning.Get(file, name, value, isInt: false);
+
+        protected static int Tuned(int value, [CallerMemberName] string name = "", [CallerFilePath] string file = "")
+            => Mathf.RoundToInt(SkillTuning.Get(file, name, value, isInt: true));
 
         // ============================================== virtual ==============================================
         public abstract string SkillName { get; }
