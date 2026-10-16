@@ -83,13 +83,29 @@ namespace MagicSchool.UI
                     // when pick up the slot:
                     //      all slot can be picked up.
                     //      only slot that can't be pick up is a empty slot
-                    canPickUp: () => !OfferOf(slot).IsEmpty,
+                    canPickUp: () => CanDragAsGhost(slot),
 
                     // when drop:
                     //      released back inside the shop bound = cancel
                     //      released outside bound = buy
                     onDrop: position => ResolveDrop(slot, position));
             }
+        }
+
+        // An item slot is dragged as a ghost here. A hero slot is not: the shop hands the hero itself to the
+        // player, who holds it in the world like a hero off the board (See IShop.TryPickUp) - so no ghost.
+        private bool CanDragAsGhost(VisualElement slot)
+        {
+            ShopOffer offer = OfferOf(slot);
+            if (offer.IsEmpty) return false;
+
+            if (offer.Kind == ShopOfferKindEnum.Hero)
+            {
+                _shop.TryPickUp(_heroSlots.IndexOf(slot));
+                return false;
+            }
+
+            return true;
         }
 
         #region Inspect

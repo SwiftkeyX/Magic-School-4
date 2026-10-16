@@ -39,10 +39,14 @@ namespace MagicSchool.Player
         private Hex _itemLayOn;
         private Vector3 _itemLooseAt;
 
+        // the shop slot a held hero came from, before it is bought; -1 = not from the shop
+        private int _shopSlot = -1;
+
         // ============================= getter =============================
         public bool IsHolding => _held as Object != null;
         public Hero HeldHero => IsHolding ? _held as Hero : null;
         public Item HeldItem => IsHolding ? _held as Item : null;
+        private bool IsFromShop => _shopSlot >= 0 && _held is Hero;
         private bool IsPreparation => GameManager.Instance.Phase == GamePhaseEnum.Preparation;
 
         // this frame's press already put a click-held hero or item down - nothing else should act on it (See ZonePainting)
@@ -56,6 +60,8 @@ namespace MagicSchool.Player
             _sellZone = sellZone;
             _team = team;
             _teamSize = teamSize;
+
+            GameManager.Instance.OnShopHeroPickedUp += HoldFromShop;
         }
 
         // =================================== life cycle ===================================
@@ -63,7 +69,8 @@ namespace MagicSchool.Player
         {
             // guard - if not in preparation state, not allow to hold the hero,
             // nor an item taken off a hero or a hex (only Preparation could take it off, so put it back)
-            if (!IsPreparation && (_held is Hero || IsItemFromBoard)) Cancel();
+            // A hero out of the shop may be held in any phase, like buying always could be.
+            if (!IsPreparation && ((_held is Hero && !IsFromShop) || IsItemFromBoard)) Cancel();
 
             Vector3 worldPos = PlayerInputSystem.GetMouseWorldPosition(_cam);
 
@@ -79,7 +86,8 @@ namespace MagicSchool.Player
 
             // if the object is sellable, drag it to shop, will turn on the shop hint
             // shop hint = make shop red to indicated it was focus
-            bool isSellable = _held is ISellable;
+            // A hero out of the shop is not sold there, only put back
+            bool isSellable = _held is ISellable && !IsFromShop;
             RefreshSellHint(isSellable && IsPointerOverSellZone());
 
             // held by a click: the next press puts it down, Esc puts it back
@@ -206,6 +214,23 @@ namespace MagicSchool.Player
             if (_heldHitbox != null) _heldHitbox.enabled = false;
         }
 
+        // the shop handed over a hero to hold: it is in hand from the press on the shop slot,
+        // so dragging and clicking it work as for a hero picked up off the board
+        private void HoldFromShop(Hero hero, int slot)
+        {
+            // already holding something, or this frame's press just put it down (over the shop: put back):
+            // the press that picked this up is the one putting that down
+            if (IsHolding || UsedPressThisFrame)
+            {
+                GameManager.Instance.ReturnShopHero(hero);
+                return;
+            }
+
+            Grab(hero);
+            _shopSlot = slot;
+            Follow(PlayerInputSystem.GetMouseWorldPosition(_cam));
+        }
+
         private void Follow(Vector3 worldPos)
         {
             Transform held = _held.transform;
@@ -215,6 +240,12 @@ namespace MagicSchool.Player
         // =================================== drop ===================================
         private void Drop(Vector3 worldPos)
         {
+            if (IsFromShop)
+            {
+                DropShopHero((Hero)_held, worldPos);
+                return;
+            }
+
             if (_held is Hero hero)
             {
                 DropHero(hero, worldPos);
@@ -255,6 +286,31 @@ namespace MagicSchool.Player
 
             // released on nothing = put hero back to its original placement
             Cancel();
+        }
+
+        // a hero out of the shop could be dropped on 3 things:
+        // 1) shop => put it back, nothing bought. The shop wins over a placement behind it,
+        //    unlike selling: a hero bought by mistake costs gold, one put back costs nothing.
+        // 2) a free placement it may stand on => buy it there. Mid-fight only a bench slot, never a hex.
+        // 3) anything else => buy it onto the bench
+        private void DropShopHero(Hero hero, Vector3 worldPos)
+        {
+            int slot = _shopSlot;
+            IPlacement target = Picker.At<IPlacement>(worldPos);
+            bool isOverShop = IsPointerOverSellZone();
+            Release();
+
+            if (isOverShop)
+            {
+                GameManager.Instance.ReturnShopHero(hero);
+                return;
+            }
+
+            bool canStandThere = target != null && OccupantOf(target) == null
+                              && (IsPreparation || target is BenchSlot)
+                              && ValidatePlacement(target, hero);
+
+            GameManager.Instance.BuyShopHero(hero, slot, canStandThere ? target : null);
         }
 
         // place the hero on the placement
@@ -312,6 +368,13 @@ namespace MagicSchool.Player
         // put back whatever is held, back to its old placement
         private void Cancel()
         {
+            if (IsFromShop)
+            {
+                GameManager.Instance.ReturnShopHero((Hero)_held);
+                Release();
+                return;
+            }
+
             if (_held is Hero hero)
             {
                 IPlacement placement = hero.CurrentPlacement;
@@ -347,6 +410,7 @@ namespace MagicSchool.Player
             _isClickHold = false;
             _itemWornBy = null;
             _itemLayOn = null;
+            _shopSlot = -1;
         }
 
         // check the placement before placing the hero
