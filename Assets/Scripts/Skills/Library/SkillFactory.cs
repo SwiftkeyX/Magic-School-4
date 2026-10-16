@@ -205,8 +205,10 @@ namespace MagicSchool.Skills
             => new SummonTuning { Act = act, Duration = duration, Interval = interval, CastTime = castTime };
 
         public static ProjectileTuning TuneProjectile(float? castTime = null, int? range = null,
-                                                      float? spread = null, float? size = null)
-            => new ProjectileTuning { CastTime = castTime, Range = range, Spread = spread, Size = size };
+                                                      float? spread = null, float? size = null, float? falloff = null,
+                                                      float? speed = null)
+            => new ProjectileTuning { CastTime = castTime, Range = range, Spread = spread, Size = size, Falloff = falloff,
+                                      Speed = speed };
 
         public static FireTimingRunnerTuning TuneFireTimingRunner(int count, FireTimingModeEnum mode,
                                                                    float interval = 0f, Tuning innerTuning = null,

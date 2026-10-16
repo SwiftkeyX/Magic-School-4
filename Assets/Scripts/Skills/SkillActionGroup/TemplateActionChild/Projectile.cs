@@ -19,6 +19,7 @@ namespace MagicSchool.Skills
         protected float _size = 1f;                  // projectile size; 1 leaves the prefab as drawn
         protected int _reachRange = int.MaxValue;    // how far a projectile can reach, in hexes, default to global range
         protected float _spread = 1f;                // how wide the AOE (next SkillFlow) will be spread
+        protected float _falloff = 0f;               // a piercing shot's damage, less this much per enemy already hit (See PiercingProjectile)
 
 
         // ==================================== OnHit event ====================================
@@ -50,6 +51,8 @@ namespace MagicSchool.Skills
             if (projectileTuning.Range.HasValue) _reachRange = projectileTuning.Range.Value;
             if (projectileTuning.Spread.HasValue) _spread = projectileTuning.Spread.Value;
             if (projectileTuning.Size.HasValue) _size = projectileTuning.Size.Value;
+            if (projectileTuning.Falloff.HasValue) _falloff = Mathf.Clamp01(projectileTuning.Falloff.Value);
+            if (projectileTuning.Speed.HasValue) _speed = Mathf.Max(0.1f, projectileTuning.Speed.Value);
         }
 
         protected override void Play()
