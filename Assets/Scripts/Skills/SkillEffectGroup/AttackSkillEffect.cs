@@ -40,9 +40,13 @@ namespace MagicSchool.Skills
         }
 
         public override void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null)
+            => ApplyEffect(recipients, actor, 1f);
+
+        // [scale] multiplies the whole damage, e.g. 0.67 for the second enemy a falling-off piercing shot goes through
+        public void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor, float scale)
         {
             // scale the damage e.g. skill damage = 500% AP
-            float damageAmount = Scaling.Total(_ratios, _caster as IHeroStats);
+            float damageAmount = Scaling.Total(_ratios, _caster as IHeroStats) * scale;
 
             foreach (IEffectable recipient in recipients)
             {

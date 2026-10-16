@@ -204,10 +204,13 @@ namespace MagicSchool.Skills
 
         // ==================================== Effect & Recipient ====================================
         // apply effect to the recipients
-        protected void ApplyEffectToRecipients(SkillEffect effect, IReadOnlyList<ICombatant> recipients)
+        // damageScale: only a damage effect is scaled by it, e.g. a piercing shot's falloff - a heal or a buff lands whole
+        protected void ApplyEffectToRecipients(SkillEffect effect, IReadOnlyList<ICombatant> recipients, float damageScale = 1f)
         {
             var resolve = ResolveRecipient(effect.Recipient, recipients);
-            effect.ApplyEffect(resolve, _me);
+
+            if (effect is AttackSkillEffect damage) damage.ApplyEffect(resolve, _me, damageScale);
+            else effect.ApplyEffect(resolve, _me);
         }
 
         // resolve the new recipient list according to recipientEnum specify
