@@ -53,6 +53,8 @@ namespace MagicSchool.Editor
 
         private static void OnPlayModeChanged(PlayModeStateChange change)
         {
+            if (change == PlayModeStateChange.EnteredEditMode) ImportPendingReport();
+
             if (change != PlayModeStateChange.EnteredPlayMode || !SessionState.GetBool(PendingKey, false)) return;
 
             string selected = SessionState.GetString(SelectedKey, string.Empty);
@@ -84,9 +86,61 @@ namespace MagicSchool.Editor
 
             HeroBenchmark.Run(dummy, only, path =>
             {
+                // imported once back in Edit mode: leaving Play mode can reload scripts, which would drop the import's callback
+                SessionState.SetString(ImportKey, path);
                 EditorApplication.ExitPlaymode();
                 EditorUtility.RevealInFinder(path);
             });
+        }
+
+        // Every report also goes into the "MagicSchool4 Benchmark" Google Sheet (its Runs and Latest tabs),
+        // through .claude/scripts/benchmark_import.py. In the background: a failed upload only logs, the CSV is still there.
+        private const string ImportScript = ".claude/scripts/benchmark_import.py";
+        private const string ImportKey = "MagicSchool.HeroBenchmark.ImportPath";
+
+        private static void ImportPendingReport()
+        {
+            string path = SessionState.GetString(ImportKey, string.Empty);
+            if (string.IsNullOrEmpty(path)) return;
+
+            SessionState.EraseString(ImportKey);
+            ImportToSheet(path);
+        }
+
+        private static void ImportToSheet(string csvPath)
+        {
+            var process = new System.Diagnostics.Process
+            {
+                StartInfo = new System.Diagnostics.ProcessStartInfo("python", $"\"{ImportScript}\" \"{csvPath}\"")
+                {
+                    WorkingDirectory = System.IO.Directory.GetCurrentDirectory(),   // the project root, where the credential file is
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                },
+            };
+
+            try { process.Start(); }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[HeroBenchmark] could not run python for the sheet import: {e.Message}");
+                return;
+            }
+
+            // watched from the editor loop rather than Process.Exited, which Unity's Mono does not raise reliably
+            EditorApplication.CallbackFunction watch = null;
+            watch = () =>
+            {
+                if (!process.HasExited) return;
+                EditorApplication.update -= watch;
+
+                string output = (process.StandardOutput.ReadToEnd() + process.StandardError.ReadToEnd()).Trim();
+                if (process.ExitCode == 0) Debug.Log($"[HeroBenchmark] {output}");
+                else Debug.LogError($"[HeroBenchmark] sheet import failed (exit {process.ExitCode}): {output}");
+                process.Dispose();
+            };
+            EditorApplication.update += watch;
         }
     }
 }
