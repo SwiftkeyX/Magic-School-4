@@ -38,6 +38,7 @@ namespace MagicSchool.Economy
         public int Price => _data.Price;
         public ShopOfferKindEnum Kind => ShopOfferKindEnum.Hero;
         public HeroTierEnum Tier => _data.Tier;     
+        public HeroDataSO Data => _data;
 
         public bool TryDeliver() => _bench != null && _bench.SpawnHeroOnBench(_data);
         public IInspectable Preview(Func<bool> isStillOffered) => _preview?.Invoke(_data, isStillOffered);
