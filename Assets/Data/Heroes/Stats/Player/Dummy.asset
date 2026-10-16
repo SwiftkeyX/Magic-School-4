@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroDataSO
   _prefab: {fileID: 5633529800495504945, guid: 28584df165b90ac499f9124bc544ebff, type: 3}
   _name: Dummy
+  _tier: 0
+  _role: 0
   _hp: 1000
   _attack: 0
   _defend: 0
@@ -23,5 +25,9 @@ MonoBehaviour:
   _range: 1
   _startMana: 0
   _maxMana: 50
-  _skill: {fileID: 0}
+  _critChance: 25
+  _skillId: 0
+  _spawnUnit: {fileID: 0}
+  _alignPatterns:
+  - marks: []
   _isDummy: 1
