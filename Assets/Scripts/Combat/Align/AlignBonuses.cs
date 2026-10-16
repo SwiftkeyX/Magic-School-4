@@ -38,9 +38,15 @@ namespace MagicSchool.Combat.Align
                 Hex standingOn = me.CurrentHex;
                 if (standingOn == null) continue;
 
+                // allies on each bonus's hexes, for a skill that pays off them (See IAligned)
+                // counted the way AligningHex.MarkedHexesByBonus colours them: the second mark is bonus 1, every other mark bonus 0
+                var alliesOnMark = new int[2];
+
                 // loop through every mark own by this hero
-                foreach (AlignMark mark in me.AlignMarks)
+                IReadOnlyList<AlignMark> marks = me.AlignMarks;
+                for (int i = 0; i < marks.Count; i++)
                 {
+                    AlignMark mark = marks[i];
                     foreach (Hex wearing in mark.GetWearingHexes(standingOn))
                     {
                         // an item lying on a wearing hex: this hero wears it.
@@ -62,6 +68,8 @@ namespace MagicSchool.Combat.Align
                         Hero receiver = board.WhoReservedThisHex(marked) as Hero;
                         bool isAlly = receiver != null && receiver.Team == team;
 
+                        if (isAlly && receiver != me) alliesOnMark[i == 1 ? 1 : 0]++;
+
                         // this mark give bonus to the receiver
                         if (isAlly && mark.HasAllyBonus) Give(receiver, mark.BuildAllyModifier(), me);
 
@@ -74,6 +82,8 @@ namespace MagicSchool.Combat.Align
                         if (isAlly && mark.HasDamageHeal) LinkDamageHeal(receiver, me, mark.healFromAllyDamage);
                     }
                 }
+
+                me.SetAlliesOnMark(alliesOnMark[0], alliesOnMark[1]);
             }
         }
 
