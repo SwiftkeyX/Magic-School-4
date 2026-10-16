@@ -6,7 +6,7 @@ namespace MagicSchool.Skills
 {
     internal class FrostWitchSkill : SkillDefinition
     {
-        private static float DamagePerTick => Tuned(60f);
+        private static float DamagePerTick => Tuned(40f);
         private static float TickInterval => Tuned(0.5f);
         private static float Duration => Tuned(3f);
         private static float SlowPercent => Tuned(30f);
