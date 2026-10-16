@@ -16,11 +16,14 @@ namespace MagicSchool.Combat.Heroes
     {
         // ========================================= public =========================================
         // From candidate hex, which one puts the most enemies inside blastRadius?
+        // On a tie, a hex an enemy stands on beats an empty one: a skill that only takes the spot as a direction
+        // (Dragon's cone, fired from himself) would otherwise point at the floor beside a lone enemy and miss it.
         public static Hex BestCircle(Vector3 me, IReadOnlyList<Hex> candidates, IReadOnlyList<ICombatant> enemies, float blastRadius)
         {
             Func<Hex, int> caught = hex => CountWithin(enemies, hex.transform.position, blastRadius);
+            Func<Hex, bool> hasEnemy = hex => enemies.Any(enemy => enemy.CurrentHex() == hex);
 
-            return BestHex(me, candidates, caught);
+            return BestHex(me, candidates, caught, preferred: hasEnemy);
         }
 
         // From candidate hex (landings), which one hit the most enemies on the way to landing spot?
@@ -63,27 +66,35 @@ namespace MagicSchool.Combat.Heroes
 
         // ========================================= private =========================================
         // From candidate hex, pick the one that catches the most heroes
+        // On a tie in enemies caught: a [preferred] hex wins first, then the one with the less distance from me
+        // (or the most distance if preferFurthest)
         private static Hex BestHex(Vector3 me, IReadOnlyList<Hex> candidates, Func<Hex, int> countCaughtFrom,
-                                   bool preferFurthest = false)
+                                   bool preferFurthest = false, Func<Hex, bool> preferred = null)
         {
             if (candidates == null) return null;
 
             Hex best = null;
             int bestCount = 0;
+            bool bestPreferred = false;
             float bestDistance = 0f;
 
             foreach (Hex candidate in candidates)
             {
                 int count = countCaughtFrom(candidate);
                 if (count == 0) continue;
-
-                // prefered the one with the less distance from me, or the most distance if preferFurthest
-                float distance = Vector3.Distance(me, candidate.transform.position);
                 if (count < bestCount) continue;
-                if (count == bestCount && !IsBetterDistance(distance, bestDistance, preferFurthest)) continue;
+
+                bool isPreferred = preferred != null && preferred(candidate);
+                float distance = Vector3.Distance(me, candidate.transform.position);
+                if (count == bestCount)
+                {
+                    if (bestPreferred && !isPreferred) continue;
+                    if (bestPreferred == isPreferred && !IsBetterDistance(distance, bestDistance, preferFurthest)) continue;
+                }
 
                 best = candidate;
                 bestCount = count;
+                bestPreferred = isPreferred;
                 bestDistance = distance;
             }
 
