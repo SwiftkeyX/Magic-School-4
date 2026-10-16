@@ -31,6 +31,14 @@ namespace MagicSchool.Skills
             return this;
         }
 
+        // The amplifier its conditions give, worked out from the caster when the hit lands, in place of a fixed one.
+        // e.g.     .AmplifiedBy(caster => 0.15f * allies on its marks)     Skeleton Archer's long shots
+        public AttackSkillEffect AmplifiedBy(System.Func<IEffectable, float> amplifier)
+        {
+            _amplifierOf = amplifier;
+            return this;
+        }
+
         public override void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null)
         {
             // scale the damage e.g. skill damage = 500% AP

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using MagicSchool.Contracts;
@@ -10,6 +11,7 @@ namespace MagicSchool.Skills
         protected Cadence _cadence = new Cadence();      // Is effect reapply over time?
         protected List<SkillCondition> _conditions;      // conditions for this effect. => if all satisfied, effect is amplified.
         protected float _amplifier = 0.3f;               // e.g. 0.3 = +30% when the conditions hold
+        protected Func<IEffectable, float> _amplifierOf; // when set, the amplifier is worked out from the caster at the hit instead
         protected IEffectable _caster;                   // whose stats the amounts scale off
 
         protected SkillEffect(EffectRecipientEnum recipient, Cadence cadence = null,
@@ -40,7 +42,7 @@ namespace MagicSchool.Skills
         {
             if (SkillCondition.Ask(_conditions, recipient) == ConditionResultEnum.ConditionIsMet)
             {
-                return 1f + _amplifier;
+                return 1f + (_amplifierOf != null ? _amplifierOf(_caster) : _amplifier);
             }
 
             return 1f;
