@@ -32,7 +32,9 @@ namespace MagicSchool.Skills
         }
 
         // The amplifier its conditions give, worked out from the caster when the hit lands, in place of a fixed one.
+        // With no conditions, it applies to every hit.
         // e.g.     .AmplifiedBy(caster => 0.15f * allies on its marks)     Skeleton Archer's long shots
+        //          .AmplifiedBy(_ => size 3 ? 1f : 0f)                     Dwarf's biggest blast deals double
         public AttackSkillEffect AmplifiedBy(System.Func<IEffectable, float> amplifier)
         {
             _amplifierOf = amplifier;

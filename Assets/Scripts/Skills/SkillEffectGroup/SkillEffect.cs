@@ -40,6 +40,10 @@ namespace MagicSchool.Skills
         // If condition is met, the effect is amplified.
         protected float AmplifierFor(IEffectable recipient)
         {
+            // an amplifier worked out from the caster, with no condition to ask, applies to every hit
+            // e.g. Dwarf's blast deals more the bigger it was fired
+            if (_amplifierOf != null && _conditions.Count == 0) return 1f + _amplifierOf(_caster);
+
             if (SkillCondition.Ask(_conditions, recipient) == ConditionResultEnum.ConditionIsMet)
             {
                 return 1f + (_amplifierOf != null ? _amplifierOf(_caster) : _amplifier);
