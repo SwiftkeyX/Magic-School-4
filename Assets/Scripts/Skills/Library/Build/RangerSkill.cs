@@ -7,6 +7,7 @@ namespace MagicSchool.Skills
     internal class RangerSkill : SkillDefinition
     {
         private static float DamageRatio => Tuned(744f);
+        private static float FalloffPerEnemy => Tuned(33f);     // % less damage for every enemy the shot already went through
 
         // buff - one for every enemy the shot hits
         private static float AttackSpeedPerHit => Tuned(20f);   // +20% base AS
@@ -20,7 +21,8 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Fires a shot that carries straight on through the target, dealing {DamageRatio}% AD to "
-             + $"every enemy caught along its path. Gains {AttackSpeedPerHit}% attack speed for "
+             + $"every enemy caught along its path, {FalloffPerEnemy}% less for each enemy it already went through. "
+             + $"Gains {AttackSpeedPerHit}% attack speed for "
              + $"{BuffDuration} seconds for each enemy it hits.";
 
         // ============================== active ==============================
@@ -30,6 +32,7 @@ namespace MagicSchool.Skills
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.PiercingProjectile,
                 target: AimTargetEnum.Current,
+                tuning: TuneProjectile(falloff: FalloffPerEnemy / 100f, speed: 16f),
                 Damage(EffectRecipientEnum.EnemiesInPath, (StatEnum.ATK, DamageRatio))
             );
 
