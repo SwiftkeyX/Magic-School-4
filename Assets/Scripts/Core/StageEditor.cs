@@ -162,7 +162,7 @@ namespace MagicSchool.Core
                 placed++;
 
                 // turned the way it was saved
-                if (board.WhoReservedThisHex(hex) is Hero turned) turned.SetAlignPattern(placement.alignPattern);
+                if (board.WhoReservedThisHex(hex) is Hero turned) turned.SetAlignMarkPattern(placement.alignPattern);
 
                 // the spawn is immediate, so the hero is on the hex now
                 if (placement.item is ItemDataSO itemData && board.WhoReservedThisHex(hex) is Hero hero)

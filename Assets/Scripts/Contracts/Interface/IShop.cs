@@ -17,6 +17,7 @@ namespace MagicSchool.Contracts
         bool CanAffordRefresh { get; }
 
         bool TryBuy(int slot);              
+        bool TryPickUp(int slot);
         bool TryRefresh();                  
 
         bool IsLocked { get; }

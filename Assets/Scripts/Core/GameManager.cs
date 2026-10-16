@@ -160,12 +160,54 @@ namespace MagicSchool.Core
             if (hero.TryTakeOff(item)) RefreshAligning();
         }
 
+        // ======================================== shop hero ========================================
+        // A hero slot picked up in the shop is held as the hero itself, before it is bought (See Shop.TryPickUp):
+        // the player sees its align marks while placing it. Putting it down buys it; putting it back removes it.
+        //      Hero    the hero, standing nowhere yet
+        //      int     the shop slot it came from
+        public event System.Action<Hero, int> OnShopHeroPickedUp;
+
+        private void HandOutShopHero(int slot, HeroDataSO data)
+            => OnShopHeroPickedUp?.Invoke(_heroSpawner.SpawnUnboughtHero(data, _board), slot);
+
+        // Buy the held shop hero and put it on the placement - null = the first free bench slot.
+        // False, and the hero is gone, when it could not be bought (re-rolled, no gold) or has nowhere to go.
+        public bool BuyShopHero(Hero hero, int slot, IPlacement placement)
+        {
+            placement ??= _bench.FindFreeSlot();
+            if (placement == null)
+            {
+                Debug.Log("Bench is full - nowhere to put the hero.");
+                ReturnShopHero(hero);
+                return false;
+            }
+
+            if (!_shop.TryBuyPickedUp(slot, hero.Data))
+            {
+                ReturnShopHero(hero);
+                return false;
+            }
+
+            MoveHero(hero, placement);
+
+            // buying is getting a copy, wherever it was put down
+            CombineCopies();
+            return true;
+        }
+
+        // the held shop hero was not bought: it was only ever a preview of the slot
+        public void ReturnShopHero(Hero hero)
+        {
+            if (hero != null) Destroy(hero.gameObject);
+        }
+
+        // ======================================== align ========================================
         // Turn a player hero to its next align pattern (step -1: the one before). Preparation only:
         // the bonuses are fixed by where everyone stood, and how they were turned, when the fight started.
         public bool RotateAlign(Hero hero, int step)
         {
             if (Phase != GamePhaseEnum.Preparation || hero == null || hero.Team != TeamEnum.Blue) return false;
-            if (!hero.RotateAlign(step)) return false;
+            if (!hero.RotateAlignMark(step)) return false;
 
             RefreshAligning();
             return true;
@@ -215,6 +257,7 @@ namespace MagicSchool.Core
             _seller = new Seller(_wallet);
             _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopOdds, () => StageNumber, _shopSlots, _refreshCost,
                              (data, isStillOffered) => new HeroPreview(data, SkillLibrary.Resolve(data.SkillId, _templateActions), isStillOffered));
+            _shop.OnHeroPickedUp += HandOutShopHero;
             _heroFormation = new HeroFormation(_heroMover, _spareBench, _bench);
             _heroLimit = _startingHeroLimit;
             _stateMachine = new GameStateMachine(this);

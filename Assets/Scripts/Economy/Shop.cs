@@ -34,6 +34,11 @@ namespace MagicSchool.Economy
         public bool IsLocked { get; private set; }
         public event Action OnChanged;
 
+        // a hero slot was picked up: someone has to put the hero in the player's hand (GameManager)
+        //      int         the slot it was picked from - buying it later names this slot
+        //      HeroDataSO  the hero it sells
+        public event Action<int, HeroDataSO> OnHeroPickedUp;
+
         public Shop(IWallet wallet, Bench bench, IReadOnlyList<HeroDataSO> heroes, IReadOnlyList<ItemDataSO> items,
                     ShopOddsSO odds, Func<int> stageNumber, int slotCount, int refreshCost,
                     Func<HeroDataSO, Func<bool>, IInspectable> heroPreview)
@@ -95,6 +100,37 @@ namespace MagicSchool.Economy
             _stock[slot] = null;
 
             // pay money 
+            _wallet.TrySpend(entry.Price);
+            Debug.Log($"Bought {entry.Kind} '{entry.Name}'.");
+
+            return true;
+        }
+
+        public bool TryPickUp(int slot)
+        {
+            if (!(_stock[slot] is HeroEntry entry)) return false;
+
+            if (!_wallet.CanAfford(entry.Price))
+            {
+                Debug.Log($"Not enough gold for '{entry.Name}' ({entry.Price} g).");
+                return false;
+            }
+
+            OnHeroPickedUp?.Invoke(slot, entry.Data);
+            return true;
+        }
+
+        // The held hero was put down: pay for it and empty its slot. Nothing is delivered - the hero
+        // already exists, and whoever held it places it. False when the slot no longer sells it
+        // (re-rolled while it was held) or the player can no longer pay.
+        public bool TryBuyPickedUp(int slot, HeroDataSO hero)
+        {
+            if (!(_stock[slot] is HeroEntry entry) || entry.Data != hero) return false;
+            if (!_wallet.CanAfford(entry.Price)) return false;
+
+            // NOTE: Must come BEFORE paying because paying invoke a event (See TryBuy)
+            _stock[slot] = null;
+
             _wallet.TrySpend(entry.Price);
             Debug.Log($"Bought {entry.Kind} '{entry.Name}'.");
 

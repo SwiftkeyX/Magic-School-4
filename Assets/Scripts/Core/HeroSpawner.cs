@@ -33,6 +33,21 @@ namespace MagicSchool.Core
         // basically spawn hero
         private void SpawnHero(HeroDataSO data, TeamEnum team, IPlacement placement, BattleBoard board)
         {
+            Hero hero = Build(data, board, team);
+
+            // move them to "placement"
+            _heroMover.MoveThisHeroTo(hero, placement);
+
+            OnSpawned?.Invoke(hero);
+        }
+
+        // A player hero that stands nowhere yet: the one held out of the shop before it is bought.
+        // Not on a placement, so not tracked on the board, and nobody is told it exists - once it is bought
+        // and put down, its buyer moves it like any other hero.
+        public Hero SpawnUnboughtHero(HeroDataSO data, BattleBoard board) => Build(data, board, TeamEnum.Blue);
+
+        private Hero Build(HeroDataSO data, BattleBoard board, TeamEnum team)
+        {
             // spawn hero
             GameObject heroPrefab = SceneHelper.Instantiate(data.Prefab);
             Hero hero = heroPrefab.GetComponent<Hero>();
@@ -49,10 +64,7 @@ namespace MagicSchool.Core
             // e.g.     Big Slime splits into smaller slime
             hero.OnSpawnRequested += SpawnHero;
 
-            // move them to "placement"
-            _heroMover.MoveThisHeroTo(hero, placement);
-
-            OnSpawned?.Invoke(hero);
+            return hero;
         }
     }
 }
