@@ -56,9 +56,10 @@ MonoBehaviour:
         thenDirection: 5
         thenDistance: 0
         isWearing: 1
-      modifier: 6
+      special: 
+      modifier: 0
       amount: 0
-      percentOf: 1
+      percentOf: -1
       selfModifier: 6
       selfAmount: 25
       selfPercentOf: -1
@@ -75,6 +76,7 @@ MonoBehaviour:
         thenDirection: 2
         thenDistance: 0
         isWearing: 0
+      special: 
       modifier: 7
       amount: 15
       percentOf: -1
@@ -110,9 +112,10 @@ MonoBehaviour:
         thenDirection: 0
         thenDistance: 0
         isWearing: 1
-      modifier: 6
+      special: 
+      modifier: 0
       amount: 0
-      percentOf: 1
+      percentOf: -1
       selfModifier: 6
       selfAmount: 25
       selfPercentOf: -1
@@ -129,6 +132,7 @@ MonoBehaviour:
         thenDirection: 3
         thenDistance: 0
         isWearing: 0
+      special: 
       modifier: 7
       amount: 15
       percentOf: -1
@@ -164,9 +168,10 @@ MonoBehaviour:
         thenDirection: 3
         thenDistance: 0
         isWearing: 1
-      modifier: 6
+      special: 
+      modifier: 0
       amount: 0
-      percentOf: 1
+      percentOf: -1
       selfModifier: 6
       selfAmount: 25
       selfPercentOf: -1
@@ -183,6 +188,7 @@ MonoBehaviour:
         thenDirection: 0
         thenDistance: 0
         isWearing: 0
+      special: 
       modifier: 7
       amount: 15
       percentOf: -1

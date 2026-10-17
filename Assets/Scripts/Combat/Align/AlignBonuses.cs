@@ -43,24 +43,35 @@ namespace MagicSchool.Combat.Align
 
                 // loop through every mark own by this hero
                 IReadOnlyList<AlignMark> marks = me.AlignMarks;
+
+                // a wearing hex can be in more than one mark (orange and green both): it is still worn once
+                var wearingHexes = new HashSet<Hex>();
+                foreach (AlignMark mark in marks) wearingHexes.UnionWith(mark.GetWearingHexes(standingOn));
+
+                foreach (Hex wearing in wearingHexes)
+                {
+                    // an item lying on a wearing hex: this hero wears it.
+                    // An item is not an ally, so it fills nothing else: no ally bonus, no self bonus.
+                    Wear(me, board.Items.ItemOn(wearing));
+
+                    // an ally standing on a wearing hex: this hero wears what the ally wears, too.
+                    // Only what the ally wears itself - not what it is sharing from its own wearing hexes - so it never chains.
+                    if (board.WhoReservedThisHex(wearing) is Hero ally && ally != me && ally.Team == team)
+                    {
+                        foreach (IEquipment item in ally.WornItems) Wear(me, item);
+                    }
+                }
+
                 for (int i = 0; i < marks.Count; i++)
                 {
                     AlignMark mark = marks[i];
+
+                    // orange pays the hero itself, green pays the ally standing there, white pays nobody (See AligningHex)
+                    int colour = AligningHex.ColourOf(marks, i);
+                    bool paysSelfOnly = colour == AligningHex.Orange;
+                    bool paysAllyOnly = colour == AligningHex.Green;
+
                     if (mark.IsSpecial && !alliesOnSpecialMark.ContainsKey(mark.special)) alliesOnSpecialMark[mark.special] = new List<ICombatant>();
-
-                    foreach (Hex wearing in mark.GetWearingHexes(standingOn))
-                    {
-                        // an item lying on a wearing hex: this hero wears it.
-                        // An item is not an ally, so it fills nothing else: no ally bonus, no self bonus.
-                        Wear(me, board.Items.ItemOn(wearing));
-
-                        // an ally standing on a wearing hex: this hero wears what the ally wears, too.
-                        // Only what the ally wears itself - not what it is sharing from its own wearing hexes - so it never chains.
-                        if (board.WhoReservedThisHex(wearing) is Hero ally && ally != me && ally.Team == team)
-                        {
-                            foreach (IEquipment item in ally.WornItems) Wear(me, item);
-                        }
-                    }
 
                     // loop through every hex that was marked
                     foreach (Hex marked in mark.GetMarkedHexes(standingOn))
@@ -72,15 +83,15 @@ namespace MagicSchool.Combat.Align
                         if (isAlly && receiver != me && mark.IsSpecial) alliesOnSpecialMark[mark.special].Add(receiver);
 
                         // this mark give bonus to the receiver
-                        if (isAlly && mark.HasAllyBonus) Give(receiver, mark.BuildAllyModifier(), me);
+                        if (paysAllyOnly && isAlly && mark.HasAllyBonus) Give(receiver, mark.BuildAllyModifier(), me);
 
                         // this mark give bonus to self: for an ally standing there,
                         // or the opposite - for a hex left empty
                         bool paysSelf = mark.selfWhenEmpty ? IsEmpty(board, marked) : isAlly;
-                        if (paysSelf && mark.HasSelfBonus) Give(me, mark.BuildSelfModifier(), me);
+                        if (paysSelfOnly && paysSelf && mark.HasSelfBonus) Give(me, mark.BuildSelfModifier(), me);
 
                         // the ally is a generator: its damage heals this hero
-                        if (isAlly && mark.HasDamageHeal) LinkDamageHeal(receiver, me, mark.healFromAllyDamage);
+                        if (paysSelfOnly && isAlly && mark.HasDamageHeal) LinkDamageHeal(receiver, me, mark.healFromAllyDamage);
                     }
                 }
 

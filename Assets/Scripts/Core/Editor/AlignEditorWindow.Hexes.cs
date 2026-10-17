@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -5,7 +6,7 @@ using UnityEngine;
 namespace MagicSchool.Editor
 {
     // ---------------------------------------- middle: the hexes ----------------------------------------
-    // Every hex within reach of the hero. Left-click gives a hex to the selected bonus, right-click makes a marked hex a wearing hex.
+    // Every hex within reach of the hero. Left-click gives a hex to the selected mark, right-click makes a marked hex a wearing hex.
     internal partial class AlignEditorWindow
     {
         private const int Reach = 6;                // how many hexes out from the hero the window draws
@@ -18,20 +19,22 @@ namespace MagicSchool.Editor
         private static readonly Color SecondBonusColor = new Color(0.4f, 0.9f, 0.5f);
         private static readonly Color SpecialColor = Color.white;
         private static readonly Color HeroColor = new Color(0.85f, 0.85f, 0.85f);
+        private static readonly Color UnusedColor = new Color(0.5f, 0.5f, 0.5f);
 
         private Vector2 _hexScroll;
 
-        // a special mark is white; the ordinary marks are counted without them, a third painted like the first (See AligningHex.ColourOf)
+        // orange, green, a special mark white, and a third ordinary mark grey: it does nothing (See AligningHex.ColourOf)
         private static Color ColorOf(SerializedProperty marks, int mark)
         {
             if (IsSpecial(marks, mark)) return SpecialColor;
-
-            return OrdinaryNumberOf(marks, mark) == 2 ? SecondBonusColor : FirstBonusColor;
+            if (mark == OrangeMark) return FirstBonusColor;
+            if (mark == GreenMark) return SecondBonusColor;
+            return UnusedColor;
         }
 
         private void DrawHexes(SerializedProperty marks)
         {
-            EditorGUILayout.LabelField("Click a hex to give it to the selected bonus. Click it again to take it away.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.LabelField("Click a hex to give it to the selected mark. Click it again to take it away. A hex can be in more than one mark: it is drawn in rings, one colour each.", EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.LabelField("Right-click a marked hex to make it a wearing hex: an item lying there, or the item of an ally standing there, is worn by the hero. Right-click again to undo.", EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.LabelField("The enemy is to the right.", EditorStyles.wordWrappedMiniLabel);
 
@@ -62,25 +65,26 @@ namespace MagicSchool.Editor
         {
             if (offset == Vector2Int.zero)
             {
-                DrawHex(position, HeroColor, isOutlined: false);
+                DrawHex(position, new[] { HeroColor }, isOutlined: false);
                 DrawLabel(position, "hero");
                 return;
             }
 
-            int mark = MarkHolding(marks, offset);
-            bool isMarked = mark >= 0;
-            bool isWearing = isMarked && IsWearing(marks, mark, offset);
+            List<int> holding = MarksHolding(marks, offset);
+            bool isMarked = holding.Count > 0;
+            bool isWearing = isMarked && IsWearing(marks, offset);
             string name = AlignHexOffset.NameOf(offset);
 
-            DrawHex(position, isMarked ? ColorOf(marks, mark) : FreeColor, isOutlined: isMarked && mark == _selectedMark);
+            Color[] colours = isMarked ? holding.Select(mark => ColorOf(marks, mark)).ToArray() : new[] { FreeColor };
+            DrawHex(position, colours, isOutlined: holding.Contains(_selectedMark));
 
-            string label = isMarked ? ShortNameOf(marks, mark) : null;
+            string label = string.Join(" ", holding.Select(mark => ShortNameOf(marks, mark)));
             DrawLabel(position, isWearing ? $"{label} ITEM\n{name}"
                               : isMarked ? $"{label}\n{name}"
                               : name);
 
             // right-click a marked hex: an item lying there is worn, or no longer is
-            if (isMarked && IsClicked(position, button: 1)) Use(() => SetWearing(marks, mark, offset, !isWearing));
+            if (isMarked && IsClicked(position, button: 1)) Use(() => SetWearing(marks, offset, !isWearing));
 
             if (IsClicked(position, button: 0)) Use(() => Toggle(marks, offset));
         }
@@ -93,14 +97,31 @@ namespace MagicSchool.Editor
             Repaint();
         }
 
-        // a flat-top hex, squashed the way the board's hexes are
-        private static void DrawHex(Vector2 centre, Color fill, bool isOutlined)
+        // a flat-top hex, squashed the way the board's hexes are. Several colours are drawn as rings, the first outermost.
+        private static void DrawHex(Vector2 centre, Color[] fills, bool isOutlined)
         {
             if (Event.current.type != EventType.Repaint) return;
 
-            float halfWidth = ColumnStep / 1.5f * 0.94f;
-            float halfHeight = RowStep / 2f * 0.94f;
-            var corners = new Vector3[]
+            Vector3[] corners = CornersOf(centre, 1f);
+
+            for (int i = 0; i < fills.Length; i++)
+            {
+                Handles.color = fills[i];
+                Handles.DrawAAConvexPolygon(CornersOf(centre, 1f - i * 0.3f));
+            }
+
+            // the selected bonus' hexes get a white rim
+            if (!isOutlined) return;
+
+            Handles.color = Color.white;
+            Handles.DrawAAPolyLine(3f, corners.Append(corners[0]).ToArray());
+        }
+
+        private static Vector3[] CornersOf(Vector2 centre, float scale)
+        {
+            float halfWidth = ColumnStep / 1.5f * 0.94f * scale;
+            float halfHeight = RowStep / 2f * 0.94f * scale;
+            return new Vector3[]
             {
                 centre + new Vector2(halfWidth, 0f),
                 centre + new Vector2(halfWidth / 2f, -halfHeight),
@@ -109,15 +130,6 @@ namespace MagicSchool.Editor
                 centre + new Vector2(-halfWidth / 2f, halfHeight),
                 centre + new Vector2(halfWidth / 2f, halfHeight),
             };
-
-            Handles.color = fill;
-            Handles.DrawAAConvexPolygon(corners);
-
-            // the selected bonus' hexes get a white rim
-            if (!isOutlined) return;
-
-            Handles.color = Color.white;
-            Handles.DrawAAPolyLine(3f, corners.Append(corners[0]).ToArray());
         }
 
         private static void DrawLabel(Vector2 centre, string text)
