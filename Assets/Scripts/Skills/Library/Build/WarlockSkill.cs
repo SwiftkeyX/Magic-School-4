@@ -7,7 +7,7 @@ namespace MagicSchool.Skills
 {
     internal class WarlockSkill : SkillDefinition
     {
-        private static float CurseTotal => Tuned(300f);      // over the whole curse, not per tick
+        private static float CurseTotal => Tuned(450f);      // over the whole curse, not per tick
         private static float CurseDuration => Tuned(4f);
         private static float CurseInterval => Tuned(1f);
 

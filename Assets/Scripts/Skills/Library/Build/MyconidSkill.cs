@@ -6,7 +6,7 @@ namespace MagicSchool.Skills
 {
     internal class MyconidSkill : SkillDefinition
     {
-        private static float DamageRatio => Tuned(200f);
+        private static float DamageRatio => Tuned(400f);
         // the roster sheet says "stunned" without a length - 1s is a placeholder until it does
         private static float StunDuration => Tuned(1f);
 
