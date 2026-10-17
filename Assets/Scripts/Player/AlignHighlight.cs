@@ -22,6 +22,7 @@ namespace MagicSchool.Player
         private HashSet<Hex> _special = new HashSet<Hex>();
         private HashSet<Hex> _wearing = new HashSet<Hex>();
         private bool _isShown;
+        private (Hero hero, Hex standingOn, int pattern) _shownShape;     // the marks drawn now, when ShowMarks drew them
 
         public AlignHighlight(Camera cam, Dragging dragging, BattleBoard board, TeamEnum team)
         {
@@ -76,16 +77,58 @@ namespace MagicSchool.Player
             ShowMarks(held, pointed);
         }
 
-        // the hexes the hero marks while standing on [standingOn], each bonus in its colour
+        // the hexes the hero marks while standing on [standingOn], each bonus in its colour.
+        // The whole shape is drawn: a mark hex that gives nothing - on a red hex, past the board's edge, or off the board as a
+        // gray hex - is still shown, faded, so the player sees where the mark is (See AlignShape, BoardColours.ShowAlignMarks).
         private void ShowMarks(Hero hero, Hex standingOn)
         {
-            List<Hex>[] hexesByBonus = AligningHex.MarkedHexesByBonus(hero, standingOn);
-            HashSet<Hex> firstBonus = InDeployZone(hexesByBonus[AligningHex.Orange]);
-            HashSet<Hex> secondBonus = InDeployZone(hexesByBonus[AligningHex.Green]);
-            HashSet<Hex> special = InDeployZone(hexesByBonus[AligningHex.Special]);
-            HashSet<Hex> wearing = InDeployZone(AligningHex.WearingHexes(hero, standingOn));
+            // repaint only when something moved
+            (Hero, Hex, int) shape = (hero, standingOn, hero.AlignPattern);
+            if (_isShown && _shownShape == shape) return;
 
-            Show(firstBonus, secondBonus, special, wearing);
+            var onBoard = new Dictionary<Hex, MarkColours>();
+            var paying = new HashSet<Hex>();
+            var offBoard = new Dictionary<Vector2Int, (Vector3 position, MarkColours marks)>();
+
+            foreach (AlignShape.ShownHex shown in AlignShape.ShownHexes(hero, standingOn, _board.Hexs.Values))
+            {
+                if (shown.IsOffBoard)
+                {
+                    // one gray hex per spot, however many marks land there
+                    var spot = new Vector2Int(Mathf.RoundToInt(shown.position.x * 4f), Mathf.RoundToInt(shown.position.y * 4f));
+                    offBoard.TryGetValue(spot, out var ghost);
+                    offBoard[spot] = (shown.position, With(ghost.marks, shown, givesNothing: true));
+                    continue;
+                }
+
+                onBoard.TryGetValue(shown.hex, out MarkColours marks);
+                onBoard[shown.hex] = With(marks, shown, givesNothing: false);
+
+                // a mark hex only pays inside the deploy zone, and only when its line did not leave the board on the way
+                if (shown.hex.IsInDeployZone && !shown.isPastEdge) paying.Add(shown.hex);
+            }
+
+            foreach (Hex hex in new List<Hex>(onBoard.Keys))
+            {
+                MarkColours marks = onBoard[hex];
+                marks.givesNothing = !paying.Contains(hex);
+                onBoard[hex] = marks;
+            }
+
+            _board.Colours.ShowAlignMarks(onBoard, new List<(Vector3, MarkColours)>(offBoard.Values));
+            _isShown = true;
+            _shownShape = shape;
+        }
+
+        // [marks] with the colour of [shown] added
+        private static MarkColours With(MarkColours marks, AlignShape.ShownHex shown, bool givesNothing)
+        {
+            if (shown.colour == AligningHex.Orange) marks.first = true;
+            if (shown.colour == AligningHex.Green) marks.second = true;
+            if (shown.colour == AligningHex.Special) marks.special = true;
+            if (shown.isWearing) marks.wearing = true;
+            marks.givesNothing = givesNothing;
+            return marks;
         }
 
         // a player hero standing on a hex under the pointer - not one on a bench, and not an enemy: an enemy's marks do nothing
@@ -100,7 +143,7 @@ namespace MagicSchool.Player
         private void Show(HashSet<Hex> firstBonus, HashSet<Hex> secondBonus, HashSet<Hex> special, HashSet<Hex> wearing)
         {
             // repaint only when something moved
-            if (_isShown && firstBonus.SetEquals(_firstBonus) && secondBonus.SetEquals(_secondBonus)
+            if (_isShown && _shownShape.hero == null && firstBonus.SetEquals(_firstBonus) && secondBonus.SetEquals(_secondBonus)
                 && special.SetEquals(_special) && wearing.SetEquals(_wearing)) return;
 
             _firstBonus = firstBonus;
@@ -108,6 +151,7 @@ namespace MagicSchool.Player
             _special = special;
             _wearing = wearing;
             _isShown = true;
+            _shownShape = default;
             _board.Colours.ShowAlignMarks(_firstBonus, _secondBonus, _special, _wearing);
         }
 
@@ -139,6 +183,7 @@ namespace MagicSchool.Player
             if (!_isShown) return;
 
             _isShown = false;
+            _shownShape = default;
             if (isPreparation) _board.Colours.ShowDeployZone(true);
         }
     }

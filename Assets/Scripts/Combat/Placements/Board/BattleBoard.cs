@@ -35,7 +35,7 @@ namespace MagicSchool.Combat.Placements
 
         void Awake()
         {
-            _colours.Init(_hexs);
+            _colours.Init(_hexs, transform);
             _deployZone = new DeployZone(_hexs, _colours);
 
             InitializeHex();
