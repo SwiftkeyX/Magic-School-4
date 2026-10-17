@@ -12,22 +12,40 @@ namespace MagicSchool.Combat.Align
     // Get hexes that was marked by aligning mechanic
     public static class AligningHex
     {
-        // Get the marked hexes of the specify hero as two lists.
-        // Each one give different bonus:
-        // e.g.     Elf: N and S give AP                    => [0] = N hex, S hex     [1] = empty
-        // e.g.     Random Hero: N gives AP, S gives AD     => [0] = N hex            [1] = S hex
+        public const int FirstBonus = 0;
+        public const int SecondBonus = 1;
+        public const int Special = 2;
+
+        // Get the marked hexes of the specify hero as three lists, one per colour the board paints them:
+        // e.g.     Elf: N and S give AP                    => [0] = N hex, S hex     [1] = empty     [2] = empty
+        // e.g.     Random Hero: N gives AP, S gives AD     => [0] = N hex            [1] = S hex     [2] = empty
+        // e.g.     Rock Golem: his Ward mark on N          => [0] = empty            [1] = empty     [2] = N hex
         public static List<Hex>[] MarkedHexesByBonus(Hero giver, Hex standingOn)
         {
-            var hexesByBonus = new[] { new List<Hex>(), new List<Hex>() };
+            var hexesByBonus = new[] { new List<Hex>(), new List<Hex>(), new List<Hex>() };
 
             IReadOnlyList<AlignMark> marks = giver.AlignMarks;
             for (int i = 0; i < marks.Count; i++)
             {
-                int bonus = i == 1 ? 1 : 0;
-                hexesByBonus[bonus].AddRange(marks[i].GetMarkedHexes(standingOn));
+                hexesByBonus[ColourOf(marks, i)].AddRange(marks[i].GetMarkedHexes(standingOn));
             }
 
             return hexesByBonus;
+        }
+
+        // Which colour a mark is painted: a special mark has its own, and the ordinary marks are counted without them -
+        // the second ordinary mark is the second bonus, and a third is painted like the first.
+        public static int ColourOf(IReadOnlyList<AlignMark> marks, int index)
+        {
+            if (marks[index].IsSpecial) return Special;
+
+            int ordinary = 0;
+            for (int i = 0; i < index; i++)
+            {
+                if (!marks[i].IsSpecial) ordinary++;
+            }
+
+            return ordinary == 1 ? SecondBonus : FirstBonus;
         }
 
         // Get the wearing hexes of the specify hero: the hexes where an item would be worn by it.

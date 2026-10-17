@@ -32,6 +32,9 @@ namespace MagicSchool.Combat.Placements
         [Tooltip("Aligning, while a hero or an item is held: a wearing hex - an item lying there is worn. Painted over the bonus colours.")]
         [SerializeField] private Color _wearingColor = new Color(0.85f, 0.4f, 1f);
 
+        [Tooltip("Aligning, while a hero is held: a hex of the held hero's special mark - the one its skill reads (See AlignMark).")]
+        [SerializeField] private Color _specialColor = Color.white;
+
         private IReadOnlyDictionary<HexNumber, Hex> _hexs;
         internal void Init(IReadOnlyDictionary<HexNumber, Hex> hexs) => _hexs = hexs;
 
@@ -50,11 +53,13 @@ namespace MagicSchool.Combat.Placements
 
         // Repaint hexes that was marked (override deploy zone)
         // A wearing hex is a bonus hex too, so it is checked first: its own colour wins.
-        public void ShowAlignMarks(ICollection<Hex> firstBonus, ICollection<Hex> secondBonus, ICollection<Hex> wearing)
+        public void ShowAlignMarks(ICollection<Hex> firstBonus, ICollection<Hex> secondBonus, ICollection<Hex> special, ICollection<Hex> wearing)
         {
             foreach (Hex hex in _hexs.Values)
             {
                 if (wearing.Contains(hex)) hex.SetColor(_wearingColor);
+
+                else if (special.Contains(hex)) hex.SetColor(_specialColor);
 
                 else if (firstBonus.Contains(hex)) hex.SetColor(_firstBonusColor);
 

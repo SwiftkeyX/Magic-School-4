@@ -19,6 +19,7 @@ namespace MagicSchool.Player
 
         private HashSet<Hex> _firstBonus = new HashSet<Hex>();
         private HashSet<Hex> _secondBonus = new HashSet<Hex>();
+        private HashSet<Hex> _special = new HashSet<Hex>();
         private HashSet<Hex> _wearing = new HashSet<Hex>();
         private bool _isShown;
 
@@ -38,7 +39,7 @@ namespace MagicSchool.Player
             // holding an item: light up the hexes where a placed hero would wear it
             if (isPreparation && _dragging.HeldItem != null)
             {
-                Show(new HashSet<Hex>(), new HashSet<Hex>(), InDeployZone(AligningHex.WearingHexes(_board, _team)));
+                Show(new HashSet<Hex>(), new HashSet<Hex>(), new HashSet<Hex>(), InDeployZone(AligningHex.WearingHexes(_board, _team)));
                 return;
             }
 
@@ -68,7 +69,7 @@ namespace MagicSchool.Player
             Hex pointed = PointedZoneHex();
             if (pointed == null)
             {
-                Show(new HashSet<Hex>(), new HashSet<Hex>(), new HashSet<Hex>());
+                Show(new HashSet<Hex>(), new HashSet<Hex>(), new HashSet<Hex>(), new HashSet<Hex>());
                 return;
             }
 
@@ -79,11 +80,12 @@ namespace MagicSchool.Player
         private void ShowMarks(Hero hero, Hex standingOn)
         {
             List<Hex>[] hexesByBonus = AligningHex.MarkedHexesByBonus(hero, standingOn);
-            HashSet<Hex> firstBonus = InDeployZone(hexesByBonus[0]);
-            HashSet<Hex> secondBonus = InDeployZone(hexesByBonus[1]);
+            HashSet<Hex> firstBonus = InDeployZone(hexesByBonus[AligningHex.FirstBonus]);
+            HashSet<Hex> secondBonus = InDeployZone(hexesByBonus[AligningHex.SecondBonus]);
+            HashSet<Hex> special = InDeployZone(hexesByBonus[AligningHex.Special]);
             HashSet<Hex> wearing = InDeployZone(AligningHex.WearingHexes(hero, standingOn));
 
-            Show(firstBonus, secondBonus, wearing);
+            Show(firstBonus, secondBonus, special, wearing);
         }
 
         // a player hero standing on a hex under the pointer - not one on a bench, and not an enemy: an enemy's marks do nothing
@@ -95,17 +97,18 @@ namespace MagicSchool.Player
         }
 
         // mark those hexes with different colour
-        private void Show(HashSet<Hex> firstBonus, HashSet<Hex> secondBonus, HashSet<Hex> wearing)
+        private void Show(HashSet<Hex> firstBonus, HashSet<Hex> secondBonus, HashSet<Hex> special, HashSet<Hex> wearing)
         {
             // repaint only when something moved
             if (_isShown && firstBonus.SetEquals(_firstBonus) && secondBonus.SetEquals(_secondBonus)
-                && wearing.SetEquals(_wearing)) return;
+                && special.SetEquals(_special) && wearing.SetEquals(_wearing)) return;
 
             _firstBonus = firstBonus;
             _secondBonus = secondBonus;
+            _special = special;
             _wearing = wearing;
             _isShown = true;
-            _board.Colours.ShowAlignMarks(_firstBonus, _secondBonus, _wearing);
+            _board.Colours.ShowAlignMarks(_firstBonus, _secondBonus, _special, _wearing);
         }
 
         // the deploy-zone hex under the pointer: where the held hero would stand

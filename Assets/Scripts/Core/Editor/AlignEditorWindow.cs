@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using MagicSchool.Combat.Heroes;
+using MagicSchool.Skills;
 
 namespace MagicSchool.Editor
 {
@@ -25,6 +26,7 @@ namespace MagicSchool.Editor
         private List<HeroDataSO> _heroes = new List<HeroDataSO>();
         private HeroDataSO _hero;
         private SerializedObject _serializedHero;
+        private IReadOnlyList<string> _specialMarks = new string[0];   // the special marks the hero's skill reads (See AlignMark)
         private int _selectedPattern;
         private int _selectedMark;
         private string _heroSearch = string.Empty;
@@ -69,12 +71,20 @@ namespace MagicSchool.Editor
                 .ToList();
         }
 
+        // the skill is built to ask it for its special marks, and building one needs the registry
+        private static TemplateActionRegistrySO FindRegistry()
+        {
+            string guid = AssetDatabase.FindAssets("t:TemplateActionRegistrySO").FirstOrDefault();
+            return guid != null ? AssetDatabase.LoadAssetAtPath<TemplateActionRegistrySO>(AssetDatabase.GUIDToAssetPath(guid)) : null;
+        }
+
         private void Edit(HeroDataSO hero)
         {
             if (hero == _hero && _serializedHero != null) return;
 
             _hero = hero;
             _serializedHero = hero != null ? new SerializedObject(hero) : null;
+            _specialMarks = hero != null ? hero.SpecialMarksOf(FindRegistry()) : new string[0];
             _selectedPattern = 0;
             _selectedMark = 0;
         }
@@ -111,6 +121,7 @@ namespace MagicSchool.Editor
 
             _selectedPattern = Mathf.Clamp(_selectedPattern, 0, patterns.arraySize - 1);
             SerializedProperty marks = MarksOf(patterns, _selectedPattern);
+            AddMissingSpecialMarks(marks);
             _selectedMark = Mathf.Clamp(_selectedMark, 0, Mathf.Max(0, marks.arraySize - 1));
 
             EditorGUILayout.BeginVertical();
