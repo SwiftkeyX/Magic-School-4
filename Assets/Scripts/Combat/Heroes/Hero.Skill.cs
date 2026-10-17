@@ -21,6 +21,7 @@ namespace MagicSchool.Combat.Heroes
         public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);
         public void TriggerOnDeath() => _skill.TriggerOnDeath();
         public void TriggerOnHeroBurned(ICombatant burned) => _skill.TriggerOnHeroBurned(burned);
+        public void TriggerOnMarkedAllyDealtDamage(string mark, ICombatant ally, DamageEvent hit) => _skill?.TriggerOnMarkedAllyDealtDamage(mark, ally, hit);
         public float GetCastTime() => _skill.GetCastTime();
         public bool CanWalkWhileCasting() => _skill.CanWalkWhileCasting();
         public bool IsSkillRepeating() => _skill.IsSkillRepeating();
