@@ -102,6 +102,11 @@ namespace MagicSchool.Skills
         // e.g. Imp gains attack speed whenever an enemy burns
         public virtual void OnHeroBurned(ICombatant burned) { }
 
+        // If an ally standing on one of this skill's special marks deals damage, play OnMarkedAllyDealtDamage.
+        // Wired by AlignBonuses.Refresh, so like every aligning bonus it follows where everyone stood when the fight started.
+        // e.g. Shield Knight heals off the damage the allies on his Guard mark deal
+        public virtual void OnMarkedAllyDealtDamage(string mark, ICombatant ally, DamageEvent hit) { }
+
         // add other hook
         // ...
 
