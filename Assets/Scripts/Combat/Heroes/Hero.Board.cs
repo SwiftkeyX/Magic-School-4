@@ -33,9 +33,10 @@ namespace MagicSchool.Combat.Heroes
 
         public void SetAlignMarkPattern(int pattern) => _alignPattern = pattern >= 0 && pattern < AlignPatternCount ? pattern : 0;
 
-        // IAligned: allies on each bonus's hexes, as counted by the last AlignBonuses.Refresh
-        public int AlliesOnMark(int bonus) => bonus >= 0 && bonus < _alliesOnMark.Length ? _alliesOnMark[bonus] : 0;
-        internal void SetAlliesOnMark(int first, int second) { _alliesOnMark[0] = first; _alliesOnMark[1] = second; }
+        // IAligned: allies on each special mark's hexes, as found by the last AlignBonuses.Refresh
+        public IReadOnlyList<ICombatant> AlliesOnSpecialMark(string mark)
+            => _alliesOnSpecialMark.TryGetValue(mark, out List<ICombatant> allies) ? allies : (IReadOnlyList<ICombatant>)new List<ICombatant>();
+        internal void SetAlliesOnSpecialMarks(Dictionary<string, List<ICombatant>> allies) => _alliesOnSpecialMark = allies;
 
         // IHexMeasurable: hexes counted step by step across the board (See Hex.IsWithinRange)
         public bool IsAtLeastHexesAway(IPlaceable other, int hexes)

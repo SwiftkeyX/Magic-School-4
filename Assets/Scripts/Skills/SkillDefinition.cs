@@ -67,6 +67,11 @@ namespace MagicSchool.Skills
         public abstract string SkillName { get; }
         public abstract string Description { get; }
         public virtual string PassiveDescription => "";
+
+        // The special marks this skill reads, by name (See AlignMark). The Align Editor puts each one in every pattern of the hero.
+        // e.g.     Rock Golem => { "Ward" }
+        public virtual IReadOnlyList<string> SpecialMarks => NoSpecialMarks;
+        private static readonly string[] NoSpecialMarks = new string[0];
         public virtual bool HasActive => _active != null;
         public virtual bool HasAutoAttackPassive => _onAutoAttack != null;
 

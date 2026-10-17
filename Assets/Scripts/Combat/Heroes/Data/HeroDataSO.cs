@@ -60,6 +60,10 @@ namespace MagicSchool.Combat.Heroes
         public int AlignPatternCount => Mathf.Max(1, _alignPatterns.Count);
 
         // the marks of one pattern; none when there is no such pattern
+        // the special marks this hero's skill reads (See AlignMark), for the Align Editor
+        public IReadOnlyList<string> SpecialMarksOf(TemplateActionRegistrySO registry)
+            => SkillLibrary.Resolve(_skillId, registry)?.SpecialMarks ?? new string[0];
+
         public IReadOnlyList<AlignMark> AlignMarksOf(int pattern)
             => pattern >= 0 && pattern < _alignPatterns.Count && _alignPatterns[pattern].marks != null
                 ? _alignPatterns[pattern].marks
