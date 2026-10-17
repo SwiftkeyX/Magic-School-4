@@ -15,7 +15,7 @@ namespace MagicSchool.Editor
     //      AlignEditorWindow.cs            => the window, and the heroes on the left
     //      AlignEditorWindow.Patterns.cs   => the pattern tabs above the hexes
     //      AlignEditorWindow.Hexes.cs      => the hexes in the middle
-    //      AlignEditorWindow.Marks.cs      => the bonuses on the right, and editing which hex belongs to which
+    //      AlignEditorWindow.Marks.cs      => the marks on the right (orange, green, the skill's white ones), and editing which hex belongs to which
     // The hex maths is in AlignHexOffset.cs.
     //
     // NOTE: The editor also work during Play mode
@@ -121,8 +121,7 @@ namespace MagicSchool.Editor
 
             _selectedPattern = Mathf.Clamp(_selectedPattern, 0, patterns.arraySize - 1);
             SerializedProperty marks = MarksOf(patterns, _selectedPattern);
-            AddMissingSpecialMarks(marks);
-            _selectedMark = Mathf.Clamp(_selectedMark, 0, Mathf.Max(0, marks.arraySize - 1));
+            AddMissingMarks(marks);
 
             EditorGUILayout.BeginVertical();
             DrawHeader();

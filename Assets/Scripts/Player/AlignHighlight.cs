@@ -80,8 +80,8 @@ namespace MagicSchool.Player
         private void ShowMarks(Hero hero, Hex standingOn)
         {
             List<Hex>[] hexesByBonus = AligningHex.MarkedHexesByBonus(hero, standingOn);
-            HashSet<Hex> firstBonus = InDeployZone(hexesByBonus[AligningHex.FirstBonus]);
-            HashSet<Hex> secondBonus = InDeployZone(hexesByBonus[AligningHex.SecondBonus]);
+            HashSet<Hex> firstBonus = InDeployZone(hexesByBonus[AligningHex.Orange]);
+            HashSet<Hex> secondBonus = InDeployZone(hexesByBonus[AligningHex.Green]);
             HashSet<Hex> special = InDeployZone(hexesByBonus[AligningHex.Special]);
             HashSet<Hex> wearing = InDeployZone(AligningHex.WearingHexes(hero, standingOn));
 

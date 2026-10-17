@@ -31,7 +31,8 @@ MonoBehaviour:
   _alignPatterns:
   - marks:
     - hexes: []
-      modifier: 9
+      special: 
+      modifier: 0
       amount: 0
       percentOf: -1
       selfModifier: 0
@@ -50,6 +51,7 @@ MonoBehaviour:
         thenDirection: 0
         thenDistance: 0
         isWearing: 0
+      special: 
       modifier: 9
       amount: 15
       percentOf: -1
@@ -60,7 +62,8 @@ MonoBehaviour:
       healFromAllyDamage: 0
   - marks:
     - hexes: []
-      modifier: 9
+      special: 
+      modifier: 0
       amount: 0
       percentOf: -1
       selfModifier: 0
@@ -79,6 +82,7 @@ MonoBehaviour:
         thenDirection: 0
         thenDistance: 0
         isWearing: 0
+      special: 
       modifier: 9
       amount: 15
       percentOf: -1
@@ -89,7 +93,8 @@ MonoBehaviour:
       healFromAllyDamage: 0
   - marks:
     - hexes: []
-      modifier: 9
+      special: 
+      modifier: 0
       amount: 0
       percentOf: -1
       selfModifier: 0
@@ -108,6 +113,7 @@ MonoBehaviour:
         thenDirection: 2
         thenDistance: 0
         isWearing: 0
+      special: 
       modifier: 9
       amount: 15
       percentOf: -1

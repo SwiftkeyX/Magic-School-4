@@ -7,7 +7,7 @@ namespace MagicSchool.Combat.Placements
     /// <summary>
     /// Answer what colour is this hex?
     /// e.g.    Preparation     => the deploy zone blue, others red
-    ///         a hero is held  => the hexes it would mark orange/green, its wearing hexes purple
+    ///         a hero is held  => the hexes it would mark orange/green/white, its wearing hexes purple - a hex in several is drawn in rings
     ///         an item is held => the team's wearing hexes purple
     ///         the fight       => the whole board gray
     /// </summary>
@@ -52,20 +52,20 @@ namespace MagicSchool.Combat.Placements
         internal void ShowDeployZone(Hex hex) => hex.SetColor(ZoneColorOf(hex));
 
         // Repaint hexes that was marked (override deploy zone)
-        // A wearing hex is a bonus hex too, so it is checked first: its own colour wins.
+        // A hex can be in several - a wearing hex is always a mark's hex too - so it shows every colour it has, as rings:
+        // purple outermost, then orange, green, white, the same order the Align Editor draws them.
         public void ShowAlignMarks(ICollection<Hex> firstBonus, ICollection<Hex> secondBonus, ICollection<Hex> special, ICollection<Hex> wearing)
         {
             foreach (Hex hex in _hexs.Values)
             {
-                if (wearing.Contains(hex)) hex.SetColor(_wearingColor);
+                var colours = new List<Color>();
+                if (wearing.Contains(hex)) colours.Add(_wearingColor);
+                if (firstBonus.Contains(hex)) colours.Add(_firstBonusColor);
+                if (secondBonus.Contains(hex)) colours.Add(_secondBonusColor);
+                if (special.Contains(hex)) colours.Add(_specialColor);
 
-                else if (special.Contains(hex)) hex.SetColor(_specialColor);
-
-                else if (firstBonus.Contains(hex)) hex.SetColor(_firstBonusColor);
-
-                else if (secondBonus.Contains(hex)) hex.SetColor(_secondBonusColor);
-
-                else hex.SetColor(ZoneColorOf(hex));
+                if (colours.Count == 0) colours.Add(ZoneColorOf(hex));
+                hex.SetColors(colours);
             }
         }
 
