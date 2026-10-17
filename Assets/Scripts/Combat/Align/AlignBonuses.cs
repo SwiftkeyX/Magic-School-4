@@ -80,7 +80,11 @@ namespace MagicSchool.Combat.Align
                         Hero receiver = board.WhoReservedThisHex(marked) as Hero;
                         bool isAlly = receiver != null && receiver.Team == team;
 
-                        if (isAlly && receiver != me && mark.IsSpecial) alliesOnSpecialMark[mark.special].Add(receiver);
+                        if (isAlly && receiver != me && mark.IsSpecial)
+                        {
+                            alliesOnSpecialMark[mark.special].Add(receiver);
+                            LinkSpecialMark(receiver, me, mark.special);
+                        }
 
                         // this mark give bonus to the receiver
                         if (paysAllyOnly && isAlly && mark.HasAllyBonus) Give(receiver, mark.BuildAllyModifier(), me);
@@ -129,6 +133,16 @@ namespace MagicSchool.Combat.Align
 
             generator.OnDamageDealt += heal;
             _links.Add((generator, heal));
+        }
+
+        // Every damage an ally on the owner's special mark deals is told to the owner's skill
+        // e.g.     Shield Knight's Guard mark - the ally hits for 200 => his skill heals him 20
+        private void LinkSpecialMark(Hero ally, Hero owner, string mark)
+        {
+            Action<DamageEvent> tell = hit => owner.TriggerOnMarkedAllyDealtDamage(mark, ally, hit);
+
+            ally.OnDamageDealt += tell;
+            _links.Add((ally, tell));
         }
 
         // Wipe every modifier given by the aligning mechanic, and cut every generator link

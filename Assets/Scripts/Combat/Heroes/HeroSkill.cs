@@ -85,5 +85,11 @@ namespace MagicSchool.Combat.Heroes
         {
             _skill?.OnHeroBurned(burned);
         }
+
+        // if an ally on one of my special marks deals damage, play OnMarkedAllyDealtDamage type of skill
+        public void TriggerOnMarkedAllyDealtDamage(string mark, ICombatant ally, DamageEvent hit)
+        {
+            _skill?.OnMarkedAllyDealtDamage(mark, ally, hit);
+        }
     }
 }
