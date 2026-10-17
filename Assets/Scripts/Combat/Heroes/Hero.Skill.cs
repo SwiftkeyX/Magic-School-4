@@ -1,6 +1,7 @@
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Align;
 using MagicSchool.Skills;
+using MagicSchool.StatScaling;
 
 namespace MagicSchool.Combat.Heroes
 {
@@ -11,7 +12,12 @@ namespace MagicSchool.Combat.Heroes
         public bool TriggerActiveSkill(bool isManaCapped) => _skill.TriggerOnCastSkill(isManaCapped);
         public bool TriggerOnAutoAttack(ICombatant target) => _skill.TriggerOnAutoAttack(target);
         public ICombatant PickAutoAttackTarget(ICombatant target) => _skill.PickAutoAttackTarget(target);
-        public bool TriggerOnCombatStart() => _skill.TriggerOnCombatStart();
+        // a fight starts: the crit count starts again too (read Crit.cs)
+        public bool TriggerOnCombatStart()
+        {
+            Crit.ResetStreak(this);
+            return _skill.TriggerOnCombatStart();
+        }
         public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);
         public void TriggerOnDeath() => _skill.TriggerOnDeath();
         public void TriggerOnHeroBurned(ICombatant burned) => _skill.TriggerOnHeroBurned(burned);
