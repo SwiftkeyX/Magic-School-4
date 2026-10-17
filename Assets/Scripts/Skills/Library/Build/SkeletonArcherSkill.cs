@@ -12,9 +12,12 @@ namespace MagicSchool.Skills
         private static float IntervalBetweenShot => Tuned(0.1f);
         private static float TotalCastTime => IntervalBetweenShot * (ShotCount - 1);
 
-        // a long shot - its target 3+ hexes away when it lands - deals [this]% more for every ally on his first (orange) mark
+        // a long shot - its target 3+ hexes away when it lands - deals [this]% more for every ally on his Long Shot mark
         private static int LongShotHexes => Tuned(3);
         private static float LongShotBonusPerAlly => Tuned(15f);
+
+        private const string LongShotMark = "Long Shot";
+        public override IReadOnlyList<string> SpecialMarks => new[] { LongShotMark };
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new SkeletonArcherSkill(registry);
 
@@ -25,7 +28,7 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Fires {ShotCount} shots in quick succession at the furthest enemy, each one landing for "
              + $"{ADDamagePerShot}% AD + {MGDamagePerShot}% AP. "
-             + $"A shot that lands {LongShotHexes}+ hexes away deals {LongShotBonusPerAlly}% more for every ally on his first mark.";
+             + $"A shot that lands {LongShotHexes}+ hexes away deals {LongShotBonusPerAlly}% more for every ally on his {LongShotMark} mark.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
@@ -54,9 +57,9 @@ namespace MagicSchool.Skills
             return Flow(onStart: shoot);
         }
 
-        // e.g. 3 allies on his first mark => +45%
+        // e.g. 3 allies on his Long Shot mark => +45%
         private static float LongShotBonus(IEffectable caster)
-            => caster is IAligned aligned ? aligned.AlliesOnMark(0) * LongShotBonusPerAlly / 100f : 0f;
+            => caster is IAligned aligned ? aligned.AlliesOnSpecialMark(LongShotMark).Count * LongShotBonusPerAlly / 100f : 0f;
 
     }
 }

@@ -38,7 +38,7 @@ namespace MagicSchool.Combat.Heroes
         private TeamEnum _team;
         private int _star = HeroStar.Min;       // upgraded by combining copies (See HeroStar)
         private int _alignPattern;              // which of its align patterns the hero is turned to (See AlignPattern)
-        private readonly int[] _alliesOnMark = new int[2];  // allies on its first / second mark's hexes (See IAligned)
+        private Dictionary<string, List<ICombatant>> _alliesOnSpecialMark = new Dictionary<string, List<ICombatant>>();  // allies on each special mark's hexes (See IAligned)
         private Vector3 _baseScale;
         private bool _isDummy;                 // Temporary, tagged once at its source - see the FLAGGING on HeroDataSO._isDummy.
 

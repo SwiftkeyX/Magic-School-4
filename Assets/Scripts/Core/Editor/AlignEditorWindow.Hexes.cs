@@ -16,11 +16,18 @@ namespace MagicSchool.Editor
         private static readonly Color FreeColor = new Color(0.353f, 0.608f, 1f);
         private static readonly Color FirstBonusColor = new Color(1f, 0.62f, 0.2f);
         private static readonly Color SecondBonusColor = new Color(0.4f, 0.9f, 0.5f);
+        private static readonly Color SpecialColor = Color.white;
         private static readonly Color HeroColor = new Color(0.85f, 0.85f, 0.85f);
 
         private Vector2 _hexScroll;
 
-        private static Color ColorOf(int mark) => mark == 1 ? SecondBonusColor : FirstBonusColor;
+        // a special mark is white; the ordinary marks are counted without them, a third painted like the first (See AligningHex.ColourOf)
+        private static Color ColorOf(SerializedProperty marks, int mark)
+        {
+            if (IsSpecial(marks, mark)) return SpecialColor;
+
+            return OrdinaryNumberOf(marks, mark) == 2 ? SecondBonusColor : FirstBonusColor;
+        }
 
         private void DrawHexes(SerializedProperty marks)
         {
@@ -65,9 +72,11 @@ namespace MagicSchool.Editor
             bool isWearing = isMarked && IsWearing(marks, mark, offset);
             string name = AlignHexOffset.NameOf(offset);
 
-            DrawHex(position, isMarked ? ColorOf(mark) : FreeColor, isOutlined: isMarked && mark == _selectedMark);
-            DrawLabel(position, isWearing ? $"{mark + 1} ITEM\n{name}"
-                              : isMarked ? $"{mark + 1}\n{name}"
+            DrawHex(position, isMarked ? ColorOf(marks, mark) : FreeColor, isOutlined: isMarked && mark == _selectedMark);
+
+            string label = isMarked ? ShortNameOf(marks, mark) : null;
+            DrawLabel(position, isWearing ? $"{label} ITEM\n{name}"
+                              : isMarked ? $"{label}\n{name}"
                               : name);
 
             // right-click a marked hex: an item lying there is worn, or no longer is

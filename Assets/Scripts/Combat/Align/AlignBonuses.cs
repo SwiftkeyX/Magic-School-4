@@ -38,15 +38,16 @@ namespace MagicSchool.Combat.Align
                 Hex standingOn = me.CurrentHex;
                 if (standingOn == null) continue;
 
-                // allies on each bonus's hexes, for a skill that pays off them (See IAligned)
-                // counted the way AligningHex.MarkedHexesByBonus colours them: the second mark is bonus 1, every other mark bonus 0
-                var alliesOnMark = new int[2];
+                // allies on each special mark's hexes, for the skill that reads them (See IAligned)
+                var alliesOnSpecialMark = new Dictionary<string, List<ICombatant>>();
 
                 // loop through every mark own by this hero
                 IReadOnlyList<AlignMark> marks = me.AlignMarks;
                 for (int i = 0; i < marks.Count; i++)
                 {
                     AlignMark mark = marks[i];
+                    if (mark.IsSpecial && !alliesOnSpecialMark.ContainsKey(mark.special)) alliesOnSpecialMark[mark.special] = new List<ICombatant>();
+
                     foreach (Hex wearing in mark.GetWearingHexes(standingOn))
                     {
                         // an item lying on a wearing hex: this hero wears it.
@@ -68,7 +69,7 @@ namespace MagicSchool.Combat.Align
                         Hero receiver = board.WhoReservedThisHex(marked) as Hero;
                         bool isAlly = receiver != null && receiver.Team == team;
 
-                        if (isAlly && receiver != me) alliesOnMark[i == 1 ? 1 : 0]++;
+                        if (isAlly && receiver != me && mark.IsSpecial) alliesOnSpecialMark[mark.special].Add(receiver);
 
                         // this mark give bonus to the receiver
                         if (isAlly && mark.HasAllyBonus) Give(receiver, mark.BuildAllyModifier(), me);
@@ -83,7 +84,7 @@ namespace MagicSchool.Combat.Align
                     }
                 }
 
-                me.SetAlliesOnMark(alliesOnMark[0], alliesOnMark[1]);
+                me.SetAlliesOnSpecialMarks(alliesOnSpecialMark);
             }
         }
 

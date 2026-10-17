@@ -36,12 +36,20 @@ namespace MagicSchool.Combat.Align
     /// e.g.    Ettin: [SW 1, NW 1], AS, 30, percent of AS      => a hero on either hex behind him gains 30% of its own attack speed
     /// e.g.    Centaur: [SW 3], BonusHP, 200, None             => the hero behind-below him for 3 hex, gains 200 HP
     /// e.g.    [NE 2], ..., self ATK, 10, percent of ATK       => the owner gains 10% of its own AD, when an ally stands 2 hexes ahead-above
+    ///
+    /// A special mark is one the hero's skill asks for by name (SkillDefinition.SpecialMarks), so the skill can read who stands on it.
+    /// The Align Editor puts it in every pattern by itself, and its hexes are painted like any other mark's. It may give a bonus too, or none.
+    /// e.g.    Rock Golem: "Ward"              => the allies on it are shielded with him
+    /// e.g.    Skeleton Archer: "Long Shot"    => his long shots deal more for every ally on it
     /// </summary>
     [Serializable]
     public struct AlignMark
     {
         [Tooltip("Every hex that gives this bonus.")]
         public List<AlignHex> hexes;
+
+        [Tooltip("Empty = an ordinary mark. Otherwise the name the hero's skill reads this mark by. Set by the Align Editor.")]
+        public string special;
 
         [Header("Ally bonus")]
         [Tooltip("What the ally standing there gets.")]
@@ -78,6 +86,7 @@ namespace MagicSchool.Combat.Align
         public bool HasAllyBonus => amount != 0f;
         public bool HasSelfBonus => selfAmount != 0f;
         public bool HasDamageHeal => healFromAllyDamage > 0f;
+        public bool IsSpecial => !string.IsNullOrEmpty(special);
 
         // Get the hexes that was marked by this hero.
         public List<Hex> GetMarkedHexes(Hex standingOn)

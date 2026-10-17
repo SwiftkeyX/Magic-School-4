@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using MagicSchool.Combat.Align;
@@ -32,7 +33,7 @@ namespace MagicSchool.Editor
 
             if (GUILayout.Button("Add bonus")) AddMark(marks);
 
-            if (marks.arraySize > 2)
+            if (Enumerable.Range(0, marks.arraySize).Count(i => !IsSpecial(marks, i)) > 2)
             {
                 EditorGUILayout.HelpBox("The board has two colours: a third bonus is painted like the first.", MessageType.Info);
             }
@@ -59,14 +60,25 @@ namespace MagicSchool.Editor
 
             // the colour the game paints this bonus' hexes
             Rect swatch = GUILayoutUtility.GetRect(14f, 14f, GUILayout.Width(14f));
-            EditorGUI.DrawRect(swatch, ColorOf(index));
+            EditorGUI.DrawRect(swatch, ColorOf(marks, index));
 
             int hexCount = HexesOf(marks, index).arraySize;
-            string title = $"Bonus {index + 1} - {hexCount} hex" + (hexCount == 1 ? "" : "es");
+            string hexes = $"{hexCount} hex" + (hexCount == 1 ? "" : "es");
+            string special = SpecialOf(marks, index);
+            string title = IsSpecial(marks, index) ? $"{special} (skill mark) - {hexes}" : $"Bonus {OrdinaryNumberOf(marks, index)} - {hexes}";
             if (GUILayout.Toggle(_selectedMark == index, title, EditorStyles.radioButton)) _selectedMark = index;
 
-            bool isRemoved = GUILayout.Button("Remove", EditorStyles.miniButton, GUILayout.Width(60f));
+            // a special mark the skill reads cannot be removed: the editor would only put it back
+            bool isRead = IsSpecial(marks, index) && _specialMarks.Contains(special);
+            bool isRemoved;
+            using (new EditorGUI.DisabledScope(isRead))
+            {
+                isRemoved = GUILayout.Button("Remove", EditorStyles.miniButton, GUILayout.Width(60f));
+            }
             EditorGUILayout.EndHorizontal();
+
+            if (isRead) EditorGUILayout.LabelField("The skill reads who stands here. A bonus is optional.", EditorStyles.wordWrappedMiniLabel);
+            else if (IsSpecial(marks, index)) EditorGUILayout.HelpBox("The skill no longer reads this mark.", MessageType.Warning);
 
             foreach (string field in MarkFields) EditorGUILayout.PropertyField(mark.FindPropertyRelative(field));
             EditorGUILayout.EndVertical();
@@ -75,7 +87,7 @@ namespace MagicSchool.Editor
         }
 
         // A new, empty bonus, and select it. Unity fills a new list entry with a copy of the last one, so wipe it.
-        private void AddMark(SerializedProperty marks)
+        private void AddMark(SerializedProperty marks, string special = "")
         {
             const int NoStat = -1;      // StatEnum.None
 
@@ -83,6 +95,7 @@ namespace MagicSchool.Editor
             SerializedProperty mark = marks.GetArrayElementAtIndex(marks.arraySize - 1);
 
             mark.FindPropertyRelative("hexes").ClearArray();
+            mark.FindPropertyRelative("special").stringValue = special;
             mark.FindPropertyRelative("amount").floatValue = 0f;
             mark.FindPropertyRelative("percentOf").intValue = NoStat;
             mark.FindPropertyRelative("selfAmount").floatValue = 0f;
@@ -92,6 +105,34 @@ namespace MagicSchool.Editor
 
             _selectedMark = marks.arraySize - 1;
         }
+
+        // Every special mark the hero's skill reads is in every pattern, without anyone adding it (See AlignMark).
+        // The selected bonus stays the one it was: a special mark is added at the end.
+        private void AddMissingSpecialMarks(SerializedProperty marks)
+        {
+            int selected = _selectedMark;
+            foreach (string special in _specialMarks)
+            {
+                bool isThere = Enumerable.Range(0, marks.arraySize).Any(i => SpecialOf(marks, i) == special);
+                if (!isThere) AddMark(marks, special);
+            }
+
+            _selectedMark = selected;
+        }
+
+        // ======================================== what a mark is ========================================
+        private static string SpecialOf(SerializedProperty marks, int mark)
+            => marks.GetArrayElementAtIndex(mark).FindPropertyRelative("special").stringValue;
+
+        private static bool IsSpecial(SerializedProperty marks, int mark) => !string.IsNullOrEmpty(SpecialOf(marks, mark));
+
+        // the ordinary marks are numbered without the special ones: "Bonus 1", "Bonus 2"
+        private static int OrdinaryNumberOf(SerializedProperty marks, int mark)
+            => 1 + Enumerable.Range(0, mark).Count(i => !IsSpecial(marks, i));
+
+        // what a marked hex says on it: the bonus' number, or the special mark's name
+        private static string ShortNameOf(SerializedProperty marks, int mark)
+            => IsSpecial(marks, mark) ? SpecialOf(marks, mark) : OrdinaryNumberOf(marks, mark).ToString();
 
         // ======================================== which hex belongs to which bonus ========================================
         private static SerializedProperty HexesOf(SerializedProperty marks, int mark)
