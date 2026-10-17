@@ -11,7 +11,7 @@ namespace MagicSchool.Skills
         private static int ChargeRange => Tuned(4);              // hexes he can cross
         private static float HitboxHalfWidth => Tuned(1.25f);
         private static float KnockedUpDuration => Tuned(2f);
-        private static float CollideDamage => Tuned(200f);
+        private static float CollideDamage => Tuned(140f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new CentaurSkill(registry);
 
