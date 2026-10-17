@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MagicSchool.Core
 {
-    /// Adjust how fast the game runs: x1, x2 or x3.
+    /// Adjust how fast the game runs: x1, x2, x3 or x9.
     internal class GameSpeed
     {
         public static readonly Dictionary<int, int> Levels = new Dictionary<int, int>();
@@ -14,6 +14,7 @@ namespace MagicSchool.Core
             Levels[1] = 1;
             Levels[2] = 2;
             Levels[3] = 3;
+            Levels[9] = 9;
         }
 
         public int Multiplier { get; private set; } = DefaultLevel;
