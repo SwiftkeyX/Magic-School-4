@@ -23,7 +23,7 @@ MonoBehaviour:
   _magicResist: 20
   _attackSpeed: 0.7
   _range: 4
-  _startMana: 20
+  _startMana: 80
   _maxMana: 140
   _critChance: 25
   _skillId: 22
