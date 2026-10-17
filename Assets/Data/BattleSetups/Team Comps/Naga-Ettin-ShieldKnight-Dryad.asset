@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b15591f0aa582343bd08d00a02b4206, type: 3}
+  m_Name: Naga-Ettin-ShieldKnight-Dryad
+  m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
+  _heroesPlacement:
+  - dataSO: {fileID: 11400000, guid: f09a9975497d1fe4597a86bb7d6cc48a, type: 2}
+    team: 0
+    hexPlacement:
+      column: 2
+      row: 2
+    item: {fileID: 0}
+    alignPattern: 0
+  - dataSO: {fileID: 11400000, guid: a20eb6d6a41e37344b5edc7d44f81e3b, type: 2}
+    team: 0
+    hexPlacement:
+      column: 2
+      row: 4
+    item: {fileID: 0}
+    alignPattern: 3
+  - dataSO: {fileID: 11400000, guid: 0f207332a3e601b46b3c098900106a8f, type: 2}
+    team: 0
+    hexPlacement:
+      column: 4
+      row: 1
+    item: {fileID: 0}
+    alignPattern: 5
+  - dataSO: {fileID: 11400000, guid: 0f3d014677dfab3469e35a31cbe4aeab, type: 2}
+    team: 0
+    hexPlacement:
+      column: 4
+      row: 3
+    item: {fileID: 0}
+    alignPattern: 0
+  _deployZone: []
+  _boardLayout: {fileID: 2821033882997051323, guid: d07d3d269e6884b42a2b2daced65229a, type: 3}
+  _itemsOnHexes: []
