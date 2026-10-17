@@ -31,9 +31,10 @@ MonoBehaviour:
   _alignPatterns:
   - marks:
     - hexes: []
-      modifier: 5
+      special: 
+      modifier: 0
       amount: 0
-      percentOf: 5
+      percentOf: -1
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -65,6 +66,7 @@ MonoBehaviour:
         thenDirection: 3
         thenDistance: 0
         isWearing: 1
+      special: 
       modifier: 5
       amount: 30
       percentOf: 5
@@ -75,9 +77,10 @@ MonoBehaviour:
       healFromAllyDamage: 0
   - marks:
     - hexes: []
-      modifier: 5
+      special: 
+      modifier: 0
       amount: 0
-      percentOf: 5
+      percentOf: -1
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -109,6 +112,7 @@ MonoBehaviour:
         thenDirection: 0
         thenDistance: 1
         isWearing: 1
+      special: 
       modifier: 5
       amount: 30
       percentOf: 5
@@ -119,9 +123,10 @@ MonoBehaviour:
       healFromAllyDamage: 0
   - marks:
     - hexes: []
-      modifier: 5
+      special: 
+      modifier: 0
       amount: 0
-      percentOf: 5
+      percentOf: -1
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -153,6 +158,7 @@ MonoBehaviour:
         thenDirection: 0
         thenDistance: 0
         isWearing: 0
+      special: 
       modifier: 5
       amount: 30
       percentOf: 5
@@ -163,9 +169,10 @@ MonoBehaviour:
       healFromAllyDamage: 0
   - marks:
     - hexes: []
-      modifier: 5
+      special: 
+      modifier: 0
       amount: 0
-      percentOf: 5
+      percentOf: -1
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -197,6 +204,7 @@ MonoBehaviour:
         thenDirection: 3
         thenDistance: 1
         isWearing: 1
+      special: 
       modifier: 5
       amount: 30
       percentOf: 5

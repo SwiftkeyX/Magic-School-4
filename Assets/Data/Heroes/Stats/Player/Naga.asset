@@ -71,11 +71,22 @@ MonoBehaviour:
         thenDirection: 5
         thenDistance: 0
         isWearing: 0
+      special: 
       modifier: 0
       amount: 0
       percentOf: -1
       selfModifier: 8
       selfAmount: 25
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes: []
+      special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
@@ -121,11 +132,22 @@ MonoBehaviour:
         thenDirection: 3
         thenDistance: 1
         isWearing: 1
+      special: 
       modifier: 0
       amount: 0
       percentOf: -1
       selfModifier: 8
       selfAmount: 25
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes: []
+      special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0

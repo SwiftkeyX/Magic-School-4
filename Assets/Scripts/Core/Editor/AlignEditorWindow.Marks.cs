@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -5,17 +6,21 @@ using MagicSchool.Combat.Align;
 
 namespace MagicSchool.Editor
 {
-    // ---------------------------------------- right: the bonuses ----------------------------------------
-    // One box per AlignMark of the selected pattern, and the edits a click on a hex makes to them.
+    // ---------------------------------------- right: the marks ----------------------------------------
+    // Every pattern has the same boxes, fixed (See AlignMark):
+    //      Orange      => mark 0, pays the hero itself
+    //      Green       => mark 1, pays the ally standing there
+    //      White       => one per special mark the hero's skill reads, after them; it pays nobody
+    // and the edits a click on a hex makes to them.
     internal partial class AlignEditorWindow
     {
-        // AlignMark's fields, in the order the box shows them. Its [Header]s title the ally and self halves.
-        private static readonly string[] MarkFields =
-        {
-            "modifier", "amount", "percentOf",
-            "selfModifier", "selfAmount", "selfPercentOf", "selfWhenEmpty",
-            "healFromAllyDamage",
-        };
+        private const int OrangeMark = 0;
+        private const int GreenMark = 1;
+        private const int FirstSpecialMark = 2;
+
+        // the fields each box shows, in order. AlignMark's [Header]s title them.
+        private static readonly string[] OrangeFields = { "selfModifier", "selfAmount", "selfPercentOf", "selfWhenEmpty", "healFromAllyDamage" };
+        private static readonly string[] GreenFields = { "modifier", "amount", "percentOf" };
 
         private Vector2 _markScroll;
 
@@ -28,14 +33,8 @@ namespace MagicSchool.Editor
                 if (!DrawMark(marks, i)) continue;
 
                 marks.DeleteArrayElementAtIndex(i);
+                _selectedMark = OrangeMark;
                 break;
-            }
-
-            if (GUILayout.Button("Add bonus")) AddMark(marks);
-
-            if (Enumerable.Range(0, marks.arraySize).Count(i => !IsSpecial(marks, i)) > 2)
-            {
-                EditorGUILayout.HelpBox("The board has two colours: a third bonus is painted like the first.", MessageType.Info);
             }
 
             // what the inspector panel in the game will say, once these edits are applied
@@ -50,44 +49,53 @@ namespace MagicSchool.Editor
             EditorGUILayout.EndScrollView();
         }
 
-        // One bonus' box. True when its Remove button was clicked.
+        // One mark's box. True when its Remove button was clicked - only a special mark the skill no longer reads has one.
         private bool DrawMark(SerializedProperty marks, int index)
         {
             SerializedProperty mark = marks.GetArrayElementAtIndex(index);
+            bool isSpecial = IsSpecial(marks, index);
+            bool isStale = isSpecial && !_specialMarks.Contains(SpecialOf(marks, index));
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             EditorGUILayout.BeginHorizontal();
 
-            // the colour the game paints this bonus' hexes
+            // the colour the game paints this mark's hexes
             Rect swatch = GUILayoutUtility.GetRect(14f, 14f, GUILayout.Width(14f));
             EditorGUI.DrawRect(swatch, ColorOf(marks, index));
 
             int hexCount = HexesOf(marks, index).arraySize;
-            string hexes = $"{hexCount} hex" + (hexCount == 1 ? "" : "es");
-            string special = SpecialOf(marks, index);
-            string title = IsSpecial(marks, index) ? $"{special} (skill mark) - {hexes}" : $"Bonus {OrdinaryNumberOf(marks, index)} - {hexes}";
+            string title = $"{TitleOf(marks, index)} - {hexCount} hex" + (hexCount == 1 ? "" : "es");
             if (GUILayout.Toggle(_selectedMark == index, title, EditorStyles.radioButton)) _selectedMark = index;
 
-            // a special mark the skill reads cannot be removed: the editor would only put it back
-            bool isRead = IsSpecial(marks, index) && _specialMarks.Contains(special);
-            bool isRemoved;
-            using (new EditorGUI.DisabledScope(isRead))
-            {
-                isRemoved = GUILayout.Button("Remove", EditorStyles.miniButton, GUILayout.Width(60f));
-            }
+            bool isRemoved = isStale && GUILayout.Button("Remove", EditorStyles.miniButton, GUILayout.Width(60f));
             EditorGUILayout.EndHorizontal();
 
-            if (isRead) EditorGUILayout.LabelField("The skill reads who stands here. A bonus is optional.", EditorStyles.wordWrappedMiniLabel);
-            else if (IsSpecial(marks, index)) EditorGUILayout.HelpBox("The skill no longer reads this mark.", MessageType.Warning);
+            switch (index)
+            {
+                case OrangeMark:
+                    EditorGUILayout.LabelField("Pays the hero itself, for every ally standing on one of these hexes.", EditorStyles.wordWrappedMiniLabel);
+                    foreach (string field in OrangeFields) EditorGUILayout.PropertyField(mark.FindPropertyRelative(field));
+                    break;
 
-            foreach (string field in MarkFields) EditorGUILayout.PropertyField(mark.FindPropertyRelative(field));
+                case GreenMark:
+                    EditorGUILayout.LabelField("Pays the ally standing on one of these hexes.", EditorStyles.wordWrappedMiniLabel);
+                    foreach (string field in GreenFields) EditorGUILayout.PropertyField(mark.FindPropertyRelative(field));
+                    break;
+
+                default:
+                    if (isStale) EditorGUILayout.HelpBox("The skill no longer reads this mark.", MessageType.Warning);
+                    else if (isSpecial) EditorGUILayout.LabelField("The skill reads who stands here. It pays nobody.", EditorStyles.wordWrappedMiniLabel);
+                    else EditorGUILayout.HelpBox("A third ordinary mark does nothing: only orange and green pay.", MessageType.Warning);
+                    break;
+            }
+
             EditorGUILayout.EndVertical();
 
-            return isRemoved;
+            return isRemoved || (!isSpecial && index >= FirstSpecialMark && GUILayout.Button("Remove this mark", EditorStyles.miniButton));
         }
 
-        // A new, empty bonus, and select it. Unity fills a new list entry with a copy of the last one, so wipe it.
-        private void AddMark(SerializedProperty marks, string special = "")
+        // A new, empty mark at the end. Unity fills a new list entry with a copy of the last one, so wipe it.
+        private static void AddMark(SerializedProperty marks, string special = "")
         {
             const int NoStat = -1;      // StatEnum.None
 
@@ -102,22 +110,33 @@ namespace MagicSchool.Editor
             mark.FindPropertyRelative("selfPercentOf").intValue = NoStat;
             mark.FindPropertyRelative("selfWhenEmpty").boolValue = false;
             mark.FindPropertyRelative("healFromAllyDamage").floatValue = 0f;
-
-            _selectedMark = marks.arraySize - 1;
         }
 
-        // Every special mark the hero's skill reads is in every pattern, without anyone adding it (See AlignMark).
-        // The selected bonus stays the one it was: a special mark is added at the end.
-        private void AddMissingSpecialMarks(SerializedProperty marks)
+        // Every pattern has orange and green first, then every special mark the hero's skill reads (See AlignMark).
+        // A pattern missing any of them gets it, so the boxes are always there without anyone adding them.
+        private void AddMissingMarks(SerializedProperty marks)
         {
-            int selected = _selectedMark;
+            // orange and green: two ordinary marks in front of everything else
+            while (marks.arraySize < FirstSpecialMark || IsSpecial(marks, OrangeMark) || IsSpecial(marks, GreenMark))
+            {
+                int at = marks.arraySize == 0 || IsSpecial(marks, OrangeMark) ? OrangeMark : GreenMark;
+                if (at >= marks.arraySize)
+                {
+                    AddMark(marks);
+                    continue;
+                }
+
+                AddMark(marks);
+                marks.MoveArrayElement(marks.arraySize - 1, at);
+            }
+
             foreach (string special in _specialMarks)
             {
                 bool isThere = Enumerable.Range(0, marks.arraySize).Any(i => SpecialOf(marks, i) == special);
                 if (!isThere) AddMark(marks, special);
             }
 
-            _selectedMark = selected;
+            _selectedMark = Mathf.Clamp(_selectedMark, 0, marks.arraySize - 1);
         }
 
         // ======================================== what a mark is ========================================
@@ -126,28 +145,30 @@ namespace MagicSchool.Editor
 
         private static bool IsSpecial(SerializedProperty marks, int mark) => !string.IsNullOrEmpty(SpecialOf(marks, mark));
 
-        // the ordinary marks are numbered without the special ones: "Bonus 1", "Bonus 2"
-        private static int OrdinaryNumberOf(SerializedProperty marks, int mark)
-            => 1 + Enumerable.Range(0, mark).Count(i => !IsSpecial(marks, i));
+        private static string TitleOf(SerializedProperty marks, int mark)
+        {
+            if (IsSpecial(marks, mark)) return $"{SpecialOf(marks, mark)} (skill mark)";
+            if (mark == OrangeMark) return "Orange: self";
+            if (mark == GreenMark) return "Green: ally";
+            return $"Unused mark {mark + 1}";
+        }
 
-        // what a marked hex says on it: the bonus' number, or the special mark's name
+        // what a marked hex says on it for this mark: O, G, or the special mark's name
         private static string ShortNameOf(SerializedProperty marks, int mark)
-            => IsSpecial(marks, mark) ? SpecialOf(marks, mark) : OrdinaryNumberOf(marks, mark).ToString();
+        {
+            if (IsSpecial(marks, mark)) return SpecialOf(marks, mark);
+            if (mark == OrangeMark) return "O";
+            if (mark == GreenMark) return "G";
+            return "?";
+        }
 
-        // ======================================== which hex belongs to which bonus ========================================
+        // ======================================== which hex belongs to which mark ========================================
         private static SerializedProperty HexesOf(SerializedProperty marks, int mark)
             => marks.GetArrayElementAtIndex(mark).FindPropertyRelative("hexes");
 
-        // Which bonus holds this hex? -1 when none does.
-        private static int MarkHolding(SerializedProperty marks, Vector2Int offset)
-        {
-            for (int i = 0; i < marks.arraySize; i++)
-            {
-                if (IndexOfHex(HexesOf(marks, i), offset) >= 0) return i;
-            }
-
-            return -1;
-        }
+        // Every mark that holds this hex: a hex can be orange, green and white at once.
+        private static List<int> MarksHolding(SerializedProperty marks, Vector2Int offset)
+            => Enumerable.Range(0, marks.arraySize).Where(i => IndexOfHex(HexesOf(marks, i), offset) >= 0).ToList();
 
         private static int IndexOfHex(SerializedProperty hexes, Vector2Int offset)
         {
@@ -159,50 +180,41 @@ namespace MagicSchool.Editor
             return -1;
         }
 
-        // Give the hex to the selected bonus, or take it away when that bonus already has it.
-        // A hex belongs to one bonus only, so it is taken from whichever other bonus held it.
+        // Give the hex to the selected mark, or take it away when that mark already has it. The other marks keep theirs.
+        // A new hex is a wearing hex when another mark already has it as one, so the hex stays one or the other.
         private void Toggle(SerializedProperty marks, Vector2Int offset)
         {
-            if (marks.arraySize == 0) AddMark(marks);
+            SerializedProperty selected = HexesOf(marks, _selectedMark);
+            int index = IndexOfHex(selected, offset);
 
-            bool wasInSelected = false;
-            for (int i = 0; i < marks.arraySize; i++)
+            if (index >= 0)
             {
-                SerializedProperty hexes = HexesOf(marks, i);
-                int index = IndexOfHex(hexes, offset);
-                if (index < 0) continue;
-
-                hexes.DeleteArrayElementAtIndex(index);
-                if (i == _selectedMark) wasInSelected = true;
+                selected.DeleteArrayElementAtIndex(index);
+                return;
             }
 
-            if (wasInSelected) return;
+            bool isWearing = IsWearing(marks, offset);
 
-            SerializedProperty selected = HexesOf(marks, _selectedMark);
             selected.arraySize++;
-
             SerializedProperty added = selected.GetArrayElementAtIndex(selected.arraySize - 1);
             AlignHexOffset.Write(added, offset);
-            added.FindPropertyRelative("isWearing").boolValue = false;
+            added.FindPropertyRelative("isWearing").boolValue = isWearing;
         }
 
-        // The "isWearing" of this hex of the bonus; null when the bonus does not have the hex.
+        // Is this hex a wearing hex? It is one for every mark holding it, or for none.
+        private static bool IsWearing(SerializedProperty marks, Vector2Int offset)
+            => MarksHolding(marks, offset).Any(mark => WearingOf(marks, mark, offset).boolValue);
+
+        private static void SetWearing(SerializedProperty marks, Vector2Int offset, bool isWearing)
+        {
+            foreach (int mark in MarksHolding(marks, offset)) WearingOf(marks, mark, offset).boolValue = isWearing;
+        }
+
+        // The "isWearing" of this hex of the mark. Only called for a mark that holds the hex.
         private static SerializedProperty WearingOf(SerializedProperty marks, int mark, Vector2Int offset)
         {
             SerializedProperty hexes = HexesOf(marks, mark);
-            int index = IndexOfHex(hexes, offset);
-
-            return index >= 0 ? hexes.GetArrayElementAtIndex(index).FindPropertyRelative("isWearing") : null;
-        }
-
-        // Is this hex of the bonus a wearing hex?
-        private static bool IsWearing(SerializedProperty marks, int mark, Vector2Int offset)
-            => WearingOf(marks, mark, offset)?.boolValue ?? false;
-
-        private static void SetWearing(SerializedProperty marks, int mark, Vector2Int offset, bool isWearing)
-        {
-            SerializedProperty wearing = WearingOf(marks, mark, offset);
-            if (wearing != null) wearing.boolValue = isWearing;
+            return hexes.GetArrayElementAtIndex(IndexOfHex(hexes, offset)).FindPropertyRelative("isWearing");
         }
     }
 }

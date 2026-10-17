@@ -37,8 +37,11 @@ namespace MagicSchool.Combat.Align
     /// e.g.    Centaur: [SW 3], BonusHP, 200, None             => the hero behind-below him for 3 hex, gains 200 HP
     /// e.g.    [NE 2], ..., self ATK, 10, percent of ATK       => the owner gains 10% of its own AD, when an ally stands 2 hexes ahead-above
     ///
+    /// A pattern's marks are fixed: the first is orange and pays only its self bonus, the second is green and pays only its ally bonus.
+    /// One hex can be in both. A third ordinary mark does nothing (See AligningHex.ColourOf).
+    ///
     /// A special mark is one the hero's skill asks for by name (SkillDefinition.SpecialMarks), so the skill can read who stands on it.
-    /// The Align Editor puts it in every pattern by itself, and its hexes are painted like any other mark's. It may give a bonus too, or none.
+    /// The Align Editor puts it in every pattern by itself, after orange and green, and its hexes are painted like any other mark's. It gives no bonus.
     /// e.g.    Rock Golem: "Ward"              => the allies on it are shielded with him
     /// e.g.    Skeleton Archer: "Long Shot"    => his long shots deal more for every ally on it
     /// </summary>
