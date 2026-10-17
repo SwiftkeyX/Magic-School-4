@@ -35,12 +35,27 @@ namespace MagicSchool.Combat.Placements
         [Tooltip("Aligning, while a hero is held: a hex of the held hero's special mark - the one its skill reads (See AlignMark).")]
         [SerializeField] private Color _specialColor = Color.white;
 
+        [Tooltip("Aligning, while a hero is held: a hex of its marks that is past the board's edge - drawn only to show the mark's shape.")]
+        [SerializeField] private Color _ghostColor = new Color(0.5f, 0.5f, 0.5f, 0.6f);
+
+        [Tooltip("A mark hex that gives nothing (off the board, outside the deploy zone, or past the edge) is drawn as its own colour " +
+                 "ringed in the mark's colours, faded this much toward its own colour.")]
+        [Range(0f, 1f)]
+        [SerializeField] private float _givesNothingFade = 0.35f;
+
         private IReadOnlyDictionary<HexNumber, Hex> _hexs;
-        internal void Init(IReadOnlyDictionary<HexNumber, Hex> hexs) => _hexs = hexs;
+        private GhostHexes _ghosts;
+        internal void Init(IReadOnlyDictionary<HexNumber, Hex> hexs, Transform board)
+        {
+            _hexs = hexs;
+            _ghosts = new GhostHexes(board);
+        }
 
         // Repaint the whole deploy zone
         public void ShowDeployZone(bool isShown)
         {
+            _ghosts?.HideAll();
+
             foreach (Hex hex in _hexs.Values)
             {
                 hex.SetColor(isShown ? ZoneColorOf(hex) : _neutralColor);
@@ -56,19 +71,77 @@ namespace MagicSchool.Combat.Placements
         // purple outermost, then orange, green, white, the same order the Align Editor draws them.
         public void ShowAlignMarks(ICollection<Hex> firstBonus, ICollection<Hex> secondBonus, ICollection<Hex> special, ICollection<Hex> wearing)
         {
+            var onBoard = new Dictionary<Hex, MarkColours>();
             foreach (Hex hex in _hexs.Values)
             {
-                var colours = new List<Color>();
-                if (wearing.Contains(hex)) colours.Add(_wearingColor);
-                if (firstBonus.Contains(hex)) colours.Add(_firstBonusColor);
-                if (secondBonus.Contains(hex)) colours.Add(_secondBonusColor);
-                if (special.Contains(hex)) colours.Add(_specialColor);
-
-                if (colours.Count == 0) colours.Add(ZoneColorOf(hex));
-                hex.SetColors(colours);
+                onBoard[hex] = new MarkColours
+                {
+                    wearing = wearing.Contains(hex),
+                    first = firstBonus.Contains(hex),
+                    second = secondBonus.Contains(hex),
+                    special = special.Contains(hex),
+                };
             }
+
+            ShowAlignMarks(onBoard, new List<(Vector3, MarkColours)>());
+        }
+
+        // The whole shape of a hero's marks: the board's hexes in [onBoard], and the spots past its edge as gray hexes.
+        // A hex that gives nothing keeps its own colour outside - red, or the gray of a spot off the board - with the mark's
+        // colours as faded rings inside, so it reads as "this is where the mark is" and never as a hex that pays.
+        // e.g.     a mark hex on a red hex => red outside, a faded green ring inside
+        public void ShowAlignMarks(IReadOnlyDictionary<Hex, MarkColours> onBoard, IReadOnlyList<(Vector3 position, MarkColours marks)> offBoard)
+        {
+            foreach (Hex hex in _hexs.Values)
+            {
+                onBoard.TryGetValue(hex, out MarkColours marks);
+                hex.SetColors(ColoursOf(marks, ZoneColorOf(hex)));
+            }
+
+            var ghosts = new List<(Vector3, IReadOnlyList<Color>)>();
+            foreach ((Vector3 position, MarkColours marks) in offBoard) ghosts.Add((position, ColoursOf(marks, _ghostColor)));
+
+            Hex template = null;
+            foreach (Hex hex in _hexs.Values) { template = hex; break; }
+            _ghosts?.Show(ghosts, template);
+        }
+
+        // purple outermost, then orange, green, white; nothing marked => the hex's own colour
+        private List<Color> ColoursOf(MarkColours marks, Color own)
+        {
+            var colours = new List<Color>();
+            if (marks.wearing) colours.Add(_wearingColor);
+            if (marks.first) colours.Add(_firstBonusColor);
+            if (marks.second) colours.Add(_secondBonusColor);
+            if (marks.special) colours.Add(_specialColor);
+
+            if (!marks.givesNothing || colours.Count == 0)
+            {
+                if (colours.Count == 0) colours.Add(own);
+                return colours;
+            }
+
+            for (int i = 0; i < colours.Count; i++) colours[i] = Color.Lerp(colours[i], own, _givesNothingFade);
+            colours.Insert(0, own);
+            return colours;
         }
 
         private Color ZoneColorOf(Hex hex) => hex.IsInDeployZone ? _zoneColor : _outsideColor;
+    }
+
+    /// <summary>
+    /// Which mark colours one hex is shown in, and whether it is there only to show the shape.
+    /// e.g.    Elf's N hex in the zone         => first + second
+    /// e.g.    the same hex on a red hex       => first + second + givesNothing
+    /// </summary>
+    public struct MarkColours
+    {
+        public bool wearing;
+        public bool first;
+        public bool second;
+        public bool special;
+        public bool givesNothing;     // off the board, outside the deploy zone, or past the edge: drawn, but nobody there gets anything
+
+        public bool IsMarked => wearing || first || second || special;
     }
 }

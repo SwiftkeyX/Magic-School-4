@@ -9,11 +9,7 @@ namespace MagicSchool.Combat.Placements
         private BattleBoard _board;
         private HexNumber _hexPlacement;
         private List<Hex> _neighbors;   // neighbors hex of this hex - use in pathfinding logic
-        private SpriteRenderer _sprite;
-        private readonly List<SpriteRenderer> _rings = new List<SpriteRenderer>();   // the inner colours of a hex shown in more than one (See SetColors)
-
-        private const float RingStep = 0.3f;        // each ring is this much smaller than the one around it, as in the Align Editor
-        private const float RingLift = 0.01f;       // toward the camera: a ring draws over its hex, and still under every hero (order 1)
+        private HexPaint _paint;        // its colour, and the rings of a hex shown in more than one (See SetColors)
 
         // ========================== getter & setter ==========================
         public string Name => gameObject.name;
@@ -189,42 +185,14 @@ namespace MagicSchool.Combat.Placements
         // ===================================== other =====================================
         internal void SetColor(Color color) => SetColors(new[] { color });
 
-        // One colour fills the hex; more are drawn as rings inside it, the first outermost.
-        // e.g.     an Elf's mark hex => orange outside, green inside: an ally there gets the green bonus and pays her the orange one
+        // One colour fills the hex; more are drawn as rings inside it, the first outermost (See HexPaint)
         internal void SetColors(IReadOnlyList<Color> colours)
         {
-            if (_sprite == null) _sprite = GetComponent<SpriteRenderer>();
-            if (_sprite == null || colours.Count == 0) return;
-
-            _sprite.color = colours[0];
-
-            for (int i = 1; i < colours.Count; i++)
-            {
-                SpriteRenderer ring = RingAt(i);
-                ring.color = colours[i];
-                ring.enabled = true;
-            }
-
-            for (int i = colours.Count; i <= _rings.Count; i++) _rings[i - 1].enabled = false;
+            if (_paint == null) _paint = new HexPaint(GetComponent<SpriteRenderer>());
+            _paint.SetColors(colours);
         }
 
-        // the i-th ring inside the hex (1 = the outermost), made the first time one is needed
-        private SpriteRenderer RingAt(int i)
-        {
-            while (_rings.Count < i)
-            {
-                int depth = _rings.Count + 1;
-                var ring = new GameObject($"Ring {depth}").AddComponent<SpriteRenderer>();
-                ring.transform.SetParent(transform, worldPositionStays: false);
-                ring.transform.localPosition = new Vector3(0f, 0f, -RingLift * depth);
-                ring.transform.localScale = Vector3.one * (1f - RingStep * depth);
-                ring.sprite = _sprite.sprite;
-                ring.sortingLayerID = _sprite.sortingLayerID;
-                ring.sortingOrder = _sprite.sortingOrder;
-                _rings.Add(ring);
-            }
-
-            return _rings[i - 1];
-        }
+        // the hex's sprite, for anything drawn to look like one (See GhostHexes)
+        internal SpriteRenderer Sprite => GetComponent<SpriteRenderer>();
     }
 }
