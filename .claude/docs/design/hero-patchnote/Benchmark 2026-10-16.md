@@ -1,4 +1,6 @@
-# Benchmark 16/10/69 ("MagicSchool4 Benchmark", 2026-10-16 16:16)
+# Benchmark 2026-10-16
+
+Resource: "MagicSchool4 Benchmark", 2026-10-16 16:16
 
 ## Overall
 
@@ -27,7 +29,7 @@
 
 ## Mage
 
-[] Frostwitch
+[x] Frostwitch
 
 - Now she do total of 540 damage per target. Let reduce that to like 360 damage: Tick damage drop from 60 to 40.
 - Next we can increase hex max mana from 80 to 140.
@@ -36,12 +38,26 @@
 
 - He have high damage too but let leave him alone. I want to see how it feel first.
 
-[] Naga
+[x] Naga
 
 - reduce his max mana to 30. To make sure he get his damage while enemy is wounded.
 - btw: the description of his skill said. damage was amplified by {wound \* 100}%. Is this correct? Isn't his skill suppose to increase by 30%?
 
-[] Dragon
+[x] Dragon
 
 - Nerf his damage and his skill size.
 - DamageRatio from 300% => 200%, BurnRatio from 150% => 50%
+
+## Fighter
+
+[] Werewolf
+
+- Deal so much AoE damage. need nerf for sure. Personally, I like it that he felt broken. Maybe let just nerf his max mana for now. Increase max mana: 60 => 120.
+
+[] Centaur
+
+- I like that his mana is this low. But his skill do too much damage. Drop his damage from: 200% => 140%.
+
+[] Orc Blademaster
+
+- His skill is AoE, but his damage in AoE doesn't go up at all. Something is wrong.
