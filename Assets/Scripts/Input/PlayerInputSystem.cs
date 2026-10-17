@@ -24,6 +24,7 @@ namespace MagicSchool.Input
             if (Keyboard.current.digit1Key.wasPressedThisFrame) return 1;
             if (Keyboard.current.digit2Key.wasPressedThisFrame) return 2;
             if (Keyboard.current.digit3Key.wasPressedThisFrame) return 3;
+            if (Keyboard.current.digit9Key.wasPressedThisFrame) return 9;
 
             return 0;
         }
