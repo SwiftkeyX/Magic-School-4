@@ -50,8 +50,8 @@ namespace MagicSchool.Combat.Heroes
             return fresh;
         }
 
-        // Picks the enemy that costs the fewest steps to walk to
-        // consider step as hop amount
+        // Picks the enemy that costs the fewest steps to walk until it is in my range
+        // consider step as hop amount (See EnemyScan.Steps)
         public ICombatant FindNearestEnemy()
         {
             List<(ICombatant target, int steps)> enemySteps = Candidates();

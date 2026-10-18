@@ -72,8 +72,10 @@ namespace MagicSchool.Combat.Heroes
             return _distanceCache;
         }
 
-        // How many "steps" to walk to each target, that I CAN actually get to. 
-        // steps = the least amount of hop that me can get to target.
+        // How many "steps" to walk to each target, that I CAN actually get to.
+        // steps = the least amount of hop until the target is in my range: for a melee hero, until I stand next to it;
+        // for a ranged one, until I could shoot it - 0 when I already can.
+        // e.g.     Ranger, range 4, two enemies 5 and 6 hexes away => 1 step each: a tie, though one is a hex nearer
         public List<(ICombatant target, int steps)> Steps()
         {
             bool isCache = _stepCacheFrame == Time.frameCount;
@@ -114,13 +116,18 @@ namespace MagicSchool.Combat.Heroes
             Hex enemyHex = enemy.CurrentHex();
             if (enemyHex == null) return UnreachablePenalty;
 
+            int range = Mathf.Max(1, _me.Range);
             int walked = int.MaxValue;
             int ifTheWayCleared = int.MaxValue;
 
-            foreach (Hex beside in enemyHex.GetNeighbors())
+            // every hex I could hit it from: within my range of it, by hex distance, the way Hex.IsWithinRange counts it
+            foreach (KeyValuePair<Hex, int> fromEnemy in HexFinder.StepsFrom(enemyHex, null))
             {
-                if (_stepsFromMe.TryGetValue(beside, out int steps)) walked = Mathf.Min(walked, steps);
-                if (_stepsIfBoardWereEmpty.TryGetValue(beside, out int open)) ifTheWayCleared = Mathf.Min(ifTheWayCleared, open);
+                if (fromEnemy.Value == 0 || fromEnemy.Value > range) continue;
+
+                Hex hitFrom = fromEnemy.Key;
+                if (_stepsFromMe.TryGetValue(hitFrom, out int steps)) walked = Mathf.Min(walked, steps);
+                if (_stepsIfBoardWereEmpty.TryGetValue(hitFrom, out int open)) ifTheWayCleared = Mathf.Min(ifTheWayCleared, open);
             }
 
             if (walked != int.MaxValue) return walked;
