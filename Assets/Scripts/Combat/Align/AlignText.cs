@@ -8,7 +8,8 @@ namespace MagicSchool.Combat.Align
     /// A hero's marks, written out for the inspector. One line per colour, saying what that colour does:
     /// e.g.    Ettin   => "Green: an ally here gets +30% attack speed"
     /// e.g.    Elf     => "Orange: for every ally here, she gets -10 max mana" and "Green: an ally here gets +30 AP"
-    /// A mark with no hexes in this pattern is not written. Which hexes are marked is not written either:
+    /// Every bonus is written, even one with no hexes in the pattern the hero is turned to: the bonuses are the hero's,
+    /// the same in every pattern, and turning it may bring them back. Which hexes are marked is not written:
     /// the board shows them, in the same colours, while the hero is held.
     /// </summary>
     public static class AlignText
@@ -33,7 +34,6 @@ namespace MagicSchool.Combat.Align
             for (int i = 0; i < marks.Count; i++)
             {
                 AlignMark mark = marks[i];
-                if (mark.hexes == null || mark.hexes.Count == 0) continue;
 
                 switch (AligningHex.ColourOf(marks, i))
                 {
