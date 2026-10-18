@@ -17,12 +17,17 @@ namespace MagicSchool.Modifiers
         private readonly bool _isStack;
         public bool IsStack() => _isStack;
 
-        public CustomModifier(float duration, IReadOnlyList<IModifier> modifiers, bool isStack)
-            : this(() => duration, modifiers, isStack) { }
+        // When it expires, does the hero keep the HP its max HP gave him? Normally current HP goes down with max HP,
+        // e.g. Husk's stolen HP is his to keep, while the enemy he stole from gets back only what was taken.
+        public bool KeepsHealth { get; }
+
+        public CustomModifier(float duration, IReadOnlyList<IModifier> modifiers, bool isStack, bool keepsHealth = false)
+            : this(() => duration, modifiers, isStack, keepsHealth) { }
 
         // duration is Func<Float> because it allow the duration to be adjust after initialize in constructor.
-        public CustomModifier(Func<float> duration, IReadOnlyList<IModifier> modifiers, bool isStack)
+        public CustomModifier(Func<float> duration, IReadOnlyList<IModifier> modifiers, bool isStack, bool keepsHealth = false)
         {
+            KeepsHealth = keepsHealth;
             _isStack = isStack;
             _duration = duration;
             _modifiers = modifiers ?? new List<IModifier>();

@@ -17,6 +17,7 @@ namespace MagicSchool.Combat.Heroes.Stats
         private readonly Dictionary<StatEnum, float> _base = new Dictionary<StatEnum, float>();
         private int _currentHP;
         private int _currentMana;
+        private int _hpOwed; // HP a max HP loss could not take without killing (See FollowMaxHP)
 
         private const int BaseManaPerAttack = 10;
 
@@ -82,13 +83,52 @@ namespace MagicSchool.Combat.Heroes.Stats
         public void TickModifiers(float deltaTime)
         {
             int previousMaxHP = MaxHP;
-            _statModifier.Tick(deltaTime);
-            FollowMaxHP(previousMaxHP);
+
+            // the max HP change from expired modifiers that keep their health (See CustomModifier.KeepsHealth):
+            // a lost bonus (the thief's) or a returned loss (the victim's) that current HP does not follow
+            int lastMaxHP = previousMaxHP;
+            int keptChange = 0;
+            _statModifier.Tick(deltaTime, expired =>
+            {
+                int nowMaxHP = MaxHP;
+                if (expired is CustomModifier custom && custom.KeepsHealth) keptChange += nowMaxHP - lastMaxHP;
+                lastMaxHP = nowMaxHP;
+            });
+
+            // a returned loss that keeps its health does not pay back the HP it was owed either (See FollowMaxHP)
+            if (keptChange > 0) _hpOwed -= Mathf.Min(_hpOwed, keptChange);
+
+            // as if the kept part never changed; current HP is still capped at the new max
+            FollowMaxHP(previousMaxHP + keptChange);
         }
 
-        // whenever the modifier increase MaxHP, the currentHP is increase permanently according to MaxHP
-        // e.g. hero have 500/1000 hp, he get modifier resulting in 1500/2000 hp
-        private void FollowMaxHP(int previousMaxHP) => SetCurrentHP(_currentHP + Mathf.Max(0, MaxHP - previousMaxHP));
+        // currentHP moves with MaxHP, both ways
+        // e.g. hero have 500/1000 hp, he get modifier resulting in 1500/2000 hp; losing it again takes him back to 500/1000.
+        // Losing max HP never kills: a living hero keeps at least 1 HP, since no one landed a killing hit.
+        // What that floor saved is owed, and paid out of the max HP he gets back before any of it returns as HP,
+        // so 20 HP -> lose 80 max -> 1 HP -> get the 80 back -> 20 HP, not 81.
+        // It used to only clamp on a loss, so a hurt hero lost nothing while a steal lasted and gained HP when it ended.
+        private void FollowMaxHP(int previousMaxHP)
+        {
+            if (_currentHP <= 0) return;
+
+            int change = MaxHP - previousMaxHP;
+            if (change > 0)
+            {
+                int paid = Mathf.Min(_hpOwed, change);
+                _hpOwed -= paid;
+                change -= paid;
+            }
+
+            int followed = _currentHP + change;
+            if (followed < 1)
+            {
+                _hpOwed += 1 - followed;
+                followed = 1;
+            }
+
+            _currentHP = Mathf.Min(followed, Mathf.Max(1, MaxHP));
+        }
 
         // the same to FollowMaxHP()
         private void FollowStartMana(int previousStartMana) => _currentMana = Mathf.Clamp(_currentMana + StartMana - previousStartMana, 0, MaxMana);

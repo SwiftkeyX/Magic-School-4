@@ -39,8 +39,10 @@ namespace MagicSchool.Modifiers
             if (taken.Count == 0) return;
 
             IHeroStats thiefStats = thief as IHeroStats;
-            victim.AddModifier(new CustomModifier(duration, taken, isStack: true), thiefStats);
-            thief.AddModifier(new CustomModifier(duration, given, isStack: true), thiefStats);
+            // the HP moves for good: when it ends both max HPs go back, but the thief keeps the HP he took
+            // and the victim does not get it back (See CustomModifier.KeepsHealth)
+            victim.AddModifier(new CustomModifier(duration, taken, isStack: true, keepsHealth: true), thiefStats);
+            thief.AddModifier(new CustomModifier(duration, given, isStack: true, keepsHealth: true), thiefStats);
         }
     }
 }

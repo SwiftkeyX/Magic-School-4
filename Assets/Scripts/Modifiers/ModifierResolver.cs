@@ -22,8 +22,9 @@ namespace MagicSchool.Modifiers
         private bool _isBonusStale = true;
 
         // =================================== life cycle ===================================
-        // update all current modifier duration, removing any that just expired
-        public void Tick(float deltaTime)
+        // update all current modifier duration, removing any that just expired.
+        // expired: told of each one right after it is removed, e.g. so Stat can see how much max HP it took
+        public void Tick(float deltaTime, Action<ICustomModifier> expired = null)
         {
             // backwards, so removing one of the modifier does not skip over the next
             for (int i = _activeModifiers.Count - 1; i >= 0; i--)
@@ -38,8 +39,10 @@ namespace MagicSchool.Modifiers
                 if (_activeModifiers[i].Remaining > 0f) continue;
 
                 // the modifier expire, remove the modifier, and mark bonus as stale
+                ICustomModifier gone = _activeModifiers[i].CustomModifier;
                 _activeModifiers.RemoveAt(i);
                 _isBonusStale = true;
+                expired?.Invoke(gone);
             }
         }
 
