@@ -10,35 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b15591f0aa582343bd08d00a02b4206, type: 3}
-  m_Name: Orc-Ranger-ShieldKnight
+  m_Name: Naga-Ettin-ShieldKnight
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
   _heroesPlacement:
-  - dataSO: {fileID: 11400000, guid: 32ec63790ae82b342bcce0520067c869, type: 2}
+  - dataSO: {fileID: 11400000, guid: f09a9975497d1fe4597a86bb7d6cc48a, type: 2}
     team: 0
     hexPlacement:
-      column: 1
-      row: 0
+      column: 2
+      row: 2
     item: {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
-  - dataSO: {fileID: 11400000, guid: 0b00076b3dc75394d8144c4dbe4989b8, type: 2}
-    team: 0
-    hexPlacement:
-      column: 3
-      row: 1
-    item: {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
+    alignPattern: 0
   - dataSO: {fileID: 11400000, guid: 0f207332a3e601b46b3c098900106a8f, type: 2}
     team: 0
     hexPlacement:
-      column: 5
-      row: 2
+      column: 4
+      row: 1
     item: {fileID: 0}
+    alignPattern: 5
+  - dataSO: {fileID: 11400000, guid: 0f3d014677dfab3469e35a31cbe4aeab, type: 2}
+    team: 0
+    hexPlacement:
+      column: 4
+      row: 3
+    item: {fileID: 0}
+    alignPattern: 0
   _deployZone: []
   _boardLayout: {fileID: 2821033882997051323, guid: d07d3d269e6884b42a2b2daced65229a, type: 3}
-  _itemsOnHexes:
-  - item: {fileID: 11400000, guid: a787e2c2a0514c0c84baa16405cbd33c, type: 2}
-    hexPlacement:
-      column: 1
-      row: 1
-  - item: {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
-    hexPlacement:
-      column: 1
-      row: 2
+  _itemsOnHexes: []
