@@ -14,7 +14,9 @@ namespace MagicSchool.Combat.Align
     /// <summary>
     /// AlignPattern = one way a hero can be turned: every mark it has while turned this way.
     /// A hero has one pattern or more, each authored by hand in the Align Editor - a pattern does not have to be
-    /// the one before it turned, it can mark other hexes or give other bonuses. Rotating a hero switches it to its next pattern.
+    /// the one before it turned, it can mark other hexes. Rotating a hero switches it to its next pattern.
+    /// The bonuses are not the pattern's: orange and green pay the same in every pattern of a hero. Each pattern still
+    /// stores its own copy, and the Align Editor keeps the copies equal (pattern 1's win).
     /// e.g.    Elf: 6 patterns, the same fan turned 60 degrees each time
     /// e.g.    a hero with 1 pattern cannot rotate
     /// </summary>
