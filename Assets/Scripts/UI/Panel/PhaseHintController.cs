@@ -14,7 +14,10 @@ namespace MagicSchool.UI
             => SetHint($"{Stage(stage, stageCount)} - drag heroes onto your hexes, then press SPACE to fight");
 
         public void ShowCombat(int stage, int stageCount)
-            => SetHint($"{Stage(stage, stageCount)} - fighting. Right-click a hero to inspect it");
+            => SetHint($"{Stage(stage, stageCount)} - fighting. SPACE to pause, right-click a hero to inspect it");
+
+        public void ShowPaused(int stage, int stageCount)
+            => SetHint($"{Stage(stage, stageCount)} - paused. Press SPACE to go on");
 
         public void ShowScoreboard(TeamEnum? winner, int stage, int stageCount, bool runCleared)
         {

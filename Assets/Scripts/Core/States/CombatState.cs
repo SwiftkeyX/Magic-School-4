@@ -36,6 +36,9 @@ namespace MagicSchool.Core.States
             _game.Hint?.ShowCombat(_game.StageNumber, _game.StageCount);
         }
 
+        // won, lost or restarted while paused: the next phase runs at the chosen speed
+        public override void OnExit() => _game.SetPaused(false);
+
         // A skill reads its numbers when it is built. Rebuild any whose numbers were changed in the
         // Skill Tuner since, so the fight about to start plays the new ones. (read SkillTuning.cs)
         private void RebuildTunedSkills()

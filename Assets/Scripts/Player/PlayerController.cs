@@ -82,6 +82,12 @@ namespace MagicSchool.Player
             {
                 GameManager.Instance.StartCombat();
             }
+
+            // if in combat, pause it or go on with it
+            else if (GameManager.Instance.Phase == GamePhaseEnum.Combat)
+            {
+                GameManager.Instance.TogglePause();
+            }
         }
 
         // if the reward available and isn't choose yet, show the reward panel.

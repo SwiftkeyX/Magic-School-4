@@ -6,6 +6,7 @@ namespace MagicSchool.Contracts
     {
         void ShowPreparation(int stage, int stageCount);
         void ShowCombat(int stage, int stageCount);
+        void ShowPaused(int stage, int stageCount);
         void ShowScoreboard(TeamEnum? winner, int stage, int stageCount, bool runCleared);
         void ShowResult(TeamEnum? winner, int stage, int stageCount, bool runCleared);
     }

@@ -6,7 +6,7 @@ namespace MagicSchool.Input
     // Player can: 
     // 1) left click to drag hero/items - or click one once to pick it up, and once more to put it down (Esc puts it back).
     // 2) right click to inspect hero/items - or, while holding a hero, to rotate its align pattern.
-    // 3) spacebar to interact with game's stage e.g. start combat, retry, continue to next stage
+    // 3) spacebar to interact with game's stage e.g. start combat, pause and go on during it, retry, continue to next stage
     // 4) R to quick-retry
     // 5) hold Shift while hovering a placed hero, in Preparation, to see who it goes for and the way it walks instead of its marks
     public static class PlayerInputSystem

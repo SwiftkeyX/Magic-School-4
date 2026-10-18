@@ -87,6 +87,7 @@ namespace MagicSchool.Core
         internal int StageNumber => _stageIndex + 1;
         public int HeroLimit => _heroLimit;
         public int SpeedMultiplier => _speed == null ? 1 : _speed.Multiplier;
+        public bool IsPaused => _speed != null && _speed.IsPaused;
         public StageEditor StageEditor => _stageEditMode ? _stageEditor : null;
         internal bool IsRunCleared => Winner == TeamEnum.Blue && _stageIndex + 1 >= StageCount;
 
@@ -283,6 +284,24 @@ namespace MagicSchool.Core
         // ========================================= request handler =========================================
         // set game's speed to x1 / x2 / x3.
         public void SetSpeed(int multiplier) => _speed?.Set(multiplier);
+
+        // Pause the fight, or go on with it. Only a fight pauses: Preparation and Result wait for the player anyway.
+        public void TogglePause()
+        {
+            if (Phase != GamePhaseEnum.Combat) return;
+
+            SetPaused(!IsPaused);
+        }
+
+        // also called by CombatState as the fight ends, so no other phase is ever left paused
+        internal void SetPaused(bool isPaused)
+        {
+            if (_speed == null || _speed.IsPaused == isPaused) return;
+
+            _speed.SetPaused(isPaused);
+            if (isPaused) _hint?.ShowPaused(StageNumber, StageCount);
+            else if (Phase == GamePhaseEnum.Combat) _hint?.ShowCombat(StageNumber, StageCount);
+        }
 
         public void StartCombat()
         {
