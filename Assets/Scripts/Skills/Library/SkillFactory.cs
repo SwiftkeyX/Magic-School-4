@@ -184,15 +184,16 @@ namespace MagicSchool.Skills
 
         // ================================== Tune ==================================
         // tuning a template action
-        public static Tuning Tune(float? castTime = null)
-            => new Tuning { CastTime = castTime };
+        public static Tuning Tune(float? castTime = null, bool? walkWhileCasting = null)
+            => new Tuning { CastTime = castTime, WalkWhileCasting = walkWhileCasting };
 
         // length / width are world units - a circle 4.5 across is length: 4.5, width: 4.5
         public static AOETuning TuneAOE(float? castTime = null, float? duration = null,
                                         float? length = null, float? width = null,
-                                        bool? sticky = null, AOEOffsetEnum? offset = null, int? range = null)
+                                        bool? sticky = null, AOEOffsetEnum? offset = null, int? range = null,
+                                        bool? walkWhileCasting = null)
             => new AOETuning { CastTime = castTime, Duration = duration, Length = length, Width = width,
-                               Sticky = sticky, Offset = offset, Range = range };
+                               Sticky = sticky, Offset = offset, Range = range, WalkWhileCasting = walkWhileCasting };
 
         public static MoveTuning TuneMove(float? castTime = null, int? range = null,
                                           float? duration = null, float? spread = null, bool? maxRange = null)
@@ -204,8 +205,10 @@ namespace MagicSchool.Skills
             => new SummonTuning { Act = act, Duration = duration, Interval = interval, CastTime = castTime };
 
         public static ProjectileTuning TuneProjectile(float? castTime = null, int? range = null,
-                                                      float? spread = null, float? size = null)
-            => new ProjectileTuning { CastTime = castTime, Range = range, Spread = spread, Size = size };
+                                                      float? spread = null, float? size = null, float? falloff = null,
+                                                      float? speed = null)
+            => new ProjectileTuning { CastTime = castTime, Range = range, Spread = spread, Size = size, Falloff = falloff,
+                                      Speed = speed };
 
         public static FireTimingRunnerTuning TuneFireTimingRunner(int count, FireTimingModeEnum mode,
                                                                    float interval = 0f, Tuning innerTuning = null,

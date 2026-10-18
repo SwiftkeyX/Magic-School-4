@@ -2,7 +2,7 @@
 
 I try to make each stage a mini puzzle that player can solve. Enemy in each stage should have a route that player can do to make the game easier.
 
-## Format 1
+## Stage 01
 
 Enemy team:
 
@@ -11,7 +11,7 @@ Enemy team:
 
 Answer to the puzzle: group the hero together to reduce the damage taken for 1 hero. This make sure the hero survive longer.
 
-## Format 2
+## Stage 02
 
 Enemy team:
 
@@ -19,6 +19,6 @@ Enemy team:
 
 Answer to the puzzle: Try to separate heroes out to avoid AoE.
 
-## Format 3
+## Stage 03
 
 ...

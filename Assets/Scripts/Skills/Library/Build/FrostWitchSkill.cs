@@ -6,14 +6,14 @@ namespace MagicSchool.Skills
 {
     internal class FrostWitchSkill : SkillDefinition
     {
-        private const float DamagePerTick = 60f;
-        private const float TickInterval = 0.5f;
-        private const float Duration = 3f;
-        private const float SlowPercent = 30f;
-        private const float Diameter = 4.5f;
+        private static float DamagePerTick => Tuned(40f);
+        private static float TickInterval => Tuned(0.5f);
+        private static float Duration => Tuned(3f);
+        private static float SlowPercent => Tuned(30f);
+        private static float Diameter => Tuned(4.5f);
         // DamageOverTime splits its ratio across the ticks, so hand it the total the sheet's per-tick
         // number adds up to
-        private const float TotalDamage = DamagePerTick * (Duration / TickInterval);
+        private static float TotalDamage => DamagePerTick * (Duration / TickInterval);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new FrostWitchSkill(registry);
 

@@ -6,9 +6,9 @@ namespace MagicSchool.Skills
 {
     internal class OrcBlademasterSkill : SkillDefinition
     {
-        private const float DamagePerTick = 600f;
-        private const float TickInterval = 0.5f;
-        private const float Duration = 4f;
+        private static float DamagePerTick => Tuned(600f);
+        private static float TickInterval => Tuned(0.5f);
+        private static float Duration => Tuned(4f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new OrcBlademasterSkill(registry);
 
@@ -18,7 +18,8 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Whips up a storm around himself that deals {DamagePerTick}% AD to every enemy standing "
-             + $"in it, split over {Duration} seconds and ticking every {TickInterval} seconds.";
+             + $"in it, split over {Duration} seconds and ticking every {TickInterval} seconds. "
+             + "He keeps walking while the storm follows him.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
@@ -28,7 +29,7 @@ namespace MagicSchool.Skills
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.ZoneAOE,
                 target: AimTargetEnum.Self,
-                tuning: TuneAOE(castTime: Duration, sticky: true),
+                tuning: TuneAOE(castTime: Duration, sticky: true, walkWhileCasting: true),
 
                 DamageOverTime(
                     recipient: EffectRecipientEnum.EnemiesInArea,

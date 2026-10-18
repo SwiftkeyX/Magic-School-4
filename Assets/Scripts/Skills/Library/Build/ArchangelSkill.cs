@@ -6,12 +6,12 @@ namespace MagicSchool.Skills
 {
     internal class ArchangelSkill : SkillDefinition
     {
-        private const float DamageReductionPercent = 30f;
-        private const float AttackSpeedBuff = 20f;
-        private const float BuffDuration = 4f;
+        private static float DamageReductionPercent => Tuned(30f);
+        private static float AttackSpeedBuff => Tuned(20f);
+        private static float BuffDuration => Tuned(4f);
 
-        private const int AreaHexes = 3;
-        private const float AreaDiameter = AreaHexes * 2f + 0.5f;
+        private static int AreaHexes => Tuned(3);
+        private static float AreaDiameter => AreaHexes * 2f + 0.5f;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ArchangelSkill(registry);
 

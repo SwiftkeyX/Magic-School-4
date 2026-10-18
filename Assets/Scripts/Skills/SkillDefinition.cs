@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MagicSchool.Contracts;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ namespace MagicSchool.Skills
 
         protected ICombatant Caster { get; private set; }   // owner of this skill
         public float CastTime { get; private set; } // the animation's duration to play this specific skill
+        public bool CanWalkWhileCasting { get; private set; }   // a part just played lets the caster walk during CastTime
 
         public bool IsRepeating { get; private set; }
 
@@ -52,10 +54,24 @@ namespace MagicSchool.Skills
             _onAutoAttack?.Init(caster);
         }
 
+        // ============================================== tuning ==============================================
+        /// A skill number that Magic School 4 > Skill Tuner can change while the game runs (read SkillTuning.cs).
+        /// e.g.     private static float DamageRatio => Tuned(200f);
+        protected static float Tuned(float value, [CallerMemberName] string name = "", [CallerFilePath] string file = "")
+            => SkillTuning.Get(file, name, value, isInt: false);
+
+        protected static int Tuned(int value, [CallerMemberName] string name = "", [CallerFilePath] string file = "")
+            => Mathf.RoundToInt(SkillTuning.Get(file, name, value, isInt: true));
+
         // ============================================== virtual ==============================================
         public abstract string SkillName { get; }
         public abstract string Description { get; }
         public virtual string PassiveDescription => "";
+
+        // The special marks this skill reads, by name (See AlignMark). The Align Editor puts each one in every pattern of the hero.
+        // e.g.     Rock Golem => { "Ward" }
+        public virtual IReadOnlyList<string> SpecialMarks => NoSpecialMarks;
+        private static readonly string[] NoSpecialMarks = new string[0];
         public virtual bool HasActive => _active != null;
         public virtual bool HasAutoAttackPassive => _onAutoAttack != null;
 
@@ -85,6 +101,11 @@ namespace MagicSchool.Skills
         // If any hero takes a burn tick, play OnHeroBurned.
         // e.g. Imp gains attack speed whenever an enemy burns
         public virtual void OnHeroBurned(ICombatant burned) { }
+
+        // If an ally standing on one of this skill's special marks deals damage, play OnMarkedAllyDealtDamage.
+        // Wired by AlignBonuses.Refresh, so like every aligning bonus it follows where everyone stood when the fight started.
+        // e.g. Shield Knight heals off the damage the allies on his Guard mark deal
+        public virtual void OnMarkedAllyDealtDamage(string mark, ICombatant ally, DamageEvent hit) { }
 
         // add other hook
         // ...
@@ -118,6 +139,7 @@ namespace MagicSchool.Skills
             if (Play(part, new TemplateActionCallbacks { OnSkillHit = part.OnSkillHit }, null, assignedTarget) == null) return false;
 
             CastTime = CastTimeOf(part);
+            CanWalkWhileCasting = WalksWhileCasting(part);
             return true;
         }
 
@@ -169,6 +191,7 @@ namespace MagicSchool.Skills
         Vector3? previousPosition)
         {
             float longestCast = 0f;
+            bool canWalk = false;
             TemplateAction leader = null;
 
             for (int i = 0; i < parts.Count; i++)
@@ -196,9 +219,11 @@ namespace MagicSchool.Skills
                 if (isLeading && played == null) return false;
                 if (isLeading) leader = played;
                 if (played != null) longestCast = Mathf.Max(longestCast, CastTimeOf(part));
+                if (played != null) canWalk |= WalksWhileCasting(part);
             }
 
             CastTime = longestCast;
+            CanWalkWhileCasting = canWalk;
             return true;
         }
 
@@ -249,5 +274,8 @@ namespace MagicSchool.Skills
         // e.g.     0.5 sec before shooting a projectile
         private static float CastTimeOf(SkillPart part)
             => part.Tuning?.CastTime ?? part.TemplateAction.CastTime;
+
+        // does the skill part let the caster walk during its cast time?
+        private static bool WalksWhileCasting(SkillPart part) => part.Tuning?.WalkWhileCasting ?? false;
     }
 }

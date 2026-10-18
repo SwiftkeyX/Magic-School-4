@@ -4,8 +4,8 @@ using UnityEngine.InputSystem;
 namespace MagicSchool.Input
 {
     // Player can: 
-    // 1) left click to drag hero/items.
-    // 2) right click to inspect hero/items.
+    // 1) left click to drag hero/items - or click one once to pick it up, and once more to put it down (Esc puts it back).
+    // 2) right click to inspect hero/items - or, while holding a hero, to rotate its align pattern.
     // 3) spacebar to interact with game's stage e.g. start combat, retry, continue to next stage
     // 4) R to quick-retry
     public static class PlayerInputSystem
@@ -16,6 +16,7 @@ namespace MagicSchool.Input
         public static bool SpacePressedThisFrame => Keyboard.current.spaceKey.wasPressedThisFrame;
         public static bool InspectPressedThisFrame => Mouse.current.rightButton.wasPressedThisFrame;
         public static bool RestartPressedThisFrame => Keyboard.current.rKey.wasPressedThisFrame;
+        public static bool CancelPressedThisFrame => Keyboard.current.escapeKey.wasPressedThisFrame;
 
         // adjust game's speed using numkey
         public static int SpeedPressedThisFrame()
@@ -23,6 +24,7 @@ namespace MagicSchool.Input
             if (Keyboard.current.digit1Key.wasPressedThisFrame) return 1;
             if (Keyboard.current.digit2Key.wasPressedThisFrame) return 2;
             if (Keyboard.current.digit3Key.wasPressedThisFrame) return 3;
+            if (Keyboard.current.digit9Key.wasPressedThisFrame) return 9;
 
             return 0;
         }

@@ -6,7 +6,8 @@ namespace MagicSchool.Combat.Heroes
 {
     internal class HeroItems
     {
-        public const int Capacity = 3;
+        // one each: a hero gets more out of items by standing on an ally's wearing hex (See AlignBonuses)
+        public const int Capacity = 1;
         private readonly List<IEquipment> _worn = new List<IEquipment>(Capacity);
         private readonly Hero _wearer;
 
@@ -98,7 +99,7 @@ namespace MagicSchool.Combat.Heroes
             Transform worn = item.transform;
 
             worn.SetParent(_wearer.transform, worldPositionStays: false);
-            worn.localPosition = new Vector3((slot - 1) * Spacing, RowY, 0f);
+            worn.localPosition = new Vector3((slot - (Capacity - 1) / 2f) * Spacing, RowY, 0f);   // the row is centred under the hero
             worn.localScale = new Vector3(Scale, Scale, 1f);
         }
 

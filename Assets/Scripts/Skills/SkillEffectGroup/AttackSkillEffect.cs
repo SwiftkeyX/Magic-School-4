@@ -31,10 +31,24 @@ namespace MagicSchool.Skills
             return this;
         }
 
+        // The amplifier its conditions give, worked out from the caster when the hit lands, in place of a fixed one.
+        // With no conditions, it applies to every hit.
+        // e.g.     .AmplifiedBy(caster => 0.15f * allies on its marks)     Skeleton Archer's long shots
+        //          .AmplifiedBy(_ => size 3 ? 1f : 0f)                     Dwarf's biggest blast deals double
+        public AttackSkillEffect AmplifiedBy(System.Func<IEffectable, float> amplifier)
+        {
+            _amplifierOf = amplifier;
+            return this;
+        }
+
         public override void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null)
+            => ApplyEffect(recipients, actor, 1f);
+
+        // [scale] multiplies the whole damage, e.g. 0.67 for the second enemy a falling-off piercing shot goes through
+        public void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor, float scale)
         {
             // scale the damage e.g. skill damage = 500% AP
-            float damageAmount = Scaling.Total(_ratios, _caster as IHeroStats);
+            float damageAmount = Scaling.Total(_ratios, _caster as IHeroStats) * scale;
 
             foreach (IEffectable recipient in recipients)
             {

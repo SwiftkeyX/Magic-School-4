@@ -6,9 +6,9 @@ namespace MagicSchool.Skills
 {
     internal class MyconidSkill : SkillDefinition
     {
-        private const float DamageRatio = 200f;
+        private static float DamageRatio => Tuned(400f);
         // the roster sheet says "stunned" without a length - 1s is a placeholder until it does
-        private const float StunDuration = 1f;
+        private static float StunDuration => Tuned(1f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new MyconidSkill(registry);
 

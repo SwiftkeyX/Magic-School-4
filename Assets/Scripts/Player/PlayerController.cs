@@ -2,6 +2,7 @@ using System.Linq;
 using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.Core;
+using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Input;
 
@@ -52,7 +53,7 @@ namespace MagicSchool.Player
             TryStartCombat();
             TryRestart();
             TrySetSpeed();
-            TryInspect();
+            if (!TryRotateAlign()) TryInspect();
             _dragging?.Tick();
             _zonePainting?.Tick();
             _alignHighlight?.Tick();
@@ -107,6 +108,17 @@ namespace MagicSchool.Player
             if (!PlayerInputSystem.RestartPressedThisFrame) return;
 
             GameManager.Instance.Restart();
+        }
+
+        // Right-click while holding a hero turns it to its next align pattern, instead of inspecting.
+        // Only a held hero rotates. The highlight follows on the next tick (See AlignHighlight).
+        private bool TryRotateAlign()
+        {
+            Hero held = _dragging?.HeldHero;
+            if (!PlayerInputSystem.InspectPressedThisFrame || held == null) return false;
+
+            GameManager.Instance.RotateAlign(held, 1);
+            return true;
         }
 
         // Right-click a hero or an item to inspect it.

@@ -5,17 +5,17 @@ namespace MagicSchool.Skills
 {
     internal class RogueSkill : SkillDefinition
     {
-        private const int Shadowsteps = 3;
+        private static int Shadowsteps => Tuned(3);
 
         // dash randomly
-        private const int DashRange = 1;
-        private const float DashDuration = 0.15f;
+        private static int DashRange => Tuned(1);
+        private static float DashDuration => Tuned(0.15f);
 
         // charge into cluster
-        private const int ChargeRange = 4;
-        private const float ChargeDuration = 0.3f;
-        private const float HitboxHalfWidth = 1.25f;
-        private const float CollideDamage = 50f;  
+        private static int ChargeRange => Tuned(4);
+        private static float ChargeDuration => Tuned(0.3f);
+        private static float HitboxHalfWidth => Tuned(1.25f);
+        private static float CollideDamage => Tuned(50f);  
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new RogueSkill(registry);
 

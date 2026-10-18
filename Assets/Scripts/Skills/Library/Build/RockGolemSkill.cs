@@ -6,13 +6,14 @@ namespace MagicSchool.Skills
 {
     internal class RockGolemSkill : SkillDefinition
     {
-        private const float ShieldAmount = 500f;
-        private const float ShieldDuration = 4f;
+        private static float ShieldAmount => Tuned(500f);
+        private static float ShieldDuration => Tuned(4f);
         private readonly ICustomModifier _shield = BundleRefresh(ShieldDuration, Shield(ShieldAmount));
 
+        // the allies standing on this mark are his wards (See AlignMark)
+        private const string WardMark = "Ward";
+        public override IReadOnlyList<string> SpecialMarks => new[] { WardMark };
 
-        // the ally he protects - picked once, when combat starts
-        private ICombatant _ward;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new RockGolemSkill(registry);
 
@@ -21,20 +22,13 @@ namespace MagicSchool.Skills
         public override string SkillName => "Stone Oath";
 
         public override string Description
-            => $"Gives a {ShieldAmount} shield to himself and his ward for {ShieldDuration} seconds.";
+            => $"Gives a {ShieldAmount} shield to himself and his wards for {ShieldDuration} seconds.";
 
         public override string PassiveDescription
-            => "When combat starts, he takes the closest ally as his ward.";
+            => $"The allies on his {WardMark} mark are his wards.";
 
         // ============================== passive ==============================
         public override bool HasAutoAttackPassive => true;
-
-        public override bool OnCombatStart()
-        {
-            _ward = Caster.FindNearestAlly();
-
-            return base.OnCombatStart();
-        }
 
         // ============================== active ==============================
         public override bool OnCast()
@@ -42,7 +36,15 @@ namespace MagicSchool.Skills
             if (!base.OnCast()) return false;
 
             Caster.AddModifier(_shield, Caster as IHeroStats);
-            if (_ward != null && _ward.IsAlive) _ward.AddModifier(_shield, Caster as IHeroStats);
+
+            // his wards: the allies on his Ward mark (See IAligned)
+            if (Caster is IAligned aligned)
+            {
+                foreach (ICombatant ward in aligned.AlliesOnSpecialMark(WardMark))
+                {
+                    if (ward != null && ward.IsAlive) ward.AddModifier(_shield, Caster as IHeroStats);
+                }
+            }
 
             return true;
         }

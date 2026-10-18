@@ -22,8 +22,11 @@ MonoBehaviour:
   _magic: 100
   _magicResist: 20
   _attackSpeed: 0.7
-  _range: 4
+  _range: 2
   _startMana: 20
   _maxMana: 80
+  _critChance: 25
   _skillId: 25
+  _spawnUnit: {fileID: 0}
+  _alignPatterns: []
   _isDummy: 0

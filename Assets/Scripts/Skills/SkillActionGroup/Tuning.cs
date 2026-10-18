@@ -6,6 +6,7 @@ namespace MagicSchool.Skills
     public class Tuning
     {
         public float? CastTime;          // how long the caster is locked out of auto attacking
+        public bool? WalkWhileCasting;   // the caster still walks toward its target during the cast time e.g. Orc Blademaster's storm
     }
 
     public class AOETuning : Tuning
@@ -38,6 +39,9 @@ namespace MagicSchool.Skills
         public int? Range;               // how far a projectile can reach
         public float? Spread;            // ClusteredCircle's blast radius, or ClusteredLaser's beam half-width
         public float? Size;              // how big projectile is
+        public float? Speed;             // how fast it flies, in world units per second - the prefab's own (8) when unset
+        public float? Falloff;           // a piercing shot's damage, less this much for every enemy it already went through
+                                         // e.g. 0.33 => 100%, 67%, 45%, 30%, ...   none by default
     }
 
     public class FireTimingRunnerTuning : Tuning

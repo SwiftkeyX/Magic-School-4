@@ -34,5 +34,11 @@
     "role": "reference",
     "writable": true,
     "description": "TFT Set 11 Champions reference sheet (external)."
+  },
+  "magicschool4-benchmark": {
+    "key": "1my8CHBTNB9CDVz1SfT-7cwKPRAJPbJ7VfOWLNgpzZX4",
+    "role": "canonical",
+    "writable": true,
+    "description": "MagicSchool4 Benchmark - every Hero Benchmark CSV (BalanceLogs/benchmark-*.csv) is imported here, so runs can be compared over time."
   }
 }

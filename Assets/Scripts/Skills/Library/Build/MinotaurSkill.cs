@@ -5,8 +5,8 @@ namespace MagicSchool.Skills
 {
     internal class MinotaurSkill : SkillDefinition
     {
-        private const float DamageRatio = 120f;
-        private const float StunDuration = 2f;
+        private static float DamageRatio => Tuned(120f);
+        private static float StunDuration => Tuned(2f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new MinotaurSkill(registry);
 
@@ -23,7 +23,7 @@ namespace MagicSchool.Skills
             // the horns - a box on the current target
             SkillPart gore = Part(registry,
                 source: ActionSourceEnum.Current,
-                action: TemplateActionEnum.BoxAOE,
+                action: TemplateActionEnum.CircleAOE,
                 target: AimTargetEnum.Current,
                 Damage(EffectRecipientEnum.EnemiesInArea, (StatEnum.ATK, DamageRatio)),
                 Apply(EffectRecipientEnum.EnemiesInArea, BundleRefresh(StunDuration, Status(ModifierEnum.Stun)))

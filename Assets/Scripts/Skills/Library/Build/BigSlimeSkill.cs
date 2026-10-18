@@ -4,7 +4,7 @@ namespace MagicSchool.Skills
 {
     internal class BigSlimeSkill : SkillDefinition
     {
-        private const int SplitCount = 2;
+        private static int SplitCount => Tuned(2);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new BigSlimeSkill(registry);
 

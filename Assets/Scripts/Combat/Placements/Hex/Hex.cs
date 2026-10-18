@@ -9,7 +9,7 @@ namespace MagicSchool.Combat.Placements
         private BattleBoard _board;
         private HexNumber _hexPlacement;
         private List<Hex> _neighbors;   // neighbors hex of this hex - use in pathfinding logic
-        private SpriteRenderer _sprite;
+        private HexPaint _paint;        // its colour, and the rings of a hex shown in more than one (See SetColors)
 
         // ========================== getter & setter ==========================
         public string Name => gameObject.name;
@@ -183,12 +183,16 @@ namespace MagicSchool.Combat.Placements
         #endregion
 
         // ===================================== other =====================================
-        internal void SetColor(Color color)
-        {
-            if (_sprite == null) _sprite = GetComponent<SpriteRenderer>();
-            if (_sprite == null) return;
+        internal void SetColor(Color color) => SetColors(new[] { color });
 
-            _sprite.color = color;
+        // One colour fills the hex; more are drawn as rings inside it, the first outermost (See HexPaint)
+        internal void SetColors(IReadOnlyList<Color> colours)
+        {
+            if (_paint == null) _paint = new HexPaint(GetComponent<SpriteRenderer>());
+            _paint.SetColors(colours);
         }
+
+        // the hex's sprite, for anything drawn to look like one (See GhostHexes)
+        internal SpriteRenderer Sprite => GetComponent<SpriteRenderer>();
     }
 }

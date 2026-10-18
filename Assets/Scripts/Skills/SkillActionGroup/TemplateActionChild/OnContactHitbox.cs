@@ -35,6 +35,10 @@ namespace MagicSchool.Skills
             // guard
             if (heroHit == null) return;
 
+            // a dead hero keeps its collider but is not drawn - flying through it must not count as a hit
+            // e.g.     Skeleton Archer's arrow vanishing on an invisible corpse
+            if (!heroHit.IsAlive) return;
+
             // only the first contact counts - re-entering after walking out doesn't hit again
             if (!_triggeredOnce.Add(heroHit)) return;
 

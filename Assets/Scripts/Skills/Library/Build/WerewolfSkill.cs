@@ -12,14 +12,14 @@ namespace MagicSchool.Skills
         private int _currentBeat;
 
         // each beat (attack) have different damage amount
-        private const float BoxDamage = 200f;
-        private const float TriangleDamage = 300f;
-        private const float CircleDamage = 400f;
+        private static float BoxDamage => Tuned(200f);
+        private static float TriangleDamage => Tuned(300f);
+        private static float CircleDamage => Tuned(400f);
 
-        private const float OmnivampFromAP = 10f;
+        private static float OmnivampFromAP => Tuned(10f);
         // FLAGGING: sheet: 80% of bonus AS, converted to AD 
-        private const float AttackFromAS = 500f;
-        private const float TransformDuration = 10f;
+        private static float AttackFromAS => Tuned(500f);
+        private static float TransformDuration => Tuned(10f);
 
 
         // FIXLATER: turn every hero into skilldefinition. and move Build inside the skilldefinition.

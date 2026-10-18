@@ -19,7 +19,11 @@ namespace MagicSchool.Combat.Placements
         [Tooltip("The board this stage is fought on.")]
         [SerializeField] private GameObject _boardLayout;
 
+        [Tooltip("Items lying on hexes, for the player's wearing hexes. A saved team comp fills this; a stage leaves it empty.")]
+        [SerializeField] private List<ItemPlacement> _itemsOnHexes = new List<ItemPlacement>();
+
         public IReadOnlyList<HeroPlacement> HeroesPlacement => _heroesPlacement;
+        public IReadOnlyList<ItemPlacement> ItemsOnHexes => _itemsOnHexes;
         public IReadOnlyList<HexNumber> DeployZone => _deployZone;
         public GameObject BoardLayout => _boardLayout;
 
@@ -45,6 +49,17 @@ namespace MagicSchool.Combat.Placements
 
             // re-add hero that belong to specify team
             _heroesPlacement.AddRange(placements);
+        }
+
+        // Changing the board by editing this SO.
+        // e.g.     stage editor mode, a saved team comp remembers the board its hex numbers belong to.
+        public void SetBoardLayout(GameObject layoutPrefab) => _boardLayout = layoutPrefab;
+
+        // Changing the items lying on hexes by editing this SO.
+        // e.g.     stage editor mode, a saved team comp keeps the items placed for its wearing hexes.
+        public void ReplaceItemsOnHexes(IEnumerable<ItemPlacement> items)
+        {
+            _itemsOnHexes = new List<ItemPlacement>(items);
         }
 
         // Changing the deploy zone by editing this SO.

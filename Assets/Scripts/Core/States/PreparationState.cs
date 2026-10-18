@@ -4,6 +4,7 @@ using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Engine;
 using MagicSchool.Economy;
+using MagicSchool.Items;
 
 namespace MagicSchool.Core.States
 {
@@ -27,11 +28,17 @@ namespace MagicSchool.Core.States
 
             // clear the previous board
             ClearBoard();
-            
+
+            // copies bought mid-fight sat on the bench: now they can combine with the board too
+            _game.CombineCopies();
+
+            // the items lying on hexes that are about to go
+            ReturnItems();
+
             // init new board layout
             ApplyLayout();
 
-            // seed hero on the new board 
+            // seed hero on the new board
             SeedTeams();
 
             ApplyDeployZone();
@@ -87,11 +94,27 @@ namespace MagicSchool.Core.States
         // if the board is not the same layout, return hero to the spare bench instead.
         private void ReturnTeam()
         {
-            BattlePlacementSO stage = _game.GetStage(_game.StageIndex);
-            bool isSameBoard = stage == null || stage.BoardLayout == null || _game.Board.HasLayout(stage.BoardLayout);
-
-            if (isSameBoard) _game.Formation.ReturnToStartingPlacement();
+            if (IsNextStageOnSameBoard()) _game.Formation.ReturnToStartingPlacement();
             else _game.Formation.ReturnToSpareBench();
+        }
+
+        // Items lying on hexes stay where they are, the way the team does.
+        // A different board next stage destroys those hexes, so then the items go back to the loose row.
+        private void ReturnItems()
+        {
+            if (IsNextStageOnSameBoard()) return;
+
+            foreach (IEquipment equipment in _game.Board.Items.TakeAll())
+            {
+                if (equipment is Item item) ItemDrop.MoveToFreeSpot(item);
+            }
+        }
+
+        private bool IsNextStageOnSameBoard()
+        {
+            BattlePlacementSO stage = _game.GetStage(_game.StageIndex);
+
+            return stage == null || stage.BoardLayout == null || _game.Board.HasLayout(stage.BoardLayout);
         }
 
         // Initialize new board layout

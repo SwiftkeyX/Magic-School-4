@@ -8,10 +8,10 @@ namespace MagicSchool.Skills
 {
     internal class CentaurSkill : SkillDefinition
     {
-        private const int ChargeRange = 4;              // hexes he can cross
-        private const float HitboxHalfWidth = 1.25f;
-        private const float KnockedUpDuration = 2f;
-        private const float CollideDamage = 200f;
+        private static int ChargeRange => Tuned(4);              // hexes he can cross
+        private static float HitboxHalfWidth => Tuned(1.25f);
+        private static float KnockedUpDuration => Tuned(2f);
+        private static float CollideDamage => Tuned(140f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new CentaurSkill(registry);
 

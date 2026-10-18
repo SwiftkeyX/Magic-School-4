@@ -16,6 +16,7 @@ namespace MagicSchool.UI
         [SerializeField] private int _maxBars = 4;
 
         private readonly List<SkillBar> _bars = new List<SkillBar>();
+        private readonly List<int> _timed = new List<int>();     // which of the hero's modifiers count down
         private Hero _hero;
 
         void Awake()
@@ -30,7 +31,14 @@ namespace MagicSchool.UI
             if (_hero == null) _hero = GetComponentInParent<Hero>();
             if (_first == null || !_hero.IsInitialized) return;
 
-            int wanted = Mathf.Min(_hero.ActiveModifierCount, _maxBars);
+            // only the modifiers with a timer left get a bar
+            _timed.Clear();
+            for (int i = 0; i < _hero.ActiveModifierCount; i++)
+            {
+                if (_hero.ModifierRemaining(i) > 0f) _timed.Add(i);
+            }
+
+            int wanted = Mathf.Min(_timed.Count, _maxBars);
 
             while (_bars.Count < wanted)
             {
@@ -39,10 +47,10 @@ namespace MagicSchool.UI
                 _bars.Add(bar);
             }
 
-            // every bar is told where it sits, including the ones past the end - they hide themselves
+            // every bar is told which modifier it shows and where it sits; the ones past the end hide themselves
             for (int i = 0; i < _bars.Count; i++)
             {
-                _bars[i].Bind(i);
+                _bars[i].Bind(i < _timed.Count ? _timed[i] : SkillBar.None);
                 _bars[i].SetOffset(_offset + Vector3.up * (_spacing * i));
             }
         }

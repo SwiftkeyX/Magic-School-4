@@ -61,6 +61,7 @@ namespace MagicSchool.Core
         private AlignBonuses _alignBonuses;
         private HeroSeed _seed;
         private HeroSpawner _heroSpawner;
+        private HeroUpgrader _upgrader;
         private StageEditor _stageEditor;
         private CombatRecorder _recorder;
         private GameSpeed _speed;
@@ -86,7 +87,7 @@ namespace MagicSchool.Core
         internal int StageNumber => _stageIndex + 1;
         public int HeroLimit => _heroLimit;
         public int SpeedMultiplier => _speed == null ? 1 : _speed.Multiplier;
-        public StageEditor StageEditor => _stageEditMode ? _stageEditor : null;    
+        public StageEditor StageEditor => _stageEditMode ? _stageEditor : null;
         internal bool IsRunCleared => Winner == TeamEnum.Blue && _stageIndex + 1 >= StageCount;
 
         // ======================================== setter ========================================
@@ -99,8 +100,8 @@ namespace MagicSchool.Core
 
         // === forwarding ===
         internal BattleBoard Board => _board;
-        internal IReadOnlyList<HeroDataSO> ShopRoster => _shopRoster;     
-        internal TemplateActionRegistrySO TemplateActions => _templateActions;     
+        internal IReadOnlyList<HeroDataSO> ShopRoster => _shopRoster;
+        internal TemplateActionRegistrySO TemplateActions => _templateActions;
         internal Shop Shop => _shop;
         internal HeroSeed Seed => _seed;
         internal HeroFormation Formation => _heroFormation;
@@ -129,8 +130,108 @@ namespace MagicSchool.Core
         // (See Magic School 4 > Add Selected Heroes To Bench)
         public bool AddHeroToBench(HeroDataSO data) => data != null && _bench.SpawnHeroOnBench(data);
 
+        // Lay an item on a hex, or take it off again. A hero may wear an item lying on one of its
+        // wearing hexes, so both are a reason to work the aligning bonuses out again.
+        public bool PutItemOnHex(IEquipment item, Hex hex)
+        {
+            if (!_board.Items.Place(item, hex)) return false;
+
+            RefreshAligning();
+            return true;
+        }
+
+        public void TakeItemOffHex(IEquipment item)
+        {
+            if (_board.Items.Remove(item)) RefreshAligning();
+        }
+
+        // Put an item on a hero, or take it off. A hero standing on an ally's wearing hex
+        // shares what it wears, so both are a reason to work the aligning bonuses out again.
+        public bool WearItem(Hero hero, IEquipment item)
+        {
+            if (!hero.TryWear(item)) return false;
+
+            RefreshAligning();
+            return true;
+        }
+
+        public void TakeItemOffHero(Hero hero, IEquipment item)
+        {
+            if (hero.TryTakeOff(item)) RefreshAligning();
+        }
+
+        // ======================================== shop hero ========================================
+        // A hero slot picked up in the shop is held as the hero itself, before it is bought (See Shop.TryPickUp):
+        // the player sees its align marks while placing it. Putting it down buys it; putting it back removes it.
+        //      Hero    the hero, standing nowhere yet
+        //      int     the shop slot it came from
+        public event System.Action<Hero, int> OnShopHeroPickedUp;
+
+        private void HandOutShopHero(int slot, HeroDataSO data)
+            => OnShopHeroPickedUp?.Invoke(_heroSpawner.SpawnUnboughtHero(data, _board), slot);
+
+        // Buy the held shop hero and put it on the placement - null = the first free bench slot.
+        // False, and the hero is gone, when it could not be bought (re-rolled, no gold) or has nowhere to go.
+        public bool BuyShopHero(Hero hero, int slot, IPlacement placement)
+        {
+            placement ??= _bench.FindFreeSlot();
+            if (placement == null)
+            {
+                Debug.Log("Bench is full - nowhere to put the hero.");
+                ReturnShopHero(hero);
+                return false;
+            }
+
+            if (!_shop.TryBuyPickedUp(slot, hero.Data))
+            {
+                ReturnShopHero(hero);
+                return false;
+            }
+
+            MoveHero(hero, placement);
+
+            // buying is getting a copy, wherever it was put down
+            CombineCopies();
+            return true;
+        }
+
+        // the held shop hero was not bought: it was only ever a preview of the slot
+        public void ReturnShopHero(Hero hero)
+        {
+            if (hero != null) Destroy(hero.gameObject);
+        }
+
+        // ======================================== align ========================================
+        // Turn a player hero to its next align pattern (step -1: the one before). Preparation only:
+        // the bonuses are fixed by where everyone stood, and how they were turned, when the fight started.
+        public bool RotateAlign(Hero hero, int step)
+        {
+            if (Phase != GamePhaseEnum.Preparation || hero == null || hero.Team != TeamEnum.Blue) return false;
+            if (!hero.RotateAlignMark(step)) return false;
+
+            RefreshAligning();
+            return true;
+        }
+
         // refresh the aligning bonus
         internal void RefreshAligning() => _alignBonuses.Refresh(_board, TeamEnum.Blue);
+
+        // Upgrading: combine every pair of copies of a hero. Only Preparation touches the board - mid-fight
+        // the benches combine alone, and they meet the board when the next Preparation starts.
+        // An upgraded hero's stats are built again, which drops its aligning bonuses, so they are given again.
+        internal void CombineCopies()
+        {
+            bool isPreparation = Phase == GamePhaseEnum.Preparation;
+
+            if (_upgrader.CombineAll(includeBoard: isPreparation) && isPreparation) RefreshAligning();
+        }
+
+        // a hero that lands on the bench is bought (or added by a dev tool): look for its copy.
+        // A hero spawned on a hex (a stage's seed, a loaded team comp, an enemy) never starts a combine.
+        private void CombineIfBenched(Hero hero)
+        {
+            if (hero.Team == TeamEnum.Blue && hero.CurrentPlacement is BenchSlot) CombineCopies();
+        }
 
         // ======================================== life cycle ========================================
         // init dependency
@@ -150,10 +251,13 @@ namespace MagicSchool.Core
 
             _stageEditor = new StageEditor(this);
             _heroSpawner = new HeroSpawner(_heroMover, _templateActions, _recorder, _bench, _seed, _stageEditor);
+            _upgrader = new HeroUpgrader(_board, _bench, _spareBench);
+            _heroSpawner.OnSpawned += CombineIfBenched;
             _wallet = new Wallet(_startingGold);
             _seller = new Seller(_wallet);
             _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopOdds, () => StageNumber, _shopSlots, _refreshCost,
                              (data, isStillOffered) => new HeroPreview(data, SkillLibrary.Resolve(data.SkillId, _templateActions), isStillOffered));
+            _shop.OnHeroPickedUp += HandOutShopHero;
             _heroFormation = new HeroFormation(_heroMover, _spareBench, _bench);
             _heroLimit = _startingHeroLimit;
             _stateMachine = new GameStateMachine(this);

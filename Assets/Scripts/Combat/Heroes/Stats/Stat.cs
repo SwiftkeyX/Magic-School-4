@@ -93,12 +93,13 @@ namespace MagicSchool.Combat.Heroes.Stats
         // the same to FollowMaxHP()
         private void FollowStartMana(int previousStartMana) => _currentMana = Mathf.Clamp(_currentMana + StartMana - previousStartMana, 0, MaxMana);
 
-        public Stat(HeroDataSO so)
+        // star: the hero's star level, which raises its base HP, AD and AP (See HeroStar)
+        public Stat(HeroDataSO so, int star = HeroStar.Min)
         {
-            _base[StatEnum.MaxHP] = so.HP;
-            _base[StatEnum.ATK] = so.Atk;
+            _base[StatEnum.MaxHP] = so.HP * HeroStar.HpMultiplier(star);
+            _base[StatEnum.ATK] = so.Atk * HeroStar.AtkMultiplier(star);
             _base[StatEnum.DF] = so.DF;
-            _base[StatEnum.AP] = so.MG;
+            _base[StatEnum.AP] = so.MG * HeroStar.ApMultiplier(star);
             _base[StatEnum.MR] = so.MR;
             _base[StatEnum.AS] = so.AttackSpeed;
             _base[StatEnum.Range] = so.Range;

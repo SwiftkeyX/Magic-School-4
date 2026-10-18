@@ -1,16 +1,22 @@
 using System.Collections.Generic;
 using MagicSchool.Contracts;
+using MagicSchool.StatScaling;
 using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
     internal class ShieldKnightSkill : SkillDefinition
     {
-        private const float BraceDuration = 2f;
-        private const float TickInterval = 0.5f;
-        private const float HealAmount = 200f;
-        private const float SlamDamage = 120f;
-        private const float DamageReductionPercent = 25f;
+        private static float BraceDuration => Tuned(2f);
+        private static float TickInterval => Tuned(0.5f);
+        private static float HealAmount => Tuned(200f);
+        private static float SlamDamage => Tuned(120f);
+        private static float DamageReductionPercent => Tuned(25f);
+
+        // the allies standing on this mark feed him: their damage heals him (See AlignMark)
+        private const string GuardMark = "Guard";
+        public override IReadOnlyList<string> SpecialMarks => new[] { GuardMark };
+        private static float HealFromAllyDamage => Tuned(10f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ShieldKnightSkill(registry);
 
@@ -22,6 +28,19 @@ namespace MagicSchool.Skills
             => $"Braces for {BraceDuration} seconds, healing steadily for {HealAmount} and taking "
              + $"{DamageReductionPercent}% less damage. The moment the brace ends he slams the ground "
              + $"for {SlamDamage}% AP to every enemy around him.";
+
+        public override string PassiveDescription
+            => $"Heals for {HealFromAllyDamage}% of the damage the allies on his {GuardMark} mark deal.";
+
+        // ============================== passive ==============================
+        public override bool HasAutoAttackPassive => true;
+
+        public override void OnMarkedAllyDealtDamage(string mark, ICombatant ally, DamageEvent hit)
+        {
+            if (mark != GuardMark) return;
+
+            Omnivamp.HealFromDamage(Caster, hit.Outcome.Landed, HealFromAllyDamage, source: ally);
+        }
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

@@ -16,6 +16,7 @@ namespace MagicSchool.Combat.Heroes
 
         // ============================================== getter ==============================================
         public float GetCastTime() => _skill?.CastTime ?? 0f;
+        public bool CanWalkWhileCasting() => _skill != null && _skill.CanWalkWhileCasting;
         public bool IsSkillRepeating() => _skill != null && _skill.IsRepeating;
 
         // Some heroes (e.g. generic dummy/tank archetypes) have no skill at all.
@@ -83,6 +84,12 @@ namespace MagicSchool.Combat.Heroes
         public void TriggerOnHeroBurned(ICombatant burned)
         {
             _skill?.OnHeroBurned(burned);
+        }
+
+        // if an ally on one of my special marks deals damage, play OnMarkedAllyDealtDamage type of skill
+        public void TriggerOnMarkedAllyDealtDamage(string mark, ICombatant ally, DamageEvent hit)
+        {
+            _skill?.OnMarkedAllyDealtDamage(mark, ally, hit);
         }
     }
 }

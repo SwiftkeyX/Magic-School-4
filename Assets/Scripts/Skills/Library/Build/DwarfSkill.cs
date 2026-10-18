@@ -6,12 +6,16 @@ namespace MagicSchool.Skills
 {
     internal class DwarfSkill : SkillDefinition
     {
-        private const float ExplodeDmg = 240f;
+        // the blast's damage by its size, % AD
+        private static float SmallBlastDmg => Tuned(250f);     // 1 hex
+        private static float MediumBlastDmg => Tuned(250f);    // 2 hexes
+        private static float BigBlastDmg => Tuned(500f);       // 3 hexes
 
-        // blast radius of the skill 
-        private const int StartBlastHexes = 1;
-        private const int MaxBlastHexes = 3;
+        // blast radius of the skill: 1 -> 2 -> 3 -> 1 -> ... one step every cast
+        private static int StartBlastHexes => Tuned(1);
+        private static int MaxBlastHexes => Tuned(3);
         private int _blastHexes = StartBlastHexes;
+        private int _firedHexes = StartBlastHexes;     // the size of the shot in flight - the blast lands after the next size is set
 
         private ProjectileTuning _shotTuning;
         private AOETuning _blastTuning;
@@ -24,11 +28,18 @@ namespace MagicSchool.Skills
 
         public override string Description
             => "Fires a homing shot into the densest cluster of enemies. "
-             + $"it bursts where it lands, dealing {ExplodeDmg}% AD to everyone inside the blast. "
-             + $"The blast starts at {StartBlastHexes} hex and grows by 1 hex every cast, up to {MaxBlastHexes} hexes.";
+             + $"It bursts where it lands, damaging everyone inside the blast. "
+             + $"The blast starts at {StartBlastHexes} hex and grows by 1 hex every cast up to {MaxBlastHexes}, then starts small again. "
+             + $"It deals {SmallBlastDmg}% AD at 1 hex, {MediumBlastDmg}% AD at 2 and {BigBlastDmg}% AD at 3.";
 
         // get the blast diameter of the skill
         private static float BlastDiameter(int hexes) => hexes * 2f + 0.5f;
+
+        // % AD by the size it was fired at; past 3 counts as the biggest
+        private static float DamageFor(int hexes) => hexes <= 1 ? SmallBlastDmg : hexes == 2 ? MediumBlastDmg : BigBlastDmg;
+
+        // the damage effect is built at the small blast's number; this scales it to the size in flight
+        private float BlastAmplifier(IEffectable _) => SmallBlastDmg > 0f ? DamageFor(_firedHexes) / SmallBlastDmg - 1f : 0f;
 
         // ============================== passive ==============================
         // at combat start, the blast is small again
@@ -51,7 +62,8 @@ namespace MagicSchool.Skills
 
             if (!base.OnCast()) return false;
 
-            if (_blastHexes < MaxBlastHexes) _blastHexes++;
+            _firedHexes = _blastHexes;
+            _blastHexes = _blastHexes >= MaxBlastHexes ? StartBlastHexes : _blastHexes + 1;
             return true;
         }
 
@@ -89,8 +101,8 @@ namespace MagicSchool.Skills
 
                 Damage(
                     recipient: EffectRecipientEnum.EnemiesInArea,
-                    ratios: (StatEnum.ATK, ExplodeDmg)
-                )
+                    ratios: (StatEnum.ATK, SmallBlastDmg)
+                ).AmplifiedBy(BlastAmplifier)
             );
 
             return explode;
