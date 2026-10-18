@@ -16,6 +16,7 @@ namespace MagicSchool.Combat.Heroes
         public bool TriggerOnCombatStart()
         {
             Crit.ResetStreak(this);
+            _findEnemy.KeepChosenTargetOnlyIfTied();
             return _skill.TriggerOnCombatStart();
         }
         public void TriggerOnHeroDied(ICombatant dead) => _skill.TriggerOnHeroDied(dead);

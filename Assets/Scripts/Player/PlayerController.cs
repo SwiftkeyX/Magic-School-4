@@ -130,8 +130,22 @@ namespace MagicSchool.Player
             Vector3 worldPos = PlayerInputSystem.GetMouseWorldPosition(_cam);
             IInspectable target = Picker.At<IInspectable>(worldPos);
 
+            // the hero already inspected: switch its target instead
+            if (TrySwitchTarget(target)) return;
+
             // inspect the target
             _inspector?.Inspect(target);
+        }
+
+        // In Preparation, right-clicking a placed player hero that is already inspected switches which of its tied nearest
+        // enemies it goes for (See FindTarget.SwitchChosenTarget). The board shows them while the hero is hovered (See AlignHighlight).
+        private bool TrySwitchTarget(IInspectable target)
+        {
+            if (GameManager.Instance.Phase != GamePhaseEnum.Preparation) return false;
+            if (!(target is Hero hero) || hero.Team != _team || hero.CurrentHex == null) return false;
+            if (_inspector == null || !ReferenceEquals(_inspector.Shown, target)) return false;
+
+            return hero.SwitchChosenTarget();
         }
     }
 }

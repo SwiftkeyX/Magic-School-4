@@ -32,6 +32,8 @@ namespace MagicSchool.UI
 
 
         // ============================== IInspectorPanel interface ==============================
+        public IInspectable Shown => _shown;
+
         // update the panel according to whatever was just inspected
         public void Inspect(IInspectable unit)
         {

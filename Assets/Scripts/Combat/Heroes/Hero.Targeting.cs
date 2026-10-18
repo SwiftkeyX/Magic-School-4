@@ -23,5 +23,11 @@ namespace MagicSchool.Combat.Heroes
         public IReadOnlyList<ICombatant> FindRandomEnemies(int count) => _findEnemy.FindRandomEnemies(count);
         public ICombatant FindNearestAlly() => _findEnemy.FindNearestAlly();
         public ICombatant FindLowestHealthAlly() => _findEnemy.FindLowestHealthAlly();
+
+        // ======================================== chosen target ========================================
+        // the player picks which of my tied nearest enemies I go for (See FindTarget.SwitchChosenTarget)
+        public IReadOnlyList<ICombatant> TiedNearestEnemies() => _findEnemy.TiedNearestEnemies();
+        public ICombatant ChosenTarget => _findEnemy.ShownChosenTarget();
+        public bool SwitchChosenTarget() => _findEnemy.SwitchChosenTarget();
     }
 }

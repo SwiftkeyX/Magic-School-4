@@ -11,7 +11,7 @@ namespace MagicSchool.Combat.Heroes
         // Ranks an enemy nothing can currently reach behind every enemy something can, while
         // still ordering those by the walk they would take if the way cleared. Bigger than any
         // step count a board this size can produce.
-        private const int UnreachablePenalty = 1000;
+        internal const int UnreachablePenalty = 1000;
 
         private readonly Hero _me;
         private readonly BattleBoard _board;

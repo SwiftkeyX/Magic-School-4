@@ -25,6 +25,9 @@ namespace MagicSchool.Combat.Heroes
         private ICombatant _currentTarget;
         internal ICombatant CurrentTarget => _currentTarget;
 
+        // the enemy the player picked for me among the tied nearest, in Preparation. null = automatic (See SwitchChosenTarget)
+        private ICombatant _chosenTarget;
+
         public FindTarget(Hero me, BattleBoard board)
         {
             _me = me;
@@ -51,13 +54,16 @@ namespace MagicSchool.Combat.Heroes
         // consider step as hop amount
         public ICombatant FindNearestEnemy()
         {
-            List<(ICombatant target, int steps)> enemySteps = _scan.Steps();
+            List<(ICombatant target, int steps)> enemySteps = Candidates();
 
             if (enemySteps.Count == 0) return null;
 
-            // An enemy already within my range is picked before any other
-            var inRange = enemySteps.Where(e => IsInMyRange(e.target)).ToList();
-            if (inRange.Count > 0) enemySteps = inRange;
+            // the player's chosen target is sticky: walked to while it can be reached, unless another enemy is already in my range
+            if (IsChosenTargetOpen(enemySteps))
+            {
+                _lastNearest = _chosenTarget;
+                return _chosenTarget;
+            }
 
             int nearestSteps = enemySteps.Min(e => e.steps);
             var tiedNearest = enemySteps.Where(e => e.steps == nearestSteps).Select(e => e.target).ToList();
@@ -72,6 +78,46 @@ namespace MagicSchool.Combat.Heroes
 
             return nearestEnemy;
         }
+
+        // ========================================= chosen target =========================================
+        // When my nearest enemy is a tie, the player may pick which one I go for: right-clicking me again while I am inspected,
+        // in Preparation, steps through the tied enemies and then back to automatic. Once the fight starts the pick is sticky.
+        // e.g.     Orc and Ranger both pick the same enemy, so Troll's allies land the kill together
+
+        // The enemies tied for nearest from where I stand now, in a fixed order (left first, then top) so switching steps through them.
+        // The same tie FindNearestEnemy breaks: an enemy already in my range wins first.
+        internal List<ICombatant> TiedNearestEnemies()
+        {
+            List<(ICombatant target, int steps)> enemySteps = Candidates();
+            if (enemySteps.Count == 0) return new List<ICombatant>();
+
+            int nearestSteps = enemySteps.Min(e => e.steps);
+            return enemySteps
+                .Where(e => e.steps == nearestSteps && e.target.CurrentHex() != null)
+                .Select(e => e.target)
+                .OrderBy(target => target.CurrentHex().transform.position.x)
+                .ThenByDescending(target => target.CurrentHex().transform.position.y)
+                .ToList();
+        }
+
+        // My pick, while it is still one of the tied nearest; null = automatic
+        internal ICombatant ShownChosenTarget()
+            => _chosenTarget != null && TiedNearestEnemies().Contains(_chosenTarget) ? _chosenTarget : null;
+
+        // Step to the next tied enemy, and after the last one back to automatic. False when there is no tie to choose in.
+        internal bool SwitchChosenTarget()
+        {
+            List<ICombatant> tied = TiedNearestEnemies();
+            if (tied.Count < 2) return false;
+
+            int at = tied.IndexOf(ShownChosenTarget());     // -1 while automatic
+            _chosenTarget = at + 1 < tied.Count ? tied[at + 1] : null;
+            return true;
+        }
+
+        // At the start of a fight a pick counts only if it is still tied: moving me afterwards cannot aim me at anyone,
+        // and an enemy from the stage before is gone
+        internal void KeepChosenTargetOnlyIfTied() => _chosenTarget = ShownChosenTarget();
 
         // Picks furthest enemy within reachRange
         public ICombatant FindFurthestEnemy(int reachRange) => FindFurthestEnemies(reachRange).FirstOrDefault();
@@ -275,6 +321,23 @@ namespace MagicSchool.Combat.Heroes
 
             // 3) if nothing work, random between the tied
             return tied[UnityEngine.Random.Range(0, tied.Count)];   // spelt out: `using System` makes a bare Random ambiguous
+        }
+
+        // every enemy I can pick from, with its steps: an enemy already in my range is picked before any other
+        private List<(ICombatant target, int steps)> Candidates()
+        {
+            List<(ICombatant target, int steps)> enemySteps = _scan.Steps();
+
+            var inRange = enemySteps.Where(e => IsInMyRange(e.target)).ToList();
+            return inRange.Count > 0 ? inRange : enemySteps;
+        }
+
+        // my chosen target is among the candidates and can be walked to - not boxed in
+        private bool IsChosenTargetOpen(List<(ICombatant target, int steps)> candidates)
+        {
+            if (_chosenTarget == null || !_chosenTarget.IsAlive) return false;
+
+            return candidates.Any(e => e.target == _chosenTarget && e.steps < EnemyScan.UnreachablePenalty);
         }
 
         private bool IsInMyRange(ICombatant target)

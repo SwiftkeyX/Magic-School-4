@@ -38,6 +38,10 @@ namespace MagicSchool.Combat.Placements
         [Tooltip("Aligning, while a hero is held: a hex of its marks that is past the board's edge - drawn only to show the mark's shape.")]
         [SerializeField] private Color _ghostColor = new Color(0.5f, 0.5f, 0.5f, 0.6f);
 
+        [Tooltip("Preparation, hovering a placed hero whose nearest enemy is a tie: the tied enemies' hexes get a ring of this colour, " +
+                 "and the one the player chose for it is filled with it.")]
+        [SerializeField] private Color _targetColor = new Color(1f, 0.85f, 0.1f);
+
         [Tooltip("A mark hex that gives nothing (off the board, outside the deploy zone, or past the edge) is drawn as its own colour " +
                  "ringed in the mark's colours, faded this much toward its own colour.")]
         [Range(0f, 1f)]
@@ -104,6 +108,16 @@ namespace MagicSchool.Combat.Placements
             Hex template = null;
             foreach (Hex hex in _hexs.Values) { template = hex; break; }
             _ghosts?.Show(ghosts, template);
+        }
+
+        // Painted over whatever is shown: a hovered hero's tied nearest enemies, ringed, and the one chosen for it, filled
+        // (See FindTarget.SwitchChosenTarget)
+        public void ShowTargets(IEnumerable<Hex> tied, Hex chosen)
+        {
+            foreach (Hex hex in tied)
+            {
+                hex.SetColors(hex == chosen ? new[] { _targetColor } : new[] { ZoneColorOf(hex), _targetColor });
+            }
         }
 
         // purple outermost, then orange, green, white; nothing marked => the hex's own colour
