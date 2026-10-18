@@ -8,6 +8,7 @@ namespace MagicSchool.Input
     // 2) right click to inspect hero/items - or, while holding a hero, to rotate its align pattern.
     // 3) spacebar to interact with game's stage e.g. start combat, retry, continue to next stage
     // 4) R to quick-retry
+    // 5) hold Shift while hovering a placed hero, in Preparation, to see who it goes for and the way it walks instead of its marks
     public static class PlayerInputSystem
     {
         public static bool IsPointerDown => Mouse.current.leftButton.isPressed;
@@ -17,6 +18,7 @@ namespace MagicSchool.Input
         public static bool InspectPressedThisFrame => Mouse.current.rightButton.wasPressedThisFrame;
         public static bool RestartPressedThisFrame => Keyboard.current.rKey.wasPressedThisFrame;
         public static bool CancelPressedThisFrame => Keyboard.current.escapeKey.wasPressedThisFrame;
+        public static bool TargetViewHeld => Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed;
 
         // adjust game's speed using numkey
         public static int SpeedPressedThisFrame()

@@ -23,7 +23,7 @@ namespace MagicSchool.Player
         private HashSet<Hex> _wearing = new HashSet<Hex>();
         private bool _isShown;
         private (Hero hero, Hex standingOn, int pattern) _shownShape;     // the marks drawn now, when ShowMarks drew them
-        private (ICombatant chosen, int tied) _shownTargets;               // the targets drawn over them (See ShowTargets)
+        private (Hero hero, Hex standingOn, ICombatant chosen, int tied) _shownTargetView;   // when ShowTargetView drew it
 
         public AlignHighlight(Camera cam, Dragging dragging, BattleBoard board, TeamEnum team)
         {
@@ -56,7 +56,8 @@ namespace MagicSchool.Player
             {
                 Hero hovered = HoveredPlacedHero();
                 if (hovered == null) Hide(isPreparation);
-                else ShowMarksAndTargets(hovered);
+                else if (PlayerInputSystem.TargetViewHeld) ShowTargetView(hovered);
+                else ShowMarks(hovered, hovered.CurrentHex);
                 return;
             }
 
@@ -78,38 +79,46 @@ namespace MagicSchool.Player
             ShowMarks(held, pointed);
         }
 
-        // A placed hero under the pointer: its marks, and over them the enemies tied for its nearest - ringed, the one the
-        // player chose for it filled. Right-clicking it again while inspected switches which (See PlayerController.TrySwitchTarget).
-        private void ShowMarksAndTargets(Hero hero)
+        // Shift held over a placed hero: instead of its marks, the enemies tied for its nearest - a yellow band, the one the
+        // player chose for it filled - and a dot on every hex it would walk through to reach that one. Shown apart from the
+        // marks, which sit on the same hexes round the hero and would read as part of the route.
+        // Right-clicking it again while inspected switches the target (See PlayerController.TrySwitchTarget).
+        private void ShowTargetView(Hero hero)
         {
             IReadOnlyList<ICombatant> tied = hero.TiedNearestEnemies();
             ICombatant chosen = hero.ChosenTarget;
 
-            // the targets changed: repaint everything, so the hexes painted for the old ones go back
-            (ICombatant, int) targets = (chosen, tied.Count);
-            if (_shownTargets != targets) _isShown = false;
+            // repaint only when something changed
+            (Hero, Hex, ICombatant, int) view = (hero, hero.CurrentHex, chosen, tied.Count);
+            if (_isShown && _shownTargetView == view) return;
 
-            bool isRepainted = ShowMarks(hero, hero.CurrentHex);
-            _shownTargets = targets;
-            if (!isRepainted || tied.Count < 2) return;
+            _board.Colours.ShowDeployZone(true);       // no marks
 
-            var tiedHexes = new List<Hex>();
-            foreach (ICombatant enemy in tied)
+            if (tied.Count >= 2)
             {
-                if (enemy.CurrentPlacement is Hex hex) tiedHexes.Add(hex);
+                var tiedHexes = new List<Hex>();
+                foreach (ICombatant enemy in tied)
+                {
+                    if (enemy.CurrentPlacement is Hex hex) tiedHexes.Add(hex);
+                }
+
+                _board.Colours.ShowTargets(tiedHexes, chosen?.CurrentPlacement as Hex);
+                _board.Colours.ShowRoute(hero.RouteToChosenTarget());
             }
 
-            _board.Colours.ShowTargets(tiedHexes, chosen?.CurrentPlacement as Hex);
+            _isShown = true;
+            _shownShape = default;
+            _shownTargetView = view;
         }
 
-        // the hexes the hero marks while standing on [standingOn], each bonus in its colour. False when they are drawn already.
+        // the hexes the hero marks while standing on [standingOn], each bonus in its colour.
         // The whole shape is drawn: a mark hex that gives nothing - on a red hex, past the board's edge, or off the board as a
         // gray hex - is still shown, faded, so the player sees where the mark is (See AlignShape, BoardColours.ShowAlignMarks).
-        private bool ShowMarks(Hero hero, Hex standingOn)
+        private void ShowMarks(Hero hero, Hex standingOn)
         {
             // repaint only when something moved
             (Hero, Hex, int) shape = (hero, standingOn, hero.AlignPattern);
-            if (_isShown && _shownShape == shape) return false;
+            if (_isShown && _shownShape == shape) return;
 
             var onBoard = new Dictionary<Hex, MarkColours>();
             var paying = new HashSet<Hex>();
@@ -143,8 +152,7 @@ namespace MagicSchool.Player
             _board.Colours.ShowAlignMarks(onBoard, new List<(Vector3, MarkColours)>(offBoard.Values));
             _isShown = true;
             _shownShape = shape;
-            _shownTargets = default;
-            return true;
+            _shownTargetView = default;
         }
 
         // [marks] with the colour of [shown] added
@@ -170,7 +178,7 @@ namespace MagicSchool.Player
         private void Show(HashSet<Hex> firstBonus, HashSet<Hex> secondBonus, HashSet<Hex> special, HashSet<Hex> wearing)
         {
             // repaint only when something moved
-            if (_isShown && _shownShape.hero == null && firstBonus.SetEquals(_firstBonus) && secondBonus.SetEquals(_secondBonus)
+            if (_isShown && _shownShape.hero == null && _shownTargetView.hero == null && firstBonus.SetEquals(_firstBonus) && secondBonus.SetEquals(_secondBonus)
                 && special.SetEquals(_special) && wearing.SetEquals(_wearing)) return;
 
             _firstBonus = firstBonus;
@@ -179,6 +187,7 @@ namespace MagicSchool.Player
             _wearing = wearing;
             _isShown = true;
             _shownShape = default;
+            _shownTargetView = default;
             _board.Colours.ShowAlignMarks(_firstBonus, _secondBonus, _special, _wearing);
         }
 

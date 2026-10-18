@@ -49,16 +49,19 @@ namespace MagicSchool.Combat.Placements
 
         private IReadOnlyDictionary<HexNumber, Hex> _hexs;
         private GhostHexes _ghosts;
+        private RouteDots _route;
         internal void Init(IReadOnlyDictionary<HexNumber, Hex> hexs, Transform board)
         {
             _hexs = hexs;
             _ghosts = new GhostHexes(board);
+            _route = new RouteDots(board);
         }
 
         // Repaint the whole deploy zone
         public void ShowDeployZone(bool isShown)
         {
             _ghosts?.HideAll();
+            _route?.HideAll();
 
             foreach (Hex hex in _hexs.Values)
             {
@@ -108,17 +111,22 @@ namespace MagicSchool.Combat.Placements
             Hex template = null;
             foreach (Hex hex in _hexs.Values) { template = hex; break; }
             _ghosts?.Show(ghosts, template);
+            _route?.HideAll();
         }
 
-        // Painted over whatever is shown: a hovered hero's tied nearest enemies, ringed, and the one chosen for it, filled
+        // Painted over whatever is shown: a hovered hero's tied nearest enemies get a band of the target colour, and the one chosen for it is filled
         // (See FindTarget.SwitchChosenTarget)
         public void ShowTargets(IEnumerable<Hex> tied, Hex chosen)
         {
             foreach (Hex hex in tied)
             {
-                hex.SetColors(hex == chosen ? new[] { _targetColor } : new[] { ZoneColorOf(hex), _targetColor });
+                hex.SetColors(hex == chosen ? new[] { _targetColor } : new[] { ZoneColorOf(hex), _targetColor, ZoneColorOf(hex) });   // a yellow band, its own colour inside
             }
         }
+
+        // A dot on every hex a hovered hero would walk through to its chosen target, drawn over the marks and targets
+        // (See Hero.RouteToChosenTarget). Anything that repaints the board takes the dots away.
+        public void ShowRoute(IReadOnlyList<Hex> route) => _route?.Show(route, _targetColor);
 
         // purple outermost, then orange, green, white; nothing marked => the hex's own colour
         private List<Color> ColoursOf(MarkColours marks, Color own)
