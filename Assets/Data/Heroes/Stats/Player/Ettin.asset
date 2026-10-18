@@ -114,7 +114,7 @@ MonoBehaviour:
         isWearing: 1
       special: 
       modifier: 5
-      amount: 30
+      amount: 20
       percentOf: 5
       selfModifier: 0
       selfAmount: 0
@@ -160,7 +160,7 @@ MonoBehaviour:
         isWearing: 0
       special: 
       modifier: 5
-      amount: 30
+      amount: 20
       percentOf: 5
       selfModifier: 0
       selfAmount: 0
@@ -206,7 +206,7 @@ MonoBehaviour:
         isWearing: 1
       special: 
       modifier: 5
-      amount: 30
+      amount: 20
       percentOf: 5
       selfModifier: 0
       selfAmount: 0

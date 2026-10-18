@@ -185,8 +185,8 @@ MonoBehaviour:
       healFromAllyDamage: 0
     - hexes: []
       special: 
-      modifier: 0
-      amount: 0
+      modifier: 7
+      amount: 25
       percentOf: -1
       selfModifier: 0
       selfAmount: 0
