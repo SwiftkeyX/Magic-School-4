@@ -8,7 +8,8 @@ namespace MagicSchool.Skills
     {
         // slam
         private static float DamageRatio => Tuned(150f);
-        private static float WoundDuration => Tuned(6f);
+        private static float ShredDF => Tuned(20f);
+        private static float ShredDuration => Tuned(4f);
 
         // shield on cast - a flat part, and a share of his total max HP, so the bonus health he has fed on counts
         private static float ShieldFlat => Tuned(50f);
@@ -35,8 +36,8 @@ namespace MagicSchool.Skills
         public override string SkillName => "Rotting Slam";
 
         public override string Description
-            => $"Slams the ground for {DamageRatio}% AD to enemies around him and wounds them for "
-             + $"{WoundDuration} seconds (reduced healing), then shields himself for {ShieldFlat} + {ShieldRatio}% of his max HP for {ShieldDuration} seconds.";
+            => $"Slams the ground for {DamageRatio}% AD to enemies around him and shreds {ShredDF} of their DF for "
+             + $"{ShredDuration} seconds, then shields himself for {ShieldFlat} + {ShieldRatio}% of his max HP for {ShieldDuration} seconds.";
 
         public override string PassiveDescription
             => $"Whenever an ally on his {FeedMark} mark kills an enemy, he gains {BonusHPPerDeath} bonus health for the rest of the fight "
@@ -86,18 +87,18 @@ namespace MagicSchool.Skills
 
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            ICustomModifier wound = BundleRefresh(WoundDuration, Status(ModifierEnum.Wound));
+            ICustomModifier shred = BundleRefresh(ShredDuration, Debuff(ModifierEnum.DefendShred, ShredDF));
 
             // a circle around himself
             SkillPart slam = Part(
                 registry: registry,
-                source: ActionSourceEnum.Self,
+                source: ActionSourceEnum.Current,
                 action: TemplateActionEnum.CircleAOE,
                 target: AimTargetEnum.Self,
                 tuning: TuneAOE(length: AreaDiameter, width: AreaDiameter),
 
                 Damage(EffectRecipientEnum.EnemiesInArea, (StatEnum.ATK, DamageRatio)),
-                Apply(EffectRecipientEnum.EnemiesInArea, wound)
+                Apply(EffectRecipientEnum.EnemiesInArea, shred)
             );
 
             return Flow(onStart: slam);
