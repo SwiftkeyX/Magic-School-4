@@ -21,7 +21,7 @@ namespace MagicSchool.Combat.Heroes
     ///     Hero.Skill.cs       => skill triggers, and the text the Hero Panel reads
     ///     Hero.Targeting.cs   => ITargeter, handed to FindTarget
     /// </summary>
-    public partial class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISpawner, IAligned, IHexMeasurable
+    public partial class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISpawner, IAligned, IHexMeasurable, IFallen
     {
         // ======================================== Dependency ========================================
         private HeroDataSO _SOData;

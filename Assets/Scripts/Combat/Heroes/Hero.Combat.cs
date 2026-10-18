@@ -14,6 +14,13 @@ namespace MagicSchool.Combat.Heroes
         public event Action<DamageEvent> OnDamageDealt;     // this hero hurt someone - raised by the one who took it
         public event Action<HeroDataSO, TeamEnum, IPlacement, BattleBoard> OnSpawnRequested;
 
+        // ======================================== IFallen ========================================
+        public IEffectable KilledBy { get; private set; }
+        public bool IsSummon { get; private set; }
+
+        // called by whoever builds a unit another unit asked for (See OnSpawnRequested)
+        public void MarkAsSummon() => IsSummon = true;
+
         // ======================================== IEffectable ========================================
         public bool IsAlive => this != null && IsInitialized && StateType != HeroStateEnum.Dead;
         public void AddModifier(ICustomModifier modifier, IHeroStats casterStats, float amplifier = 1f) => Stat.AddModifier(modifier, amplifier, casterStats, this);
@@ -37,8 +44,12 @@ namespace MagicSchool.Combat.Heroes
 
             // calculate damage
             DamageOutcome outcome = CombatMath.ResolveDamage(damage, Stat.DF, Stat.DamageReductionPercent, Stat.CurrentHP, Stat.Shield, out int absorbed);
+            bool wasAlive = Stat.CurrentHP > 0;
             Stat.ConsumeShield(absorbed);
             Stat.SetCurrentHP(outcome.NewHP);
+
+            // the hit that takes it to 0 HP is the kill: remember whose it was
+            if (wasAlive && outcome.NewHP <= 0) KilledBy = source;
 
             var damageEvent = new DamageEvent(source, this, kind, outcome);
             OnDamaged?.Invoke(damageEvent);

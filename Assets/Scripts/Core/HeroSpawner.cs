@@ -32,9 +32,19 @@ namespace MagicSchool.Core
 
         // basically spawn hero
         private void SpawnHero(HeroDataSO data, TeamEnum team, IPlacement placement, BattleBoard board)
-        {
-            Hero hero = Build(data, board, team);
+            => Place(Build(data, board, team), placement);
 
+        // a unit a hero asked for mid-fight is a summon
+        // e.g.     Troll does not grow from a Small Slime's death
+        private void SpawnSummon(HeroDataSO data, TeamEnum team, IPlacement placement, BattleBoard board)
+        {
+            Hero summon = Build(data, board, team);
+            summon.MarkAsSummon();
+            Place(summon, placement);
+        }
+
+        private void Place(Hero hero, IPlacement placement)
+        {
             // move them to "placement"
             _heroMover.MoveThisHeroTo(hero, placement);
 
@@ -62,7 +72,7 @@ namespace MagicSchool.Core
 
             // a hero may ask for units of its own in the middle of a fight 
             // e.g.     Big Slime splits into smaller slime
-            hero.OnSpawnRequested += SpawnHero;
+            hero.OnSpawnRequested += SpawnSummon;
 
             return hero;
         }
