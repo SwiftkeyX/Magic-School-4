@@ -10,6 +10,12 @@ namespace MagicSchool.Skills
         private static float DamageRatio => Tuned(150f);
         private static float WoundDuration => Tuned(6f);
 
+        // shield on cast - a flat part, and a share of his total max HP, so the bonus health he has fed on counts
+        private static float ShieldFlat => Tuned(50f);
+        private static float ShieldRatio => Tuned(10f);
+        private static float ShieldDuration => Tuned(4f);
+        private readonly ICustomModifier _shield = BundleRefresh(ShieldDuration, Shield(ShieldFlat, (StatEnum.MaxHP, ShieldRatio)));
+
         // area - the centre hex plus that many rings around it (hexes are ~1 apart)
         private static int AreaHexes => Tuned(1);
         private static float AreaDiameter => AreaHexes * 2f + 0.5f;
@@ -30,7 +36,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Slams the ground for {DamageRatio}% AD to enemies around him and wounds them for "
-             + $"{WoundDuration} seconds (reduced healing).";
+             + $"{WoundDuration} seconds (reduced healing), then shields himself for {ShieldFlat} + {ShieldRatio}% of his max HP for {ShieldDuration} seconds.";
 
         public override string PassiveDescription
             => $"Whenever an ally on his {FeedMark} mark kills an enemy, he gains {BonusHPPerDeath} bonus health for the rest of the fight "
@@ -68,6 +74,16 @@ namespace MagicSchool.Skills
         }
 
         // ============================== active ==============================
+        // on cast, slam and take the shield. Refreshed, not stacked, if he casts again before it runs out
+        public override bool OnCast()
+        {
+            if (!base.OnCast()) return false;
+
+            Caster.AddModifier(_shield, Caster as IHeroStats);
+
+            return true;
+        }
+
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             ICustomModifier wound = BundleRefresh(WoundDuration, Status(ModifierEnum.Wound));
