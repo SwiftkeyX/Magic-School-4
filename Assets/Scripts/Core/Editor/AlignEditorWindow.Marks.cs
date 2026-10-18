@@ -73,13 +73,13 @@ namespace MagicSchool.Editor
             switch (index)
             {
                 case OrangeMark:
-                    EditorGUILayout.LabelField("Pays the hero itself, for every ally standing on one of these hexes.", EditorStyles.wordWrappedMiniLabel);
-                    foreach (string field in OrangeFields) EditorGUILayout.PropertyField(mark.FindPropertyRelative(field));
+                    EditorGUILayout.LabelField("Pays the hero itself, for every ally standing on one of these hexes. The same in every pattern.", EditorStyles.wordWrappedMiniLabel);
+                    DrawBonusFields(mark, index, OrangeFields);
                     break;
 
                 case GreenMark:
-                    EditorGUILayout.LabelField("Pays the ally standing on one of these hexes.", EditorStyles.wordWrappedMiniLabel);
-                    foreach (string field in GreenFields) EditorGUILayout.PropertyField(mark.FindPropertyRelative(field));
+                    EditorGUILayout.LabelField("Pays the ally standing on one of these hexes. The same in every pattern.", EditorStyles.wordWrappedMiniLabel);
+                    DrawBonusFields(mark, index, GreenFields);
                     break;
 
                 default:
@@ -92,6 +92,57 @@ namespace MagicSchool.Editor
             EditorGUILayout.EndVertical();
 
             return isRemoved || (!isSpecial && index >= FirstSpecialMark && GUILayout.Button("Remove this mark", EditorStyles.miniButton));
+        }
+
+        // ======================================== one bonus for every pattern ========================================
+        // A pattern only moves the hexes: orange's and green's bonuses are the hero's, the same in every pattern.
+        // They are still stored on each pattern's own mark, so the editor keeps the copies equal.
+
+        // A bonus edited in the pattern on screen is written into every pattern at once.
+        private void DrawBonusFields(SerializedProperty mark, int index, string[] fields)
+        {
+            EditorGUI.BeginChangeCheck();
+            foreach (string field in fields) EditorGUILayout.PropertyField(mark.FindPropertyRelative(field));
+            if (EditorGUI.EndChangeCheck()) CopyBonuses(_serializedHero.FindProperty("_alignPatterns"), _selectedPattern, index);
+        }
+
+        // Every pattern gets pattern 1's bonuses: one added empty, one edited before this rule, or one whose boxes were only just added.
+        private static void MatchBonusesToFirstPattern(SerializedProperty patterns)
+        {
+            CopyBonuses(patterns, 0, OrangeMark);
+            CopyBonuses(patterns, 0, GreenMark);
+        }
+
+        // That mark's bonus fields, from one pattern into every other. A pattern without the mark yet gets it when it is shown.
+        private static void CopyBonuses(SerializedProperty patterns, int fromPattern, int mark)
+        {
+            SerializedProperty fromMarks = MarksOf(patterns, fromPattern);
+            if (mark >= fromMarks.arraySize || IsSpecial(fromMarks, mark)) return;
+
+            SerializedProperty from = fromMarks.GetArrayElementAtIndex(mark);
+            string[] fields = mark == OrangeMark ? OrangeFields : GreenFields;
+
+            for (int p = 0; p < patterns.arraySize; p++)
+            {
+                SerializedProperty marks = MarksOf(patterns, p);
+                if (p == fromPattern || mark >= marks.arraySize || IsSpecial(marks, mark)) continue;
+
+                SerializedProperty to = marks.GetArrayElementAtIndex(mark);
+                foreach (string field in fields) CopyValue(from.FindPropertyRelative(field), to.FindPropertyRelative(field));
+            }
+        }
+
+        // only what a bonus field can be: an enum, a number or a tick
+        private static void CopyValue(SerializedProperty from, SerializedProperty to)
+        {
+            switch (from.propertyType)
+            {
+                case SerializedPropertyType.Enum:
+                case SerializedPropertyType.Integer: to.intValue = from.intValue; break;
+                case SerializedPropertyType.Float: to.floatValue = from.floatValue; break;
+                case SerializedPropertyType.Boolean: to.boolValue = from.boolValue; break;
+                default: Debug.LogError($"Align Editor: cannot copy {from.propertyPath} ({from.propertyType})"); break;
+            }
         }
 
         // A new, empty mark at the end. Unity fills a new list entry with a copy of the last one, so wipe it.
