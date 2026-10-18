@@ -125,7 +125,7 @@ namespace MagicSchool.Combat.Placements
         }
 
         // A dot on every hex a hovered hero would walk through to its chosen target, drawn over the marks and targets
-        // (See Hero.RouteToChosenTarget). Anything that repaints the board takes the dots away.
+        // (See Hero.RouteToExpectedTarget). Anything that repaints the board takes the dots away.
         public void ShowRoute(IReadOnlyList<Hex> route) => _route?.Show(route, _targetColor);
 
         // purple outermost, then orange, green, white; nothing marked => the hex's own colour

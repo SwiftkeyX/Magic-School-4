@@ -4,8 +4,8 @@ using UnityEngine;
 namespace MagicSchool.Combat.Placements
 {
     /// <summary>
-    /// The dots drawn on the hexes a hero would walk through to reach the target the player chose for it, in Preparation
-    /// (See Hero.RouteToChosenTarget). Only sprites - small copies of a board hex - so they need no shader of their own.
+    /// The dots drawn on the hexes a hero would walk through to reach the enemy it will go for, in Preparation
+    /// (See Hero.RouteToExpectedTarget). Only sprites - small copies of a board hex - so they need no shader of their own.
     /// e.g.    Orc chose the Big Slime on the far side => a dot on every hex between them, the way he would go round his allies
     /// </summary>
     internal class RouteDots

@@ -30,16 +30,30 @@ namespace MagicSchool.Combat.Heroes
         public ICombatant ChosenTarget => _findEnemy.ShownChosenTarget();
         public bool SwitchChosenTarget() => _findEnemy.SwitchChosenTarget();
 
-        // The hexes I would walk through to get my chosen target in range, from where I stand, if nobody else moved -
+        // Who I will go for when the fight starts: my chosen target, or my only nearest enemy.
+        // null while my nearest is a tie left automatic - that one is only settled in the fight.
+        public ICombatant ExpectedTarget
+        {
+            get
+            {
+                ICombatant chosen = ChosenTarget;
+                if (chosen != null) return chosen;
+
+                IReadOnlyList<ICombatant> tied = TiedNearestEnemies();
+                return tied.Count == 1 ? tied[0] : null;
+            }
+        }
+
+        // The hexes I would walk through to get my expected target in range, from where I stand, if nobody else moved -
         // found a step at a time the way I walk in the fight (See Transition.CanWalk). Shown in Preparation, so the player
         // sees a detour round his own heroes is still on the way to the target (See AlignHighlight).
-        // Empty while automatic or already in range; it stops short when the way is shut.
-        public IReadOnlyList<Hex> RouteToChosenTarget()
+        // Empty while there is no expected target or it is already in range; it stops short when the way is shut.
+        public IReadOnlyList<Hex> RouteToExpectedTarget()
         {
             const int MaxSteps = 40;    // far more than any board is wide
 
             var route = new List<Hex>();
-            Hex target = ChosenTarget?.CurrentPlacement as Hex;
+            Hex target = ExpectedTarget?.CurrentPlacement as Hex;
             Hex at = CurrentHex;
             if (target == null || at == null) return route;
 

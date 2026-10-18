@@ -79,22 +79,23 @@ namespace MagicSchool.Player
             ShowMarks(held, pointed);
         }
 
-        // Shift held over a placed hero: instead of its marks, the enemies tied for its nearest - a yellow band, the one the
-        // player chose for it filled - and a dot on every hex it would walk through to reach that one. Shown apart from the
+        // Shift held over a placed hero: instead of its marks, the enemy it will go for, filled yellow, and a dot on every hex
+        // it would walk through to reach it. When its nearest is a tie, the tied ones get a yellow band, and the fill and the
+        // route only show once the player has chosen one (See Hero.ExpectedTarget). Shown apart from the
         // marks, which sit on the same hexes round the hero and would read as part of the route.
         // Right-clicking it again while inspected switches the target (See PlayerController.TrySwitchTarget).
         private void ShowTargetView(Hero hero)
         {
             IReadOnlyList<ICombatant> tied = hero.TiedNearestEnemies();
-            ICombatant chosen = hero.ChosenTarget;
+            ICombatant expected = hero.ExpectedTarget;
 
             // repaint only when something changed
-            (Hero, Hex, ICombatant, int) view = (hero, hero.CurrentHex, chosen, tied.Count);
+            (Hero, Hex, ICombatant, int) view = (hero, hero.CurrentHex, expected, tied.Count);
             if (_isShown && _shownTargetView == view) return;
 
             _board.Colours.ShowDeployZone(true);       // no marks
 
-            if (tied.Count >= 2)
+            if (tied.Count >= 1)
             {
                 var tiedHexes = new List<Hex>();
                 foreach (ICombatant enemy in tied)
@@ -102,8 +103,8 @@ namespace MagicSchool.Player
                     if (enemy.CurrentPlacement is Hex hex) tiedHexes.Add(hex);
                 }
 
-                _board.Colours.ShowTargets(tiedHexes, chosen?.CurrentPlacement as Hex);
-                _board.Colours.ShowRoute(hero.RouteToChosenTarget());
+                _board.Colours.ShowTargets(tiedHexes, expected?.CurrentPlacement as Hex);
+                _board.Colours.ShowRoute(hero.RouteToExpectedTarget());
             }
 
             _isShown = true;
