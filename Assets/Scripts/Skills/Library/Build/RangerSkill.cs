@@ -6,7 +6,7 @@ namespace MagicSchool.Skills
 {
     internal class RangerSkill : SkillDefinition
     {
-        private static float DamageRatio => Tuned(744f);
+        private static float DamageRatio => Tuned(500f);
         private static float FalloffPerEnemy => Tuned(33f);     // % less damage for every enemy the shot already went through
 
         // buff - one for every enemy the shot hits
