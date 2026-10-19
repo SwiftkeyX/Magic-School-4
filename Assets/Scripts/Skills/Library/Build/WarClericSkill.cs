@@ -7,7 +7,7 @@ namespace MagicSchool.Skills
     internal class WarClericSkill : SkillDefinition
     {
         private static float BurnPerTick => Tuned(60f);
-        private static float HealPerTick => Tuned(50f);
+        private static float HealPerTick => Tuned(25f);
         private static float TickInterval => Tuned(1f);
         private static float Duration => Tuned(3f);
 
@@ -20,6 +20,10 @@ namespace MagicSchool.Skills
         private static int AreaHexes => Tuned(2);
         private static float AreaDiameter => AreaHexes * 2f + 0.5f;
 
+        // the heal is [HealPerTick x (allies on his Sanctuary mark + 1)]% AP
+        private const string SanctuaryMark = "Sanctuary";
+        public override IReadOnlyList<string> SpecialMarks => new[] { SanctuaryMark };
+
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new WarClericSkill(registry);
 
         private WarClericSkill(TemplateActionRegistrySO registry) : base(registry) { }
@@ -29,7 +33,8 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Consecrates the ground within {AreaHexes} hexes of himself for {Duration} seconds. Every "
              + $"{TickInterval} second, enemies inside burn for {BurnPerTick}% AP and allies inside, himself "
-             + $"included, heal for {HealPerTick}% AP.";
+             + $"included, heal for {HealPerTick}% AP, "
+             + $"{HealPerTick}% more for every ally on his {SanctuaryMark} mark.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
@@ -51,10 +56,15 @@ namespace MagicSchool.Skills
                     recipient: EffectRecipientEnum.AlliesInArea,
                     duration: Duration,
                     interval: TickInterval,
-                    ratios: (StatEnum.AP, TotalHeal))
+                    ratios: (StatEnum.AP, TotalHeal)
+                ).AmplifiedBy(SanctuaryBonus)
             );
 
             return Flow(onStart: ground);
         }
+
+        // e.g. 2 allies on his Sanctuary mark => x3 heal
+        private static float SanctuaryBonus(IEffectable caster)
+            => caster is IAligned aligned ? aligned.AlliesOnSpecialMark(SanctuaryMark).Count : 0f;
     }
 }
