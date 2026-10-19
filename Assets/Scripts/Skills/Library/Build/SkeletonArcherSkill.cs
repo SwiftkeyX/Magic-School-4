@@ -12,12 +12,12 @@ namespace MagicSchool.Skills
         private static int BarrageCount => Tuned(2);
         private static int ShotsPerBarrage => Tuned(4);
         private static float IntervalBetweenShot => Tuned(0.1f);
-        private static float PauseBetweenBarrage => Tuned(0.3f);
+        private static float PauseBetweenBarrage => Tuned(1.5f);
         private static float BarrageCastTime => IntervalBetweenShot * (ShotsPerBarrage - 1);
 
         // a long shot - its target 3+ hexes away when it lands - deals [this]% more for every ally on his Long Shot mark
         private static int LongShotHexes => Tuned(3);
-        private static float LongShotBonusPerAlly => Tuned(15f);
+        private static float LongShotBonusPerAlly => Tuned(75f);
 
         private const string LongShotMark = "Long Shot";
         public override IReadOnlyList<string> SpecialMarks => new[] { LongShotMark };

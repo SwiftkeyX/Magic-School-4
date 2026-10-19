@@ -22,7 +22,7 @@ namespace MagicSchool.Skills
         private static float AreaDiameter => AreaHexes * 2f + 0.5f;
 
         // passive
-        private static float BonusHPPerDeath => Tuned(300f);
+        private static float BonusHPPerDeath => Tuned(150f);
         private static float RestOfFight => Tuned(-1f);
 
         // only the kills of the allies standing on this mark feed him (See AlignMark)
