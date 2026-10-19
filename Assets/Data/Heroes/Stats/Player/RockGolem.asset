@@ -51,19 +51,110 @@ MonoBehaviour:
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
-      - direction: 3
-        distance: 1
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 0
       - direction: 0
         distance: 1
         thenDirection: 0
         thenDistance: 0
         isWearing: 0
+      - direction: 0
+        distance: 3
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 0
+      - direction: 3
+        distance: 3
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
+      - direction: 1
+        distance: 3
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 0
+      - direction: 2
+        distance: 3
+        thenDirection: 2
+        thenDistance: 0
+        isWearing: 0
+      - direction: 4
+        distance: 3
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
       - direction: 5
-        distance: 1
+        distance: 3
         thenDirection: 5
+        thenDistance: 0
+        isWearing: 0
+      - direction: 3
+        distance: 1
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
+      special: Ward
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+  - marks:
+    - hexes: []
+      special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes: []
+      special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes:
+      - direction: 1
+        distance: 1
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 0
+      - direction: 1
+        distance: 3
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 0
+      - direction: 4
+        distance: 3
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
+      - direction: 2
+        distance: 3
+        thenDirection: 2
+        thenDistance: 0
+        isWearing: 0
+      - direction: 3
+        distance: 3
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
+      - direction: 5
+        distance: 3
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 0
+      - direction: 0
+        distance: 3
+        thenDirection: 0
         thenDistance: 0
         isWearing: 0
       - direction: 4
@@ -71,14 +162,75 @@ MonoBehaviour:
         thenDirection: 3
         thenDistance: 0
         isWearing: 0
-      - direction: 1
-        distance: 1
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 0
+      special: Ward
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+  - marks:
+    - hexes: []
+      special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes: []
+      special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes:
       - direction: 2
         distance: 1
         thenDirection: 2
+        thenDistance: 0
+        isWearing: 0
+      - direction: 2
+        distance: 3
+        thenDirection: 2
+        thenDistance: 0
+        isWearing: 0
+      - direction: 5
+        distance: 3
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 0
+      - direction: 3
+        distance: 3
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
+      - direction: 4
+        distance: 3
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
+      - direction: 0
+        distance: 3
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 0
+      - direction: 1
+        distance: 3
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 0
+      - direction: 5
+        distance: 1
+        thenDirection: 5
         thenDistance: 0
         isWearing: 0
       special: Ward

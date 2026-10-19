@@ -45,12 +45,12 @@ MonoBehaviour:
         distance: 2
         thenDirection: 2
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       - direction: 3
         distance: 2
         thenDirection: 3
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       special: 
       modifier: 20
       amount: 5
@@ -76,12 +76,12 @@ MonoBehaviour:
         distance: 2
         thenDirection: 3
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       - direction: 4
         distance: 2
         thenDirection: 3
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       special: 
       modifier: 20
       amount: 5
@@ -107,12 +107,12 @@ MonoBehaviour:
         distance: 2
         thenDirection: 5
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       - direction: 0
         distance: 2
         thenDirection: 0
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       special: 
       modifier: 20
       amount: 5
@@ -138,12 +138,12 @@ MonoBehaviour:
         distance: 2
         thenDirection: 0
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       - direction: 1
         distance: 2
         thenDirection: 0
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       special: 
       modifier: 20
       amount: 5

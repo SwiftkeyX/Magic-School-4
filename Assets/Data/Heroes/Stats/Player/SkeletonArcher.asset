@@ -30,37 +30,7 @@ MonoBehaviour:
   _spawnUnit: {fileID: 0}
   _alignPatterns:
   - marks:
-    - hexes:
-      - direction: 4
-        distance: 2
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 0
-      - direction: 4
-        distance: 1
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 0
-      - direction: 4
-        distance: 3
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 0
-      - direction: 4
-        distance: 4
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 0
-      - direction: 4
-        distance: 3
-        thenDirection: 3
-        thenDistance: 1
-        isWearing: 0
-      - direction: 4
-        distance: 3
-        thenDirection: 5
-        thenDistance: 1
-        isWearing: 0
+    - hexes: []
       special: 
       modifier: 0
       amount: 0
@@ -87,11 +57,6 @@ MonoBehaviour:
       healFromAllyDamage: 0
     - hexes:
       - direction: 4
-        distance: 2
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 0
-      - direction: 4
         distance: 1
         thenDirection: 3
         thenDistance: 0
@@ -102,19 +67,19 @@ MonoBehaviour:
         thenDistance: 0
         isWearing: 0
       - direction: 4
-        distance: 4
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 0
-      - direction: 4
-        distance: 3
+        distance: 2
         thenDirection: 3
         thenDistance: 1
         isWearing: 0
       - direction: 4
-        distance: 3
+        distance: 2
         thenDirection: 5
         thenDistance: 1
+        isWearing: 0
+      - direction: 4
+        distance: 2
+        thenDirection: 3
+        thenDistance: 0
         isWearing: 0
       special: Long Shot
       modifier: 0
@@ -198,37 +163,7 @@ MonoBehaviour:
       selfWhenEmpty: 0
       healFromAllyDamage: 0
   - marks:
-    - hexes:
-      - direction: 1
-        distance: 1
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 0
-      - direction: 1
-        distance: 2
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 0
-      - direction: 1
-        distance: 3
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 0
-      - direction: 1
-        distance: 4
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 0
-      - direction: 1
-        distance: 3
-        thenDirection: 0
-        thenDistance: 1
-        isWearing: 0
-      - direction: 1
-        distance: 3
-        thenDirection: 2
-        thenDistance: 1
-        isWearing: 0
+    - hexes: []
       special: 
       modifier: 0
       amount: 0
@@ -270,18 +205,13 @@ MonoBehaviour:
         thenDistance: 0
         isWearing: 0
       - direction: 1
-        distance: 4
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 0
-      - direction: 1
-        distance: 3
-        thenDirection: 0
+        distance: 2
+        thenDirection: 2
         thenDistance: 1
         isWearing: 0
       - direction: 1
-        distance: 3
-        thenDirection: 2
+        distance: 2
+        thenDirection: 0
         thenDistance: 1
         isWearing: 0
       special: Long Shot

@@ -67,12 +67,12 @@ MonoBehaviour:
       healFromAllyDamage: 0
     - hexes:
       - direction: 1
-        distance: 2
+        distance: 1
         thenDirection: 0
         thenDistance: 0
         isWearing: 0
       - direction: 2
-        distance: 2
+        distance: 1
         thenDirection: 2
         thenDistance: 0
         isWearing: 0
@@ -122,13 +122,13 @@ MonoBehaviour:
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
-      - direction: 3
-        distance: 2
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 0
       - direction: 4
-        distance: 2
+        distance: 1
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
+      - direction: 3
+        distance: 1
         thenDirection: 3
         thenDistance: 0
         isWearing: 0
@@ -178,14 +178,14 @@ MonoBehaviour:
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
-      - direction: 5
-        distance: 2
-        thenDirection: 5
+      - direction: 0
+        distance: 1
+        thenDirection: 0
         thenDistance: 0
         isWearing: 0
-      - direction: 0
-        distance: 2
-        thenDirection: 0
+      - direction: 5
+        distance: 1
+        thenDirection: 5
         thenDistance: 0
         isWearing: 0
       special: 

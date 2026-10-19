@@ -25,5 +25,29 @@ MonoBehaviour:
   _range: 1
   _startMana: 0
   _maxMana: 60
+  _critChance: 25
   _skillId: 19
+  _spawnUnit: {fileID: 0}
+  _alignPatterns:
+  - marks:
+    - hexes: []
+      special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes: []
+      special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
   _isDummy: 0
