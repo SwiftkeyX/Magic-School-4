@@ -60,7 +60,7 @@ namespace MagicSchool.Skills
                 tuning: _innerTuning
             );
 
-            TemplateAction.TryPlay(innerGroup, _me, _callbacks, _previousPosition, shotTarget);
+            TemplateAction.TryPlay(innerGroup, _me, ShotCallbacks, _previousPosition, shotTarget);
         }
 
         // ======================================= private =======================================

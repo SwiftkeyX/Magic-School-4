@@ -8,6 +8,8 @@ namespace MagicSchool.Skills
     /// A template action whose only job is to repeat another template action several times.
     /// e.g.    Skeleton Archer's 4 sequential shots
     ///         a volley of 8 arrows at once 
+    /// The runner, not its shots, is what expires: a flow waiting on OnExpired (the next part, or the next round of a
+    /// Repeat) is told once, after the last shot is fired and PauseAfter has passed - never once per shot.
     internal abstract class FireTimingRunnerBase<TTuning> : TemplateAction<TTuning>
         where TTuning : FireTimingRunnerTuning
     {
@@ -23,10 +25,16 @@ namespace MagicSchool.Skills
         protected int _count = 1;
         private FireTimingModeEnum _mode = FireTimingModeEnum.AtOnce;
         private float _interval;
+        private float _pauseAfter;
 
         // ======================================= Event =======================================
-        // The runner raises nothing itself - its callbacks are handed on to every shot it fires.
-        protected override void SubscribeTriggers(TemplateActionCallbacks callbacks) { }
+        // The runner raises OnExpired itself. Every other callback (OnHit, OnSkillHit) is handed on to every shot it fires.
+        protected override void SubscribeTriggers(TemplateActionCallbacks callbacks) => base.SubscribeTriggers(callbacks);
+
+        // the callbacks each shot gets: the runner's, less OnExpired
+        private TemplateActionCallbacks _shotCallbacks;
+        protected TemplateActionCallbacks ShotCallbacks
+            => _shotCallbacks ??= new TemplateActionCallbacks { OnHit = _callbacks.OnHit, OnSkillHit = _callbacks.OnSkillHit };
 
 
         // ======================================= override =======================================
@@ -35,6 +43,7 @@ namespace MagicSchool.Skills
             if (tuning.Count.HasValue) _count = tuning.Count.Value;
             if (tuning.Mode.HasValue) _mode = tuning.Mode.Value;
             if (tuning.Interval.HasValue) _interval = tuning.Interval.Value;
+            if (tuning.PauseAfter.HasValue) _pauseAfter = tuning.PauseAfter.Value;
             if (tuning.InnerTuning != null) _innerTuning = tuning.InnerTuning;
         }
 
@@ -44,7 +53,7 @@ namespace MagicSchool.Skills
             if (_mode == FireTimingModeEnum.AtOnce)
             {
                 for (int i = 0; i < _count; i++) FireOnce();
-                DestroyMe();
+                Finish();
             }
 
             // repeat [count] time
@@ -84,7 +93,7 @@ namespace MagicSchool.Skills
                 tuning: _innerTuning
             );
 
-            TemplateAction.TryPlay(innerGroup, _me, _callbacks, _previousPosition, _assignedTarget);
+            TemplateAction.TryPlay(innerGroup, _me, ShotCallbacks, _previousPosition, _assignedTarget);
         }
 
         private IEnumerator FireSequence()
@@ -98,7 +107,15 @@ namespace MagicSchool.Skills
             }
 
             // after fire everything, destroy itself
-            DestroyMe();
+            Finish();
+        }
+
+        // expire now, or after the pause if there is one
+        // e.g.     the gap between Skeleton Archer's two barrages
+        private void Finish()
+        {
+            if (_pauseAfter > 0f) ExpireAfter(_pauseAfter);
+            else DestroyMe();
         }
     }
 }

@@ -212,15 +212,16 @@ namespace MagicSchool.Skills
 
         public static FireTimingRunnerTuning TuneFireTimingRunner(int count, FireTimingModeEnum mode,
                                                                    float interval = 0f, Tuning innerTuning = null,
-                                                                   float? castTime = null)
+                                                                   float? castTime = null, float? pauseAfter = null)
             => new FireTimingRunnerTuning { Count = count, Mode = mode, Interval = interval, InnerTuning = innerTuning,
-                                            CastTime = castTime };
+                                            CastTime = castTime, PauseAfter = pauseAfter };
 
         public static FireTimingRunnerProjectileTuning TuneFireTimingRunnerProjectile(int count, FireTimingModeEnum mode,
                                                                    float interval = 0f, Tuning innerTuning = null,
-                                                                   int? randomPoolRadius = null, float? castTime = null)
+                                                                   int? randomPoolRadius = null, float? castTime = null,
+                                                                   float? pauseAfter = null)
             => new FireTimingRunnerProjectileTuning { Count = count, Mode = mode, Interval = interval,
                                                       InnerTuning = innerTuning, RandomPoolRadius = randomPoolRadius,
-                                                      CastTime = castTime };
+                                                      CastTime = castTime, PauseAfter = pauseAfter };
     }
 }

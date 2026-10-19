@@ -49,6 +49,7 @@ namespace MagicSchool.Skills
         public int? Count;                  // number of repeat time
         public FireTimingModeEnum? Mode;    // fire once or in sequence
         public float? Interval;             // delay between shots - only read when Mode is Sequence
+        public float? PauseAfter;           // delay after the last shot before the runner expires (what a flow waits on)
         public Tuning InnerTuning;          // tune for the template action that'll be fired
     }
 

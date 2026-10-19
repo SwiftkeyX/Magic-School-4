@@ -6,11 +6,14 @@ namespace MagicSchool.Skills
 {
     internal class SkeletonArcherSkill : SkillDefinition
     {
-        private static float ADDamagePerShot => Tuned(50f);
-        private static float MGDamagePerShot => Tuned(50f);
-        private static int ShotCount => Tuned(4);
+        // 2 barrages of 4 shots = 8 shots, so 25% each keeps the old total of 4 x 50%
+        private static float ADDamagePerShot => Tuned(25f);
+        private static float MGDamagePerShot => Tuned(25f);
+        private static int BarrageCount => Tuned(2);
+        private static int ShotsPerBarrage => Tuned(4);
         private static float IntervalBetweenShot => Tuned(0.1f);
-        private static float TotalCastTime => IntervalBetweenShot * (ShotCount - 1);
+        private static float PauseBetweenBarrage => Tuned(0.3f);
+        private static float BarrageCastTime => IntervalBetweenShot * (ShotsPerBarrage - 1);
 
         // a long shot - its target 3+ hexes away when it lands - deals [this]% more for every ally on his Long Shot mark
         private static int LongShotHexes => Tuned(3);
@@ -26,13 +29,15 @@ namespace MagicSchool.Skills
         public override string SkillName => "Bone Barrage";
 
         public override string Description
-            => $"Fires {ShotCount} shots in quick succession at the furthest enemy, each one landing for "
-             + $"{ADDamagePerShot}% AD + {MGDamagePerShot}% AP. "
+            => $"Fires {BarrageCount} barrages of {ShotsPerBarrage} shots at the furthest enemy, picking the furthest again "
+             + $"for every barrage. Each shot lands for {ADDamagePerShot}% AD + {MGDamagePerShot}% AP. "
              + $"A shot that lands {LongShotHexes}+ hexes away deals {LongShotBonusPerAlly}% more for every ally on his {LongShotMark} mark.";
 
         // ============================== active ==============================
+        // one barrage is one round, played BarrageCount times. Every shot aims at the furthest enemy when it is fired,
+        // so the second barrage goes to whoever is furthest then, not to a target the first one already killed.
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
-            => Shoot(registry);
+            => Repeat(Shoot(registry), times: BarrageCount);
 
         private static SkillFlow Shoot(TemplateActionRegistrySO registry)
         {
@@ -43,8 +48,8 @@ namespace MagicSchool.Skills
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.FireTimingRunnerFirstHitProjectile,
                 target: AimTargetEnum.Furthest,
-                tuning: TuneFireTimingRunnerProjectile(ShotCount, FireTimingModeEnum.Sequence, IntervalBetweenShot, tune,
-                                                       castTime: TotalCastTime),
+                tuning: TuneFireTimingRunnerProjectile(ShotsPerBarrage, FireTimingModeEnum.Sequence, IntervalBetweenShot, tune,
+                                                       castTime: BarrageCastTime, pauseAfter: PauseBetweenBarrage),
 
                 DamageWhen(
                     recipient: EffectRecipientEnum.SameToAimTarget,
