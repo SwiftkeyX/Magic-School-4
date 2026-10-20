@@ -41,25 +41,32 @@ namespace MagicSchool.Core.Benchmark
         private static List<Lane> CreateLanes(GameManager game, int count)
         {
             var lanes = new List<Lane>();
-            Transform original = game.Board.transform;
 
             for (int i = 0; i < count; i++)
             {
-                Vector3 position = original.position + new Vector3(0f, -LaneSpacing * (i + 1), 0f);
-                GameObject copy = Instantiate(original.gameObject, position, original.rotation);
-                copy.name = $"BenchBoard {i + 1}";
-
-                BattleBoard board = copy.GetComponent<BattleBoard>();
-                var seed = new HeroSeed(null, board);
-
-                // its own spawner: 
-                // but the same recorder, so every lane's numbers land in one place
-                new HeroSpawner(new HeroMover(), game.TemplateActions, game.Recorder, seed: seed);
-
+                BattleBoard board = CopyBoard(game, i, LaneSpacing, out HeroSeed seed);
                 lanes.Add(new Lane(board, seed));
             }
 
             return lanes;
+        }
+
+        // A hidden copy of the real board, below it, with its own seed and spawner - a hero only sees its own board's heroes.
+        // Also used by TeamCompBenchmark.
+        internal static BattleBoard CopyBoard(GameManager game, int index, float spacing, out HeroSeed seed)
+        {
+            Transform original = game.Board.transform;
+            Vector3 position = original.position + new Vector3(0f, -spacing * (index + 1), 0f);
+            GameObject copy = Instantiate(original.gameObject, position, original.rotation);
+            copy.name = $"BenchBoard {index + 1}";
+
+            BattleBoard board = copy.GetComponent<BattleBoard>();
+            seed = new HeroSeed(null, board);
+
+            // its own spawner:
+            // but the same recorder, so every lane's numbers land in one place
+            new HeroSpawner(new HeroMover(), game.TemplateActions, game.Recorder, seed: seed);
+            return board;
         }
 
         private static void DestroyLanes(List<Lane> lanes)

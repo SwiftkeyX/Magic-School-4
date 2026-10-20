@@ -63,7 +63,14 @@ def append_to_runs(sh, header, rows):
 
     index = {name: i for i, name in enumerate(header)}
     lined_up = [[row[index[name]] if name in index and index[name] < len(row) else "" for name in columns] for row in rows]
-    ws.append_rows(lined_up, value_input_option="USER_ENTERED")
+
+    # written at an exact row under the last filled run_time - not append_rows, which lets Google guess where the
+    # table ends; once the tab was formatted it guessed inside it and every run overwrote the rows before
+    first_free = len(ws.col_values(1)) + 1
+    last = first_free + len(lined_up) - 1
+    if ws.row_count < last:
+        ws.add_rows(last - ws.row_count)
+    ws.update(lined_up, range_name=f"A{first_free}", value_input_option="USER_ENTERED")
 
 
 def replace_latest(sh, header, rows):
