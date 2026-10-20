@@ -54,6 +54,12 @@ namespace MagicSchool.Core.States
         // if there's heroes from the player side on the board, allow to start combat
         protected override void CheckSwitchState()
         {
+            if (_game.ConsumeSkipStageRequest())
+            {
+                SkipStage();
+                return;
+            }
+
             if (!_game.ConsumeStartCombatRequest()) return;
 
             bool hasHeroesOnBoard = _game.Board.HeroesOnBoard.Any(h => h.Team == TeamEnum.Blue);
@@ -64,6 +70,21 @@ namespace MagicSchool.Core.States
             }
 
             _game.ChangeState(GamePhaseEnum.Combat);
+        }
+
+        // Dev tool: win this stage without fighting (See GameManager.SkipStage).
+        // Does what CombatState.OnEnter would have, so the result and the next Preparation see a normal win:
+        // the team is remembered where it stands, so it stays there; the enemies leave without dying,
+        // so no death skill fires (a Big Slime would split).
+        private void SkipStage()
+        {
+            _game.Formation.Remember(_game.Board.HeroesOnBoard, TeamEnum.Blue);
+            _game.Recorder?.BeginRound();
+            _game.Board.Colours.ShowDeployZone(false);
+
+            _game.Board.ClearTeam(TeamEnum.Red);
+            _game.SetWinner(TeamEnum.Blue);
+            _game.ChangeState(GamePhaseEnum.Result);
         }
 
         // Take everyone off the board

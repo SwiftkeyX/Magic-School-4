@@ -52,6 +52,7 @@ namespace MagicSchool.Player
 
             TryStartCombat();
             TryRestart();
+            TrySkipStage();
             TrySetSpeed();
             if (!TryRotateAlign()) TryInspect();
             _dragging?.Tick();
@@ -114,6 +115,14 @@ namespace MagicSchool.Player
             if (!PlayerInputSystem.RestartPressedThisFrame) return;
 
             GameManager.Instance.Restart();
+        }
+
+        // Dev tool: N wins the stage on the spot (See GameManager.SkipStage)
+        private void TrySkipStage()
+        {
+            if (!PlayerInputSystem.SkipStagePressedThisFrame) return;
+
+            GameManager.Instance.SkipStage();
         }
 
         // Right-click while holding a hero turns it to its next align pattern, instead of inspecting.

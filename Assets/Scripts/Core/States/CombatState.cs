@@ -62,6 +62,15 @@ namespace MagicSchool.Core.States
         // if there is no hero on the board, change to result state 
         protected override void CheckSwitchState()
         {
+            // dev tool: the enemies leave the board and the player wins (See GameManager.SkipStage)
+            if (_game.ConsumeSkipStageRequest())
+            {
+                _game.Board.ClearTeam(TeamEnum.Red);
+                _game.SetWinner(TeamEnum.Blue);
+                _game.ChangeState(GamePhaseEnum.Result);
+                return;
+            }
+
             var alive = _game.Board.HeroesOnBoard.Where(h => h.StateType != HeroStateEnum.Dead);
             bool blueAlive = alive.Any(h => h.Team == TeamEnum.Blue);
             bool redAlive = alive.Any(h => h.Team == TeamEnum.Red);

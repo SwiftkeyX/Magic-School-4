@@ -76,6 +76,7 @@ namespace MagicSchool.Core
         private bool _startCombatRequested;
         private bool _continueRequested;
         private bool _restartRequested;
+        private bool _skipStageRequested;
 
         // ======================================== getter ========================================
         public GamePhaseEnum Phase => _stateMachine == null ? GamePhaseEnum.Preparation : _stateMachine.CurrentType;
@@ -322,6 +323,14 @@ namespace MagicSchool.Core
             _restartRequested = true;
         }
 
+        // Dev tool: win this stage on the spot, as if every enemy died - in Preparation or mid-fight.
+        public void SkipStage()
+        {
+            if (Phase != GamePhaseEnum.Preparation && Phase != GamePhaseEnum.Combat) return;
+
+            _skipStageRequested = true;
+        }
+
         // consume a request, then clear the flag to false immediately:
         // 1) start combat => let hero fight between heroes
         // 2) continue => move to a next stage, or repeat the same stage
@@ -329,6 +338,7 @@ namespace MagicSchool.Core
         internal bool ConsumeStartCombatRequest() => Consume(ref _startCombatRequested);
         internal bool ConsumeContinueRequest() => Consume(ref _continueRequested);
         internal bool ConsumeRestartRequest() => Consume(ref _restartRequested);
+        internal bool ConsumeSkipStageRequest() => Consume(ref _skipStageRequested);
 
         // reset all request
         internal void ClearPendingRequests()
@@ -336,6 +346,7 @@ namespace MagicSchool.Core
             _startCombatRequested = false;
             _continueRequested = false;
             _restartRequested = false;
+            _skipStageRequested = false;
         }
 
         // if request exist, consume it, and clear the flag
