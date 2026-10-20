@@ -115,6 +115,18 @@ namespace MagicSchool.Combat.Heroes
             return true;
         }
 
+        // Who I am going for in the fight right now: the enemy I am engaged with, else the one I last walked toward.
+        // Read by the Shift view in a fight, as a debug tool (See AlignHighlight.ShowFightTargetView)
+        internal ICombatant TargetInFight
+        {
+            get
+            {
+                if (IsStillEngagedWith(_currentTarget)) return _currentTarget;
+
+                return _lastNearest != null && _lastNearest.IsAlive ? _lastNearest : null;
+            }
+        }
+
         // At the start of a fight a pick counts only if it is still tied: moving me afterwards cannot aim me at anyone,
         // and an enemy from the stage before is gone
         internal void KeepChosenTargetOnlyIfTied() => _chosenTarget = ShownChosenTarget();

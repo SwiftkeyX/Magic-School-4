@@ -9,7 +9,8 @@ namespace MagicSchool.Input
     // 3) spacebar to interact with game's stage e.g. start combat, pause and go on during it, retry, continue to next stage
     // 4) R to quick-retry
     // 5) N (dev tool) to skip the stage as won
-    // 6) hold Shift while hovering a placed hero, in Preparation, to see who it goes for and the way it walks instead of its marks
+    // 6) hold Shift while hovering a placed hero, in Preparation, to see who it goes for and the way it walks instead of its marks;
+    //    in a fight, any hero (a debug tool)
     public static class PlayerInputSystem
     {
         public static bool IsPointerDown => Mouse.current.leftButton.isPressed;

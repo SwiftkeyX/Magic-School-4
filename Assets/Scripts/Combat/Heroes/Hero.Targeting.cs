@@ -48,12 +48,18 @@ namespace MagicSchool.Combat.Heroes
         // found a step at a time the way I walk in the fight (See Transition.CanWalk). Shown in Preparation, so the player
         // sees a detour round his own heroes is still on the way to the target (See AlignHighlight).
         // Empty while there is no expected target or it is already in range; it stops short when the way is shut.
-        public IReadOnlyList<Hex> RouteToExpectedTarget()
+        public IReadOnlyList<Hex> RouteToExpectedTarget() => RouteTo(ExpectedTarget);
+
+        // Who I am going for in the fight right now (See FindTarget.TargetInFight)
+        public ICombatant TargetInFight => _findEnemy.TargetInFight;
+
+        // The hexes I would walk through to get [enemy] in range, the same way as RouteToExpectedTarget
+        public IReadOnlyList<Hex> RouteTo(ICombatant enemy)
         {
             const int MaxSteps = 40;    // far more than any board is wide
 
             var route = new List<Hex>();
-            Hex target = ExpectedTarget?.CurrentPlacement as Hex;
+            Hex target = enemy?.CurrentPlacement as Hex;
             Hex at = CurrentHex;
             if (target == null || at == null) return route;
 

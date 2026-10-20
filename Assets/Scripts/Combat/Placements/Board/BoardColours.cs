@@ -116,11 +116,13 @@ namespace MagicSchool.Combat.Placements
 
         // Painted over whatever is shown: a hovered hero's tied nearest enemies get a band of the target colour, and the one chosen for it is filled
         // (See FindTarget.SwitchChosenTarget)
-        public void ShowTargets(IEnumerable<Hex> tied, Hex chosen)
+        // [onZone] false in a fight, where the board is neutral rather than blue and red
+        public void ShowTargets(IEnumerable<Hex> tied, Hex chosen, bool onZone = true)
         {
             foreach (Hex hex in tied)
             {
-                hex.SetColors(hex == chosen ? new[] { _targetColor } : new[] { ZoneColorOf(hex), _targetColor, ZoneColorOf(hex) });   // a yellow band, its own colour inside
+                Color own = onZone ? ZoneColorOf(hex) : _neutralColor;
+                hex.SetColors(hex == chosen ? new[] { _targetColor } : new[] { own, _targetColor, own });   // a yellow band, its own colour inside
             }
         }
 

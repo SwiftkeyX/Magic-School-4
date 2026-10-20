@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.Core;
@@ -24,6 +25,7 @@ namespace MagicSchool.Player
         private bool _isShown;
         private (Hero hero, Hex standingOn, int pattern) _shownShape;     // the marks drawn now, when ShowMarks drew them
         private (Hero hero, Hex standingOn, ICombatant chosen, int tied) _shownTargetView;   // when ShowTargetView drew it
+        private List<Hex> _shownFightView;     // when ShowFightTargetView drew it: the hexes it painted, in order
 
         public AlignHighlight(Camera cam, Dragging dragging, BattleBoard board, TeamEnum team)
         {
@@ -47,7 +49,10 @@ namespace MagicSchool.Player
 
             if (!isPreparation)
             {
-                Hide(isPreparation);
+                // a debug tool: Shift held over any hero in a fight shows who it goes for and the way it plans to walk
+                Hero inFight = GameManager.Instance.Phase == GamePhaseEnum.Combat && PlayerInputSystem.TargetViewHeld ? HoveredHeroInFight() : null;
+                if (inFight != null) ShowFightTargetView(inFight);
+                else Hide(isPreparation);
                 return;
             }
 
@@ -94,6 +99,7 @@ namespace MagicSchool.Player
             if (_isShown && _shownTargetView == view) return;
 
             _board.Colours.ShowDeployZone(true);       // no marks
+            _shownFightView = null;
 
             if (tied.Count >= 1)
             {
@@ -110,6 +116,37 @@ namespace MagicSchool.Player
             _isShown = true;
             _shownShape = default;
             _shownTargetView = view;
+        }
+
+        // The Shift view in a fight, as a debug tool: the enemy the hero is going for right now filled yellow, the enemies tied
+        // for its nearest with a yellow band, and a dot on every hex it plans to walk through. Live: it repaints as anyone moves.
+        // e.g.     why did Reaper turn back? - the hexes next to her target were taken by her allies
+        private void ShowFightTargetView(Hero hero)
+        {
+            Hex target = hero.TargetInFight?.CurrentPlacement as Hex;
+
+            var tied = new List<Hex>();
+            foreach (ICombatant enemy in hero.TiedNearestEnemies())
+            {
+                if (enemy.CurrentPlacement is Hex hex) tied.Add(hex);
+            }
+            if (target != null && !tied.Contains(target)) tied.Add(target);
+
+            IReadOnlyList<Hex> route = hero.RouteTo(hero.TargetInFight);
+
+            // repaint only when something changed
+            var view = new List<Hex>(tied) { target, null };
+            view.AddRange(route);
+            if (_isShown && _shownFightView != null && _shownFightView.SequenceEqual(view)) return;
+
+            _board.Colours.ShowDeployZone(false);      // neutral, as a fight shows it
+            _board.Colours.ShowTargets(tied, target, onZone: false);
+            _board.Colours.ShowRoute(route);
+
+            _isShown = true;
+            _shownShape = default;
+            _shownTargetView = default;
+            _shownFightView = view;
         }
 
         // the hexes the hero marks while standing on [standingOn], each bonus in its colour.
@@ -154,6 +191,7 @@ namespace MagicSchool.Player
             _isShown = true;
             _shownShape = shape;
             _shownTargetView = default;
+            _shownFightView = null;
         }
 
         // [marks] with the colour of [shown] added
@@ -175,6 +213,14 @@ namespace MagicSchool.Player
             return hovered != null && hovered.Team == _team && hovered.CurrentHex != null ? hovered : null;
         }
 
+        // a hero standing on a hex under the pointer, of either team, alive
+        private Hero HoveredHeroInFight()
+        {
+            Hero hovered = Picker.At<Hero>(PlayerInputSystem.GetMouseWorldPosition(_cam));
+
+            return hovered != null && hovered.IsAlive && hovered.CurrentHex != null ? hovered : null;
+        }
+
         // mark those hexes with different colour
         private void Show(HashSet<Hex> firstBonus, HashSet<Hex> secondBonus, HashSet<Hex> special, HashSet<Hex> wearing)
         {
@@ -186,6 +232,7 @@ namespace MagicSchool.Player
             _secondBonus = secondBonus;
             _special = special;
             _wearing = wearing;
+            _shownFightView = null;
             _isShown = true;
             _shownShape = default;
             _shownTargetView = default;
@@ -221,7 +268,10 @@ namespace MagicSchool.Player
 
             _isShown = false;
             _shownShape = default;
-            if (isPreparation) _board.Colours.ShowDeployZone(true);
+            _shownFightView = null;
+
+            // Preparation shows the zone; a fight's board is neutral, and the Shift view may have painted it
+            _board.Colours.ShowDeployZone(isPreparation);
         }
     }
 }
