@@ -21,6 +21,46 @@ namespace MagicSchool.Combat.Heroes
         // called by whoever builds a unit another unit asked for (See OnSpawnRequested)
         public void MarkAsSummon() => IsSummon = true;
 
+        // ======================================== IRevivable ========================================
+        // a skill that brings this hero back after it dies (e.g. Reaper). Ticked by HeroDead (See Revive)
+        private float _reviveIn = -1f;
+        private float _reviveHPRatio;
+
+        public bool IsReviving => _reviveIn >= 0f;
+
+        public void ReviveAfter(float seconds, float hpRatio)
+        {
+            _reviveIn = Math.Max(0f, seconds);
+            _reviveHPRatio = hpRatio;
+        }
+
+        public void CancelRevive() => _reviveIn = -1f;
+
+        // count down while dead; true once it is time to get back up
+        internal bool TickRevive(float deltaTime)
+        {
+            if (!IsReviving) return false;
+
+            _reviveIn -= deltaTime;
+            return _reviveIn <= 0f;
+        }
+
+        // back up on the hex it died on, with part of its max HP. Mana and modifiers are kept.
+        internal void Revive()
+        {
+            float ratio = _reviveHPRatio;
+            CancelRevive();
+            KilledBy = null;
+
+            Stat.SetCurrentHP(Math.Max(1, (int)Math.Round(Stat.MaxHP * ratio)));
+
+            // it may have died mid-step or mid-dash: stand on its hex again and drop the step it had reserved
+            if (CurrentHex != null) transform.position = CurrentHex.transform.position;
+            SetReservedHex(null);
+
+            ChangeState(HeroStateEnum.Idle);
+        }
+
         // ======================================== IEffectable ========================================
         public bool IsAlive => this != null && IsInitialized && StateType != HeroStateEnum.Dead;
         public void AddModifier(ICustomModifier modifier, IHeroStats casterStats, float amplifier = 1f) => Stat.AddModifier(modifier, amplifier, casterStats, this);

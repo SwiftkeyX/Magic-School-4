@@ -25,6 +25,7 @@ namespace MagicSchool.Combat.Heroes
         {
             Crit.ResetStreak(this);
             _freeCasts = 0;
+            CancelRevive();
             _findEnemy.KeepChosenTargetOnlyIfTied();
             return _skill.TriggerOnCombatStart();
         }

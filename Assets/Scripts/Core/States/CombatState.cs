@@ -71,7 +71,8 @@ namespace MagicSchool.Core.States
                 return;
             }
 
-            var alive = _game.Board.HeroesOnBoard.Where(h => h.StateType != HeroStateEnum.Dead);
+            // a hero waiting to get back up (See IRevivable) is still in the fight
+            var alive = _game.Board.HeroesOnBoard.Where(h => h.StateType != HeroStateEnum.Dead || (h is IRevivable r && r.IsReviving));
             bool blueAlive = alive.Any(h => h.Team == TeamEnum.Blue);
             bool redAlive = alive.Any(h => h.Team == TeamEnum.Red);
 

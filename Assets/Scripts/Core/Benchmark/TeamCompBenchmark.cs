@@ -214,7 +214,7 @@ namespace MagicSchool.Core.Benchmark
         // over when a side has nobody standing (summons count, as in CombatState), or at the time limit
         private static void CheckOver(GameManager game, Lane lane, float seconds)
         {
-            var standing = lane.Board.HeroesOnBoard.Where(h => h != null && h.StateType != HeroStateEnum.Dead).ToList();
+            var standing = lane.Board.HeroesOnBoard.Where(h => h != null && (h.StateType != HeroStateEnum.Dead || (h is IRevivable r && r.IsReviving))).ToList();
             bool blueStanding = standing.Any(h => h.Team == TeamEnum.Blue);
             bool redStanding = standing.Any(h => h.Team == TeamEnum.Red);
             bool timeUp = seconds >= TimeLimit;

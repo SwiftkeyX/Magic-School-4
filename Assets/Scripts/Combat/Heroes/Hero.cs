@@ -21,7 +21,7 @@ namespace MagicSchool.Combat.Heroes
     ///     Hero.Skill.cs       => skill triggers, and the text the Hero Panel reads
     ///     Hero.Targeting.cs   => ITargeter, handed to FindTarget
     /// </summary>
-    public partial class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISpawner, IAligned, IHexMeasurable, IFallen, IFreeCaster
+    public partial class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISpawner, IAligned, IHexMeasurable, IFallen, IFreeCaster, IRevivable
     {
         // ======================================== Dependency ========================================
         private HeroDataSO _SOData;
@@ -146,6 +146,7 @@ namespace MagicSchool.Combat.Heroes
 
             _stat = new Stat(_SOData, _star);
             _attackCooldown = new AttackCooldown();
+            CancelRevive();
 
             // the modifier from items is also reset, so re-grant it.
             _items.ReGrantAll();

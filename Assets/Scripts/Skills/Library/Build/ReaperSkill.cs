@@ -16,6 +16,11 @@ namespace MagicSchool.Skills
         private static int KillsPerFreeCast => Tuned(3);
         private int _kills;
 
+        // passive - once a fight, she gets back up [ReviveDelay] seconds after she dies, with [ReviveHPPercent]% of her max HP
+        private static float ReviveDelay => Tuned(3f);
+        private static float ReviveHPPercent => Tuned(30f);
+        private bool _hasRevived;
+
         private const string ReapMark = "Reap";
         public override IReadOnlyList<string> SpecialMarks => new[] { ReapMark };
 
@@ -31,7 +36,8 @@ namespace MagicSchool.Skills
 
         public override string PassiveDescription
             => $"Every {KillsPerFreeCast} enemies she kills, each ally on her {ReapMark} mark casts its skill at once, "
-             + "without using mana. Summoned units do not count.";
+             + "without using mana. Summoned units do not count. "
+             + $"Once a fight, when she dies she gets back up {ReviveDelay} seconds later with {ReviveHPPercent}% of her max HP.";
 
         // ============================== passive ==============================
         public override bool HasAutoAttackPassive => true;   // so the inspector shows the passive
@@ -39,6 +45,7 @@ namespace MagicSchool.Skills
         public override bool OnCombatStart()
         {
             _kills = 0;
+            _hasRevived = false;
 
             return base.OnCombatStart();
         }
@@ -59,6 +66,15 @@ namespace MagicSchool.Skills
             {
                 if (ally.IsAlive && ally is IFreeCaster caster) caster.GrantFreeCast();
             }
+        }
+
+        // she died - the first time this fight, she gets back up
+        public override void OnDeath()
+        {
+            if (_hasRevived || !(Caster is IRevivable revivable)) return;
+
+            _hasRevived = true;
+            revivable.ReviveAfter(ReviveDelay, ReviveHPPercent / 100f);
         }
 
         // ============================== active ==============================
