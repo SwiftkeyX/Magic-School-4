@@ -103,6 +103,16 @@ namespace MagicSchool.Combat.Heroes.States
                 return true;
             }
 
+            // a free cast another unit gave him (See IFreeCaster). Never on top of a cast in progress or while stunned.
+            // Mana is not full here, so HeroCast leaves it alone
+            bool canCastFree = _me.HasFreeCast && CurrentType != HeroStateEnum.Cast && CurrentType != HeroStateEnum.Stunned;
+            if (canCastFree && _me.TriggerActiveSkill(isManaCapped: true))
+            {
+                _me.UseFreeCast();
+                forced = HeroStateEnum.Cast;
+                return true;
+            }
+
             return false;
         }
 

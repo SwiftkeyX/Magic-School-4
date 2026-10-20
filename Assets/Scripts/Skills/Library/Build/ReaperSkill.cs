@@ -12,6 +12,13 @@ namespace MagicSchool.Skills
         private static float IntervalBetweenSnip => Tuned(0.2f);
         private static float TotalCastTime => IntervalBetweenSnip * (SnipCount - 1);
 
+        // passive - every [this] kills of hers, the allies on her Reap mark cast their skill once for free
+        private static int KillsPerFreeCast => Tuned(3);
+        private int _kills;
+
+        private const string ReapMark = "Reap";
+        public override IReadOnlyList<string> SpecialMarks => new[] { ReapMark };
+
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ReaperSkill(registry);
 
         private ReaperSkill(TemplateActionRegistrySO registry) : base(registry) { }
@@ -21,6 +28,38 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Snips {SnipCount} times in quick succession, each cut carving a wedge in front of her "
              + $"that deals {MGDamagePerSnip}% AP to every enemy standing inside it.";
+
+        public override string PassiveDescription
+            => $"Every {KillsPerFreeCast} enemies she kills, each ally on her {ReapMark} mark casts its skill at once, "
+             + "without using mana. Summoned units do not count.";
+
+        // ============================== passive ==============================
+        public override bool HasAutoAttackPassive => true;   // so the inspector shows the passive
+
+        public override bool OnCombatStart()
+        {
+            _kills = 0;
+
+            return base.OnCombatStart();
+        }
+
+        // an enemy she killed herself - every KillsPerFreeCast of them, the allies on her Reap mark cast for free
+        public override void OnHeroDied(ICombatant dead)
+        {
+            if (dead.Team == Caster.Team) return;
+            if (!(dead is IFallen fallen) || fallen.IsSummon) return;
+            if (!ReferenceEquals(fallen.KilledBy, Caster)) return;
+
+            _kills++;
+            if (_kills % System.Math.Max(1, KillsPerFreeCast) != 0) return;
+
+            if (!(Caster is IAligned aligned)) return;
+
+            foreach (ICombatant ally in aligned.AlliesOnSpecialMark(ReapMark))
+            {
+                if (ally.IsAlive && ally is IFreeCaster caster) caster.GrantFreeCast();
+            }
+        }
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

@@ -10,12 +10,21 @@ namespace MagicSchool.Combat.Heroes
     {
         // ======================================== skill ========================================
         public bool TriggerActiveSkill(bool isManaCapped) => _skill.TriggerOnCastSkill(isManaCapped);
+
+        // ======================================== free cast ========================================
+        // casts another unit's skill gave him, played without mana (See IFreeCaster)
+        // e.g.     Reaper's kills let the allies on her Reap mark cast
+        private int _freeCasts;
+        public void GrantFreeCast() { if (HasSkill) _freeCasts++; }
+        public bool HasFreeCast => _freeCasts > 0;
+        public void UseFreeCast() { if (_freeCasts > 0) _freeCasts--; }
         public bool TriggerOnAutoAttack(ICombatant target) => _skill.TriggerOnAutoAttack(target);
         public ICombatant PickAutoAttackTarget(ICombatant target) => _skill.PickAutoAttackTarget(target);
         // a fight starts: the crit count starts again too (read Crit.cs)
         public bool TriggerOnCombatStart()
         {
             Crit.ResetStreak(this);
+            _freeCasts = 0;
             _findEnemy.KeepChosenTargetOnlyIfTied();
             return _skill.TriggerOnCombatStart();
         }

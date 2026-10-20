@@ -27,8 +27,8 @@ namespace MagicSchool.Combat.Heroes.States
             // if skill cast is success, pop skill effect
             _me.PlaySkillCastEffect("Skill Activated!");
 
-            // spend mana
-            _me.SpendMana();
+            // spend mana. A free cast starts with mana not full, and keeps what he has (See IFreeCaster)
+            if (_me.IsManaCapped()) _me.SpendMana();
         }
 
         public override void OnUpdate()
