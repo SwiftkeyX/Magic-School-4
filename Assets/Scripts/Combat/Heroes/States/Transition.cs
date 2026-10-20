@@ -37,6 +37,9 @@ namespace MagicSchool.Combat.Heroes.States
             // If there is ANY enemy that'll walk into my neighbors (adjacent), stop moving, and wait for him instead
             if (IsEnemyArrivingNextToMe()) return false;
 
+            // If my target is walking onto a hex inside my range, wait for it instead of stepping again (Read function's comment)
+            if (IsTargetArrivingInRange(nearestEnemy)) return false;
+
             // Find next hex that could lead this hero toward nearest enemy
             Hex targetHex = HexPathfinder.FindValidHexToTarget(_me.CurrentHex, nearestEnemy.CurrentHex(), _isHexBlocked);
             if (targetHex == null) return false;
@@ -61,6 +64,25 @@ namespace MagicSchool.Combat.Heroes.States
             }
 
             return false;
+        }
+
+        // A hero mid-step still counts as on the hex it left, though it is drawn almost on the next one.
+        // Without this, a ranged hero that finishes its step a frame before its target does sees it out of range,
+        // commits to another whole step, and walks on while the target visibly stands in range.
+        // Idle checks every frame, so waiting there attacks the moment the target lands.
+        // e.g.     Skeleton Archer (range 4) and a Minotaur stepping toward each other
+        private bool IsTargetArrivingInRange(ICombatant target)
+        {
+            if (target is not IHexPlaceable walker) return false;
+
+            // only a step in progress. A stunned hero keeps its reservation but is not coming.
+            bool isStepping = target.StateType == HeroStateEnum.Walk || target.StateType == HeroStateEnum.Cast;
+            if (!isStepping) return false;
+
+            Hex arriving = walker.ReservedHex;
+            if (arriving == null || arriving == target.CurrentHex()) return false;
+
+            return _me.CurrentHex.IsWithinRange(arriving, _me.Range);
         }
 
         /// <summary>
