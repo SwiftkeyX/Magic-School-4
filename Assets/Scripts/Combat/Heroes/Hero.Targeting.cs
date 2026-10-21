@@ -59,7 +59,7 @@ namespace MagicSchool.Combat.Heroes
             const int MaxSteps = 40;    // far more than any board is wide
 
             var route = new List<Hex>();
-            Hex target = enemy?.CurrentPlacement as Hex;
+            Hex target = enemy?.ArrivingHex();
             Hex at = CurrentHex;
             if (target == null || at == null) return route;
 

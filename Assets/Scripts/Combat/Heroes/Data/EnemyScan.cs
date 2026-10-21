@@ -113,7 +113,8 @@ namespace MagicSchool.Combat.Heroes
         // FLAGGING: what is _stepsIfBoardWereEmpty here for?
         private int StepsToReach(ICombatant enemy)
         {
-            Hex enemyHex = enemy.CurrentHex();
+            // measured to where it is arriving: an enemy mid-step is already drawn there, and stands there in a moment
+            Hex enemyHex = enemy.ArrivingHex();
             if (enemyHex == null) return UnreachablePenalty;
 
             int range = Mathf.Max(1, _me.Range);
