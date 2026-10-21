@@ -8,7 +8,7 @@ namespace MagicSchool.Skills
     {
         private static float DamageRatio => Tuned(150f);
         private static float StunDuration => Tuned(1.5f);
-        private static float DamageReductionPercent => Tuned(30f);
+        private static float DamageReductionPercent => Tuned(70f);
         private static float GuardDuration => Tuned(3f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new MonkSkill(registry);
