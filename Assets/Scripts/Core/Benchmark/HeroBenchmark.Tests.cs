@@ -63,7 +63,7 @@ namespace MagicSchool.Core.Benchmark
             EndFight(lanes);
         }
 
-        // AoE test = a hero vs a cluster of 4 dummies. 
+        // AoE test = a hero vs a cluster of 6 dummies. 
         private IEnumerator AoeTest(GameManager game, List<Lane> lanes, HeroDataSO dummy)
         {
             // spawn a tested hero and a cluster of dummies

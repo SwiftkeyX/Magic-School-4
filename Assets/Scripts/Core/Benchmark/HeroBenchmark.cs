@@ -12,7 +12,7 @@ namespace MagicSchool.Core.Benchmark
     /// <summary>
     /// Balancing helper: runs every hero through the same three tests, result into CSV
     ///     Damage test - a hero vs a dummy, for 30s. DPS at 15s and 30s
-    ///     AoE test    - a hero vs a cluster of 4 dummies. 
+    ///     AoE test    - a hero vs a cluster of 6 dummies. 
     ///     Tank test   - a hero vs a dummy, while a damage continuously hits a hero, until it dies or 30s pass.
     ///
     /// Split by job across partial files:
@@ -49,13 +49,15 @@ namespace MagicSchool.Core.Benchmark
         private static readonly HexNumber HeroHex = new HexNumber(3, 3);    // left of the middle of the board
         private static readonly HexNumber DummyHex = new HexNumber(4, 3);   // right next to it
 
-        // dummy cluster position in AoE test
+        // dummy cluster position in AoE test: 6 dummies, all next to (5, 2); only DummyHex is next to the hero
         private static readonly HexNumber[] ClusterHexes =
         {
             DummyHex,
             new HexNumber(4, 2),
             new HexNumber(5, 2),
             new HexNumber(5, 3),
+            new HexNumber(6, 2),
+            new HexNumber(6, 3),
         };
 
         // =================================== run ===================================

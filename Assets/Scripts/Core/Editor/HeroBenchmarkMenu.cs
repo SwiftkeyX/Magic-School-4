@@ -81,7 +81,7 @@ namespace MagicSchool.Editor
                     .ToList();
 
             string who = only == null ? "every shop hero" : string.Join(", ", only.Select(h => h.Name));
-            Debug.Log($"[HeroBenchmark] started - {who}: a 30s damage test, a 30s AoE test (4 dummies) and a tank test each. " +
+            Debug.Log($"[HeroBenchmark] started - {who}: a 30s damage test, a 30s AoE test (6 dummies) and a tank test each. " +
                       "The screen stays blank until it is done.");
 
             HeroBenchmark.Run(dummy, only, path =>
