@@ -100,6 +100,14 @@ namespace MagicSchool.Skills
         {
             for (int i = 0; i < _count; i++)
             {
+                // the caster's object is gone (cleared off the board between benchmark fights, or sold): no one to fire
+                // from. A caster that only died is still there and keeps firing, as before.
+                if (_me is UnityEngine.Object caster && caster == null)
+                {
+                    DestroyMe();
+                    yield break;
+                }
+
                 FireOnce();
 
                 bool isLastShot = (i == _count - 1);
