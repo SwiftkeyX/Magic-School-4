@@ -24,14 +24,14 @@ namespace MagicSchool.Editor
         }
 
         [MenuItem("Magic School 4/Balance/Run Hero Benchmark")]
-        private static void RunAll() => Request(string.Empty);
+        internal static void RunAll() => Request(string.Empty);
 
         [MenuItem("Magic School 4/Balance/Run Hero Benchmark (Selected)")]
-        private static void RunSelected() => Request(string.Join(";", SelectedHeroGuids()));
+        internal static void RunSelected() => Request(string.Join(";", SelectedHeroGuids()));
 
         // greyed out until at least one hero is selected
         [MenuItem("Magic School 4/Balance/Run Hero Benchmark (Selected)", true)]
-        private static bool CanRunSelected() => SelectedHeroGuids().Any();
+        internal static bool CanRunSelected() => SelectedHeroGuids().Any();
 
         private static IEnumerable<string> SelectedHeroGuids()
             => Selection.objects.OfType<HeroDataSO>()
@@ -40,6 +40,8 @@ namespace MagicSchool.Editor
 
         private static void Request(string selectedGuids)
         {
+            BenchmarkSettingsAsset.LoadOrCreate();    // made now, in Edit mode: Play mode cannot create an asset
+
             if (EditorApplication.isPlaying)
             {
                 Begin(selectedGuids);
@@ -80,11 +82,14 @@ namespace MagicSchool.Editor
                     .Where(hero => hero != null)
                     .ToList();
 
+            BenchmarkSettingsSO settings = BenchmarkSettingsAsset.LoadOrCreate();
+            BenchmarkSettingsSO s = settings != null ? settings : BenchmarkSettingsSO.Current;
             string who = only == null ? "every shop hero" : string.Join(", ", only.Select(h => h.Name));
-            Debug.Log($"[HeroBenchmark] started - {who}: a 30s damage test, a 30s AoE test (6 dummies) and a tank test each. " +
-                      "The screen stays blank until it is done.");
+            Debug.Log($"[HeroBenchmark] started - {who}: a {s.longSeconds:0}s damage test, a {s.longSeconds:0}s AoE test " +
+                      $"(6 dummies) and a tank test each - alone, then with up to {s.alliesSmallTeam} and {s.alliesBigTeam} " +
+                      "of its mark hexes filled. The screen stays blank until it is done.");
 
-            HeroBenchmark.Run(dummy, only, path =>
+            HeroBenchmark.Run(dummy, only, settings, path =>
             {
                 ImportWhenBackInEditMode(path);
                 EditorApplication.ExitPlaymode();

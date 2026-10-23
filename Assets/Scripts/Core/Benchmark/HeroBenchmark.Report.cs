@@ -113,7 +113,7 @@ namespace MagicSchool.Core.Benchmark
                             "dps_15s,dps_30s,auto_share,healing_per_sec,dps_vs_role,dps_flag," +
                             "aoe_dps_15s,aoe_dps_30s,aoe_gain,aoe_vs_role,aoe_flag," +
                             "time_to_die,survived,hp_left,damage_taken,mitigated,healing_received,ttd_vs_role,tank_flag," +
-                            "marks,marks_team3,dps_30s_team3,aoe_dps_30s_team3,time_to_die_team3," +
+                            "marks,marks_small,dps_30s_small,aoe_dps_30s_small,time_to_die_small," +
                             "dps_30s_alone,aoe_dps_30s_alone,time_to_die_alone," +
                             "dummy_revives,error");
 
@@ -143,10 +143,10 @@ namespace MagicSchool.Core.Benchmark
                     .Append(Pct(r.TtdVsRole)).Append(',')
                     .Append(Flag(r.TtdVsRole)).Append(',')
                     .Append(r.Marks).Append(',')
-                    .Append(r.MarksTeam3).Append(',')
-                    .Append(F(r.Dps30Team3)).Append(',')
-                    .Append(F(r.AoeDps30Team3)).Append(',')
-                    .Append(F(r.TimeToDieTeam3)).Append(',')
+                    .Append(r.MarksSmall).Append(',')
+                    .Append(F(r.Dps30Small)).Append(',')
+                    .Append(F(r.AoeDps30Small)).Append(',')
+                    .Append(F(r.TimeToDieSmall)).Append(',')
                     .Append(F(r.Dps30Alone)).Append(',')
                     .Append(F(r.AoeDps30Alone)).Append(',')
                     .Append(F(r.TimeToDieAlone)).Append(',')

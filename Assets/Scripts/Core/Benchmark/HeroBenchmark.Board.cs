@@ -145,7 +145,7 @@ namespace MagicSchool.Core.Benchmark
         // for the rest of it (as they do in a real fight, fixed when it starts), and nobody is in the way, drawing
         // the dummies' attacks or adding damage. What needs allies to DO something - a heal link, Troll's Feed,
         // Reaper's Reap, the green bonus an ally gets - is the team comp benchmark's to measure.
-        // At most `max` hexes are paid, the first ones in the order the marks were authored: a team of 5 has 4 allies to
+        // At most `max` hexes are paid, the first ones in the order the marks were authored: e.g. a team of 5 has 4 allies to
         // spare, and the hexes an empty-hex mark counts are hexes those allies are not standing on.
         private readonly struct MarkFill
         {

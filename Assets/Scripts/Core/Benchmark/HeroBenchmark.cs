@@ -25,30 +25,35 @@ namespace MagicSchool.Core.Benchmark
     public partial class HeroBenchmark : MonoBehaviour
     {
         // =================================== test settings ===================================
-        public const float ShortSeconds = 15f;
-        public const float LongSeconds = 30f;
+        // tweakable in Magic School 4 > Balance > Benchmark - each is explained there (See BenchmarkSettingsSO)
+        private static BenchmarkSettingsSO Settings => BenchmarkSettingsSO.Current;
+
+        public static float ShortSeconds => Settings.shortSeconds;
+        public static float LongSeconds => Settings.longSeconds;
+
+        // How many heroes are tested at once (read Lane in HeroBenchmark.Board.cs)
+        private static int LaneCount => Mathf.Max(1, Settings.heroLanes);
+
+        // the dummy is heal when the healthbar go below the threshold, so it never dies mid-test
+        private static float DummyRefillBelow => Settings.dummyRefillBelow;
+
+        // pressure = the continuously direct damage apply to hero in the tank test
+        // 50 raw damage every 0.5s => 100 raw damage per second
+        private static int PressurePerHit => Settings.pressurePerHit;
+        private static float PressureInterval => Mathf.Max(0.05f, Settings.pressureInterval);
+
+        // the stand-in allies a hero's marks may be filled with: a smaller and a bigger team (See TestEveryHero)
+        private static int AlliesSmallTeam => Mathf.Min(Settings.alliesSmallTeam, Settings.alliesBigTeam);
+        private static int AlliesBigTeam => Settings.alliesBigTeam;
+
+        // a hero this far from its role's median is flagged
+        private static float FlagBand => Settings.flagBand;
 
         // time step for .captureDeltaTime
         private const float TimeStep = 1f / 30f;
-
-        // How many heroes are tested at once (read Lane in HeroBenchmark.Board.cs)
-        private const int LaneCount = 8;
-        private const float LaneSpacing = 10f;
-
-        // the dummy is heal when the healthbar go below the threshold, so it never dies mid-test 
-        private const float DummyRefillBelow = 0.5f;
-
-        // pressure = the continuously direct damage apply to hero in the tank test 
-        // 50 raw damage every 0.5s => 100 raw damage per second
-        private const int PressurePerHit = 50;
-        private const float PressureInterval = 0.5f;
-
-        // the stand-in allies a hero's marks may be filled with: a team of 3 (stage 1) and a team of 5 (See TestEveryHero)
-        private const int AlliesInTeamOf3 = 2;
-        private const int AlliesInTeamOf5 = 4;
-
-        // a hero this far from its role's median is flagged
-        private const float FlagBand = 0.2f;
+        // boards stacked this far apart: the tallest layout is 7 hexes, so a 13-unit gap no skill reaches across
+        // (0 cross-board hits measured at 10; 20 keeps that true for bigger AoEs and taller boards)
+        private const float LaneSpacing = 20f;
 
         private static readonly HexNumber HeroHex = new HexNumber(3, 3);    // left of the middle of the board
         private static readonly HexNumber DummyHex = new HexNumber(4, 3);   // right next to it
@@ -69,8 +74,10 @@ namespace MagicSchool.Core.Benchmark
         ///     dummy       =   a hero that have no skill. use to test specifically.
         ///     testHero    =   a hero to test
         ///     onDone      =   open CSV result
-        public static void Run(HeroDataSO dummy, IReadOnlyList<HeroDataSO> testHero, Action<string> onDone)
+        ///     settings    =   the numbers to run with; null = the defaults
+        public static void Run(HeroDataSO dummy, IReadOnlyList<HeroDataSO> testHero, BenchmarkSettingsSO settings, Action<string> onDone)
         {
+            BenchmarkSettingsSO.Use(settings);
             var go = new GameObject(nameof(HeroBenchmark));
             HeroBenchmark benchmark = go.AddComponent<HeroBenchmark>();
             benchmark.StartCoroutine(benchmark.RunAll(dummy, testHero, onDone));
@@ -114,10 +121,12 @@ namespace MagicSchool.Core.Benchmark
 
         // Three passes, each a batch of lanes run through the three tests together (read Lane in HeroBenchmark.Board.cs):
         //      alone      - the hero by itself, as it always was: its floor
-        //      team of 3  - again, with up to 2 of its own orange mark hexes filled (See MarkFill) - stage 1's team size
-        //      team of 5  - again, with up to 4 filled - the team size the comps are designed around
+        //      smaller team - again, with up to AlliesSmallTeam of its own orange mark hexes filled (See MarkFill) -
+        //                     by default 2, a team of 3 (stage 1)
+        //      bigger team  - again, with up to AlliesBigTeam filled - by default 4, a team of 5, what the comps are built around
         // A pass only runs the heroes it changes: no mark to fill, or no more than the last pass filled, keeps the numbers
-        // it has. The team-of-5 numbers are the report's main ones - the role comparison and the flags use them.
+        // it has (an ally count of 0 skips its pass). The bigger team's numbers are the report's main ones - the role
+        // comparison and the flags use them.
         private IEnumerator TestEveryHero(GameManager game, List<HeroDataSO> testRoster, HeroDataSO dummy, List<Result> results)
         {
             game.Board.SetBattleOn(false);
@@ -129,12 +138,12 @@ namespace MagicSchool.Core.Benchmark
             foreach (Result result in everyone) result.KeepAlone();
 
             int Fill(Result r, int max) => MarkFill.Of(r.Hero, board, max).Count;
-            List<Result> team3 = everyone.Where(r => r.Error == null && Fill(r, AlliesInTeamOf3) > 0).ToList();
-            yield return TestPass(game, lanes, team3, dummy, AlliesInTeamOf3);
-            foreach (Result result in everyone) result.KeepTeamOf3();
+            List<Result> small = everyone.Where(r => r.Error == null && Fill(r, AlliesSmallTeam) > 0).ToList();
+            yield return TestPass(game, lanes, small, dummy, AlliesSmallTeam);
+            foreach (Result result in everyone) result.KeepSmallTeam();
 
-            List<Result> team5 = everyone.Where(r => r.Error == null && Fill(r, AlliesInTeamOf5) > Fill(r, AlliesInTeamOf3)).ToList();
-            yield return TestPass(game, lanes, team5, dummy, AlliesInTeamOf5);
+            List<Result> big = everyone.Where(r => r.Error == null && Fill(r, AlliesBigTeam) > Fill(r, AlliesSmallTeam)).ToList();
+            yield return TestPass(game, lanes, big, dummy, AlliesBigTeam);
 
             for (int i = 0; i < everyone.Count; i++)
             {
@@ -172,7 +181,7 @@ namespace MagicSchool.Core.Benchmark
             Debug.Log($"[HeroBenchmark] {done}/{total} {result.Hero.Name}: " +
                       $"{result.Dps30:0.0} DPS @30s, AoE {result.AoeDps30:0.0} (x{result.AoeGain:0.0}), " +
                       $"{(result.Survived ? "survived" : $"died at {result.TimeToDie:0.0}s")}" +
-                      (result.Marks > 0 ? $" - with {result.Marks} mark hexes filled; team of 3 {result.Dps30Team3:0.0}, " +
+                      (result.Marks > 0 ? $" - with {result.Marks} mark hexes filled; smaller team {result.Dps30Small:0.0}, " +
                                           $"alone {result.Dps30Alone:0.0} DPS" : ""));
         }
 
@@ -188,10 +197,10 @@ namespace MagicSchool.Core.Benchmark
             public string Error;
 
             // each pass overwrites the numbers above, so the earlier ones are kept here (See TestEveryHero).
-            // Marks = the mark hexes filled for the main (team of 5) numbers, 0 = none
-            public int Marks, MarksTeam3;
+            // Marks = the mark hexes filled for the main (bigger team) numbers, 0 = none
+            public int Marks, MarksSmall;
             public float Dps30Alone, AoeDps30Alone, TimeToDieAlone;
-            public float Dps30Team3, AoeDps30Team3, TimeToDieTeam3;
+            public float Dps30Small, AoeDps30Small, TimeToDieSmall;
 
             public Result(HeroDataSO hero) => Hero = hero;
 
@@ -202,12 +211,12 @@ namespace MagicSchool.Core.Benchmark
                 TimeToDieAlone = TimeToDie;
             }
 
-            public void KeepTeamOf3()
+            public void KeepSmallTeam()
             {
-                MarksTeam3 = Marks;
-                Dps30Team3 = Dps30;
-                AoeDps30Team3 = AoeDps30;
-                TimeToDieTeam3 = TimeToDie;
+                MarksSmall = Marks;
+                Dps30Small = Dps30;
+                AoeDps30Small = AoeDps30;
+                TimeToDieSmall = TimeToDie;
             }
         }
     }

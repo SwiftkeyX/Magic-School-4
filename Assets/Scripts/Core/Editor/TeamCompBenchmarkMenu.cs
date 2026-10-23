@@ -23,14 +23,14 @@ namespace MagicSchool.Editor
         }
 
         [MenuItem("Magic School 4/Balance/Run Team Comp Benchmark")]
-        private static void RunAll() => Request(AllCompGuids());
+        internal static void RunAll() => Request(AllCompGuids());
 
         [MenuItem("Magic School 4/Balance/Run Team Comp Benchmark (Selected)")]
-        private static void RunSelected() => Request(SelectedCompGuids());
+        internal static void RunSelected() => Request(SelectedCompGuids());
 
         // greyed out until at least one comp is selected
         [MenuItem("Magic School 4/Balance/Run Team Comp Benchmark (Selected)", true)]
-        private static bool CanRunSelected() => SelectedCompGuids().Any();
+        internal static bool CanRunSelected() => SelectedCompGuids().Any();
 
         private static IEnumerable<string> AllCompGuids()
             => AssetDatabase.FindAssets("t:BattlePlacementSO", new[] { CompFolder });
@@ -42,6 +42,8 @@ namespace MagicSchool.Editor
 
         private static void Request(IEnumerable<string> guids)
         {
+            BenchmarkSettingsAsset.LoadOrCreate();    // made now, in Edit mode: Play mode cannot create an asset
+
             string list = string.Join(";", guids);
             if (list.Length == 0)
             {
@@ -77,11 +79,13 @@ namespace MagicSchool.Editor
                 .Where(comp => comp != null)
                 .ToList();
 
+            BenchmarkSettingsSO settings = BenchmarkSettingsAsset.LoadOrCreate();
+            BenchmarkSettingsSO s = settings != null ? settings : BenchmarkSettingsSO.Current;
             Debug.Log($"[TeamCompBenchmark] started - {string.Join(", ", comps.Select(c => c.name))} vs every campaign stage, " +
-                      $"{TeamCompBenchmark.RunsAligned} runs aligned and {TeamCompBenchmark.RunsNotAligned} without, " +
-                      "a stage won at " + $"{TeamCompBenchmark.WinLine:0%}" + " of them. The screen stays blank until it is done.");
+                      $"{s.runsAligned} runs aligned and {s.runsNotAligned} without, a stage won at {s.winLine:0%} of them. " +
+                      "The screen stays blank until it is done.");
 
-            TeamCompBenchmark.Run(comps, path =>
+            TeamCompBenchmark.Run(comps, settings, path =>
             {
                 HeroBenchmarkMenu.ImportWhenBackInEditMode(path);   // into the Benchmark sheet's Team Runs / Team Latest tabs
                 EditorApplication.ExitPlaymode();

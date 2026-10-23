@@ -28,33 +28,40 @@ namespace MagicSchool.Core.Benchmark
     public partial class TeamCompBenchmark : MonoBehaviour
     {
         // =================================== settings ===================================
+        // tweakable in Magic School 4 > Balance > Benchmark - each is explained there (See BenchmarkSettingsSO)
+        private static BenchmarkSettingsSO Settings => BenchmarkSettingsSO.Current;
+
         // the same fight is run this many times: targets and some skills are random. Aligned is what is being balanced,
-        // so it gets the most; not aligned is only the baseline it is measured against
-        public const int RunsAligned = 20;
-        public const int RunsNotAligned = 10;
+        // so it gets the most; not aligned is only the baseline it is measured against (0 = not fought)
+        public static int RunsAligned => Mathf.Max(1, Settings.runsAligned);
+        public static int RunsNotAligned => Mathf.Max(0, Settings.runsNotAligned);
         public static int RunsOf(bool aligning) => aligning ? RunsAligned : RunsNotAligned;
 
-        // a stage counts as won at this share of its fights or more (14 of 20, 7 of 10).
-        // The Sheet colours and counts by the same line: WIN_LINE in .claude/scripts/benchmark_import.py
-        public const float WinLine = 0.7f;
+        // a stage counts as won at this share of its fights or more (0.7: 14 of 20, 7 of 10).
+        // Written into every team row (win_line), so the Sheet colours and counts each run by the line it ran with
+        public static float WinLine => Settings.winLine;
 
         // a fight not over by then is a timeout - the player did not win it
-        public const float TimeLimit = 90f;
+        public static float TimeLimit => Settings.timeLimit;
 
         private const float TimeStep = 1f / 30f;
         // fights at once, each on its own board copy. Every frame has a fixed cost (the Editor's own loop) however many
         // fights it runs, so more lanes are cheaper per fight: 8 -> 32 took the run from 162s to 106s
-        private const int LaneCount = 32;
+        private static int LaneCount => Mathf.Max(1, Settings.teamLanes);
         private const int ProgressEvery = 50;   // fights between progress logs
-        private const float LaneSpacing = 10f;
+        // boards stacked this far apart: the tallest layout is 7 hexes, so a 13-unit gap no skill reaches across
+        // (0 cross-board hits measured at 10; 20 keeps that true for bigger AoEs and taller boards)
+        private const float LaneSpacing = 20f;
 
         private readonly BenchmarkSpeed _speed = new BenchmarkSpeed();
 
         // =================================== run ===================================
         /// comps  = the team comps to test (BattlePlacementSOs with blue heroes)
+        /// settings = the numbers to run with; null = the defaults
         /// onDone = given the CSV's path
-        public static void Run(IReadOnlyList<BattlePlacementSO> comps, Action<string> onDone)
+        public static void Run(IReadOnlyList<BattlePlacementSO> comps, BenchmarkSettingsSO settings, Action<string> onDone)
         {
+            BenchmarkSettingsSO.Use(settings);
             var go = new GameObject(nameof(TeamCompBenchmark));
             TeamCompBenchmark benchmark = go.AddComponent<TeamCompBenchmark>();
             benchmark.StartCoroutine(benchmark.RunAll(comps, onDone));

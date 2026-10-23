@@ -41,7 +41,8 @@ namespace MagicSchool.Core.Benchmark
                     return $"{won}/{stages.Count}" + (lost.Length > 0 ? $" (loses stage {lost})" : "");
                 }
 
-                lines.Add($"{byComp.Key.name}: wins {Won(true)} stages aligned, {Won(false)} without aligning");
+                bool foughtPlain = byComp.Any(g => !g.Key.aligning);
+                lines.Add($"{byComp.Key.name}: wins {Won(true)} stages aligned" + (foughtPlain ? $", {Won(false)} without aligning" : ""));
             }
 
             return string.Join("\n", lines);
@@ -61,7 +62,8 @@ namespace MagicSchool.Core.Benchmark
             string path = Path.Combine(ReportFolder, Prefix + stamp + ".csv");
 
             var text = new StringBuilder();
-            text.AppendLine("row,comp,stage,stage_setup,aligning,runs,win_rate,wins,timeouts,avg_seconds,heroes_left,team_hp_left,team_dps," +
+            // won / win_line: this run's verdict and the line it used, so the Sheet never has to know the setting
+            text.AppendLine("row,comp,stage,stage_setup,aligning,runs,win_rate,won,win_line,wins,timeouts,avg_seconds,heroes_left,team_hp_left,team_dps," +
                             "hero,dps,damage_share,damage_taken,healing,survive_rate,died_at,error");
 
             foreach (var group in groups)
@@ -72,7 +74,7 @@ namespace MagicSchool.Core.Benchmark
 
                 if (first.Error != null)
                 {
-                    text.AppendLine($"team,{head},0,,,,,,,,,,,,,,,{Csv(first.Error)}");
+                    text.AppendLine($"team,{head},0,,,,,,,,,,,,,,,,,{Csv(first.Error)}");
                     continue;
                 }
 
@@ -81,7 +83,8 @@ namespace MagicSchool.Core.Benchmark
                 float heroesLeft = (float)runs.Average(f => f.Heroes.Count(h => h.Survived));
                 float hpLeft = (float)runs.Average(f => f.Heroes.Count > 0 ? f.Heroes.Average(h => h.HpLeft) : 0f);
 
-                text.AppendLine($"team,{head},{runs.Count},{Pct(WinRate(runs))},{runs.Count(f => f.Outcome == Outcome.Win)}," +
+                text.AppendLine($"team,{head},{runs.Count},{Pct(WinRate(runs))},{(IsWon(runs) ? "yes" : "no")},{Pct(WinLine)}," +
+                                $"{runs.Count(f => f.Outcome == Outcome.Win)}," +
                                 $"{runs.Count(f => f.Outcome == Outcome.Timeout)},{F(seconds / runs.Count)},{F(heroesLeft)},{Pct(hpLeft)}," +
                                 $"{F(seconds > 0 ? teamDamage / seconds : 0)},,,,,,,,");
 
@@ -90,7 +93,7 @@ namespace MagicSchool.Core.Benchmark
                 {
                     List<HeroLine> lines = hero.ToList();
                     int damage = lines.Sum(h => h.Damage);
-                    text.AppendLine($"hero,{head},{runs.Count},,,,,,,," +
+                    text.AppendLine($"hero,{head},{runs.Count},,,,,,,,,," +
                                     $"{Csv(hero.Key)},{F(seconds > 0 ? damage / seconds : 0)},{Pct(teamDamage > 0 ? (float)damage / teamDamage : 0)}," +
                                     $"{F((float)lines.Sum(h => h.DamageTaken) / runs.Count)},{F((float)lines.Sum(h => h.Healing) / runs.Count)}," +
                                     $"{Pct((float)lines.Count(h => h.Survived) / lines.Count)}," +

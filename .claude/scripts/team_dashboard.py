@@ -21,13 +21,18 @@ import gspread
 
 sys.path.insert(0, str(Path(__file__).parent))
 import sheet_sync  # noqa: E402
-from benchmark_import import WIN_LINE  # noqa: E402
+from benchmark_import import DEFAULT_WIN_LINE  # noqa: E402
 
 SHEET = "magicschool4-benchmark"
 TAB, LISTS = "Team Dashboard", "Team Lists"
 RUNS = "'Team Runs'"
 
 MATRIX_HEADER, MATRIX_FIRST, MATRIX_LAST = 9, 10, 29      # 20 comps
+# Each win rate shown is coloured by whether the report says that stage was won. Those yes/no flags sit in hidden
+# columns from R, at the same row and the same offset from their rate, so a rule can read them: F10's flag is R10,
+# B35's is R35. The rates take 10 columns (F:O, room for 10 stages), so the flags start 12 to the right of F.
+FLAGS_COLUMN = 17                                          # R, 0-based
+HIDDEN_FROM, HIDDEN_TO = 15, 30                            # P:AD
 COMP_PICK = 32
 STAGE_HEADER, STAGE_FIRST, STAGE_LAST = 34, 35, 44        # 10 stages
 HERO_HEADER, HERO_FIRST, HERO_LAST = 46, 47, 58           # 12 heroes
@@ -55,7 +60,9 @@ HEAD = (f"hdr,{RUNS}!$1:$1,data,{RUNS}!$A$2:$Z,c,LAMBDA(n,INDEX(data,0,XMATCH(n,
         f"sel,IF($B$3=\"Latest\",'{LISTS}'!$B$2,LEFT($B$3,16)),"
         "cmp,IF($D$3=\"None\",\"\",LEFT($D$3,16)),"
         "al,IF($F$3=\"Not aligned\",\"off\",\"on\"),"
-        "isteam,c(\"row\")=\"team\",")
+        "isteam,c(\"row\")=\"team\","
+        # won: as the report says - or, a report from before its won column, at the default line
+        f"wonc,IFERROR(c(\"won\"),\"\"),iswon,IF(wonc=\"\",c(\"win_rate\")>={DEFAULT_WIN_LINE},wonc=\"yes\"),")
 
 
 # the body closes the LET itself, after its last value
@@ -67,19 +74,26 @@ MATRIX_HEADER_FORMULA = let(
     "IFERROR(HSTACK(\"Comp\",\"Stages won aligned\",\"Stages won not aligned\",\"Aligning adds\",\"Change since compared\","
     "\"Stage \"&TRANSPOSE(stages)),\"Comp\"))")
 
-# a stage is won at WIN_LINE of its runs or more (See TeamCompBenchmark.WinLine), the same line the Team tabs colour on
+# a stage is won when the report says so (iswon), the same verdict the Team tabs colour on
 MATRIX_FORMULA = let(
     "inrun,(times=sel)*isteam,"
     "comps,UNIQUE(FILTER(c(\"comp\"),inrun=1)),"
     "stages,TRANSPOSE(SORT(UNIQUE(FILTER(c(\"stage\"),inrun=1)))),"
-    "won,LAMBDA(t,a,MAP(comps,LAMBDA(k,IFERROR(SUM(FILTER(--(c(\"win_rate\")>=" + str(WIN_LINE) + "),times=t,isteam,c(\"comp\")=k,c(\"aligning\")=a)),\"\")))),"
+    "won,LAMBDA(t,a,MAP(comps,LAMBDA(k,IFERROR(SUM(FILTER(--iswon,times=t,isteam,c(\"comp\")=k,c(\"aligning\")=a)),\"\")))),"
     "aligned,won(sel,\"on\"),"
     "plain,won(sel,\"off\"),"
     "was,IF(cmp=\"\",MAP(comps,LAMBDA(k,\"\")),won(cmp,\"on\")),"
     "change,MAP(aligned,was,LAMBDA(a,b,IF(b=\"\",\"\",a-b))),"
     "rates,MAKEARRAY(ROWS(comps),COLUMNS(stages),LAMBDA(i,j,IFERROR(INDEX(FILTER(c(\"win_rate\"),inrun=1,"
     "c(\"comp\")=INDEX(comps,i),c(\"stage\")=INDEX(stages,1,j),c(\"aligning\")=al),1),\"\"))),"
-    "IFERROR(SORT(HSTACK(comps,aligned,plain,aligned-plain,change,rates),2,FALSE,3,FALSE),\"No team comp run yet\"))")
+    "flags,MAKEARRAY(ROWS(comps),COLUMNS(stages),LAMBDA(i,j,IFERROR(INDEX(FILTER(iswon,inrun=1,"
+    "c(\"comp\")=INDEX(comps,i),c(\"stage\")=INDEX(stages,1,j),c(\"aligning\")=al),1),\"\"))),"
+    # rates in F:O, two blank columns, their flags in R:AA - one array, so sorting keeps each flag beside its rate
+    # (Sheets has no EXPAND: pad widens an array to n columns with blanks)
+    "pad,LAMBDA(m,n,MAKEARRAY(ROWS(m),n,LAMBDA(i,j,IF(j<=COLUMNS(m),INDEX(m,i,j),\"\")))),"
+    "gap,MAKEARRAY(ROWS(comps),2,LAMBDA(i,j,\"\")),"
+    "IFERROR(SORT(HSTACK(comps,aligned,plain,aligned-plain,change,pad(rates,10),gap,pad(flags,10)),2,FALSE,3,FALSE),"
+    "\"No team comp run yet\"))")
 
 # a tile every other column, as on the hero Dashboard: label in row 5, value in row 6
 TILES = {
@@ -89,6 +103,8 @@ TILES = {
     "H5": "Its stages won (aligned)", "H6": f'=IF(A6=0,"",B{MATRIX_FIRST}&" of "&COUNTA(F{MATRIX_HEADER}:{MATRIX_HEADER}))',
     "J5": "Aligning adds (avg)", "J6": f'=IF(A6=0,"",AVERAGE(D{MATRIX_FIRST}:D{MATRIX_LAST}))',
     "L5": "Run time", "L6": let("sel)"),
+    "N5": "Stage won at",
+    "N6": let(f"IFERROR(INDEX(FILTER(c(\"win_line\"),times=sel,isteam,c(\"win_line\")<>\"\"),1),{DEFAULT_WIN_LINE}))"),
 }
 
 STAGE_FORMULA = let(
@@ -98,6 +114,14 @@ STAGE_FORMULA = let(
     "get,LAMBDA(n,a,MAP(stages,LAMBDA(s,IFERROR(INDEX(FILTER(c(n),inrun=1,c(\"stage\")=s,c(\"aligning\")=a),1),\"\")))),"
     "IFERROR(HSTACK(stages,get(\"win_rate\",\"on\"),get(\"win_rate\",\"off\"),get(\"avg_seconds\",al),get(\"timeouts\",al),"
     "get(\"heroes_left\",al),get(\"team_hp_left\",al),get(\"team_dps\",al)),\"Pick a comp from this run\"))")
+
+# each stage's won flags, aligned and not, in R:S beside the stage table (See FLAGS_COLUMN)
+STAGE_FLAGS_FORMULA = let(
+    f"pick,$B${COMP_PICK},"
+    "inrun,(times=sel)*isteam*(c(\"comp\")=pick),"
+    "stages,SORT(UNIQUE(FILTER(c(\"stage\"),inrun=1))),"
+    "flag,LAMBDA(a,MAP(stages,LAMBDA(s,IFERROR(INDEX(FILTER(iswon,inrun=1,c(\"stage\")=s,c(\"aligning\")=a),1),\"\")))),"
+    "IFERROR(HSTACK(flag(\"on\"),flag(\"off\")),\"\"))")
 
 HERO_FORMULA = let(
     f"pick,$B${COMP_PICK},"
@@ -127,7 +151,8 @@ LIST_FORMULAS = {
 
 # ======================================== notes ========================================
 # hover a label or a header to read what it means
-WON = f"A stage is won when at least {WIN_LINE:.0%} of its fights are won (14 of 20 aligned, 7 of 10 not aligned)."
+WON = ("A stage is won when at least the run's win line of its fights are won - see 'Stage won at'; it is set in "
+       "Unity's Benchmark window (Magic School 4 > Balance > Benchmark).")
 STAGE_NOTE = ("Win rate at this stage: share of its fights won. Green = won, red = lost. Shows aligned fights, "
               "or not aligned ones when the Aligning dropdown says so.")
 NOTES = {
@@ -141,6 +166,8 @@ NOTES = {
     "H5": "How many stages the best comp wins aligned, of the stages there are. " + WON,
     "J5": "On average, how many more stages a comp wins aligned than not aligned.",
     "L5": "When this run was played.",
+    "N5": "The share of fights a stage needed to count as won in this run (Win Line in Unity's Benchmark window). "
+          "Runs from before it was recorded show the default, 70%.",
     f"A{MATRIX_HEADER}": "The saved team comp. Its name is green when it wins every stage aligned.",
     f"B{MATRIX_HEADER}": "Stages won with aligning, out of every stage. " + WON,
     f"C{MATRIX_HEADER}": "Stages won with aligning switched off. " + WON,
@@ -149,7 +176,7 @@ NOTES = {
     **{f"{col}{MATRIX_HEADER}": STAGE_NOTE for col in "FGHIJKLMNO"},
     f"A{COMP_PICK}": "Pick a comp to see it stage by stage and hero by hero.",
     f"A{STAGE_HEADER}": "The campaign stage.",
-    f"B{STAGE_HEADER}": "Share of the aligned fights won at this stage. Green = won (" + f"{WIN_LINE:.0%}" + " or more).",
+    f"B{STAGE_HEADER}": "Share of the aligned fights won at this stage. Green = won (at least 'Stage won at').",
     f"C{STAGE_HEADER}": "Share of the not-aligned fights won at this stage.",
     f"D{STAGE_HEADER}": "Average fight length.",
     f"E{STAGE_HEADER}": "Fights still going at 90 seconds. A timeout is not a win.",
@@ -172,16 +199,16 @@ def build(sh):
     titles = [ws.title for ws in sh.worksheets()]
     at = titles.index("Team Runs") if "Team Runs" in titles else len(titles)
     lists = sh.add_worksheet(title=LISTS, rows=300, cols=6)
-    ws = sh.add_worksheet(title=TAB, rows=60, cols=16, index=at)
+    ws = sh.add_worksheet(title=TAB, rows=60, cols=HIDDEN_TO, index=at)
 
     lists.update([[LIST_FORMULAS.get(f"{col}{row}", "") for col in "ABCDEF"] for row in (1, 2, 3)],
                  range_name="A1", value_input_option="USER_ENTERED")
 
     cells = {
         "A1": "Team Comp Benchmark Dashboard",
-        "A2": (f"Pick a run by date (newest first). A stage is won when at least {WIN_LINE:.0%} of its runs are won. \"Compare with\" adds "
-               "how many more stages each comp wins aligned than in that run. \"Aligning\" picks which fights the stage "
-               "columns and the comp detail show."),
+        "A2": ("=\"Pick a run by date (newest first). A stage is won when at least \"&TEXT($N$6,\"0%\")&\" of its fights are "
+               "won. 'Compare with' adds how many more stages each comp wins aligned than in that run. 'Aligning' picks "
+               "which fights the stage columns and the comp detail show.\""),
         "A3": "Run", "B3": "Latest", "C3": "Compare with", "D3": "None", "E3": "Aligning", "F3": "Aligned",
         "A8": "Every comp vs every stage",
         f"A{MATRIX_HEADER}": MATRIX_HEADER_FORMULA, f"A{MATRIX_FIRST}": MATRIX_FORMULA,
@@ -191,6 +218,7 @@ def build(sh):
         **{f"{col}{STAGE_HEADER}": name for col, name in zip("ABCDEFGH", (
             "Stage", "Win rate aligned", "Win rate not aligned", "Seconds", "Timeouts", "Heroes left", "Team HP left", "Team DPS"))},
         f"A{STAGE_FIRST}": STAGE_FORMULA,
+        f"R{STAGE_FIRST}": STAGE_FLAGS_FORMULA,
         **{f"{col}{HERO_HEADER}": name for col, name in zip("ABCDEFGH", (
             "Hero (avg over stages)", "DPS", "Damage share", "Damage taken", "Healing", "Survive rate", "Died at", "DPS change"))},
         f"A{HERO_FIRST}": HERO_FORMULA,
@@ -257,7 +285,7 @@ def style(sh, ws, lists):
     pick = {"backgroundColor": PICK_BG, "horizontalAlignment": "LEFT"}
     label = {"textFormat": {"bold": True}, "horizontalAlignment": "RIGHT"}
     muted = {"textFormat": {"italic": True, "foregroundColor": MUTED_FG}}
-    rates = area(MATRIX_FIRST, MATRIX_LAST, 5, 16)
+    rates = area(MATRIX_FIRST, MATRIX_LAST, 5, 15)            # F:O
     stage_rates = area(STAGE_FIRST, STAGE_LAST, 1, 3)
 
     requests = [
@@ -284,6 +312,7 @@ def style(sh, ws, lists):
         fmt(area(6, 6, 0, 16), {"textFormat": {"bold": True, "fontSize": 14}, "horizontalAlignment": "LEFT"},
             "textFormat,horizontalAlignment"),
         number(area(6, 6, 9, 10), "+0.0 \"stages\";-0.0 \"stages\";0.0 \"stages\""),
+        number(area(6, 6, 13, 14), "0%", "PERCENT"),
 
         # section titles
         *[fmt(area(r, r, 0, 1), {"textFormat": {"bold": True, "fontSize": 12}}, "textFormat") for r in (8, COMP_PICK - 1)],
@@ -311,17 +340,23 @@ def style(sh, ws, lists):
         *[{"updateCells": {"range": cell_range(a1), "rows": [{"values": [{"note": text}]}], "fields": "note"}}
           for a1, text in NOTES.items()],
         {"updateSheetProperties": {"properties": {"sheetId": lists.id, "hidden": True}, "fields": "hidden"}},
+        # the won flags the colours read - nothing to look at
+        {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": HIDDEN_FROM,
+                                                 "endIndex": HIDDEN_TO}, "properties": {"hiddenByUser": True},
+                                       "fields": "hiddenByUser"}},
     ]
 
     # a cell takes only the first rule that matches; each goes in at index 0, so the last added wins.
-    # Win rates keep the Team tabs' green / red (a stage is won at WIN_LINE of its runs); changes are coloured text, as on
-    # the hero Dashboard - a stage count at any change, a DPS change from 5% (the hero Dashboard's line)
+    # Win rates keep the Team tabs' green / red - read off each rate's won flag in the hidden columns (See FLAGS_COLUMN);
+    # changes are coloured text, as on the hero Dashboard - a stage count at any change, a DPS change from 5%
     first = MATRIX_FIRST
+    flag_of_rate = col_letter(FLAGS_COLUMN)                                  # F10 -> R10
+    flag_of_stage = col_letter(FLAGS_COLUMN)                                 # B35 -> R35
     requests += [
-        rule(rates, f"=AND(ISNUMBER(F{first}),F{first}<{WIN_LINE})", LOSS_BG, LOSS_FG),
-        rule(rates, f"=AND(ISNUMBER(F{first}),F{first}>={WIN_LINE})", WIN_BG, WIN_FG),
-        rule(stage_rates, f"=AND(ISNUMBER(B{STAGE_FIRST}),B{STAGE_FIRST}<{WIN_LINE})", LOSS_BG, LOSS_FG),
-        rule(stage_rates, f"=AND(ISNUMBER(B{STAGE_FIRST}),B{STAGE_FIRST}>={WIN_LINE})", WIN_BG, WIN_FG),
+        rule(rates, f"=AND(ISNUMBER(F{first}),{flag_of_rate}{first}=FALSE)", LOSS_BG, LOSS_FG),
+        rule(rates, f"=AND(ISNUMBER(F{first}),{flag_of_rate}{first}=TRUE)", WIN_BG, WIN_FG),
+        rule(stage_rates, f"=AND(ISNUMBER(B{STAGE_FIRST}),{flag_of_stage}{STAGE_FIRST}=FALSE)", LOSS_BG, LOSS_FG),
+        rule(stage_rates, f"=AND(ISNUMBER(B{STAGE_FIRST}),{flag_of_stage}{STAGE_FIRST}=TRUE)", WIN_BG, WIN_FG),
     ]
     for rng, cell, line in ((area(first, MATRIX_LAST, 3, 5), f"D{first}", 0), (area(6, 6, 9, 10), "J6", 0),
                             (area(HERO_FIRST, HERO_LAST, 7, 8), f"H{HERO_FIRST}", 0.05)):
@@ -332,6 +367,14 @@ def style(sh, ws, lists):
     requests.append(rule(area(first, MATRIX_LAST, 0, 1),
                          f"=AND(ISNUMBER($B{first}),$B{first}=COUNTA($F${MATRIX_HEADER}:${MATRIX_HEADER}))", WIN_BG, WIN_FG))
     sh.batch_update({"requests": requests})
+
+
+def col_letter(index):  # 0-based -> "A", "R", "AA"
+    out, i = "", index + 1
+    while i:
+        i, rem = divmod(i - 1, 26)
+        out = chr(65 + rem) + out
+    return out
 
 
 def main():

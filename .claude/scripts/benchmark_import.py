@@ -24,8 +24,9 @@ import sheet_sync  # noqa: E402
 
 SHEET = "magicschool4-benchmark"
 
-# a team comp stage counts as won at this share of its fights or more - TeamCompBenchmark.WinLine, keep the two equal
-WIN_LINE = 0.7
+# A team comp report says itself whether each stage was won (its won / win_line columns, from the Benchmark window's
+# setting). Only reports from before those columns are judged here, at this line - the setting's default.
+DEFAULT_WIN_LINE = 0.7
 
 
 # ======================================== colours ========================================
@@ -56,7 +57,7 @@ class Report:
         self.percent = percent                      # 0%
         self.signed_percent = signed_percent        # +12% / -12%
         self.flag_columns = flag_columns            # HIGH red, LOW blue
-        self.win_rate_column = win_rate_column      # WIN_LINE or more green, below it red
+        self.win_rate_column = win_rate_column      # green when the row was won, red when not (See won / win_line)
         self.bold_rows_where = bold_rows_where      # (column, value): those rows bold all the way across
 
     @property
@@ -83,17 +84,17 @@ HEROES = Report(
         (rgb(0.7, 0.88, 0.7), rgb(0.93, 0.98, 0.93), ("aoe_dps_15s", "aoe_dps_30s", "aoe_gain", "aoe_vs_role", "aoe_flag")),
         (rgb(0.7, 0.8, 0.95), rgb(0.93, 0.95, 1.0), ("time_to_die", "survived", "hp_left", "damage_taken", "mitigated",
                                                      "healing_received", "ttd_vs_role", "tank_flag")),
-        # the columns before these are a team of 5's (up to 4 of the hero's own mark hexes filled);
-        # these are the same tests in a team of 3 (up to 2), then with the hero alone
-        (rgb(0.85, 0.78, 0.95), rgb(0.96, 0.94, 0.99), ("marks", "marks_team3", "dps_30s_team3", "aoe_dps_30s_team3",
-                                                        "time_to_die_team3")),
+        # the columns before these are the bigger team's (by default up to 4 of the hero's own mark hexes filled, a team of 5);
+        # these are the same tests in the smaller team (by default 2, a team of 3), then with the hero alone
+        (rgb(0.85, 0.78, 0.95), rgb(0.96, 0.94, 0.99), ("marks", "marks_small", "dps_30s_small", "aoe_dps_30s_small",
+                                                        "time_to_die_small")),
         (rgb(0.8, 0.8, 0.8), rgb(0.95, 0.95, 0.95), ("dps_30s_alone", "aoe_dps_30s_alone", "time_to_die_alone")),
         (GREY, None, ("dummy_revives", "error")),   # counted across all three tests
     ],
     frozen_columns=3,
     bold_column="hero",
     one_decimal=("dps_15s", "dps_30s", "healing_per_sec", "aoe_dps_15s", "aoe_dps_30s", "time_to_die",
-                 "dps_30s_team3", "aoe_dps_30s_team3", "time_to_die_team3",
+                 "dps_30s_small", "aoe_dps_30s_small", "time_to_die_small",
                  "dps_30s_alone", "aoe_dps_30s_alone", "time_to_die_alone"),
     percent=("auto_share", "hp_left"),
     signed_percent=("dps_vs_role", "aoe_vs_role", "ttd_vs_role"),
@@ -108,7 +109,7 @@ TEAMS = Report(
     stamp=["run_time"],
     blocks=[
         (GREY, None, ("run_time", "row", "comp", "stage", "stage_setup", "aligning", "runs")),
-        (rgb(0.98, 0.8, 0.6), rgb(1.0, 0.95, 0.9), ("win_rate", "wins", "timeouts", "avg_seconds", "heroes_left",
+        (rgb(0.98, 0.8, 0.6), rgb(1.0, 0.95, 0.9), ("win_rate", "won", "win_line", "wins", "timeouts", "avg_seconds", "heroes_left",
                                                      "team_hp_left", "team_dps")),
         (rgb(0.7, 0.8, 0.95), rgb(0.93, 0.95, 1.0), ("hero", "dps", "damage_share", "damage_taken", "healing",
                                                      "survive_rate", "died_at")),
@@ -117,7 +118,7 @@ TEAMS = Report(
     frozen_columns=6,
     bold_column="comp",
     one_decimal=("avg_seconds", "heroes_left", "team_dps", "dps", "damage_taken", "healing", "died_at"),
-    percent=("win_rate", "team_hp_left", "damage_share", "survive_rate"),
+    percent=("win_rate", "win_line", "team_hp_left", "damage_share", "survive_rate"),
     win_rate_column="win_rate",
     bold_rows_where=("row", "team"),
 )
@@ -157,14 +158,15 @@ NOTES = {
     "healing_received": "TANK TEST - healing it got.",
     "ttd_vs_role": "time_to_die compared with the median hero of the same role. + = lasts longer.",
     "tank_flag": "HIGH = more than +20% vs its role, LOW = below -20%.",
-    "marks": "How many of the hero's own orange mark hexes were filled for the main tests: as in a team of 5, up to 4 "
-             "(a stand-in ally on each, or left empty for a 'when empty' mark, in the order the marks were made), so it "
-             "gets the self bonus it would in a real fight. 0 = it has no such mark and every number is the hero alone. "
-             "From 2026-10-23 every test column before this one is with marks filled; before that, the hero alone.",
-    "marks_team3": "The same, as in a team of 3 (stage 1): up to 2 mark hexes filled.",
-    "dps_30s_team3": "DAMAGE TEST in a team of 3 (marks_team3 hexes filled).",
-    "aoe_dps_30s_team3": "AOE TEST in a team of 3.",
-    "time_to_die_team3": "TANK TEST in a team of 3.",
+    "marks": "How many of the hero's own orange mark hexes were filled for the main tests, as in the bigger team "
+             "(Benchmark window; by default up to 4 = a team of 5): a stand-in ally on each, or left empty for a "
+             "'when empty' mark, in the order the marks were made, so it gets the self bonus it would in a real fight. "
+             "0 = it has no such mark and every number is the hero alone. From 2026-10-23 every test column before "
+             "this one is with marks filled; before that, the hero alone.",
+    "marks_small": "The same, as in the smaller team (by default up to 2 = a team of 3, stage 1).",
+    "dps_30s_small": "DAMAGE TEST in the smaller team (marks_small hexes filled).",
+    "aoe_dps_30s_small": "AOE TEST in the smaller team.",
+    "time_to_die_small": "TANK TEST in the smaller team.",
     "dps_30s_alone": "DAMAGE TEST with the hero alone, no mark filled - its floor. Same as dps_30s when marks is 0.",
     "aoe_dps_30s_alone": "AOE TEST with the hero alone.",
     "time_to_die_alone": "TANK TEST with the hero alone.",
@@ -178,7 +180,10 @@ NOTES = {
     "aligning": "on = aligning bonuses given, as in a real fight. off = the same heroes on the same hexes with every "
                 "aligning bonus and mark effect taken away.",
     "runs": "How many times this fight was played (aligned 20, not aligned 10).",
-    "win_rate": "Share of the runs won. Green = the stage counts as won (70% or more), red = lost.",
+    "win_rate": "Share of the runs won. Green = the stage counts as won (see won), red = lost.",
+    "won": "yes = the stage counts as won: at least win_line of its runs were won. Decided by the benchmark itself, "
+           "so the Sheet always agrees with Unity's log. Empty in runs from before 2026-10-23 (judged at 70% here).",
+    "win_line": "The share of runs a stage needed to count as won in this run - the Benchmark window's 'Win Line'.",
     "wins": "Runs won.",
     "timeouts": "Runs still going at 90 seconds. A timeout is not a win.",
     "avg_seconds": "Average fight length in seconds.",
@@ -351,14 +356,21 @@ def style(sh, report, ws, band_runs):
         for word, bg, fg in (("HIGH", HIGH_BG, HIGH_FG), ("LOW", LOW_BG, LOW_FG)):
             rules.append(colour_rule([column(name)], {"type": "TEXT_EQ", "values": [{"userEnteredValue": word}]}, bg, fg, bold=True))
 
-    # a stage counts as won at WIN_LINE of its runs or more (See TeamCompBenchmark.WinLine)
+    # won as the report says (its won column), or - a report from before it - at DEFAULT_WIN_LINE
     if report.win_rate_column in columns:
         cell = f"${letter(report.win_rate_column)}2"
-        rules.append(colour_rule([column(report.win_rate_column)],
-                                 {"type": "CUSTOM_FORMULA", "values": [{"userEnteredValue": f"=AND({cell}<>\"\", {cell}<{WIN_LINE})"}]},
+        if "won" in columns:
+            won = f"${letter('won')}2"
+            is_won = f"IF({won}=\"\", {cell}>={DEFAULT_WIN_LINE}, {won}=\"yes\")"
+            painted = [column(report.win_rate_column), column("won")]
+        else:
+            is_won = f"{cell}>={DEFAULT_WIN_LINE}"
+            painted = [column(report.win_rate_column)]
+        rules.append(colour_rule(painted,
+                                 {"type": "CUSTOM_FORMULA", "values": [{"userEnteredValue": f"=AND({cell}<>\"\", NOT({is_won}))"}]},
                                  LOSS_BG, LOSS_FG, bold=True))
-        rules.append(colour_rule([column(report.win_rate_column)],
-                                 {"type": "CUSTOM_FORMULA", "values": [{"userEnteredValue": f"=AND({cell}<>\"\", {cell}>={WIN_LINE})"}]},
+        rules.append(colour_rule(painted,
+                                 {"type": "CUSTOM_FORMULA", "values": [{"userEnteredValue": f"=AND({cell}<>\"\", {is_won})"}]},
                                  WIN_BG, WIN_FG, bold=True))
     requests += rules
 
