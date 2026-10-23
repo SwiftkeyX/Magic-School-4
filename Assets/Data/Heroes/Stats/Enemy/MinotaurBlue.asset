@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49b55b0dd9ae9b645ad69373b7cb4ae9, type: 3}
   m_Name: MinotaurBlue
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Heroes.HeroDataSO
-  _prefab: {fileID: 8947555842475497492, guid: eb30dca60bf2de04f9daa12b48c4cb91, type: 3}
-  _name: Minotaur
+  _prefab: {fileID: 8947555842475497492, guid: 14fdab6f085293245b164427f2704ead, type: 3}
+  _name: MinotaurBlue
   _tier: 0
-  _role: 1
-  _hp: 800
+  _role: 3
+  _hp: 550
   _attack: 45
-  _defend: 40
+  _defend: 30
   _magic: 100
-  _attackSpeed: 0.6
+  _attackSpeed: 1
   _range: 1
   _startMana: 30
-  _maxMana: 120
+  _maxMana: 60
   _critChance: 25
   _skillId: 39
   _spawnUnit: {fileID: 0}

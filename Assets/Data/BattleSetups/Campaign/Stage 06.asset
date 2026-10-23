@@ -13,46 +13,38 @@ MonoBehaviour:
   m_Name: Stage 06
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
   _heroesPlacement:
-  - dataSO: {fileID: 11400000, guid: 0f3d014677dfab3469e35a31cbe4aeab, type: 2}
-    team: 1
-    hexPlacement:
-      column: 4
-      row: 3
-  - dataSO: {fileID: 11400000, guid: e3572f7949186fc4191265167e10d06c, type: 2}
-    team: 1
-    hexPlacement:
-      column: 4
-      row: 2
-  - dataSO: {fileID: 11400000, guid: dc1c3d91f1638e84081e8a7a65529145, type: 2}
-    team: 1
-    hexPlacement:
-      column: 4
-      row: 4
-  - dataSO: {fileID: 11400000, guid: f09a9975497d1fe4597a86bb7d6cc48a, type: 2}
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
     team: 1
     hexPlacement:
       column: 6
-      row: 3
-  - dataSO: {fileID: 11400000, guid: 2bbb40098e2c2cf4bb28cc25df079d26, type: 2}
-    team: 1
-    hexPlacement:
-      column: 6
-      row: 2
-  - dataSO: {fileID: 11400000, guid: 3a61bc0bafdd7ed46a0764d47e74c65b, type: 2}
-    team: 1
-    hexPlacement:
-      column: 7
-      row: 3
-  - dataSO: {fileID: 11400000, guid: e55e93ecd34e44c429e32be0e761a605, type: 2}
-    team: 1
-    hexPlacement:
-      column: 7
-      row: 2
-  - dataSO: {fileID: 11400000, guid: 81eb954f0f0758046a44fafb654cecf8, type: 2}
-    team: 1
-    hexPlacement:
-      column: 7
       row: 4
+    item: {fileID: 0}
+    alignPattern: 0
+    level: 12
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+    team: 1
+    hexPlacement:
+      column: 7
+      row: 0
+    item: {fileID: 0}
+    alignPattern: 0
+    level: 12
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+    team: 1
+    hexPlacement:
+      column: 7
+      row: 1
+    item: {fileID: 0}
+    alignPattern: 0
+    level: 12
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+    team: 1
+    hexPlacement:
+      column: 8
+      row: 1
+    item: {fileID: 0}
+    alignPattern: 0
+    level: 12
   _deployZone:
   - column: 0
     row: 0
@@ -64,10 +56,6 @@ MonoBehaviour:
     row: 3
   - column: 0
     row: 4
-  - column: 0
-    row: 5
-  - column: 0
-    row: 6
   - column: 1
     row: 0
   - column: 1
@@ -78,10 +66,6 @@ MonoBehaviour:
     row: 3
   - column: 1
     row: 4
-  - column: 1
-    row: 5
-  - column: 1
-    row: 6
   - column: 2
     row: 0
   - column: 2
@@ -92,10 +76,6 @@ MonoBehaviour:
     row: 3
   - column: 2
     row: 4
-  - column: 2
-    row: 5
-  - column: 2
-    row: 6
   - column: 3
     row: 0
   - column: 3
@@ -106,8 +86,25 @@ MonoBehaviour:
     row: 3
   - column: 3
     row: 4
-  - column: 3
-    row: 5
-  - column: 3
-    row: 6
-  _boardLayout: {fileID: 4391576941862811623, guid: e04b55e61d71ef04dbe0b62c3e1ef485, type: 3}
+  - column: 4
+    row: 0
+  - column: 4
+    row: 1
+  - column: 4
+    row: 2
+  - column: 4
+    row: 3
+  - column: 4
+    row: 4
+  - column: 5
+    row: 0
+  - column: 5
+    row: 1
+  - column: 5
+    row: 2
+  - column: 5
+    row: 3
+  - column: 5
+    row: 4
+  _boardLayout: {fileID: 2821033882997051323, guid: d07d3d269e6884b42a2b2daced65229a, type: 3}
+  _itemsOnHexes: []

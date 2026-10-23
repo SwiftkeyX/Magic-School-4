@@ -13,21 +13,38 @@ MonoBehaviour:
   m_Name: Stage 01
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
   _heroesPlacement:
-  - dataSO: {fileID: 11400000, guid: 0b00076b3dc75394d8144c4dbe4989b8, type: 2}
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
     team: 1
     hexPlacement:
-      column: 4
-      row: 3
-  - dataSO: {fileID: 11400000, guid: 73b3853130bb12a489fffe28539d20f4, type: 2}
-    team: 1
-    hexPlacement:
-      column: 4
-      row: 2
-  - dataSO: {fileID: 11400000, guid: 9636cb18892805344858c7b35439a83c, type: 2}
+      column: 6
+      row: 4
+    item: {fileID: 0}
+    alignPattern: 0
+    level: 2
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
     team: 1
     hexPlacement:
       column: 7
-      row: 3
+      row: 0
+    item: {fileID: 0}
+    alignPattern: 0
+    level: 2
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+    team: 1
+    hexPlacement:
+      column: 7
+      row: 1
+    item: {fileID: 0}
+    alignPattern: 0
+    level: 2
+  - dataSO: {fileID: 11400000, guid: e12fdb56a89223b44804aaef9d3b2eb7, type: 2}
+    team: 1
+    hexPlacement:
+      column: 8
+      row: 1
+    item: {fileID: 0}
+    alignPattern: 0
+    level: 2
   _deployZone:
   - column: 0
     row: 0
@@ -39,10 +56,6 @@ MonoBehaviour:
     row: 3
   - column: 0
     row: 4
-  - column: 0
-    row: 5
-  - column: 0
-    row: 6
   - column: 1
     row: 0
   - column: 1
@@ -53,10 +66,6 @@ MonoBehaviour:
     row: 3
   - column: 1
     row: 4
-  - column: 1
-    row: 5
-  - column: 1
-    row: 6
   - column: 2
     row: 0
   - column: 2
@@ -67,10 +76,6 @@ MonoBehaviour:
     row: 3
   - column: 2
     row: 4
-  - column: 2
-    row: 5
-  - column: 2
-    row: 6
   - column: 3
     row: 0
   - column: 3
@@ -81,8 +86,25 @@ MonoBehaviour:
     row: 3
   - column: 3
     row: 4
-  - column: 3
-    row: 5
-  - column: 3
-    row: 6
-  _boardLayout: {fileID: 4391576941862811623, guid: e04b55e61d71ef04dbe0b62c3e1ef485, type: 3}
+  - column: 4
+    row: 0
+  - column: 4
+    row: 1
+  - column: 4
+    row: 2
+  - column: 4
+    row: 3
+  - column: 4
+    row: 4
+  - column: 5
+    row: 0
+  - column: 5
+    row: 1
+  - column: 5
+    row: 2
+  - column: 5
+    row: 3
+  - column: 5
+    row: 4
+  _boardLayout: {fileID: 2821033882997051323, guid: d07d3d269e6884b42a2b2daced65229a, type: 3}
+  _itemsOnHexes: []
