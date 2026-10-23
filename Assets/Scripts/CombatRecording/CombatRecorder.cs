@@ -22,6 +22,17 @@ namespace MagicSchool.CombatRecording
 
         public void EndRound() => _clock.Stop();
 
+        // a round for these units alone, on a clock of their own; every other unit's record is left as it is.
+        // For fights that start and end at different times side by side (TeamCompBenchmark's lanes).
+        public void BeginRoundFor(IEnumerable<IEffectable> units)
+        {
+            var clock = new RoundClock();
+            foreach (IEffectable unit in units)
+            {
+                if (unit != null) _round[unit] = new CombatRecord(clock);
+            }
+        }
+
         // ======================================== listener ========================================
         // Subscribed to a hero's OnDamaged/OnHealed
         public void Record(DamageEvent e)

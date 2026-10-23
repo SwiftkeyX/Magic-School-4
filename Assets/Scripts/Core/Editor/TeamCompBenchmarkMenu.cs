@@ -78,7 +78,8 @@ namespace MagicSchool.Editor
                 .ToList();
 
             Debug.Log($"[TeamCompBenchmark] started - {string.Join(", ", comps.Select(c => c.name))} vs every campaign stage, " +
-                      $"with and without aligning, {TeamCompBenchmark.RunsPerFight} runs each. The screen stays blank until it is done.");
+                      $"{TeamCompBenchmark.RunsAligned} runs aligned and {TeamCompBenchmark.RunsNotAligned} without, " +
+                      "a stage won at " + $"{TeamCompBenchmark.WinLine:0%}" + " of them. The screen stays blank until it is done.");
 
             TeamCompBenchmark.Run(comps, path =>
             {

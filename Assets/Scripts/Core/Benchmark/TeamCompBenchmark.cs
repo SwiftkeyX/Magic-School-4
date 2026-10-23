@@ -19,7 +19,8 @@ namespace MagicSchool.Core.Benchmark
     ///
     /// A fight is a real fight, as CombatState runs it: the comp stands where it was saved (turned the way it was saved,
     /// wearing its items, items on hexes), the stage's enemies where the stage puts them, until one side is dead or
-    /// TimeLimit passes (a timeout is not a win). Fights run 8 at once, each on its own hidden copy of the board.
+    /// TimeLimit passes (a timeout is not a win). Fights run LaneCount at once, each on its own hidden copy of the board,
+    /// and a lane takes the next fight as soon as its own is over.
     ///
     ///     TeamCompBenchmark.cs         - settings, Run, the batches, one fight
     ///     TeamCompBenchmark.Report.cs  - averages per comp x stage x aligning, the CSV
@@ -27,14 +28,24 @@ namespace MagicSchool.Core.Benchmark
     public partial class TeamCompBenchmark : MonoBehaviour
     {
         // =================================== settings ===================================
-        // the same fight is run this many times: targets and some skills are random
-        public const int RunsPerFight = 3;
+        // the same fight is run this many times: targets and some skills are random. Aligned is what is being balanced,
+        // so it gets the most; not aligned is only the baseline it is measured against
+        public const int RunsAligned = 20;
+        public const int RunsNotAligned = 10;
+        public static int RunsOf(bool aligning) => aligning ? RunsAligned : RunsNotAligned;
+
+        // a stage counts as won at this share of its fights or more (14 of 20, 7 of 10).
+        // The Sheet colours and counts by the same line: WIN_LINE in .claude/scripts/benchmark_import.py
+        public const float WinLine = 0.7f;
 
         // a fight not over by then is a timeout - the player did not win it
         public const float TimeLimit = 90f;
 
         private const float TimeStep = 1f / 30f;
-        private const int LaneCount = 8;
+        // fights at once, each on its own board copy. Every frame has a fixed cost (the Editor's own loop) however many
+        // fights it runs, so more lanes are cheaper per fight: 8 -> 32 took the run from 162s to 106s
+        private const int LaneCount = 32;
+        private const int ProgressEvery = 50;   // fights between progress logs
         private const float LaneSpacing = 10f;
 
         private readonly BenchmarkSpeed _speed = new BenchmarkSpeed();
@@ -62,18 +73,30 @@ namespace MagicSchool.Core.Benchmark
 
             _speed.GoFast(TimeStep);
             game.Board.SetBattleOn(false);
+            game.Recorder.BeginRound();     // fresh books; then each fight starts a round of its own (See Begin)
 
             var lanes = new List<Lane>();
             for (int i = 0; i < Mathf.Min(LaneCount, runnable.Count); i++)
                 lanes.Add(new Lane(HeroBenchmark.CopyBoard(game, i, LaneSpacing, out HeroSeed seed), seed));
 
-            for (int first = 0; first < runnable.Count; first += lanes.Count)
+            // Every lane goes at its own pace: one that finishes takes the next fight at once rather than waiting for
+            // the slowest of a batch - a single 90s timeout used to hold up every other lane.
+            var queue = new Queue<Fight>(runnable);
+            int finished = 0, logged = 0;
+            while (queue.Count > 0 || lanes.Any(l => l.Step != LaneStep.Idle))
             {
-                List<Lane> batch = lanes.Take(runnable.Count - first).ToList();
-                for (int i = 0; i < batch.Count; i++) batch[i].Fight = runnable[first + i];
+                foreach (Lane lane in lanes)
+                {
+                    if (Advance(game, lane)) finished++;
+                    if (lane.Step == LaneStep.Idle && queue.Count > 0) Take(lane, queue.Dequeue());
+                }
 
-                yield return RunBatch(game, batch);
-                Debug.Log($"[TeamCompBenchmark] {Mathf.Min(first + batch.Count, runnable.Count)}/{runnable.Count} fights");
+                if (finished - logged >= ProgressEvery || (finished == runnable.Count && logged != finished))
+                {
+                    logged = finished;
+                    Debug.Log($"[TeamCompBenchmark] {finished}/{runnable.Count} fights");
+                }
+                yield return null;
             }
 
             foreach (Lane lane in lanes)
@@ -91,7 +114,7 @@ namespace MagicSchool.Core.Benchmark
 
         private void OnDestroy() => _speed.GoNormal();
 
-        // every comp x every stage x aligning on and off x RunsPerFight.
+        // every comp x every stage x aligning on and off x RunsOf(aligning).
         // A comp saved on another board than the stage's cannot stand there: its hex numbers mean nothing on it
         private static List<Fight> PlanFights(GameManager game, IReadOnlyList<BattlePlacementSO> comps)
         {
@@ -105,7 +128,7 @@ namespace MagicSchool.Core.Benchmark
 
                     foreach (bool aligning in new[] { true, false })
                     {
-                        for (int run = 0; run < RunsPerFight; run++)
+                        for (int run = 0; run < RunsOf(aligning); run++)
                         {
                             var fight = new Fight(comp, setup, stage + 1, aligning);
                             if (setup == null) fight.Error = "no stage";
@@ -126,44 +149,58 @@ namespace MagicSchool.Core.Benchmark
             return fights;
         }
 
-        // =================================== one batch ===================================
-        private IEnumerator RunBatch(GameManager game, List<Lane> batch)
+        // =================================== one lane ===================================
+        // A fight takes a lane through: Take (clear the last fight, set the layout) -> a frame, so the old hexes are
+        // destroyed -> Spawn -> a frame -> Begin -> Fighting, checked every frame until it is over -> Idle.
+
+        private static void Take(Lane lane, Fight fight)
         {
-            foreach (Lane lane in batch)
+            lane.Fight = fight;
+            Clear(lane);
+            lane.Board.SetLayout(fight.Stage.BoardLayout != null ? fight.Stage.BoardLayout : fight.Comp.BoardLayout);
+            lane.Step = LaneStep.Spawning;
+        }
+
+        // one frame of a lane; true when its fight just ended (or could not start)
+        private static bool Advance(GameManager game, Lane lane)
+        {
+            switch (lane.Step)
             {
-                Clear(lane);
-                lane.Board.SetLayout(lane.Fight.Stage.BoardLayout != null ? lane.Fight.Stage.BoardLayout : lane.Fight.Comp.BoardLayout);
+                case LaneStep.Spawning:
+                    Spawn(lane);
+                    lane.Step = lane.Fight.Error == null ? LaneStep.Starting : LaneStep.Idle;
+                    return lane.Fight.Error != null;
+
+                case LaneStep.Starting:
+                    Begin(game, lane);
+                    lane.Step = LaneStep.Fighting;
+                    return false;
+
+                case LaneStep.Fighting:
+                    CheckOver(game, lane, Time.time - lane.StartTime);
+                    if (!lane.IsOver) return false;
+                    lane.Step = LaneStep.Idle;
+                    return true;
+
+                default:
+                    return false;
             }
-            yield return null;   // the old layout's hexes are destroyed at the end of the frame
+        }
 
-            foreach (Lane lane in batch) Spawn(lane);
-            yield return null;
+        // as CombatState.OnEnter does it
+        private static void Begin(GameManager game, Lane lane)
+        {
+            lane.Board.SetBattleOn(true);
+            if (lane.Fight.Aligning) new AlignBonuses().Refresh(lane.Board, TeamEnum.Blue);
 
-            // as CombatState.OnEnter does it
-            List<Lane> live = batch.Where(l => l.Fight.Error == null).ToList();
-            foreach (Lane lane in live)
+            foreach (Hero hero in lane.Board.HeroesOnBoard.OfType<Hero>().ToList())
             {
-                lane.Board.SetBattleOn(true);
-                if (lane.Fight.Aligning) new AlignBonuses().Refresh(lane.Board, TeamEnum.Blue);
-
-                foreach (Hero hero in lane.Board.HeroesOnBoard.OfType<Hero>().ToList())
-                {
-                    if (hero.IsAlive) hero.TriggerOnCombatStart();
-                }
+                if (hero.IsAlive) hero.TriggerOnCombatStart();
             }
-            game.Recorder.BeginRound();
 
-            float start = Time.time;
-            while (live.Any(l => !l.IsOver))
-            {
-                float seconds = Time.time - start;
-                foreach (Lane lane in live)
-                {
-                    if (!lane.IsOver) CheckOver(game, lane, seconds);
-                }
-
-                yield return null;
-            }
+            // this lane's books and clock only - the other lanes are mid-fight
+            game.Recorder.BeginRoundFor(lane.Board.HeroesOnBoard.OfType<IEffectable>());
+            lane.StartTime = Time.time;
         }
 
         // the stage's enemies, then the comp's heroes turned and dressed the way it was saved, then the items on hexes
@@ -281,6 +318,8 @@ namespace MagicSchool.Core.Benchmark
             public readonly HeroSeed Seed;
             public readonly List<Hero> Team = new List<Hero>();     // the comp's heroes - not their summons
             public Fight Fight;
+            public LaneStep Step = LaneStep.Idle;
+            public float StartTime;
             public bool IsOver;
 
             public Lane(BattleBoard board, HeroSeed seed)
@@ -291,6 +330,8 @@ namespace MagicSchool.Core.Benchmark
         }
 
         private enum Outcome { None, Win, Lose, Timeout, Draw }
+
+        private enum LaneStep { Idle, Spawning, Starting, Fighting }
 
         // one fight's numbers
         private class Fight

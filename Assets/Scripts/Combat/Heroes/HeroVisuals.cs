@@ -19,11 +19,17 @@ namespace MagicSchool.Combat.Heroes
         {
             _me = GetComponent<Hero>();
             _sprite = GetComponent<SpriteRenderer>();
+
+            // nobody is watching (a benchmark): the bars would still update every frame, so they go entirely
+            if (!Hero.IsDrawn)
+            {
+                foreach (Canvas bar in GetComponentsInChildren<Canvas>(true)) bar.gameObject.SetActive(false);
+            }
         }
 
         void LateUpdate()
         {
-            if (_me == null || !_me.IsInitialized) return;
+            if (_me == null || !_me.IsInitialized || !Hero.IsDrawn) return;
 
             // if a hero is vanished, don't draw him 
             // the same goes for a dead hero. The player's dead are not destroyed: they are revived for
@@ -39,7 +45,7 @@ namespace MagicSchool.Combat.Heroes
         // Floating skill-name text above the hero when its skill actually casts
         public void PlaySkillCastEffect(string skillName)
         {
-            if (_skillCastTextPrefab == null) return;
+            if (_skillCastTextPrefab == null || !Hero.IsDrawn) return;
 
             FloatingText instance = Instantiate(_skillCastTextPrefab);
             Color color = _me.Team == TeamEnum.Blue ? BlueSkillTextColor : RedSkillTextColor;

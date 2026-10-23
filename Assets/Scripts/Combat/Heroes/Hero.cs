@@ -62,6 +62,10 @@ namespace MagicSchool.Combat.Heroes
         public int Star => _star;
         public bool CanUpgrade => _star < HeroStar.Max;
 
+        // false while a benchmark runs with nothing drawn: a hero made then has no HP / mana / skill bars and casts no
+        // floating skill name - none of which changes a fight. Set by BenchmarkSpeed.
+        public static bool IsDrawn { get; set; } = true;
+
         // what the shop charged for every copy that went into him, and what selling him refunds
         public int Price => _SOData != null ? _SOData.Price * HeroStar.Copies(_star) : 0;
 

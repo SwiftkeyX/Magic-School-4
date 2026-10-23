@@ -27,7 +27,7 @@ namespace MagicSchool.Core.Benchmark
             return path;
         }
 
-        // per comp: how many stages it wins (at least half its runs) with aligning and without
+        // per comp: how many stages it wins (WinLine of its runs or more) with aligning and without
         private static string Summary(List<IGrouping<(Combat.Placements.BattlePlacementSO comp, int stage, bool aligning), Fight>> groups)
         {
             var lines = new List<string>();
@@ -36,8 +36,8 @@ namespace MagicSchool.Core.Benchmark
                 string Won(bool aligning)
                 {
                     var stages = byComp.Where(g => g.Key.aligning == aligning && g.All(f => f.Error == null)).ToList();
-                    int won = stages.Count(g => WinRate(g.ToList()) >= 0.5f);
-                    string lost = string.Join(" ", stages.Where(g => WinRate(g.ToList()) < 0.5f).Select(g => g.Key.stage));
+                    int won = stages.Count(g => IsWon(g.ToList()));
+                    string lost = string.Join(" ", stages.Where(g => !IsWon(g.ToList())).Select(g => g.Key.stage));
                     return $"{won}/{stages.Count}" + (lost.Length > 0 ? $" (loses stage {lost})" : "");
                 }
 
@@ -49,6 +49,10 @@ namespace MagicSchool.Core.Benchmark
 
         private static float WinRate(List<Fight> runs)
             => runs.Count == 0 ? 0f : (float)runs.Count(f => f.Outcome == Outcome.Win) / runs.Count;
+
+        // counted in wins rather than as a float share, so 14 of 20 is exactly on the line
+        private static bool IsWon(List<Fight> runs)
+            => runs.Count > 0 && runs.Count(f => f.Outcome == Outcome.Win) >= Mathf.CeilToInt(WinLine * runs.Count - 0.0001f);
 
         private static string Write(List<IGrouping<(Combat.Placements.BattlePlacementSO comp, int stage, bool aligning), Fight>> groups)
         {

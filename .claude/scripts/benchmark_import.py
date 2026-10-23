@@ -24,6 +24,9 @@ import sheet_sync  # noqa: E402
 
 SHEET = "magicschool4-benchmark"
 
+# a team comp stage counts as won at this share of its fights or more - TeamCompBenchmark.WinLine, keep the two equal
+WIN_LINE = 0.7
+
 
 # ======================================== colours ========================================
 def rgb(r, g, b): return {"red": r, "green": g, "blue": b}
@@ -53,7 +56,7 @@ class Report:
         self.percent = percent                      # 0%
         self.signed_percent = signed_percent        # +12% / -12%
         self.flag_columns = flag_columns            # HIGH red, LOW blue
-        self.win_rate_column = win_rate_column      # at least half green, below half red
+        self.win_rate_column = win_rate_column      # WIN_LINE or more green, below it red
         self.bold_rows_where = bold_rows_where      # (column, value): those rows bold all the way across
 
     @property
@@ -267,14 +270,14 @@ def style(sh, report, ws, band_runs):
         for word, bg, fg in (("HIGH", HIGH_BG, HIGH_FG), ("LOW", LOW_BG, LOW_FG)):
             rules.append(colour_rule([column(name)], {"type": "TEXT_EQ", "values": [{"userEnteredValue": word}]}, bg, fg, bold=True))
 
-    # a stage counts as won at half its runs or more (See TeamCompBenchmark.Report)
+    # a stage counts as won at WIN_LINE of its runs or more (See TeamCompBenchmark.WinLine)
     if report.win_rate_column in columns:
         cell = f"${letter(report.win_rate_column)}2"
         rules.append(colour_rule([column(report.win_rate_column)],
-                                 {"type": "CUSTOM_FORMULA", "values": [{"userEnteredValue": f"=AND({cell}<>\"\", {cell}<0.5)"}]},
+                                 {"type": "CUSTOM_FORMULA", "values": [{"userEnteredValue": f"=AND({cell}<>\"\", {cell}<{WIN_LINE})"}]},
                                  LOSS_BG, LOSS_FG, bold=True))
         rules.append(colour_rule([column(report.win_rate_column)],
-                                 {"type": "CUSTOM_FORMULA", "values": [{"userEnteredValue": f"=AND({cell}<>\"\", {cell}>=0.5)"}]},
+                                 {"type": "CUSTOM_FORMULA", "values": [{"userEnteredValue": f"=AND({cell}<>\"\", {cell}>={WIN_LINE})"}]},
                                  WIN_BG, WIN_FG, bold=True))
     requests += rules
 

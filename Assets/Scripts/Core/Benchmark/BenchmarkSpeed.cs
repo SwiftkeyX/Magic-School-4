@@ -46,6 +46,9 @@ namespace MagicSchool.Core.Benchmark
                 doc.rootVisualElement.style.display = DisplayStyle.None;
             }
 
+            // the heroes' world-space bars update every frame even unseen
+            MagicSchool.Combat.Heroes.Hero.IsDrawn = false;
+
             _fast = true;
         }
 
@@ -59,6 +62,7 @@ namespace MagicSchool.Core.Benchmark
             QualitySettings.vSyncCount = _savedVSync;
             Application.targetFrameRate = _savedFrameRate;
 
+            MagicSchool.Combat.Heroes.Hero.IsDrawn = true;
             foreach (Camera cam in _hiddenCameras) if (cam != null) cam.enabled = true;
             foreach (var hidden in _hiddenUI) if (hidden.element != null) hidden.element.style.display = hidden.display;
             _hiddenCameras.Clear();
