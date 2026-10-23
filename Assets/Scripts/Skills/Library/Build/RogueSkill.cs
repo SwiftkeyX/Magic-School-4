@@ -25,7 +25,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Shadowsteps {Shadowsteps} times. Each step: dashes {DashRange} hex in a random direction, then "
-             + $"dashes along the densest line of enemies, dealing {CollideDamage}% AP to everyone he passes.";
+             + $"dashes along the densest line of enemies, dealing {AP(CollideDamage)} to everyone he passes.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

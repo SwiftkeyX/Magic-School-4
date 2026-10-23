@@ -17,6 +17,7 @@ namespace MagicSchool.Editor
     //      SavePlayerTeam    - write the player's heroes on the board, the items they wear and the items on hexes into a
     //                          team comp (Data/BattleSetups/Team Comps)
     //      LoadTeamComp      - swap the player's heroes on the board for a saved comp's
+    //      LoadEnemyTeam     - swap the enemies on the board for a saved stage's (and its deploy zone, when it is being edited)
     //
     // All of them need:
     //      Stage Edit Mode on > Play mode > Preparation state
@@ -150,6 +151,37 @@ namespace MagicSchool.Editor
 
             int placed = editor.LoadPlayerTeam(comp);
             Debug.Log($"[StageEditor] loaded {placed} of {inComp} heroes from '{comp.name}'.");
+        }
+
+        internal static void LoadEnemyTeam(BattlePlacementSO stage)
+        {
+            if (!TryGetEditor(out StageEditor editor)) return;
+
+            int inStage = editor.EnemyCountIn(stage);
+            if (inStage == 0)
+            {
+                Debug.LogWarning($"[StageEditor] '{stage.name}' has no enemy in it.");
+                return;
+            }
+
+            // its hex numbers would land on the wrong hexes of another board
+            if (!editor.FitsThisBoard(stage))
+            {
+                Debug.LogWarning($"[StageEditor] '{stage.name}' is fought on '{stage.BoardLayout.name}' - play a stage on that board to load it.");
+                return;
+            }
+
+            bool withZone = editor.EditsDeployZone;
+            int onBoard = editor.EnemyCountOnBoard;
+            if (onBoard > 0 && !EditorUtility.DisplayDialog("Load enemy team",
+                    $"Replace the {onBoard} enemies on the board with the {inStage} in '{stage.name}'?" +
+                    (withZone ? $"\n\nThe deploy zone becomes the stage's too ({editor.DeployZoneCountIn(stage)} hexes)."
+                              : "\n\nThe deploy zone is kept ('Edit deploy zone' is off).") +
+                    "\n\nNothing is saved until you save - Save To Current Stage writes to the stage being played, not this one.",
+                    "Load", "Cancel")) return;
+
+            int placed = editor.LoadEnemyTeam(stage, withZone);
+            Debug.Log($"[StageEditor] loaded {placed} of {inStage} enemies from '{stage.name}'.");
         }
 
         // ======================================== helper ========================================

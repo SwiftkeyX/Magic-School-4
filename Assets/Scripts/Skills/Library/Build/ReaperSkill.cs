@@ -32,7 +32,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Snips {SnipCount} times in quick succession, each cut carving a wedge in front of her "
-             + $"that deals {MGDamagePerSnip}% AP to every enemy standing inside it.";
+             + $"that deals {AP(MGDamagePerSnip)} to every enemy standing inside it.";
 
         public override string PassiveDescription
             => $"Every {KillsPerFreeCast} enemies she kills, each ally on her {ReapMark} mark casts its skill at once, "

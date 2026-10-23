@@ -25,7 +25,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Spreading Hex";
 
         public override string Description
-            => $"Curses the current target with a homing bolt: {CurseTotal}% AP over {CurseDuration} seconds. "
+            => $"Curses the current target with a homing bolt: {AP(CurseTotal)} over {CurseDuration} seconds. "
              + "If the target dies while cursed, the curse jumps to the next closest enemy.";
 
         // ============================== init ==============================

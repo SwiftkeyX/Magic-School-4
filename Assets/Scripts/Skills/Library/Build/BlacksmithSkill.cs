@@ -17,8 +17,8 @@ namespace MagicSchool.Skills
         public override string SkillName => "Forge Hammer";
 
         public override string Description
-            => $"Hammers the current target for {DamageRatio}% AD, "
-             + $"permanently removing armour equal to {ShredFromAP}% AP.";
+            => $"Hammers the current target for {AD(DamageRatio)}, "
+             + $"permanently removing armour equal to {AP(ShredFromAP)}.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

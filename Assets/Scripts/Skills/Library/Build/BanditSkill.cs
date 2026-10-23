@@ -18,7 +18,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Pickpocket";
 
         public override string Description
-            => $"Strikes the current target for {DamageRatio}% AD and steals {StealPercent}% of its "
+            => $"Strikes the current target for {AD(DamageRatio)} and steals {StealPercent}% of its "
              + "attack speed until the end of the fight.";
 
         // ============================== active ==============================

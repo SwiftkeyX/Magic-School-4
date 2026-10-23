@@ -20,7 +20,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Longshot";
 
         public override string Description
-            => $"Fires a shot that carries straight on through the target, dealing {DamageRatio}% AD to "
+            => $"Fires a shot that carries straight on through the target, dealing {AD(DamageRatio)} to "
              + $"every enemy caught along its path, {FalloffPerEnemy}% less for each enemy it already went through. "
              + $"Gains {AttackSpeedPerHit}% attack speed for "
              + $"{BuffDuration} seconds for each enemy it hits.";

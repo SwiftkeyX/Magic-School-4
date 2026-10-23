@@ -20,7 +20,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Charges up for {ChargeTime} seconds, then slashes the current target for "
-             + $"{DamageRatio}% AD, healing for {OmnivampPercent}% of the damage dealt.";
+             + $"{AD(DamageRatio)}, healing for {OmnivampPercent}% of the damage dealt.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

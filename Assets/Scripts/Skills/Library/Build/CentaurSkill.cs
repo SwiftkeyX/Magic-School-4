@@ -21,7 +21,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Charges up to {ChargeRange} hexes straight through the enemy line, dealing "
-             + $"{CollideDamage}% AP to everyone he ploughs into on the way and stunning them.";
+             + $"{AP(CollideDamage)} to everyone he ploughs into on the way and stunning them.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using MagicSchool.Contracts;
-using MagicSchool.StatScaling;
 using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
@@ -17,14 +16,22 @@ namespace MagicSchool.Skills
         // e.g.     30 at 100 AP => the slam deals 30% of what he took; at 200 AP, 60%
         private static float SlamReturnPerAP => Tuned(30f);
 
+        // every ally on his Guard mark makes the brace this much longer, and its heal this much more in all (% AP)
+        // e.g.     2 allies on it => a 4 second brace healing 300% AP
+        private const string GuardMark = "Guard";
+        public override IReadOnlyList<string> SpecialMarks => new[] { GuardMark };
+        private static float GuardSeconds => Tuned(1f);
+        private static float GuardHeal => Tuned(50f);
+
+        // this cast's brace, set in OnCast from the allies on his Guard mark (fixed when the fight starts, like every mark)
+        private int _guards;
+        private float _braceSeconds = BraceDuration;
+        private Tuning _braceTuning;
+        private HealSkillEffect _braceHeal;
+
         // the damage he took (HP lost, after DF and his damage reduction) since the brace began, and when it ends
         private float _takenWhileBracing;
         private float _braceEndsAt = float.NegativeInfinity;
-
-        // the allies standing on this mark feed him: their damage heals him (See AlignMark)
-        private const string GuardMark = "Guard";
-        public override IReadOnlyList<string> SpecialMarks => new[] { GuardMark };
-        private static float HealFromAllyDamage => Tuned(10f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ShieldKnightSkill(registry);
 
@@ -33,31 +40,29 @@ namespace MagicSchool.Skills
         public override string SkillName => "Guardian's Roar";
 
         public override string Description
-            => $"Braces for {BraceDuration} seconds, healing steadily for {HealAmount}% AP and taking "
+            => $"Braces for {BraceDuration} seconds, healing steadily for {AP(HealAmount)} and taking "
              + $"{DamageReductionPercent}% less damage. The moment the brace ends he slams the ground, dealing every enemy "
-             + $"around him ({SlamReturnPerAP}% AP)% of the damage he took while bracing.";
+             + $"around him {AP(SlamReturnPerAP)}% of the damage he took while bracing.";
 
         public override string PassiveDescription
-            => $"Heals for {HealFromAllyDamage}% of the damage the allies on his {GuardMark} mark deal.";
+            => $"Every ally on his {GuardMark} mark makes his brace {GuardSeconds} second longer and its heal {AP(GuardHeal)} more.";
 
-        // ============================== passive ==============================
+        // shows the passive text in the inspector (there is no auto attack flow to play)
         public override bool HasAutoAttackPassive => true;
 
-        public override void OnMarkedAllyDealtDamage(string mark, ICombatant ally, DamageEvent hit)
-        {
-            if (mark != GuardMark) return;
-
-            Omnivamp.HealFromDamage(Caster, hit.Outcome.Landed, HealFromAllyDamage, source: ally);
-        }
-
         // ============================== active ==============================
-        // the brace begins: start counting what he takes
+        // the brace begins: as long as his guards make it, and start counting what he takes
         public override bool OnCast()
         {
+            _guards = Caster is IAligned aligned ? aligned.AlliesOnSpecialMark(GuardMark).Count : 0;
+            _braceSeconds = BraceDuration + GuardSeconds * _guards;
+            _braceTuning.CastTime = _braceSeconds;
+            _braceHeal.Cadence.cadenceDuration = _braceSeconds;
+
             if (!base.OnCast()) return false;
 
             _takenWhileBracing = 0f;
-            _braceEndsAt = Time.time + BraceDuration;
+            _braceEndsAt = Time.time + _braceSeconds;
             return true;
         }
 
@@ -71,25 +76,32 @@ namespace MagicSchool.Skills
             return Flow(onStart: Brace(registry), onExpired: Slam(registry));
         }
 
-        private static SkillPart Brace(TemplateActionRegistrySO registry)
+        private SkillPart Brace(TemplateActionRegistrySO registry)
         {
+            _braceTuning = Tune(castTime: BraceDuration);
+
+            // built for the 2 second brace; a longer one ticks more often and each tick is scaled so the whole heal is
+            // HealAmount + GuardHeal per guard (See HealPerTickScale)
+            _braceHeal = HealOverTime(
+                recipient: EffectRecipientEnum.Self,
+                duration: BraceDuration,
+                interval: TickInterval,
+                ratios: (StatEnum.AP, HealAmount)
+            ).AmplifiedBy(_ => HealPerTickScale() - 1f);
+
             SkillPart brace = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
-                tuning: Tune(castTime: BraceDuration),
+                tuning: _braceTuning,
 
-                HealOverTime(
-                    recipient: EffectRecipientEnum.Self,
-                    duration: BraceDuration,
-                    interval: TickInterval,
-                    ratios: (StatEnum.AP, HealAmount)),
+                _braceHeal,
 
                 Apply(
                     recipient: EffectRecipientEnum.Self,
                     modifier: BundleRefresh(
-                        duration: BraceDuration,
+                        duration: () => _braceSeconds,
                         modifiers: Buff(
                             modifier: ModifierEnum.DamageReduction,
                             ratios: DamageReductionPercent))
@@ -98,6 +110,12 @@ namespace MagicSchool.Skills
 
             return brace;
         }
+
+        // A tick heals HealAmount / (BraceDuration / TickInterval) as built. Over a brace of _braceSeconds the whole heal is
+        // that x _braceSeconds / BraceDuration, so to land on HealAmount + GuardHeal x guards each tick is scaled by:
+        // e.g.     no guard  => 1 (200% AP over 2s)        2 guards => 300 x 2 / (200 x 4) = 0.75 (300% AP over 4s)
+        private float HealPerTickScale()
+            => BraceDuration * (HealAmount + GuardHeal * _guards) / (HealAmount * _braceSeconds);
 
         // (SlamReturnPerAP% AP)% of the damage taken while bracing: the ratio gives SlamReturnPerAP% of AP as a fraction
         // (30% x 100 AP / 100 = 0.3), and the amplifier multiplies it by the damage taken (an amplifier of n - 1 is x n)

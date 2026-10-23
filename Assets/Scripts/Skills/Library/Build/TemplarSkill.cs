@@ -25,7 +25,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Shield Swipe";
 
         public override string Description
-            => $"Swipes in a cone in front of him for {DamageRatio}% AD, and gains a shield worth {ShieldRatio}% DF "
+            => $"Swipes in a cone in front of him for {AD(DamageRatio)}, and gains a shield worth {DF(ShieldRatio)} "
              + $"for {ShieldDuration} seconds, +{ShieldRatioPerHit}% for each enemy the swipe hit.";
 
         // ============================== active ==============================

@@ -68,6 +68,38 @@ namespace MagicSchool.Skills
         public abstract string Description { get; }
         public virtual string PassiveDescription => "";
 
+        // ============================================== description numbers ==============================================
+        // A description writes an amount through AD() / AP() / DF() / MaxHP() rather than "{X}% AP", so it reads as the number
+        // it comes to for whoever has the skill - or, with formula on (the inspector holds Alt), as the formula.
+        // e.g.     $"deals {AP(DamageRatio)} damage"   =>  "deals 310 damage"   or   "deals [200% AP] damage"
+        // stats: whose numbers to use - a hero passes itself, a shop preview its 1-star stats. Without any, the formula is shown.
+        public string DescribeActive(IHeroStats stats, bool formula) => Describing(stats, formula, () => Description);
+        public string DescribePassive(IHeroStats stats, bool formula) => Describing(stats, formula, () => PassiveDescription);
+
+        private IHeroStats _textStats;
+        private bool _textFormula;
+
+        private string Describing(IHeroStats stats, bool formula, Func<string> text)
+        {
+            _textStats = stats;
+            _textFormula = formula;
+            try { return text(); }
+            finally { _textStats = null; _textFormula = false; }
+        }
+
+        protected string AD(float percent) => Scaled(percent, "AD", stats => stats.AttackDamage);
+        protected string AP(float percent) => Scaled(percent, "AP", stats => stats.Magic);
+        protected string DF(float percent) => Scaled(percent, "DF", stats => stats.Defence);
+        protected string MaxHP(float percent) => Scaled(percent, "max HP", stats => stats.MaxHP);
+
+        private string Scaled(float percent, string stat, Func<IHeroStats, int> read)
+        {
+            IHeroStats stats = _textStats ?? Caster as IHeroStats;
+            if (_textFormula || stats == null) return $"[{percent:0.##}% {stat}]";
+
+            return Mathf.RoundToInt(read(stats) * percent / 100f).ToString();
+        }
+
         // The special marks this skill reads, by name (See AlignMark). The Align Editor puts each one in every pattern of the hero.
         // e.g.     Rock Golem => { "Ward" }
         public virtual IReadOnlyList<string> SpecialMarks => NoSpecialMarks;

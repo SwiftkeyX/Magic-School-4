@@ -27,6 +27,8 @@ namespace MagicSchool.Combat.Heroes
         public string SkillName => _skill != null ? _skill.SkillName : string.Empty;
         public string Description => _skill != null ? _skill.Description : string.Empty;
         public string PassiveDescription => _skill != null ? _skill.PassiveDescription : string.Empty;
+        public string DescriptionFor(IHeroStats stats, bool formula) => _skill != null ? _skill.DescribeActive(stats, formula) : string.Empty;
+        public string PassiveDescriptionFor(IHeroStats stats, bool formula) => _skill != null ? _skill.DescribePassive(stats, formula) : string.Empty;
 
         public HeroSkill(ICombatant me, SkillDefinition skill)
         {

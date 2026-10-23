@@ -18,7 +18,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Scatter Volley";
 
         public override string Description
-            => $"Fires {ShotCount} quick shots at random enemies, {DamagePerShot}% AD each, "
+            => $"Fires {ShotCount} quick shots at random enemies, {AD(DamagePerShot)} each, "
              + "never hitting the same one twice until every enemy has been hit once.";
 
         // ============================== active ==============================

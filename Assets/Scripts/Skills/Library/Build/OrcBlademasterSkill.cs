@@ -17,7 +17,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Blade Storm";
 
         public override string Description
-            => $"Whips up a storm around himself that deals {DamagePerTick}% AD to every enemy standing "
+            => $"Whips up a storm around himself that deals {AD(DamagePerTick)} to every enemy standing "
              + $"in it, split over {Duration} seconds and ticking every {TickInterval} seconds. "
              + "He keeps walking while the storm follows him.";
 

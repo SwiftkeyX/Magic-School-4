@@ -36,8 +36,8 @@ namespace MagicSchool.Skills
         public override string SkillName => "Rotting Slam";
 
         public override string Description
-            => $"Slams the ground for {DamageRatio}% AD to enemies around him and shreds {ShredDF} of their DF for "
-             + $"{ShredDuration} seconds, then shields himself for {ShieldFlat} + {ShieldRatio}% of his max HP for {ShieldDuration} seconds.";
+            => $"Slams the ground for {AD(DamageRatio)} to enemies around him and shreds {ShredDF} of their DF for "
+             + $"{ShredDuration} seconds, then shields himself for {ShieldFlat} + {MaxHP(ShieldRatio)} for {ShieldDuration} seconds.";
 
         public override string PassiveDescription
             => $"Whenever an ally on his {FeedMark} mark kills an enemy, he gains {BonusHPPerDeath} bonus health for the rest of the fight "

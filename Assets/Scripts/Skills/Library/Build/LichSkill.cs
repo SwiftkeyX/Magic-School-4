@@ -19,7 +19,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Soul Drain";
 
         public override string Description
-            => $"Fires a piercing beam down the most crowded enemy lane: {DamageRatio}% AP to everything "
+            => $"Fires a piercing beam down the most crowded enemy lane: {AP(DamageRatio)} to everything "
              + $"in it. He heals for {OmnivampPercent}% of the damage dealt.";
 
         // ============================== active ==============================

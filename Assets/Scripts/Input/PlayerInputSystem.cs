@@ -22,6 +22,7 @@ namespace MagicSchool.Input
         public static bool SkipStagePressedThisFrame => Keyboard.current.nKey.wasPressedThisFrame;
         public static bool CancelPressedThisFrame => Keyboard.current.escapeKey.wasPressedThisFrame;
         public static bool TargetViewHeld => Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed;
+        public static bool FormulaViewHeld => Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed;
 
         // adjust game's speed using numkey
         public static int SpeedPressedThisFrame()

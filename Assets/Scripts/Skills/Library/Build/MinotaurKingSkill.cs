@@ -18,7 +18,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Ground Slam";
 
         public override string Description
-            => $"Slams the ground, dealing {DamageRatio}% AD to every enemy next to him and stunning them for {StunDuration} second.";
+            => $"Slams the ground, dealing {AD(DamageRatio)} to every enemy next to him and stunning them for {StunDuration} second.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

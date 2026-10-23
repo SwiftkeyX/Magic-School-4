@@ -17,8 +17,8 @@ namespace MagicSchool.Skills
         public override string SkillName => "Sundering Arrow";
 
         public override string Description
-            => $"Fires a shot at the current target. The first enemy it finds takes {DamageRatio}% AD "
-             + $"and loses {ShredFromAP}% AP worth of armour for the rest of the fight.";
+            => $"Fires a shot at the current target. The first enemy it finds takes {AD(DamageRatio)} "
+             + $"and loses {AP(ShredFromAP)} armour for the rest of the fight.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

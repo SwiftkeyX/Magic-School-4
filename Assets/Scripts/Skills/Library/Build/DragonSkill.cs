@@ -20,8 +20,8 @@ namespace MagicSchool.Skills
         public override string SkillName => "Dragon Breath";
 
         public override string Description
-            => $"Breathes a cone of fire at the densest cluster: {DamageRatio}% AP, then burns them for "
-             + $"{BurnTotal}% AP over {BurnDuration} seconds.";
+            => $"Breathes a cone of fire at the densest cluster: {AP(DamageRatio)}, then burns them for "
+             + $"{AP(BurnTotal)} over {BurnDuration} seconds.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

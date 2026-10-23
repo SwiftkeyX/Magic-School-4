@@ -32,8 +32,8 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Consecrates the ground within {AreaHexes} hexes of himself for {Duration} seconds. Every "
-             + $"{TickInterval} second, enemies inside burn for {BurnPerTick}% AP and allies inside, himself "
-             + $"included, heal for {HealPerTick}% AP, "
+             + $"{TickInterval} second, enemies inside burn for {AP(BurnPerTick)} and allies inside, himself "
+             + $"included, heal for {AP(HealPerTick)}, "
              + $"{HealPerTick}% more for every ally on his {SanctuaryMark} mark.";
 
         // ============================== active ==============================

@@ -33,7 +33,7 @@ namespace MagicSchool.Skills
              + $"for {StunDuration} seconds. Every {AttacksPerGrowth} auto attacks add {StunPerGrowth} seconds to the stun.";
 
         public override string PassiveDescription
-            => $"His AD is cut by {AttackCut}%. Every auto attack he lands heals him for {HealOnAA}% AP.";
+            => $"His AD is cut by {AttackCut}%. Every auto attack he lands heals him for {AP(HealOnAA)}.";
 
         private float CurrentStun => StunDuration + StunPerGrowth * (_attackCount / AttacksPerGrowth);
 

@@ -17,7 +17,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Stun Spore";
 
         public override string Description
-            => $"Shoots a spore at the furthest enemy. Everyone in its path takes {DamageRatio}% AP "
+            => $"Shoots a spore at the furthest enemy. Everyone in its path takes {AP(DamageRatio)} "
              + $"and is stunned for {StunDuration} seconds.";
 
         // ============================== active ==============================

@@ -26,7 +26,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"For {VenomDuration} seconds, every auto attack also poisons its target for "
-             + $"{PoisonTotal}% AD over {PoisonDuration} seconds. The poison stacks.";
+             + $"{AD(PoisonTotal)} over {PoisonDuration} seconds. The poison stacks.";
 
         public override string PassiveDescription
             => "Infinite range. Every auto attack picks a new random enemy, "

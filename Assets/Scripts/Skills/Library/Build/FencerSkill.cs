@@ -22,7 +22,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Vanishes, becoming untargetable, and strikes the closest enemy {BaseStrikes} times in quick "
-             + $"succession for {StrikeDamage}% AD each. The strikes can crit, and every {CritChancePerStrike}% "
+             + $"succession for {AD(StrikeDamage)} each. The strikes can crit, and every {CritChancePerStrike}% "
              + "crit chance adds 1 more strike.";
 
         // ============================== active ==============================

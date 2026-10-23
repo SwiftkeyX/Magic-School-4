@@ -18,7 +18,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => "Sends a wave through the thickest part of the enemy line. Enemies it passes through "
-             + $"take {DamageRatio}% AP; allies it passes through are left {ASbuff}% faster for the "
+             + $"take {AP(DamageRatio)}; allies it passes through are left {ASbuff}% faster for the "
              + "rest of the fight.";
 
         // ============================== active ==============================

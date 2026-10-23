@@ -27,8 +27,8 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Throws {ShotCount} spears one after another at random enemies within {RandomPoolRadius} "
-             + $"hexes of the current target, each landing for {ADDamagePerShot}% AD + "
-             + $"{APDamagePerShot}% AP, never hitting the same one twice until everyone in range has "
+             + $"hexes of the current target, each landing for {AD(ADDamagePerShot)} + "
+             + $"{AP(APDamagePerShot)}, never hitting the same one twice until everyone in range has "
              + "been caught once.";
 
         public override string PassiveDescription

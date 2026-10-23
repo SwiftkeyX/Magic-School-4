@@ -32,7 +32,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Screech";
 
         public override string Description
-            => $"Screeches at the current target for {DamageRatio}% AD.";
+            => $"Screeches at the current target for {AD(DamageRatio)}.";
 
         // COMMENTED OUT with the melee stance, see OnCombatStart
         // public override string PassiveDescription

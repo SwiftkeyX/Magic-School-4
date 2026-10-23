@@ -23,7 +23,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Freezes the ground under the densest enemy cluster for {Duration} seconds: "
-             + $"{DamagePerTick}% AP every {TickInterval} seconds, and enemies inside lose "
+             + $"{AP(DamagePerTick)} every {TickInterval} seconds, and enemies inside lose "
              + $"{SlowPercent}% attack speed.";
 
         // ============================== active ==============================

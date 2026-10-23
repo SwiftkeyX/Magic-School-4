@@ -30,7 +30,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Fires {BarrageCount} barrages of {ShotsPerBarrage} shots at the furthest enemy, picking the furthest again "
-             + $"for every barrage. Each shot lands for {ADDamagePerShot}% AD + {MGDamagePerShot}% AP. "
+             + $"for every barrage. Each shot lands for {AD(ADDamagePerShot)} + {AP(MGDamagePerShot)}. "
              + $"A shot that lands {LongShotHexes}+ hexes away deals {LongShotBonusPerAlly}% more for every ally on his {LongShotMark} mark.";
 
         // ============================== active ==============================

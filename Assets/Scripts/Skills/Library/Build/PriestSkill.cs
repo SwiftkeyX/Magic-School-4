@@ -21,7 +21,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Summons a fairy and gives it to the lowest-health ally. For {FairyDuration} seconds the fairy deals "
-             + $"{StingDamage}% AP every second to the enemy its owner is fighting, and heals the owner for "
+             + $"{AP(StingDamage)} every second to the enemy its owner is fighting, and heals the owner for "
              + $"{HealPercent}% of the damage it deals.";
 
         // ============================== init ==============================

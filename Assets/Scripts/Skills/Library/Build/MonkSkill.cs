@@ -18,7 +18,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Stunning Palm";
 
         public override string Description
-            => $"Strikes the current target for {DamageRatio}% AP and stuns it for {StunDuration} "
+            => $"Strikes the current target for {AP(DamageRatio)} and stuns it for {StunDuration} "
              + $"seconds, then takes {DamageReductionPercent}% less damage for {GuardDuration} seconds.";
 
         // ============================== active ==============================

@@ -17,6 +17,7 @@ namespace MagicSchool.Core
     ///     remove enemy        - drop an enemy on the shop
     ///     paint deploy zone   - click an empty hex to put it in or out of the zone
     ///     save formation      - ReadEnemyTeam() and ReadDeployZone() are what the board holds right now; the menu writes them into an asset
+    ///     load formation      - LoadEnemyTeam() puts a saved stage's enemies (and its deploy zone) back on the board
     ///     team comp           - ReadPlayerTeam() and ReadItemsOnHexes() save the player's heroes on the board, their items and
     ///                           the items on hexes; LoadPlayerTeam() puts a saved comp back
     ///
@@ -211,6 +212,42 @@ namespace MagicSchool.Core
 
                 Debug.LogWarning($"[StageEditor] {itemData.name} could not lie on hex {lying.hexPlacement.column},{lying.hexPlacement.row} - it went to the loose row.");
                 ItemDrop.MoveToFreeSpot(item);
+            }
+
+            _game.RefreshAligning();
+            return placed;
+        }
+
+        // ======================================== enemy team ========================================
+        // swap the enemies on the board for the stage's, at their saved levels; withZone also takes the stage's deploy zone.
+        // The player's heroes are left where they stand - a hex one of them takes is skipped. Returns how many were put down.
+        public int LoadEnemyTeam(BattlePlacementSO stage, bool withZone)
+        {
+            if (stage == null || !CanEditNow) return 0;
+            if (OnSpawnRequested == null) { Debug.LogError("Can't load the enemies. Nothing is listening for spawn requests."); return 0; }
+
+            BattleBoard board = _game.Board;
+            board.ClearTeam(EnemyTeam);
+            if (withZone)
+            {
+                board.DeployZone.Set(stage.DeployZone);
+                board.Colours.ShowDeployZone(true);
+            }
+
+            int placed = 0;
+            foreach (HeroPlacement placement in stage.HeroesPlacement)
+            {
+                if (placement.team != EnemyTeam || placement.dataSO == null) continue;
+
+                if (!board.Hexs.TryGetValue(placement.hexPlacement, out Hex hex) || board.WhoReservedThisHex(hex) != null)
+                {
+                    Debug.LogWarning($"[StageEditor] skipped {placement.dataSO.name}: hex {placement.hexPlacement.column},{placement.hexPlacement.row} is missing or taken.");
+                    continue;
+                }
+
+                OnSpawnRequested.Invoke(placement.dataSO, EnemyTeam, hex, board);
+                if (board.WhoReservedThisHex(hex) is Hero enemy) enemy.SetLevel(placement.Level);
+                placed++;
             }
 
             _game.RefreshAligning();

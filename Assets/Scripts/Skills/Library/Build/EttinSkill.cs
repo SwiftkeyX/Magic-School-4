@@ -18,11 +18,11 @@ namespace MagicSchool.Skills
         public override string SkillName => "Thick Skulls";
 
         public override string Description
-            => $"Gains {FlatBonusHP} + {BonusHPFromAP}% AP bonus health for the rest of the fight. "
+            => $"Gains {FlatBonusHP} + {AP(BonusHPFromAP)} bonus health for the rest of the fight. "
              + "Stacks every cast.";
 
         public override string PassiveDescription
-            => $"Auto attacks deal an extra {MaxHPPerAttack}% of his max HP.";
+            => $"Auto attacks deal an extra {MaxHP(MaxHPPerAttack)} damage.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

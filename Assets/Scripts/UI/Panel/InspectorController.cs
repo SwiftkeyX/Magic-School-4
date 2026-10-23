@@ -26,8 +26,13 @@ namespace MagicSchool.UI
             // if the current inspectable dies, guard it 
             if (!_shown.IsAlive) { Inspect(null); return; }
 
-            // If it was hero, the inspector update its hp and mana every frame
-            if (_shown is IInspectableHero) Refresh();
+            // If it was hero, the inspector update its hp and mana every frame - and its skill text, whose numbers follow
+            // its stats and the Alt key (held: the formulas)
+            if (_shown is IInspectableHero hero)
+            {
+                Refresh();
+                WriteAbilityText(hero);
+            }
         }
 
 
@@ -121,28 +126,32 @@ namespace MagicSchool.UI
             // show active ability
             bool hasActive = unit.HasSkill;
             SetShown(_activeSection, hasActive);
-            if (hasActive)
-            {
-                _activeName.text = unit.SkillName;
-                _activeBody.text = string.IsNullOrEmpty(unit.SkillDescription)
-                    ? "No description written yet."
-                    : unit.SkillDescription;
-            }
+            if (hasActive) _activeName.text = unit.SkillName;
 
             // show passive ability
             bool hasPassive = unit.HasAutoAttackPassive;
             SetShown(_passiveSection, hasPassive);
-            if (hasPassive)
-            {
-                _passiveBody.text = string.IsNullOrEmpty(unit.PassiveDescription)
-                    ? "No description written yet."
-                    : unit.PassiveDescription;
-            }
+
+            WriteAbilityText(unit);
 
             // show align ability
             bool hasMarks = !string.IsNullOrEmpty(unit.AlignDescription);
             SetShown(_alignSection, hasMarks);
             if (hasMarks) _alignBody.text = unit.AlignDescription;
+        }
+
+        // the active and passive texts, as numbers or (Alt held) as formulas; written only when they change
+        private void WriteAbilityText(IInspectableHero unit)
+        {
+            bool formula = MagicSchool.Input.PlayerInputSystem.FormulaViewHeld;
+            if (unit.HasSkill) SetText(_activeBody, unit.SkillDescriptionFor(formula));
+            if (unit.HasAutoAttackPassive) SetText(_passiveBody, unit.PassiveDescriptionFor(formula));
+        }
+
+        private static void SetText(Label label, string text)
+        {
+            if (string.IsNullOrEmpty(text)) text = "No description written yet.";
+            if (label.text != text) label.text = text;
         }
 
         private void UnShowHero()

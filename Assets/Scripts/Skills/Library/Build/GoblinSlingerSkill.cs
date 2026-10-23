@@ -15,7 +15,7 @@ namespace MagicSchool.Skills
         public override string SkillName => "Aimed Shot";
 
         public override string Description
-            => $"Fires at the {TargetCount} furthest enemies for {DamageRatio}% AD each.";
+            => $"Fires at the {TargetCount} furthest enemies for {AD(DamageRatio)} each.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

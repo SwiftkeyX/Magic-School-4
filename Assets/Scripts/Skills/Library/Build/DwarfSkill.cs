@@ -30,7 +30,7 @@ namespace MagicSchool.Skills
             => "Fires a homing shot into the densest cluster of enemies. "
              + $"It bursts where it lands, damaging everyone inside the blast. "
              + $"The blast starts at {StartBlastHexes} hex and grows by 1 hex every cast up to {MaxBlastHexes}, then starts small again. "
-             + $"It deals {SmallBlastDmg}% AD at 1 hex, {MediumBlastDmg}% AD at 2 and {BigBlastDmg}% AD at 3.";
+             + $"It deals {AD(SmallBlastDmg)} at 1 hex, {AD(MediumBlastDmg)} at 2 and {AD(BigBlastDmg)} at 3.";
 
         // get the blast diameter of the skill
         private static float BlastDiameter(int hexes) => hexes * 2f + 0.5f;

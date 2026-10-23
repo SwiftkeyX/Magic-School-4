@@ -38,12 +38,12 @@ namespace MagicSchool.Skills
         public override string SkillName => "Moonrage";
 
         public override string Description
-            => $"Transforms for {TransformDuration} seconds, draining {OmnivampFromAP}% AP of the damage "
+            => $"Transforms for {TransformDuration} seconds, draining {AP(OmnivampFromAP)}% of the damage "
              + "he deals back as life and turning his bonus attack speed into raw attack damage.";
 
         public override string PassiveDescription
             => "While transformed his auto attack becomes a three beat combo - box, then triangle, "
-             + $"then circle - landing for {BoxDamage}% / {TriangleDamage}% / {CircleDamage}% AD "
+             + $"then circle - landing for {AD(BoxDamage)} / {AD(TriangleDamage)} / {AD(CircleDamage)} "
              + "in turn.";
 
         // ============================== init ==============================

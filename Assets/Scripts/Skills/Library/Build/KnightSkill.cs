@@ -21,7 +21,7 @@ namespace MagicSchool.Skills
 
         public override string Description
             => "Leaps into the densest part of the enemy formation. The landing deals "
-             + $"{LandingDamage}% AP to everyone caught around him and leaves them stunned for "
+             + $"{AP(LandingDamage)} to everyone caught around him and leaves them stunned for "
              + $"{StunDuration} seconds.";
 
         // ============================== active ==============================
