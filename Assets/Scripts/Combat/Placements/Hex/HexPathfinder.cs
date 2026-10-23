@@ -5,69 +5,87 @@ using UnityEngine;
 
 namespace MagicSchool.Combat.Placements
 {
-    // Finds the next step along the shortest unoccupied route between hexes, via A* search.
+    // Finds the next step along the shortest unoccupied route between hexes.
     internal static class HexPathfinder
     {
-        // The largest possible Euclidean distance between two adjacent hexes (matches the
-        // 1.15x neighbor threshold in Hex.cs). Dividing the heuristic by this keeps it
-        // admissible - it never overestimates the true number of hex-hops remaining.
-        private const float MaxHexStepDistance = 1.15f;
+        // How close two distances have to be to count as the same
+        private const float TieEpsilon = 0.01f;
 
         // Returns ONE step from startHex toward any hex adjacent to targetHex, not the whole route.
-        // Null means the target is fully boxed in - no free hex adjacent to it.
+        // Null means the target is fully boxed in - no free hex adjacent to it - or there is no way there.
         //
         // isHexBlocked: is this hex claimed by someone other than the mover? Hex doesn't track
         // occupancy itself, so the caller owns that.
         //
-        // A* rather than BFS so equally-short routes tie-break toward the target, instead of by
-        // whichever was found first - which can double back through the mover's own side.
+        // Often several first steps start an equally short route (round the top or the bottom of an ally).
+        // They are told apart on purpose, never by the order a hex lists its neighbours - that order is top first,
+        // which once made every hero go over the top, and so pick the enemy above:
+        //      1) the step nearer the target
+        //      2) lean: +1 the upper step, -1 the lower one - the mover's side for the fight (See Hero.PathLean)
         //
         // The step returned is the real one even when it doesn't look like progress: routing around
         // a blocked hex can start sideways or backward. Whether to take it now or wait for the
         // contention to clear is timing, not pathfinding, so that's the caller's call.
-        public static Hex FindValidHexToTarget(Hex startHex, Hex targetHex, Func<Hex, bool> isHexBlocked)
+        public static Hex FindValidHexToTarget(Hex startHex, Hex targetHex, Func<Hex, bool> isHexBlocked, int lean)
         {
-            // find empty hex from the neighbors. (empty hex = hex that no hero reserved it) 
-            var goalHexes = new HashSet<Hex>(targetHex.GetNeighbors().Where(h => !isHexBlocked(h)));
+            // find empty hex from the neighbors. (empty hex = hex that no hero reserved it)
+            var goalHexes = targetHex.GetNeighbors().Where(h => !isHexBlocked(h)).ToList();
             if (goalHexes.Count == 0) return null;
 
-            float Heuristic(Hex h) => goalHexes.Min(g => Vector3.Distance(h.transform.position, g.transform.position)) / MaxHexStepDistance;
+            // steps from every reachable hex to the nearest goal, counted outward from the goals
+            Dictionary<Hex, int> stepsToGoal = StepsToGoal(goalHexes, isHexBlocked);
 
-            var cameFrom = new Dictionary<Hex, Hex>();
-            var gScore = new Dictionary<Hex, int> { [startHex] = 0 };
-            var open = new List<Hex> { startHex };
-            var closed = new HashSet<Hex>();
+            if (!stepsToGoal.TryGetValue(startHex, out int mySteps) || mySteps == 0) return null;
 
-            while (open.Count > 0)
+            // every neighbour one step closer starts a shortest route
+            List<Hex> firstSteps = startHex.GetNeighbors()
+                .Where(n => stepsToGoal.TryGetValue(n, out int steps) && steps == mySteps - 1)
+                .ToList();
+
+            return BreakTie(firstSteps, targetHex, lean);
+        }
+
+        // breadth-first from the goals through free hexes
+        private static Dictionary<Hex, int> StepsToGoal(List<Hex> goalHexes, Func<Hex, bool> isHexBlocked)
+        {
+            var steps = new Dictionary<Hex, int>();
+            var frontier = new Queue<Hex>();
+
+            foreach (Hex goal in goalHexes)
             {
-                open.Sort((a, b) => (gScore[a] + Heuristic(a)).CompareTo(gScore[b] + Heuristic(b)));
-                Hex current = open[0];
-                open.RemoveAt(0);
+                steps[goal] = 0;
+                frontier.Enqueue(goal);
+            }
 
-                if (goalHexes.Contains(current))
+            while (frontier.Count > 0)
+            {
+                Hex current = frontier.Dequeue();
+
+                foreach (Hex neighbor in current.GetNeighbors())
                 {
-                    // Walk the backtrack chain to the step right after startHex.
-                    Hex step = current;
-                    while (cameFrom[step] != startHex) step = cameFrom[step];
-                    return step;
-                }
+                    if (steps.ContainsKey(neighbor) || isHexBlocked(neighbor)) continue;
 
-                closed.Add(current);
-
-                foreach (var neighbor in current.GetNeighbors())
-                {
-                    if (closed.Contains(neighbor) || isHexBlocked(neighbor)) continue;
-
-                    int tentativeG = gScore[current] + 1;
-                    if (gScore.TryGetValue(neighbor, out int existingG) && tentativeG >= existingG) continue;
-
-                    cameFrom[neighbor] = current;
-                    gScore[neighbor] = tentativeG;
-                    if (!open.Contains(neighbor)) open.Add(neighbor);
+                    steps[neighbor] = steps[current] + 1;
+                    frontier.Enqueue(neighbor);
                 }
             }
 
-            return null;
+            return steps;
+        }
+
+        private static Hex BreakTie(List<Hex> steps, Hex targetHex, int lean)
+        {
+            if (steps.Count <= 1) return steps.FirstOrDefault();
+
+            // 1) nearer the target
+            Vector3 target = targetHex.transform.position;
+            float nearest = steps.Min(h => Vector3.Distance(h.transform.position, target));
+            steps = steps.Where(h => Vector3.Distance(h.transform.position, target) <= nearest + TieEpsilon).ToList();
+
+            if (steps.Count == 1) return steps[0];
+
+            // 2) the mover's lean
+            return steps.OrderByDescending(h => h.transform.position.y * lean).First();
         }
     }
 }

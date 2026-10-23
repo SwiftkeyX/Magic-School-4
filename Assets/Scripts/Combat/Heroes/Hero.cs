@@ -97,6 +97,7 @@ namespace MagicSchool.Combat.Heroes
             _items = new HeroItems(this);
             _spawn = new HeroSpawn(this, _board, (unit, unitTeam, placement, onBoard) => OnSpawnRequested?.Invoke(unit, unitTeam, placement, onBoard));
             _findEnemy = new FindTarget(this, _board);
+            RollPathLean();
             _attackCooldown = new AttackCooldown();
             _stateMachine = new HeroStateMachine(this, new MovementConfig(_moveSpeed, _walkCurve, _attackCurve));
         }

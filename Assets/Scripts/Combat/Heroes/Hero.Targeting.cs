@@ -24,6 +24,12 @@ namespace MagicSchool.Combat.Heroes
         public ICombatant FindNearestAlly() => _findEnemy.FindNearestAlly();
         public ICombatant FindLowestHealthAlly() => _findEnemy.FindLowestHealthAlly();
 
+        // ======================================== path lean ========================================
+        // Which way I go when two routes are equally short and equally near the target: +1 over the top, -1 under the bottom.
+        // Rolled when I am built and again at every fight start, so no side is favoured (See HexPathfinder)
+        internal int PathLean { get; private set; } = 1;
+        private void RollPathLean() => PathLean = UnityEngine.Random.value < 0.5f ? 1 : -1;
+
         // ======================================== chosen target ========================================
         // the player picks which of my tied nearest enemies I go for (See FindTarget.SwitchChosenTarget)
         public IReadOnlyList<ICombatant> TiedNearestEnemies() => _findEnemy.TiedNearestEnemies();
@@ -65,7 +71,7 @@ namespace MagicSchool.Combat.Heroes
 
             while (!at.IsWithinRange(target, Range) && route.Count < MaxSteps)
             {
-                Hex next = HexPathfinder.FindValidHexToTarget(at, target, IsHexReservedByOther);
+                Hex next = HexPathfinder.FindValidHexToTarget(at, target, IsHexReservedByOther, PathLean);
                 if (next == null || route.Contains(next)) break;
 
                 route.Add(next);

@@ -42,7 +42,7 @@ namespace MagicSchool.Combat.Heroes.States
 
             // Find next hex that could lead this hero toward nearest enemy
             // toward where it is arriving, the hex its steps were counted to (See EnemyScan.StepsToReach)
-            Hex targetHex = HexPathfinder.FindValidHexToTarget(_me.CurrentHex, nearestEnemy.ArrivingHex(), _isHexBlocked);
+            Hex targetHex = HexPathfinder.FindValidHexToTarget(_me.CurrentHex, nearestEnemy.ArrivingHex(), _isHexBlocked, _me.PathLean);
             if (targetHex == null) return false;
 
             // Do I wait for the blocker to move? (Read function's comment)
