@@ -117,6 +117,63 @@ TEAMS = Report(
 
 REPORTS = (HEROES, TEAMS)
 
+# ======================================== header notes ========================================
+# Hover a header to read what its column means. Put on every import, so a new or re-made tab has them too.
+NOTES = {
+    # both
+    "run_time": "When the benchmark ran. Every row of one run shares it.",
+    "error": "Why this could not be tested, if it could not. Empty when it ran fine.",
+
+    # hero report
+    "kind": "full = every shop hero was tested. selected = only the heroes picked in the Project window; the role "
+            "comparison then borrows everyone else's numbers from the newest full run.",
+    "hero": "The hero tested. In the team tabs: one hero of the comp (empty on a team row).",
+    "tier": "The hero's shop tier.",
+    "role": "The hero's role. Each hero is compared with the median hero of its role.",
+    "price": "Gold it costs in the shop.",
+    "dps_15s": "DAMAGE TEST - alone vs one 2000 HP dummy. Damage per second over the first 15 seconds.",
+    "dps_30s": "DAMAGE TEST - damage per second over the full 30 seconds. The number the role comparison uses.",
+    "auto_share": "DAMAGE TEST - share of the damage that came from auto attacks; the rest is the skill.",
+    "healing_per_sec": "DAMAGE TEST - healing done per second (to itself; there are no allies).",
+    "dps_vs_role": "dps_30s compared with the median hero of the same role. +20% = 20% more damage than a typical hero of its role.",
+    "dps_flag": "HIGH = more than +20% vs its role, LOW = below -20%. Empty = within 20%.",
+    "aoe_dps_15s": "AOE TEST - vs 6 dummies packed together. Damage per second over the first 15 seconds.",
+    "aoe_dps_30s": "AOE TEST - damage per second over the full 30 seconds, all dummies added up.",
+    "aoe_gain": "AoE damage / single-target damage. x1.0 = hits only one target; x2.0 = twice as much damage into a group.",
+    "aoe_vs_role": "aoe_dps_30s compared with the median hero of the same role.",
+    "aoe_flag": "HIGH = more than +20% vs its role, LOW = below -20%.",
+    "time_to_die": "TANK TEST - takes 100 raw damage per second. Seconds until it died (30 = it survived the test).",
+    "survived": "TANK TEST - yes = still alive after 30 seconds.",
+    "hp_left": "TANK TEST - HP left at the end, as a share of max HP.",
+    "damage_taken": "TANK TEST - damage that actually landed. In the team tabs: average damage this hero took per fight.",
+    "mitigated": "TANK TEST - damage that defence and damage reduction stopped.",
+    "healing_received": "TANK TEST - healing it got.",
+    "ttd_vs_role": "time_to_die compared with the median hero of the same role. + = lasts longer.",
+    "tank_flag": "HIGH = more than +20% vs its role, LOW = below -20%.",
+    "dummy_revives": "How often a dummy was topped back up, across the three tests (they are refilled below half HP).",
+
+    # team comp report
+    "row": "team = the comp's result at this stage. hero = one of its heroes in the same fights.",
+    "comp": "The saved team comp (Data/BattleSetups/Team Comps).",
+    "stage": "Which campaign stage it fought (1 = the first).",
+    "stage_setup": "The stage's enemy setup asset.",
+    "aligning": "on = aligning bonuses given, as in a real fight. off = the same heroes on the same hexes with every "
+                "aligning bonus and mark effect taken away.",
+    "runs": "How many times this fight was played (aligned 20, not aligned 10).",
+    "win_rate": "Share of the runs won. Green = the stage counts as won (70% or more), red = lost.",
+    "wins": "Runs won.",
+    "timeouts": "Runs still going at 90 seconds. A timeout is not a win.",
+    "avg_seconds": "Average fight length in seconds.",
+    "heroes_left": "Average number of the comp's heroes still alive when the fight ended.",
+    "team_hp_left": "Average HP left across the comp's heroes at the end (a dead hero counts as 0%).",
+    "team_dps": "The comp's total damage per second.",
+    "dps": "This hero's damage per second.",
+    "damage_share": "Share of the comp's damage this hero dealt.",
+    "healing": "Average healing this hero did per fight.",
+    "survive_rate": "Share of the runs this hero was alive at the end.",
+    "died_at": "Average second this hero died, in the runs it died. Empty = it never died.",
+}
+
 
 # ======================================== import ========================================
 def read_csv(path):
@@ -214,6 +271,12 @@ def style(sh, report, ws, band_runs):
     if report.bold_column in columns:
         requests.append({"repeatCell": {"range": column(report.bold_column), "cell": {"userEnteredFormat": {"textFormat": {"bold": True}}},
                                         "fields": "userEnteredFormat.textFormat.bold"}})
+
+    # what each column means, as a note on its header (hover to read)
+    requests.append({"updateCells": {
+        "range": {"sheetId": sheet_id, "startRowIndex": 0, "endRowIndex": 1, "startColumnIndex": 0, "endColumnIndex": width},
+        "rows": [{"values": [{"note": NOTES.get(name, "")} for name in columns]}],
+        "fields": "note"}})
 
     # each test's block: its header colour, a pale tint under it, and a thick line on its left edge
     rows = max(ws.row_count, 1)

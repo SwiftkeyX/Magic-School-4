@@ -125,6 +125,48 @@ LIST_FORMULAS = {
 }
 
 
+# ======================================== notes ========================================
+# hover a label or a header to read what it means
+WON = f"A stage is won when at least {WIN_LINE:.0%} of its fights are won (14 of 20 aligned, 7 of 10 not aligned)."
+STAGE_NOTE = ("Win rate at this stage: share of its fights won. Green = won, red = lost. Shows aligned fights, "
+              "or not aligned ones when the Aligning dropdown says so.")
+NOTES = {
+    "A3": "Which benchmark run to show. Latest = the newest.",
+    "C3": "An older run to compare with: fills 'Change since compared' and 'DPS change'. None = no comparison.",
+    "E3": "Aligned = fights with every aligning bonus, as in the game. Not aligned = the same heroes on the same hexes "
+          "with aligning switched off. Picks what the stage columns and the comp detail show.",
+    "A5": "How many team comps this run tested.",
+    "C5": "Fights played in this run, all comps and stages, aligned and not.",
+    "E5": "The comp at the top of the table: most stages won aligned, then most won not aligned.",
+    "H5": "How many stages the best comp wins aligned, of the stages there are. " + WON,
+    "J5": "On average, how many more stages a comp wins aligned than not aligned.",
+    "L5": "When this run was played.",
+    f"A{MATRIX_HEADER}": "The saved team comp. Its name is green when it wins every stage aligned.",
+    f"B{MATRIX_HEADER}": "Stages won with aligning, out of every stage. " + WON,
+    f"C{MATRIX_HEADER}": "Stages won with aligning switched off. " + WON,
+    f"D{MATRIX_HEADER}": "Stages won aligned minus stages won not aligned: how much the comp leans on its marks.",
+    f"E{MATRIX_HEADER}": "Stages won aligned now minus in the compared run. Empty when Compare with is None.",
+    **{f"{col}{MATRIX_HEADER}": STAGE_NOTE for col in "FGHIJKLMNO"},
+    f"A{COMP_PICK}": "Pick a comp to see it stage by stage and hero by hero.",
+    f"A{STAGE_HEADER}": "The campaign stage.",
+    f"B{STAGE_HEADER}": "Share of the aligned fights won at this stage. Green = won (" + f"{WIN_LINE:.0%}" + " or more).",
+    f"C{STAGE_HEADER}": "Share of the not-aligned fights won at this stage.",
+    f"D{STAGE_HEADER}": "Average fight length.",
+    f"E{STAGE_HEADER}": "Fights still going at 90 seconds. A timeout is not a win.",
+    f"F{STAGE_HEADER}": "Average number of the comp's heroes alive at the end.",
+    f"G{STAGE_HEADER}": "Average HP left across the comp's heroes at the end (a dead hero counts as 0%).",
+    f"H{STAGE_HEADER}": "The comp's total damage per second.",
+    f"A{HERO_HEADER}": "One hero of the comp. Every number is averaged over all the stages.",
+    f"B{HERO_HEADER}": "This hero's damage per second.",
+    f"C{HERO_HEADER}": "Share of the comp's damage this hero dealt.",
+    f"D{HERO_HEADER}": "Average damage this hero took per fight.",
+    f"E{HERO_HEADER}": "Average healing this hero did per fight.",
+    f"F{HERO_HEADER}": "Share of the fights this hero was alive at the end.",
+    f"G{HERO_HEADER}": "Average second this hero died, in the fights it died. Empty = it never died.",
+    f"H{HERO_HEADER}": "DPS now compared with the compared run. Green from +5%, orange from -5%.",
+}
+
+
 # ======================================== build ========================================
 def build(sh):
     titles = [ws.title for ws in sh.worksheets()]
@@ -178,6 +220,11 @@ def style(sh, ws, lists):
 
     def number(rng, pattern, kind="NUMBER"):
         return fmt(rng, {"numberFormat": {"type": kind, "pattern": pattern}}, "numberFormat")
+
+    def cell_range(a1):  # "H34" -> that one cell
+        col, row = a1[0], int(a1[1:])
+        c = ord(col) - 65
+        return area(row, row, c, c + 1)
 
     def width(c0, c1, px):
         return {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": c0, "endIndex": c1},
@@ -261,6 +308,8 @@ def style(sh, ws, lists):
             (5, "0%", "PERCENT"), (6, "0.0\"s\"", "NUMBER"), (7, "+0%;-0%;0%", "PERCENT"))],
 
         width(0, 1, 200), width(1, 16, 80),
+        *[{"updateCells": {"range": cell_range(a1), "rows": [{"values": [{"note": text}]}], "fields": "note"}}
+          for a1, text in NOTES.items()],
         {"updateSheetProperties": {"properties": {"sheetId": lists.id, "hidden": True}, "fields": "hidden"}},
     ]
 
