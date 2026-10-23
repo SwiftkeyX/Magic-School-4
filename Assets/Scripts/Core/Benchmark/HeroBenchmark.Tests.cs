@@ -11,10 +11,10 @@ namespace MagicSchool.Core.Benchmark
     public partial class HeroBenchmark
     {
         // Damage test = a hero vs a dummy, for 30s. DPS at 15s and 30s
-        private IEnumerator DamageTest(GameManager game, List<Lane> lanes, HeroDataSO dummy)
+        private IEnumerator DamageTest(GameManager game, List<Lane> lanes, HeroDataSO dummy, int maxMarks)
         {
             // spawn a tested hero and dummy
-            yield return Spawn(lanes, dummy, DummyHex);
+            yield return Spawn(lanes, dummy, maxMarks, DummyHex);
 
             // start battle on every lane
             List<Lane> live = lanes.Where(l => l.Result.Error == null).ToList();
@@ -64,10 +64,10 @@ namespace MagicSchool.Core.Benchmark
         }
 
         // AoE test = a hero vs a cluster of 6 dummies. 
-        private IEnumerator AoeTest(GameManager game, List<Lane> lanes, HeroDataSO dummy)
+        private IEnumerator AoeTest(GameManager game, List<Lane> lanes, HeroDataSO dummy, int maxMarks)
         {
             // spawn a tested hero and a cluster of dummies
-            yield return Spawn(lanes, dummy, ClusterHexes);
+            yield return Spawn(lanes, dummy, maxMarks, ClusterHexes);
 
             // start battle on every lane
             List<Lane> live = lanes.Where(l => l.Result.Error == null).ToList();
@@ -115,10 +115,10 @@ namespace MagicSchool.Core.Benchmark
         }
 
         // tank test = a hero vs a dummy, while a pressure continuously damage a tested hero, until it dies or 30s pass.
-        private IEnumerator TankTest(GameManager game, List<Lane> lanes, HeroDataSO dummy)
+        private IEnumerator TankTest(GameManager game, List<Lane> lanes, HeroDataSO dummy, int maxMarks)
         {
             // spawn a tested hero and dummy
-            yield return Spawn(lanes, dummy, DummyHex);
+            yield return Spawn(lanes, dummy, maxMarks, DummyHex);
 
             // start battle on every lane
             List<Lane> live = lanes.Where(l => l.Result.Error == null).ToList();

@@ -176,13 +176,17 @@ namespace MagicSchool.Combat.Placements
         {
             List<ICombatant> leaving = _heroesOnBoard.Where(h => h != null && h.Team == team).ToList();
 
-            foreach (ICombatant hero in leaving)
-            {
-                ReleaseReservationsOf(hero);    // FLAGGING: this is O(n), it don't have to.
-                _heroesOnBoard.Remove(hero);
+            foreach (ICombatant hero in leaving) Remove(hero);
+        }
 
-                if (hero.transform != null) Destroy(hero.transform.gameObject);
-            }
+        // Take one unit off the board for good: its hexes are free at once, and it is destroyed
+        // e.g. the hero benchmark's stand-in allies, once they have filled a hero's marks
+        public void Remove(ICombatant hero)
+        {
+            ReleaseReservationsOf(hero);    // FLAGGING: this is O(n), it don't have to.
+            _heroesOnBoard.Remove(hero);
+
+            if (hero.transform != null) Destroy(hero.transform.gameObject);
         }
 
         private void ReleaseReservationsOf(ICombatant hero)

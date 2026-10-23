@@ -83,11 +83,18 @@ HEROES = Report(
         (rgb(0.7, 0.88, 0.7), rgb(0.93, 0.98, 0.93), ("aoe_dps_15s", "aoe_dps_30s", "aoe_gain", "aoe_vs_role", "aoe_flag")),
         (rgb(0.7, 0.8, 0.95), rgb(0.93, 0.95, 1.0), ("time_to_die", "survived", "hp_left", "damage_taken", "mitigated",
                                                      "healing_received", "ttd_vs_role", "tank_flag")),
+        # the columns before these are a team of 5's (up to 4 of the hero's own mark hexes filled);
+        # these are the same tests in a team of 3 (up to 2), then with the hero alone
+        (rgb(0.85, 0.78, 0.95), rgb(0.96, 0.94, 0.99), ("marks", "marks_team3", "dps_30s_team3", "aoe_dps_30s_team3",
+                                                        "time_to_die_team3")),
+        (rgb(0.8, 0.8, 0.8), rgb(0.95, 0.95, 0.95), ("dps_30s_alone", "aoe_dps_30s_alone", "time_to_die_alone")),
         (GREY, None, ("dummy_revives", "error")),   # counted across all three tests
     ],
     frozen_columns=3,
     bold_column="hero",
-    one_decimal=("dps_15s", "dps_30s", "healing_per_sec", "aoe_dps_15s", "aoe_dps_30s", "time_to_die"),
+    one_decimal=("dps_15s", "dps_30s", "healing_per_sec", "aoe_dps_15s", "aoe_dps_30s", "time_to_die",
+                 "dps_30s_team3", "aoe_dps_30s_team3", "time_to_die_team3",
+                 "dps_30s_alone", "aoe_dps_30s_alone", "time_to_die_alone"),
     percent=("auto_share", "hp_left"),
     signed_percent=("dps_vs_role", "aoe_vs_role", "ttd_vs_role"),
     flag_columns=("dps_flag", "aoe_flag", "tank_flag"),
@@ -150,6 +157,17 @@ NOTES = {
     "healing_received": "TANK TEST - healing it got.",
     "ttd_vs_role": "time_to_die compared with the median hero of the same role. + = lasts longer.",
     "tank_flag": "HIGH = more than +20% vs its role, LOW = below -20%.",
+    "marks": "How many of the hero's own orange mark hexes were filled for the main tests: as in a team of 5, up to 4 "
+             "(a stand-in ally on each, or left empty for a 'when empty' mark, in the order the marks were made), so it "
+             "gets the self bonus it would in a real fight. 0 = it has no such mark and every number is the hero alone. "
+             "From 2026-10-23 every test column before this one is with marks filled; before that, the hero alone.",
+    "marks_team3": "The same, as in a team of 3 (stage 1): up to 2 mark hexes filled.",
+    "dps_30s_team3": "DAMAGE TEST in a team of 3 (marks_team3 hexes filled).",
+    "aoe_dps_30s_team3": "AOE TEST in a team of 3.",
+    "time_to_die_team3": "TANK TEST in a team of 3.",
+    "dps_30s_alone": "DAMAGE TEST with the hero alone, no mark filled - its floor. Same as dps_30s when marks is 0.",
+    "aoe_dps_30s_alone": "AOE TEST with the hero alone.",
+    "time_to_die_alone": "TANK TEST with the hero alone.",
     "dummy_revives": "How often a dummy was topped back up, across the three tests (they are refilled below half HP).",
 
     # team comp report

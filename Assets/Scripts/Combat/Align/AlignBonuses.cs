@@ -103,6 +103,10 @@ namespace MagicSchool.Combat.Align
             }
         }
 
+        // The hero counts nobody on its special marks any more - the bonuses it was given stay.
+        // e.g. the hero benchmark's stand-in allies fill a hero's marks for Refresh, then leave the board before the fight
+        public static void ClearSpecialMarks(Hero hero) => hero.SetAlliesOnSpecialMarks(new Dictionary<string, List<ICombatant>>());
+
         // Nobody stands on it, and the player could have put someone there.
         // Outside the deploy zone a hex is always empty of the player's team, so it would pay for nothing.
         // An item lying there is not someone.

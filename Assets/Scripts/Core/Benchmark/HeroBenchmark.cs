@@ -43,6 +43,10 @@ namespace MagicSchool.Core.Benchmark
         private const int PressurePerHit = 50;
         private const float PressureInterval = 0.5f;
 
+        // the stand-in allies a hero's marks may be filled with: a team of 3 (stage 1) and a team of 5 (See TestEveryHero)
+        private const int AlliesInTeamOf3 = 2;
+        private const int AlliesInTeamOf5 = 4;
+
         // a hero this far from its role's median is flagged
         private const float FlagBand = 0.2f;
 
@@ -108,36 +112,57 @@ namespace MagicSchool.Core.Benchmark
         private static List<HeroDataSO> HeroesToTest(GameManager game, IReadOnlyList<HeroDataSO> testHero)
             => (testHero ?? game.ShopRoster).Where(h => h != null).Distinct().ToList();
 
-        // a batch = every lane run through the three tests together (read Lane in HeroBenchmark.Board.cs)
+        // Three passes, each a batch of lanes run through the three tests together (read Lane in HeroBenchmark.Board.cs):
+        //      alone      - the hero by itself, as it always was: its floor
+        //      team of 3  - again, with up to 2 of its own orange mark hexes filled (See MarkFill) - stage 1's team size
+        //      team of 5  - again, with up to 4 filled - the team size the comps are designed around
+        // A pass only runs the heroes it changes: no mark to fill, or no more than the last pass filled, keeps the numbers
+        // it has. The team-of-5 numbers are the report's main ones - the role comparison and the flags use them.
         private IEnumerator TestEveryHero(GameManager game, List<HeroDataSO> testRoster, HeroDataSO dummy, List<Result> results)
         {
             game.Board.SetBattleOn(false);
             List<Lane> lanes = CreateLanes(game, Mathf.Min(LaneCount, testRoster.Count));
+            BattleBoard board = lanes[0].Board;
 
-            for (int first = 0; first < testRoster.Count; first += lanes.Count)
+            List<Result> everyone = testRoster.Select(hero => new Result(hero)).ToList();
+            yield return TestPass(game, lanes, everyone, dummy, maxMarks: 0);
+            foreach (Result result in everyone) result.KeepAlone();
+
+            int Fill(Result r, int max) => MarkFill.Of(r.Hero, board, max).Count;
+            List<Result> team3 = everyone.Where(r => r.Error == null && Fill(r, AlliesInTeamOf3) > 0).ToList();
+            yield return TestPass(game, lanes, team3, dummy, AlliesInTeamOf3);
+            foreach (Result result in everyone) result.KeepTeamOf3();
+
+            List<Result> team5 = everyone.Where(r => r.Error == null && Fill(r, AlliesInTeamOf5) > Fill(r, AlliesInTeamOf3)).ToList();
+            yield return TestPass(game, lanes, team5, dummy, AlliesInTeamOf5);
+
+            for (int i = 0; i < everyone.Count; i++)
             {
-                List<Lane> batch = lanes.Take(testRoster.Count - first).ToList();
-                for (int i = 0; i < batch.Count; i++) batch[i].Assign(testRoster[first + i]);
-
-                yield return TestBatch(game, batch, dummy);
-
-                foreach (Lane lane in batch)
-                {
-                    results.Add(lane.Result);
-                    LogProgress(lane.Result, results.Count, testRoster.Count);
-                }
+                results.Add(everyone[i]);
+                LogProgress(everyone[i], i + 1, everyone.Count);
             }
 
             // a test is finished, destroy all lane
             DestroyLanes(lanes);
         }
 
-        // run 3 test in order
-        private IEnumerator TestBatch(GameManager game, List<Lane> batch, HeroDataSO dummy)
+        private IEnumerator TestPass(GameManager game, List<Lane> lanes, List<Result> todo, HeroDataSO dummy, int maxMarks)
         {
-            yield return DamageTest(game, batch, dummy);
-            yield return AoeTest(game, batch, dummy);
-            yield return TankTest(game, batch, dummy);
+            for (int first = 0; first < todo.Count; first += lanes.Count)
+            {
+                List<Lane> batch = lanes.Take(todo.Count - first).ToList();
+                for (int i = 0; i < batch.Count; i++) batch[i].Result = todo[first + i];
+
+                yield return TestBatch(game, batch, dummy, maxMarks);
+            }
+        }
+
+        // run 3 test in order
+        private IEnumerator TestBatch(GameManager game, List<Lane> batch, HeroDataSO dummy, int maxMarks)
+        {
+            yield return DamageTest(game, batch, dummy, maxMarks);
+            yield return AoeTest(game, batch, dummy, maxMarks);
+            yield return TankTest(game, batch, dummy, maxMarks);
         }
 
         // log the test
@@ -146,7 +171,9 @@ namespace MagicSchool.Core.Benchmark
         {
             Debug.Log($"[HeroBenchmark] {done}/{total} {result.Hero.Name}: " +
                       $"{result.Dps30:0.0} DPS @30s, AoE {result.AoeDps30:0.0} (x{result.AoeGain:0.0}), " +
-                      $"{(result.Survived ? "survived" : $"died at {result.TimeToDie:0.0}s")}");
+                      $"{(result.Survived ? "survived" : $"died at {result.TimeToDie:0.0}s")}" +
+                      (result.Marks > 0 ? $" - with {result.Marks} mark hexes filled; team of 3 {result.Dps30Team3:0.0}, " +
+                                          $"alone {result.Dps30Alone:0.0} DPS" : ""));
         }
 
         // one hero's numbers across the three tests
@@ -160,7 +187,28 @@ namespace MagicSchool.Core.Benchmark
             public int DamageTaken, Mitigated, HealingReceived, DummyRevives;
             public string Error;
 
+            // each pass overwrites the numbers above, so the earlier ones are kept here (See TestEveryHero).
+            // Marks = the mark hexes filled for the main (team of 5) numbers, 0 = none
+            public int Marks, MarksTeam3;
+            public float Dps30Alone, AoeDps30Alone, TimeToDieAlone;
+            public float Dps30Team3, AoeDps30Team3, TimeToDieTeam3;
+
             public Result(HeroDataSO hero) => Hero = hero;
+
+            public void KeepAlone()
+            {
+                Dps30Alone = Dps30;
+                AoeDps30Alone = AoeDps30;
+                TimeToDieAlone = TimeToDie;
+            }
+
+            public void KeepTeamOf3()
+            {
+                MarksTeam3 = Marks;
+                Dps30Team3 = Dps30;
+                AoeDps30Team3 = AoeDps30;
+                TimeToDieTeam3 = TimeToDie;
+            }
         }
     }
 }
