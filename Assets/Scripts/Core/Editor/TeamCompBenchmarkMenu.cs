@@ -82,6 +82,7 @@ namespace MagicSchool.Editor
 
             TeamCompBenchmark.Run(comps, path =>
             {
+                HeroBenchmarkMenu.ImportWhenBackInEditMode(path);   // into the Benchmark sheet's Team Runs / Team Latest tabs
                 EditorApplication.ExitPlaymode();
                 EditorUtility.RevealInFinder(path);
             });

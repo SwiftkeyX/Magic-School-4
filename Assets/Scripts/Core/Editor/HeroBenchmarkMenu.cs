@@ -86,17 +86,21 @@ namespace MagicSchool.Editor
 
             HeroBenchmark.Run(dummy, only, path =>
             {
-                // imported once back in Edit mode: leaving Play mode can reload scripts, which would drop the import's callback
-                SessionState.SetString(ImportKey, path);
+                ImportWhenBackInEditMode(path);
                 EditorApplication.ExitPlaymode();
                 EditorUtility.RevealInFinder(path);
             });
         }
 
-        // Every report also goes into the "MagicSchool4 Benchmark" Google Sheet (its Runs and Latest tabs),
-        // through .claude/scripts/benchmark_import.py. In the background: a failed upload only logs, the CSV is still there.
+        // Every report also goes into the "MagicSchool4 Benchmark" Google Sheet, through .claude/scripts/benchmark_import.py:
+        // a hero report into its Runs and Latest tabs, a team comp report into Team Runs and Team Latest (the script tells
+        // them apart by file name). In the background: a failed upload only logs, the CSV is still there.
         private const string ImportScript = ".claude/scripts/benchmark_import.py";
         private const string ImportKey = "MagicSchool.HeroBenchmark.ImportPath";
+
+        // imported once back in Edit mode: leaving Play mode can reload scripts, which would drop the import's callback.
+        // TeamCompBenchmarkMenu calls this too.
+        internal static void ImportWhenBackInEditMode(string csvPath) => SessionState.SetString(ImportKey, csvPath);
 
         private static void ImportPendingReport()
         {
