@@ -91,5 +91,11 @@ namespace MagicSchool.Combat.Heroes
         {
             _skill?.OnMarkedAllyDealtDamage(mark, ally, hit);
         }
+
+        // if I take a hit, play OnDamageTaken type of skill
+        public void TriggerOnDamageTaken(DamageEvent hit)
+        {
+            _skill?.OnDamageTaken(hit);
+        }
     }
 }

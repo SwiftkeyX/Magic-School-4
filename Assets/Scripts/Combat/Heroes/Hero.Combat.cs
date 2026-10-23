@@ -94,6 +94,10 @@ namespace MagicSchool.Combat.Heroes
             var damageEvent = new DamageEvent(source, this, kind, outcome);
             OnDamaged?.Invoke(damageEvent);
 
+            // tell my own skill
+            // e.g.     Shield Knight counts what he takes while bracing
+            _skill?.TriggerOnDamageTaken(damageEvent);
+
             // tell the dealer too
             // e.g.     aligning: Shield Knight heals off the damage his generator deals
             if (source is Hero dealer) dealer.OnDamageDealt?.Invoke(damageEvent);

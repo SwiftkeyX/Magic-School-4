@@ -107,6 +107,10 @@ namespace MagicSchool.Skills
         // e.g. Shield Knight heals off the damage the allies on his Guard mark deal
         public virtual void OnMarkedAllyDealtDamage(string mark, ICombatant ally, DamageEvent hit) { }
 
+        // If the caster itself takes a hit, play OnDamageTaken. Raised after the hit is worked out, so hit.Outcome is final.
+        // e.g. Shield Knight counts what he takes while bracing, and slams it back
+        public virtual void OnDamageTaken(DamageEvent hit) { }
+
         // add other hook
         // ...
 
