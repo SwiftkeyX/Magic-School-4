@@ -37,6 +37,7 @@ namespace MagicSchool.Combat.Heroes
         private Stat _stat;
         private TeamEnum _team;
         private int _star = HeroStar.Min;       // upgraded by combining copies (See HeroStar)
+        private int _level = HeroLevel.Min;     // an enemy's level, set by the stage it is seeded from (See HeroLevel)
         private int _alignPattern;              // which of its align patterns the hero is turned to (See AlignPattern)
         private Dictionary<string, List<ICombatant>> _alliesOnSpecialMark = new Dictionary<string, List<ICombatant>>();  // allies on each special mark's hexes (See IAligned)
         private Vector3 _baseScale;
@@ -61,6 +62,7 @@ namespace MagicSchool.Combat.Heroes
         public HeroDataSO Data => _SOData;
         public int Star => _star;
         public bool CanUpgrade => _star < HeroStar.Max;
+        public int Level => _level;
 
         // false while a benchmark runs with nothing drawn: a hero made then has no HP / mana / skill bars and casts no
         // floating skill name - none of which changes a fight. Set by BenchmarkSpeed.
@@ -91,7 +93,7 @@ namespace MagicSchool.Combat.Heroes
             _board = board;
             _team = team;
 
-            _stat = new Stat(_SOData, _star);
+            _stat = new Stat(_SOData, _star, _level);
             _baseScale = transform.localScale;
             _isDummy = _SOData.IsDummy;
 
@@ -149,7 +151,7 @@ namespace MagicSchool.Combat.Heroes
         {
             if (!IsInitialized) return;
 
-            _stat = new Stat(_SOData, _star);
+            _stat = new Stat(_SOData, _star, _level);
             _attackCooldown = new AttackCooldown();
             CancelRevive();
 
@@ -161,12 +163,24 @@ namespace MagicSchool.Combat.Heroes
             _stateMachine.ChangeState(HeroStateEnum.Idle);
         }
 
+        // Rebuilds the stats at the new level, so it is meant for before a fight: a hero just seeded, or one the stage
+        // editor is tuning. Current HP and mana start over, and items are granted again.
+        public void SetLevel(int level)
+        {
+            level = HeroLevel.Clamp(level);
+            if (!IsInitialized || level == _level) return;
+
+            _level = level;
+            _stat = new Stat(_SOData, _star, _level);
+            _items.ReGrantAll();
+        }
+
         public bool Upgrade()
         {
             if (!IsInitialized || !CanUpgrade) return false;
 
             _star++;
-            _stat = new Stat(_SOData, _star);
+            _stat = new Stat(_SOData, _star, _level);
             _items.ReGrantAll();
             transform.localScale = _baseScale * HeroStar.Scale(_star);
             return true;

@@ -21,6 +21,8 @@ namespace MagicSchool.Editor
         // remembered by the window and pushed into StageEditor.EditsDeployZone, which a new Play session starts on
         [SerializeField] private bool _editDeployZone = true;
         [SerializeField] private bool _shopHeroesOpen, _benchEnemiesOpen;
+        [SerializeField] private int _newEnemyLevel = HeroLevel.Min;     // pushed into StageEditor.NewEnemyLevel
+        [SerializeField] private int _allLevel = HeroLevel.Min;
         [SerializeField] private string _search = "";
         [SerializeField] private int _tab;      // kept by the window, so it reopens on the same tab
         private Vector2 _scroll;
@@ -45,7 +47,11 @@ namespace MagicSchool.Editor
         private void OnGUI()
         {
             StageEditor editor = Editor();
-            if (editor != null) editor.EditsDeployZone = _editDeployZone;
+            if (editor != null)
+            {
+                editor.EditsDeployZone = _editDeployZone;
+                editor.NewEnemyLevel = _newEnemyLevel;
+            }
 
             // above the tabs: what both need - the mode, what is on the board, the search
             WindowStyle.Intro("Edit the stage being played: add enemies, paint the deploy zone and save it - or load and save " +
@@ -107,7 +113,11 @@ namespace MagicSchool.Editor
         {
             bool ready = WhyNot(editor) == null;
 
-            // every enemy hero, one Add each
+            // every enemy hero, one Add each, at the level picked here
+            _newEnemyLevel = EditorGUILayout.IntSlider(new GUIContent("Add at level",
+                "The level an added enemy starts at. Every level past 1 adds 10% to its HP, AD, AP and DF " +
+                "(level 11 = double, 30 = 3.9x). Change one already on the board below."), _newEnemyLevel, HeroLevel.Min, HeroLevel.Max);
+            if (editor != null) editor.NewEnemyLevel = _newEnemyLevel;
             DrawHeroList(_enemies, AddButton, ready, AddEnemy);
 
             // any hero can stand on the enemy side: every other one (Data/Heroes/Stats/Player - the shop's, test units too), folded away
@@ -117,6 +127,8 @@ namespace MagicSchool.Editor
             {
                 using (new EditorGUI.IndentLevelScope()) DrawHeroList(_shopHeroes, AddButton, ready, AddEnemy);
             }
+
+            DrawEnemyLevels(editor, ready);
 
             EditorGUILayout.Space(6);
             _editDeployZone = EditorGUILayout.ToggleLeft(new GUIContent("Edit deploy zone",
@@ -135,6 +147,46 @@ namespace MagicSchool.Editor
                                                                              "stage asset, or over one you pick.")))
                     StageEditorMenu.SaveAsNew();
             }
+        }
+
+        // every enemy on the board with its level, changed live; saving writes them into the stage
+        private void DrawEnemyLevels(StageEditor editor, bool ready)
+        {
+            WindowStyle.Section("Enemies on the board");
+            if (!ready)
+            {
+                WindowStyle.Hint("In Play mode, in Preparation, every enemy on the board is listed here with its level.");
+                return;
+            }
+
+            List<Hero> enemies = editor.EnemiesOnBoard;
+            if (enemies.Count == 0)
+            {
+                WindowStyle.Hint("No enemy on the board.");
+                return;
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                _allLevel = EditorGUILayout.IntSlider(new GUIContent("Set all to", "One level for every enemy on the board."),
+                                                      _allLevel, HeroLevel.Min, HeroLevel.Max);
+                if (WindowStyle.RowButton(new GUIContent("Set all", "Give every enemy on the board this level.")))
+                    foreach (Hero enemy in enemies) editor.SetLevel(enemy, _allLevel);
+            }
+
+            foreach (Hero enemy in enemies)
+            {
+                string name = enemy.Data != null ? enemy.Data.Name : enemy.name;
+                var hex = enemy.CurrentHex.Number;
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField(new GUIContent(name, $"Hex {hex.column},{hex.row}"), GUILayout.Width(110));
+                    EditorGUILayout.LabelField($"{enemy.MaxHP} HP", EditorStyles.miniLabel, GUILayout.Width(60));
+                    int level = EditorGUILayout.IntSlider(enemy.Level, HeroLevel.Min, HeroLevel.Max);
+                    if (level != enemy.Level) editor.SetLevel(enemy, level);
+                }
+            }
+            WindowStyle.Hint("A level is saved with the stage. Changing one rebuilds that enemy's stats on the spot.");
         }
 
         private static readonly System.Func<HeroDataSO, GUIContent> AddButton =

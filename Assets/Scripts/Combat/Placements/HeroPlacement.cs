@@ -20,8 +20,17 @@ namespace MagicSchool.Combat.Placements
         [Tooltip("Which of its align patterns the hero is turned to. 0 = the first.")]
         public int alignPattern;
 
-        public HeroPlacement(HeroDataSO data, TeamEnum team, HexNumber hexPlacement, ScriptableObject item = null, int alignPattern = 0)
+        [Tooltip("An enemy's level, 1-30: every level past 1 adds 10% to its HP, AD, AP and DF (See HeroLevel). " +
+                 "0 (an entry from before levels) is level 1.")]
+        public int level;
+
+        // the level to spawn at - 0 or out of range read as the nearest valid level
+        public int Level => HeroLevel.Clamp(level);
+
+        public HeroPlacement(HeroDataSO data, TeamEnum team, HexNumber hexPlacement, ScriptableObject item = null, int alignPattern = 0,
+                             int level = HeroLevel.Min)
         {
+            this.level = level;
             this.dataSO = data;
             this.team = team;
             this.hexPlacement = hexPlacement;

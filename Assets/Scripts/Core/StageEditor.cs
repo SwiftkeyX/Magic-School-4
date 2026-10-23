@@ -46,6 +46,23 @@ namespace MagicSchool.Core
         // Set from the Stage Editor window.
         public bool EditsDeployZone { get; set; } = true;
 
+        // the level an added enemy starts at (See HeroLevel). Set from the Stage Editor window.
+        public int NewEnemyLevel { get; set; } = HeroLevel.Min;
+
+        // every enemy on the board, by hex, for the window's level list
+        public List<Hero> EnemiesOnBoard => _game.Board.HeroesOnBoard
+            .OfType<Hero>()
+            .Where(hero => hero != null && hero.Team == EnemyTeam && hero.CurrentHex != null)
+            .OrderBy(hero => hero.CurrentHex.Number.column)
+            .ThenBy(hero => hero.CurrentHex.Number.row)
+            .ToList();
+
+        public void SetLevel(Hero enemy, int level)
+        {
+            if (enemy == null || !CanEditNow || enemy.Team != EnemyTeam) return;
+            enemy.SetLevel(level);
+        }
+
         // ======================================== add ========================================
         // put a new enemy on the first free enemy hex
         public bool TryAddEnemy(HeroDataSO data)
@@ -57,6 +74,7 @@ namespace MagicSchool.Core
             if (free == null) return false;
 
             OnSpawnRequested.Invoke(data, EnemyTeam, free, _game.Board);
+            if (_game.Board.WhoReservedThisHex(free) is Hero added) added.SetLevel(NewEnemyLevel);
             return true;
         }
 
@@ -72,7 +90,7 @@ namespace MagicSchool.Core
             return _game.Board.HeroesOnBoard
                 .OfType<Hero>()
                 .Where(hero => hero != null && hero.Team == team && hero.CurrentHex != null)
-                .Select(hero => new HeroPlacement(hero.Data, hero.Team, hero.CurrentHex.Number, WornItemData(hero), hero.AlignPattern))
+                .Select(hero => new HeroPlacement(hero.Data, hero.Team, hero.CurrentHex.Number, WornItemData(hero), hero.AlignPattern, hero.Level))
                 .OrderBy(placement => placement.hexPlacement.column)
                 .ThenBy(placement => placement.hexPlacement.row)
                 .ToList();

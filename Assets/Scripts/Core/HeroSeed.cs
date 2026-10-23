@@ -48,6 +48,9 @@ namespace MagicSchool.Core
                 }
 
                 OnSpawnRequested.Invoke(data, heroPlacement.team, hex, _board);
+
+                // the spawn is immediate, so the hero is on the hex now: give it the stage's level (See HeroLevel)
+                if (heroPlacement.Level > HeroLevel.Min && _board.WhoReservedThisHex(hex) is Hero hero) hero.SetLevel(heroPlacement.Level);
             }
         }
     }
