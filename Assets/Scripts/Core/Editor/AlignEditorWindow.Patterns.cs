@@ -19,13 +19,12 @@ namespace MagicSchool.Editor
             }
 
             GUILayout.Space(8f);
-            if (GUILayout.Button("+ Empty", EditorStyles.miniButton, GUILayout.Width(60f))) AddPattern(patterns, rotatedFrom: -1);
-            if (GUILayout.Button(new GUIContent("+ Rotated copy", "A new pattern: this one turned 60 degrees clockwise. Edit it by hand from there."),
-                                 EditorStyles.miniButton, GUILayout.Width(100f))) AddPattern(patterns, rotatedFrom: _selectedPattern);
+            if (WindowStyle.RowButton("+ Empty", 60f)) AddPattern(patterns, rotatedFrom: -1);
+            if (WindowStyle.RowButton(new GUIContent("+ Rotated copy", "A new pattern: this one turned 60 degrees clockwise. Edit it by hand from there."), 100f)) AddPattern(patterns, rotatedFrom: _selectedPattern);
 
             using (new EditorGUI.DisabledScope(patterns.arraySize <= 1))
             {
-                if (GUILayout.Button("Remove", EditorStyles.miniButton, GUILayout.Width(60f)))
+                if (WindowStyle.RowButton("Remove", 60f))
                 {
                     patterns.DeleteArrayElementAtIndex(_selectedPattern);
                     SelectPattern(Mathf.Max(0, _selectedPattern - 1));
@@ -38,15 +37,15 @@ namespace MagicSchool.Editor
             string rotates = patterns.arraySize > 1
                 ? $"{patterns.arraySize} patterns: right-clicking while holding this hero turns it through them in the game."
                 : "One pattern: this hero cannot rotate. Add a pattern to let it.";
-            EditorGUILayout.LabelField(rotates, EditorStyles.wordWrappedMiniLabel);
+            WindowStyle.Hint(rotates);
         }
 
         private void DrawNoPattern(SerializedProperty patterns)
         {
             EditorGUILayout.BeginVertical();
             EditorGUILayout.LabelField(_hero.name, EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox("This hero has no align marks.", MessageType.Info);
-            if (GUILayout.Button("Start pattern 1", GUILayout.Width(140f))) AddPattern(patterns, rotatedFrom: -1);
+            WindowStyle.Status("This hero has no align marks.");
+            if (WindowStyle.Action("Start pattern 1", GUILayout.Width(140f))) AddPattern(patterns, rotatedFrom: -1);
             EditorGUILayout.EndVertical();
         }
 

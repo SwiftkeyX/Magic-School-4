@@ -8,10 +8,10 @@ using MagicSchool.Core.Benchmark;
 
 namespace MagicSchool.Editor
 {
-    // Magic School 4 > Balance > Benchmark
+    // Magic School 4 > Benchmark
     // Every setting of the two benchmarks, with a tooltip on each, and a button to run each one.
-    // The settings live in Data/Benchmark/BenchmarkSettings.asset (See BenchmarkSettingsSO), so they are kept, and the
-    // Balance menu items run with them too. A run reads them when it starts: changing one mid-run does nothing to it.
+    // The settings live in Data/Benchmark/BenchmarkSettings.asset (See BenchmarkSettingsSO), so they are kept.
+    // A run reads them when it starts: changing one mid-run does nothing to it.
     internal class BenchmarkWindow : EditorWindow
     {
         private const string TeamCompFolder = "Assets/Data/BattleSetups/Team Comps";
@@ -45,7 +45,7 @@ namespace MagicSchool.Editor
         private SerializedObject _serialized;
         private Vector2 _scroll;
 
-        [MenuItem("Magic School 4/Balance/Benchmark")]
+        [MenuItem("Magic School 4/Benchmark")]
         private static void Open() => GetWindow<BenchmarkWindow>("Benchmark");
 
         private void OnEnable() => Bind();
@@ -65,16 +65,14 @@ namespace MagicSchool.Editor
             if (_settings == null || _serialized == null || _serialized.targetObject == null) Bind();
             if (_serialized == null)
             {
-                EditorGUILayout.HelpBox($"No settings asset yet. Leave Play mode to make {BenchmarkSettingsSO.AssetPath}.", MessageType.Info);
+                WindowStyle.Status($"No settings asset yet. Leave Play mode to make {BenchmarkSettingsSO.AssetPath}.");
                 return;
             }
 
             _serialized.Update();
 
             DrawTop();
-            EditorGUILayout.Space(6);
-            _tab = GUILayout.Toolbar(_tab, Tabs, GUILayout.Height(24));
-            EditorGUILayout.Space(6);
+            _tab = WindowStyle.Tabs(_tab, Tabs);
 
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
             if (_tab == 0) DrawHeroBenchmark();
@@ -86,15 +84,15 @@ namespace MagicSchool.Editor
         // =================================== top ===================================
         private void DrawTop()
         {
-            EditorGUILayout.HelpBox("Hover a setting to read what it does. A run uses these from the moment it starts; " +
-                                    "reports are imported into the MagicSchool4 Benchmark sheet when it ends.", MessageType.None);
+            WindowStyle.Intro("Set up and run the balance benchmarks. Hover a setting to read what it does; a run uses these from " +
+                              "the moment it starts, and its report goes into the MagicSchool4 Benchmark sheet when it ends.");
 
             using (new EditorGUILayout.HorizontalScope())
             {
                 using (new EditorGUI.DisabledScope(true))
                     EditorGUILayout.ObjectField("Settings asset", _settings, typeof(BenchmarkSettingsSO), false);
 
-                if (GUILayout.Button(new GUIContent("Reset to defaults", "Put every setting back to the value it ships with."), GUILayout.Width(120))
+                if (WindowStyle.RowButton(new GUIContent("Reset to defaults", "Put every setting back to the value it ships with."), 120f)
                     && EditorUtility.DisplayDialog("Reset benchmark settings", "Put every benchmark setting back to its default?", "Reset", "Cancel"))
                 {
                     var defaults = CreateInstance<BenchmarkSettingsSO>();
@@ -191,7 +189,7 @@ namespace MagicSchool.Editor
         // the tab already names it: only what it does
         private static void Section(string title, string about)
         {
-            EditorGUILayout.LabelField(about, EditorStyles.wordWrappedMiniLabel);
+            WindowStyle.Hint(about);
             EditorGUILayout.Space(2);
         }
 
@@ -203,17 +201,17 @@ namespace MagicSchool.Editor
             using (new EditorGUI.DisabledScope(busy))
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button(new GUIContent(all, allTip), GUILayout.Height(26))) runAll();
+                if (WindowStyle.Action(new GUIContent(all, allTip))) runAll();
                 using (new EditorGUI.DisabledScope(!canRunSome))
-                    if (GUILayout.Button(new GUIContent(some, someTip), GUILayout.Height(26), GUILayout.Width(150))) runSome();
+                    if (WindowStyle.Action(new GUIContent(some, someTip), GUILayout.Width(150))) runSome();
             }
-            if (busy) EditorGUILayout.LabelField("Running (or in Play mode) - the buttons come back once it is done.", EditorStyles.miniLabel);
+            if (busy) WindowStyle.Hint("Running (or in Play mode) - the buttons come back once it is done.");
         }
 
         // how many entries GameManager has in one of its lists, read off the scene - Editor cannot reach its internals
         private static int ArraySize(string field)
         {
-            var game = Object.FindFirstObjectByType<GameManager>();
+            var game = Object.FindAnyObjectByType<GameManager>();
             if (game == null) return 0;
 
             SerializedProperty list = new SerializedObject(game).FindProperty(field);

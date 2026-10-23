@@ -39,6 +39,12 @@ namespace MagicSchool.Core
         // ======================================== getter ========================================
         public BattlePlacementSO CurrentStage => _game.GetStage(_game.StageIndex);
         public bool CanEditNow => _game.Phase == GamePhaseEnum.Preparation;
+        public int EnemyCountOnBoard => _game.Board.CountTeamOnBoard(EnemyTeam);
+
+        // On: clicking an empty hex puts it in or out of the deploy zone, and a save writes the zone.
+        // Off: clicks paint nothing, and saving to an existing stage keeps the zone it has (See StageEditorMenu).
+        // Set from the Stage Editor window.
+        public bool EditsDeployZone { get; set; } = true;
 
         // ======================================== add ========================================
         // put a new enemy on the first free enemy hex
@@ -92,7 +98,7 @@ namespace MagicSchool.Core
         // Toggle hex into deploy zone
         public bool TryToggleDeployHex(Hex hex)
         {
-            if (hex == null || !CanEditNow) return false;
+            if (hex == null || !CanEditNow || !EditsDeployZone) return false;
             if (_game.Board.WhoReservedThisHex(hex) != null) return false;
 
             _game.Board.DeployZone.Toggle(hex);

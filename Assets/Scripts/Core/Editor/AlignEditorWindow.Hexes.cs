@@ -34,9 +34,9 @@ namespace MagicSchool.Editor
 
         private void DrawHexes(SerializedProperty marks)
         {
-            EditorGUILayout.LabelField("Click a hex to give it to the selected mark. Click it again to take it away. A hex can be in more than one mark: it is drawn in rings, one colour each.", EditorStyles.wordWrappedMiniLabel);
-            EditorGUILayout.LabelField("Right-click a marked hex to make it a wearing hex: an item lying there, or the item of an ally standing there, is worn by the hero. Right-click again to undo.", EditorStyles.wordWrappedMiniLabel);
-            EditorGUILayout.LabelField("The enemy is to the right.", EditorStyles.wordWrappedMiniLabel);
+            WindowStyle.Hint("Click a hex to give it to the selected mark. Click it again to take it away. A hex can be in more than one mark: it is drawn in rings, one colour each.");
+            WindowStyle.Hint("Right-click a marked hex to make it a wearing hex: an item lying there, or the item of an ally standing there, is worn by the hero. Right-click again to undo.");
+            WindowStyle.Hint("The enemy is to the right.");
 
             // the grid is about 600 pixels square at reach 6: scroll when the window is smaller than that
             _hexScroll = EditorGUILayout.BeginScrollView(_hexScroll);

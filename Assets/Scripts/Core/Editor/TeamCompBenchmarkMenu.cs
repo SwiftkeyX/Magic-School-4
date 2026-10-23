@@ -7,7 +7,7 @@ using MagicSchool.Core.Benchmark;
 
 namespace MagicSchool.Editor
 {
-    // Magic School 4 > Balance > Run Team Comp Benchmark
+    // Team Comp Benchmark - run from the Benchmark window (Magic School 4 > Benchmark), which calls RunAll / RunSelected
     // every team comp vs every campaign stage, using TeamCompBenchmark.cs
     //      Run Team Comp Benchmark              - every comp in Data/BattleSetups/Team Comps/
     //      Run Team Comp Benchmark (Selected)   - only the comps selected in the Project window
@@ -22,14 +22,11 @@ namespace MagicSchool.Editor
             EditorApplication.playModeStateChanged += OnPlayModeChanged;
         }
 
-        [MenuItem("Magic School 4/Balance/Run Team Comp Benchmark")]
         internal static void RunAll() => Request(AllCompGuids());
 
-        [MenuItem("Magic School 4/Balance/Run Team Comp Benchmark (Selected)")]
         internal static void RunSelected() => Request(SelectedCompGuids());
 
         // greyed out until at least one comp is selected
-        [MenuItem("Magic School 4/Balance/Run Team Comp Benchmark (Selected)", true)]
         internal static bool CanRunSelected() => SelectedCompGuids().Any();
 
         private static IEnumerable<string> AllCompGuids()

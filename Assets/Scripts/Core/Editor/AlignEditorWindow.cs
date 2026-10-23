@@ -95,6 +95,8 @@ namespace MagicSchool.Editor
             // the asset was deleted while the window was open
             if (_hero == null) _serializedHero = null;
 
+            WindowStyle.Intro("Edit a hero's align marks by clicking the hexes around it. Orange pays the hero, green pays the ally " +
+                              "standing there; each pattern is one way the hero can be turned.");
             EditorGUILayout.BeginHorizontal();
             DrawHeroList();
             DrawHero();
@@ -105,7 +107,7 @@ namespace MagicSchool.Editor
         {
             if (_serializedHero == null)
             {
-                EditorGUILayout.HelpBox("Pick a hero on the left, or select a HeroDataSO in the Project window.", MessageType.Info);
+                WindowStyle.Status("Pick a hero on the left, or select a HeroDataSO in the Project window.");
                 return;
             }
 
@@ -144,7 +146,8 @@ namespace MagicSchool.Editor
             // Play mode only: get this hero onto the bench without rolling the shop for it
             using (new EditorGUI.DisabledScope(!AddHeroMenu.CanAdd))
             {
-                if (GUILayout.Button("Add to bench", EditorStyles.miniButton, GUILayout.Width(90f))) AddHeroMenu.Add(_hero);
+                if (WindowStyle.RowButton(new GUIContent("Add to bench", "Play mode: put this hero on the bench for free."), 90f))
+                    AddHeroMenu.Add(_hero);
             }
 
             EditorGUILayout.EndHorizontal();
@@ -153,10 +156,10 @@ namespace MagicSchool.Editor
         // ---------------------------------------- left: the heroes ----------------------------------------
         private void DrawHeroList()
         {
-            EditorGUILayout.BeginVertical(GUILayout.Width(170f));
+            EditorGUILayout.BeginVertical(GUILayout.Width(WindowStyle.Sidebar));
 
             // type part of a name to narrow the list, in any letter case
-            _heroSearch = EditorGUILayout.TextField(_heroSearch, EditorStyles.toolbarSearchField);
+            _heroSearch = WindowStyle.Search(_heroSearch);
 
             _heroScroll = EditorGUILayout.BeginScrollView(_heroScroll);
 
@@ -165,10 +168,10 @@ namespace MagicSchool.Editor
             {
                 isAnyShown = true;
                 bool isEdited = hero == _hero;
-                if (GUILayout.Toggle(isEdited, hero.name, EditorStyles.miniButton) && !isEdited) Edit(hero);
+                if (WindowStyle.ListItem(isEdited, hero.name)) Edit(hero);
             }
 
-            if (!isAnyShown) EditorGUILayout.LabelField("No hero by that name.", EditorStyles.miniLabel);
+            if (!isAnyShown) WindowStyle.Hint("No hero by that name.");
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();

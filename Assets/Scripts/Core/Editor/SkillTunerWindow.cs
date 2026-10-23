@@ -141,6 +141,8 @@ namespace MagicSchool.Editor
         // ======================================== draw ========================================
         private void OnGUI()
         {
+            WindowStyle.Intro("Change a skill's numbers while the game runs, then write the ones worth keeping back into its " +
+                              "script. A changed skill is marked * in the list.");
             EditorGUILayout.BeginHorizontal();
             DrawSkillList();
             DrawSkill();
@@ -149,8 +151,8 @@ namespace MagicSchool.Editor
 
         private void DrawSkillList()
         {
-            EditorGUILayout.BeginVertical(GUILayout.Width(180f));
-            _search = EditorGUILayout.TextField(_search, EditorStyles.toolbarSearchField);
+            EditorGUILayout.BeginVertical(GUILayout.Width(WindowStyle.Sidebar));
+            _search = WindowStyle.Search(_search);
 
             _skillScroll = EditorGUILayout.BeginScrollView(_skillScroll);
             foreach (string skill in _skills)
@@ -159,8 +161,7 @@ namespace MagicSchool.Editor
 
                 // a skill with changed numbers is marked, so nothing unsaved is forgotten
                 string label = skill.Replace("Skill", "") + (HasChanges(skill) ? "  *" : "");
-                bool picked = GUILayout.Toggle(skill == _selectedSkill, label, EditorStyles.toolbarButton);
-                if (picked && skill != _selectedSkill)
+                if (WindowStyle.ListItem(skill == _selectedSkill, label))
                 {
                     _selectedSkill = skill;
                     GUI.FocusControl(null);
@@ -168,11 +169,12 @@ namespace MagicSchool.Editor
             }
             EditorGUILayout.EndScrollView();
 
-            EditorGUILayout.Space();
+            EditorGUILayout.Space(WindowStyle.Gap);
             using (new EditorGUI.DisabledScope(_changes.Count == 0))
             {
-                if (GUILayout.Button($"Write all to code ({_changes.Count})")) WriteToCode(_changes.ToList());
-                if (GUILayout.Button("Revert all")) Revert(SkillTuning.All);
+                if (WindowStyle.Action(new GUIContent($"Write all to code ({_changes.Count})", "Put every changed number into its skill's script.")))
+                    WriteToCode(_changes.ToList());
+                if (WindowStyle.Action(new GUIContent("Revert all", "Put every number back to what its script says."))) Revert(SkillTuning.All);
             }
             EditorGUILayout.EndVertical();
         }
@@ -183,7 +185,7 @@ namespace MagicSchool.Editor
 
             if (string.IsNullOrEmpty(_selectedSkill) || !_skills.Contains(_selectedSkill))
             {
-                EditorGUILayout.HelpBox("Pick a skill on the left, or select a HeroDataSO in the Project window.", MessageType.Info);
+                WindowStyle.Status("Pick a skill on the left, or select a HeroDataSO in the Project window.");
                 EditorGUILayout.EndVertical();
                 return;
             }
@@ -191,24 +193,23 @@ namespace MagicSchool.Editor
             List<SkillTuning.Number> numbers = SkillTuning.All.Where(number => number.Skill == _selectedSkill).ToList();
 
             EditorGUILayout.LabelField($"{_selectedSkill.Replace("Skill", "")} - {SkillNameOf(_selectedSkill)}", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox(Application.isPlaying
+            WindowStyle.Hint(Application.isPlaying
                 ? "A change takes effect at the next fight start (space bar). The description follows it now."
-                : "Not playing: a change takes effect from the next Play.", MessageType.None);
+                : "Not playing: a change takes effect from the next Play.");
 
             _numberScroll = EditorGUILayout.BeginScrollView(_numberScroll);
             foreach (SkillTuning.Number number in numbers) DrawNumber(number);
 
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Description", EditorStyles.miniBoldLabel);
+            WindowStyle.Section("Description");
             EditorGUILayout.HelpBox(DescriptionOf(_selectedSkill), MessageType.None);
             EditorGUILayout.EndScrollView();
 
             EditorGUILayout.BeginHorizontal();
             using (new EditorGUI.DisabledScope(!HasChanges(_selectedSkill)))
             {
-                if (GUILayout.Button("Write to code"))
+                if (WindowStyle.Action(new GUIContent("Write to code", "Put this skill's changed numbers into its script.")))
                     WriteToCode(_changes.Where(change => change.Key.StartsWith(_selectedSkill + ".")).ToList());
-                if (GUILayout.Button("Revert")) Revert(numbers);
+                if (WindowStyle.Action(new GUIContent("Revert", "Put this skill's numbers back to what its script says."))) Revert(numbers);
             }
             EditorGUILayout.EndHorizontal();
 
@@ -234,7 +235,7 @@ namespace MagicSchool.Editor
 
             using (new EditorGUI.DisabledScope(!changed))
             {
-                if (GUILayout.Button("Reset", EditorStyles.miniButton, GUILayout.Width(50f))) SetValue(number, number.Default);
+                if (WindowStyle.RowButton(new GUIContent("Reset", "Back to the value in the code."))) SetValue(number, number.Default);
             }
 
             EditorGUILayout.EndHorizontal();

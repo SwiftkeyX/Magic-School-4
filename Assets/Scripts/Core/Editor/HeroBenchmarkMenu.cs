@@ -7,7 +7,7 @@ using MagicSchool.Core.Benchmark;
 
 namespace MagicSchool.Editor
 {
-    // Magic School 4 > Balance > Run Hero Benchmark
+    // Hero Benchmark - run from the Benchmark window (Magic School 4 > Benchmark), which calls RunAll / RunSelected
     // a menu to test how strong each hero was using HeroBenchMark.cs
     //      Run Hero Benchmark              - test every hero
     //      Run Hero Benchmark (Selected)   - test only a hero which his HeroDataSOs selected in the Project window
@@ -23,14 +23,11 @@ namespace MagicSchool.Editor
             EditorApplication.playModeStateChanged += OnPlayModeChanged;
         }
 
-        [MenuItem("Magic School 4/Balance/Run Hero Benchmark")]
         internal static void RunAll() => Request(string.Empty);
 
-        [MenuItem("Magic School 4/Balance/Run Hero Benchmark (Selected)")]
         internal static void RunSelected() => Request(string.Join(";", SelectedHeroGuids()));
 
         // greyed out until at least one hero is selected
-        [MenuItem("Magic School 4/Balance/Run Hero Benchmark (Selected)", true)]
         internal static bool CanRunSelected() => SelectedHeroGuids().Any();
 
         private static IEnumerable<string> SelectedHeroGuids()

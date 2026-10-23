@@ -39,12 +39,11 @@ namespace MagicSchool.Editor
 
             // what the inspector panel in the game will say, once these edits are applied
             _serializedHero.ApplyModifiedProperties();
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField($"In the game's inspector (pattern {_selectedPattern + 1})", EditorStyles.boldLabel);
+            WindowStyle.Section($"In the game's inspector (pattern {_selectedPattern + 1})");
             EditorGUILayout.LabelField(AlignText.Describe(_hero.AlignMarksOf(_selectedPattern)), EditorStyles.wordWrappedLabel);
 
-            EditorGUILayout.Space();
-            if (GUILayout.Button("Save")) AssetDatabase.SaveAssetIfDirty(_hero);
+            EditorGUILayout.Space(WindowStyle.Gap);
+            if (WindowStyle.Action(new GUIContent("Save", "Write this hero's marks to its asset."))) AssetDatabase.SaveAssetIfDirty(_hero);
 
             EditorGUILayout.EndScrollView();
         }
@@ -67,24 +66,24 @@ namespace MagicSchool.Editor
             string title = $"{TitleOf(marks, index)} - {hexCount} hex" + (hexCount == 1 ? "" : "es");
             if (GUILayout.Toggle(_selectedMark == index, title, EditorStyles.radioButton)) _selectedMark = index;
 
-            bool isRemoved = isStale && GUILayout.Button("Remove", EditorStyles.miniButton, GUILayout.Width(60f));
+            bool isRemoved = isStale && WindowStyle.RowButton("Remove", 60f);
             EditorGUILayout.EndHorizontal();
 
             switch (index)
             {
                 case OrangeMark:
-                    EditorGUILayout.LabelField("Pays the hero itself, for every ally standing on one of these hexes. The same in every pattern.", EditorStyles.wordWrappedMiniLabel);
+                    WindowStyle.Hint("Pays the hero itself, for every ally standing on one of these hexes. The same in every pattern.");
                     DrawBonusFields(mark, index, OrangeFields);
                     break;
 
                 case GreenMark:
-                    EditorGUILayout.LabelField("Pays the ally standing on one of these hexes. The same in every pattern.", EditorStyles.wordWrappedMiniLabel);
+                    WindowStyle.Hint("Pays the ally standing on one of these hexes. The same in every pattern.");
                     DrawBonusFields(mark, index, GreenFields);
                     break;
 
                 default:
                     if (isStale) EditorGUILayout.HelpBox("The skill no longer reads this mark.", MessageType.Warning);
-                    else if (isSpecial) EditorGUILayout.LabelField("The skill reads who stands here. It pays nobody.", EditorStyles.wordWrappedMiniLabel);
+                    else if (isSpecial) WindowStyle.Hint("The skill reads who stands here. It pays nobody.");
                     else EditorGUILayout.HelpBox("A third ordinary mark does nothing: only orange and green pay.", MessageType.Warning);
                     break;
             }
