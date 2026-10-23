@@ -11,7 +11,7 @@ namespace MagicSchool.Contracts
         ATK = 1,
         DF = 2,
         AP = 3,
-        MR = 4,
+        // 4 was MR (magic resist), removed: DF resists every damage. Do not reuse 4.
         AS = 5,
         Range = 6,
         StartMana = 7,

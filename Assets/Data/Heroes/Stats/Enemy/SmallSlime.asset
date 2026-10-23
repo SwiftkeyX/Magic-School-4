@@ -20,7 +20,6 @@ MonoBehaviour:
   _attack: 20
   _defend: 10
   _magic: 100
-  _magicResist: 20
   _attackSpeed: 0.7
   _range: 1
   _startMana: 0
@@ -28,4 +27,5 @@ MonoBehaviour:
   _critChance: 25
   _skillId: 0
   _spawnUnit: {fileID: 0}
+  _alignPatterns: []
   _isDummy: 0

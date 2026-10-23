@@ -46,7 +46,6 @@ namespace MagicSchool.Combat.Heroes
         public int AttackDamage => _stat.Atk;
         public int Defence => _stat.DF;
         public int Magic => _stat.MG;
-        public int MagicResist => _stat.MR;
         public float AttackSpeed => _stat.AttackSpeed;
         public int Range => _stat.Range;
     }

@@ -14,14 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroStat
   _prefab: {fileID: 7614285265030417655, guid: 76f7c7b9f77b48f4c991492a68c07094, type: 3}
   _name: Tank
+  _tier: 0
+  _role: 0
   _hp: 900
   _attack: 25
   _defend: 50
   _magic: 60
-  _magicResist: 50
   _attackSpeed: 0.5
   _range: 1
   _startMana: 0
   _maxMana: 60
-  _skill: {fileID: 0}
+  _critChance: 25
+  _skillId: 0
+  _spawnUnit: {fileID: 0}
+  _alignPatterns: []
   _isDummy: 0

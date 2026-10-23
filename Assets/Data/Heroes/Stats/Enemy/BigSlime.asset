@@ -20,7 +20,6 @@ MonoBehaviour:
   _attack: 45
   _defend: 40
   _magic: 100
-  _magicResist: 40
   _attackSpeed: 0.6
   _range: 1
   _startMana: 30
@@ -28,4 +27,5 @@ MonoBehaviour:
   _critChance: 25
   _skillId: 40
   _spawnUnit: {fileID: 11400000, guid: 149c91b73156a8144bf4597344bc6186, type: 2}
+  _alignPatterns: []
   _isDummy: 0

@@ -4,7 +4,7 @@ namespace MagicSchool.Combat.Heroes
 {
     /// <summary>
     /// A hero's star level (TFT's upgrade): two copies of a hero at the same star combine into one, a star higher.
-    /// Each star multiplies the base stats it changes; everything else (DF, MR, attack speed, mana, range) stays.
+    /// Each star multiplies the base stats it changes; everything else (DF, attack speed, mana, range) stays.
     /// e.g.    1 star  => 100% HP, 100% AD, 100% AP      (1 copy)
     ///         2 star  => 180% HP, 150% AD, 150% AP      (2 copies)
     ///         3 star  => 324% HP, 225% AD, 225% AP      (4 copies)

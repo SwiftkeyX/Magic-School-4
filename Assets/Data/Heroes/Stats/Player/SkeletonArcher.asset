@@ -20,7 +20,6 @@ MonoBehaviour:
   _attack: 55
   _defend: 15
   _magic: 100
-  _magicResist: 15
   _attackSpeed: 0.75
   _range: 4
   _startMana: 0

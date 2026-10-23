@@ -37,7 +37,6 @@ namespace MagicSchool.Combat.Heroes.Stats
         public int Atk => Mathf.RoundToInt(GetFinalStat(StatEnum.ATK));
         public int DF => Mathf.RoundToInt(GetFinalStat(StatEnum.DF));
         public int MG => Mathf.RoundToInt(GetFinalStat(StatEnum.AP));
-        public int MR => Mathf.RoundToInt(GetFinalStat(StatEnum.MR));
         public float AttackSpeed => GetFinalStat(StatEnum.AS);
         public int Range => Mathf.RoundToInt(GetFinalStat(StatEnum.Range));
         public int StartMana => Mathf.RoundToInt(GetFinalStat(StatEnum.StartMana));
@@ -140,7 +139,6 @@ namespace MagicSchool.Combat.Heroes.Stats
             _base[StatEnum.ATK] = so.Atk * HeroStar.AtkMultiplier(star);
             _base[StatEnum.DF] = so.DF;
             _base[StatEnum.AP] = so.MG * HeroStar.ApMultiplier(star);
-            _base[StatEnum.MR] = so.MR;
             _base[StatEnum.AS] = so.AttackSpeed;
             _base[StatEnum.Range] = so.Range;
             _base[StatEnum.StartMana] = so.StartMana;

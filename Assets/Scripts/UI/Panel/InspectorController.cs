@@ -12,7 +12,7 @@ namespace MagicSchool.UI
         private Label _hpLabel, _manaLabel;
         private VisualElement _hpBar, _manaBar, _statGrid;
         private VisualElement _hpFill, _manaFill;
-        private Label _statAtk, _statDef, _statMag, _statMr, _statAs, _statRange;
+        private Label _statAtk, _statDef, _statMag, _statAs, _statRange;
         private VisualElement _activeSection, _passiveSection, _alignSection, _itemSection;
         private Label _activeName, _activeBody, _passiveBody, _alignBody, _itemBody;
         private IInspectable _shown;
@@ -83,7 +83,6 @@ namespace MagicSchool.UI
             _statAtk = Panel.Q<Label>("StatAtk");
             _statDef = Panel.Q<Label>("StatDef");
             _statMag = Panel.Q<Label>("StatMag");
-            _statMr = Panel.Q<Label>("StatMr");
             _statAs = Panel.Q<Label>("StatAs");
             _statRange = Panel.Q<Label>("StatRange");
 
@@ -185,7 +184,6 @@ namespace MagicSchool.UI
             _statAtk.text = hero.AttackDamage.ToString();
             _statDef.text = hero.Defence.ToString();
             _statMag.text = hero.Magic.ToString();
-            _statMr.text = hero.MagicResist.ToString();
             _statAs.text = hero.AttackSpeed.ToString("0.00");
             _statRange.text = hero.Range.ToString();
 

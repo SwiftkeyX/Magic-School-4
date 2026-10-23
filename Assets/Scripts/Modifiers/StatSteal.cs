@@ -14,7 +14,6 @@ namespace MagicSchool.Modifiers
             { StatEnum.ATK  , ModifierEnum.ATK     },
             { StatEnum.DF   , ModifierEnum.DF      },
             { StatEnum.AP   , ModifierEnum.AP      },
-            { StatEnum.MR   , ModifierEnum.MR      },
             { StatEnum.AS   , ModifierEnum.AS      },
         };
 

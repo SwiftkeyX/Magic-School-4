@@ -86,7 +86,6 @@ namespace MagicSchool.Combat.Align
                 case ModifierEnum.ATK: return $"{signed} AD";
                 case ModifierEnum.AP: return $"{signed} AP";
                 case ModifierEnum.DF: return $"{signed} DF";
-                case ModifierEnum.MR: return $"{signed} MR";
                 case ModifierEnum.BonusHP: return $"{signed} max HP";
                 case ModifierEnum.StartMana: return $"{signed} starting mana";
                 case ModifierEnum.ManaPerAttack: return $"{signed} mana per attack";

@@ -14,14 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroDataSO
   _prefab: {fileID: 5029841814190115204, guid: b5c9c6ca5f97cc8499f5ca66ebc44fce, type: 3}
   _name: Hero A
+  _tier: 0
+  _role: 0
   _hp: 2000
   _attack: 40
   _defend: 20
   _magic: 100
-  _magicResist: 20
   _attackSpeed: 0.7
   _range: 1
   _startMana: 0
   _maxMana: 50
-  _skill: {fileID: 0}
+  _critChance: 25
+  _skillId: 0
+  _spawnUnit: {fileID: 0}
+  _alignPatterns: []
   _isDummy: 0

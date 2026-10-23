@@ -7,7 +7,7 @@ namespace MagicSchool.Skills
 {
     internal class HuskSkill : SkillDefinition
     {
-        private static readonly StatEnum[] StolenStats = { StatEnum.MaxHP, StatEnum.DF, StatEnum.MR };
+        private static readonly StatEnum[] StolenStats = { StatEnum.MaxHP, StatEnum.DF };
         private static float StealPercent => Tuned(10f);
 
         // the allies standing on this mark feed him (See AlignMark)
@@ -28,11 +28,11 @@ namespace MagicSchool.Skills
         public override string SkillName => "Siphon Flesh";
 
         public override string Description
-            => $"Steals {StealPercent}% of the HP, DF and MR of {EnemyCount} random enemies, plus 1 for every ally "
+            => $"Steals {StealPercent}% of the HP and DF of {EnemyCount} random enemies, plus 1 for every ally "
              + $"on his {SiphonMark} mark, for {StealDuration} seconds. Stacks with every cast.";
 
         public override string PassiveDescription
-            => $"When combat starts, every ally on his {SiphonMark} mark gives up {StealPercent}% of their HP, DF and MR "
+            => $"When combat starts, every ally on his {SiphonMark} mark gives up {StealPercent}% of their HP and DF "
              + "to him for the rest of the fight.";
 
         // the allies on his Siphon mark (See IAligned); none for a hero not aligned, e.g. an enemy

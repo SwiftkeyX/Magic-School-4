@@ -14,7 +14,6 @@ namespace MagicSchool.Contracts
         int AttackDamage { get; }
         int Defence { get; }
         int Magic { get; }
-        int MagicResist { get; }
         float AttackSpeed { get; }
         int Range { get; }
     }

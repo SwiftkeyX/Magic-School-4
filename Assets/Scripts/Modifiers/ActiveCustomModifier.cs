@@ -39,7 +39,6 @@ namespace MagicSchool.Modifiers
             { ModifierEnum.AP             , StatEnum.AP }             ,
             { ModifierEnum.Range          , StatEnum.Range }          ,
             { ModifierEnum.StartMana      , StatEnum.StartMana }      ,
-            { ModifierEnum.MR             , StatEnum.MR }             ,
             { ModifierEnum.CritChance     , StatEnum.CritChance }     ,
             { ModifierEnum.Omnivamp       , StatEnum.Omnivamp }       ,
             { ModifierEnum.ManaPerAttack  , StatEnum.ManaPerAttack }  ,

@@ -14,7 +14,7 @@ namespace MagicSchool.Contracts
         Omnivamp = 9,
         Range = 14,
         StartMana = 15,
-        MR = 16,
+        // 16 was MR (magic resist), removed. Do not reuse 16.
         Shield = 17,
         CritChance = 18,
         ManaPerAttack = 20,

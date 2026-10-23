@@ -43,10 +43,6 @@
                     <ui:Label name="StatMag" text="40" class="stat__value"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="stat">
-                    <ui:Label text="MR" class="stat__key"/>
-                    <ui:Label name="StatMr" text="20" class="stat__value"/>
-                </ui:VisualElement>
-                <ui:VisualElement class="stat">
                     <ui:Label text="AS" class="stat__key"/>
                     <ui:Label name="StatAs" text="1.00" class="stat__value"/>
                 </ui:VisualElement>
