@@ -129,8 +129,12 @@ namespace MagicSchool.Core
         }
 
         // Dev tool: put a hero on the bench for free, skipping the shop. False when the bench is full.
-        // (See Magic School 4 > Add Selected Heroes To Bench)
+        // (See the Stage Editor window's Player tab)
         public bool AddHeroToBench(HeroDataSO data) => data != null && _bench.SpawnHeroOnBench(data);
+
+        // Dev tool: drop an item on the loose row for free, where a bought one lands (See ItemDrop).
+        // Typed ScriptableObject because Editor does not reference Items; false when it is not an ItemDataSO.
+        public bool AddItemToLooseRow(ScriptableObject data) => data is ItemDataSO item && ItemDrop.Spawn(item) != null;
 
         // Lay an item on a hex, or take it off again. A hero may wear an item lying on one of its
         // wearing hexes, so both are a reason to work the aligning bonuses out again.

@@ -8,6 +8,7 @@ namespace MagicSchool.Editor
     // set of tools. A window draws its common pieces through these rather than picking its own sizes and styles:
     //      Intro       - the grey line at the top saying what the window does
     //      Tabs        - the row of tabs under it
+    //      SubTabs     - a smaller row of tabs inside one tab
     //      Search      - a toolbar search field, no label
     //      Section     - a bold heading inside a window or a tab
     //      Hint        - a small grey note under something
@@ -22,6 +23,7 @@ namespace MagicSchool.Editor
         public const float ActionHeight = 24f;
         public const float RowButtonWidth = 56f;
         public const float Gap = 6f;
+        public const float SubTabIndent = 12f;
 
         private static GUIStyle _listItem;
 
@@ -34,6 +36,19 @@ namespace MagicSchool.Editor
         public static int Tabs(int selected, GUIContent[] tabs)
         {
             int picked = GUILayout.Toolbar(selected, tabs, GUILayout.Height(ActionHeight));
+            EditorGUILayout.Space(Gap);
+            return picked;
+        }
+
+        // a second, smaller row under a tab that has parts of its own, set in so it reads as belonging to that tab
+        public static int SubTabs(int selected, GUIContent[] tabs)
+        {
+            int picked;
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Space(SubTabIndent);
+                picked = GUILayout.Toolbar(selected, tabs, EditorStyles.toolbarButton);
+            }
             EditorGUILayout.Space(Gap);
             return picked;
         }

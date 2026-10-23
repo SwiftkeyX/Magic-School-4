@@ -17,6 +17,7 @@ namespace MagicSchool.Editor
         private const string EnemyFolder = "Assets/Data/Heroes/Stats/Enemy";
         private const string ShopHeroFolder = "Assets/Data/Heroes/Stats/Player";
         private const string TeamCompFolder = "Assets/Data/BattleSetups/Team Comps";
+        private const string ItemFolder = "Assets/Data/Items";
 
         // remembered by the window and pushed into StageEditor.EditsDeployZone, which a new Play session starts on
         [SerializeField] private bool _editDeployZone = true;
@@ -25,17 +26,27 @@ namespace MagicSchool.Editor
         [SerializeField] private int _allLevel = HeroLevel.Min;
         [SerializeField] private string _search = "";
         [SerializeField] private int _tab;      // kept by the window, so it reopens on the same tab
+        [SerializeField] private int _playerTab;  // the Player tab's own part: team comps, bench, items
         private Vector2 _scroll;
 
         private static readonly GUIContent[] Tabs =
         {
             new GUIContent("Enemy", "Add enemies, choose whether clicks paint the deploy zone, save the stage."),
-            new GUIContent("Player", "Load a saved team comp onto the board or save the team on it - and put any hero on the bench."),
+            new GUIContent("Player", "Load a saved team comp onto the board or save the team on it - and put any hero on the bench " +
+                                     "or any item on the loose row."),
+        };
+
+        private static readonly GUIContent[] PlayerTabs =
+        {
+            new GUIContent("Team Comp", "Load a saved team comp onto the board, or save the team on it."),
+            new GUIContent("Bench", "Put any hero on your bench, for free (Play mode)."),
+            new GUIContent("Item", "Put any item on the loose row, for free (Play mode)."),
         };
 
         // the assets listed, found again whenever the project changes
         private List<(HeroDataSO hero, string label)> _enemies, _shopHeroes;
         private List<BattlePlacementSO> _comps;
+        private List<(ScriptableObject item, string name, string label)> _items;     // ItemDataSOs, typed by what Editor can name
 
         [MenuItem("Magic School 4/Stage Editor")]
         private static void Open() => GetWindow<StageEditorWindow>("Stage Editor");
@@ -59,12 +70,15 @@ namespace MagicSchool.Editor
             DrawStatus(editor);
             EditorGUILayout.Space(WindowStyle.Gap);
             _tab = WindowStyle.Tabs(_tab, Tabs);
+            if (_tab == 1) _playerTab = WindowStyle.SubTabs(_playerTab, PlayerTabs);
             _search = WindowStyle.Search(_search);
             EditorGUILayout.Space(WindowStyle.Gap);
 
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
             if (_tab == 0) DrawEnemyTeam(editor);
-            else DrawPlayerTeam(editor);
+            else if (_playerTab == 1) DrawBench();
+            else if (_playerTab == 2) DrawItems();
+            else DrawTeamComps(editor);
             EditorGUILayout.EndScrollView();
         }
 
@@ -224,11 +238,10 @@ namespace MagicSchool.Editor
         }
 
         // =================================== player team ===================================
-        private void DrawPlayerTeam(StageEditor editor)
+        private void DrawTeamComps(StageEditor editor)
         {
             bool ready = WhyNot(editor) == null;
 
-            WindowStyle.Section("Team comps");
             var comps = (_comps ?? new List<BattlePlacementSO>()).Where(c => c != null && Matches(c.name)).ToList();
             if (comps.Count == 0)
                 WindowStyle.Hint(_comps == null || _comps.Count == 0 ? $"No team comp in {TeamCompFolder} yet." : "Nothing matches the search.");
@@ -260,14 +273,42 @@ namespace MagicSchool.Editor
                                                                                "items on hexes into a team comp.")))
                     StageEditorMenu.SavePlayerTeam();
             }
+        }
 
-            DrawBench();
+        // any item onto the loose row for free, where a bought one lands - Play mode only (See AddHeroMenu.AddItem)
+        private void DrawItems()
+        {
+            bool canDrop = AddHeroMenu.CanAdd;
+            if (!canDrop) WindowStyle.Hint("In Play mode, a Drop button puts that item on the loose row for free - no shop roll needed.");
+
+            var shown = (_items ?? new List<(ScriptableObject, string, string)>())
+                .Where(entry => entry.item != null && (Matches(entry.name) || Matches(entry.item.name))).ToList();
+            if (shown.Count == 0)
+            {
+                WindowStyle.Hint(_items == null || _items.Count == 0 ? $"No item in {ItemFolder}." : "Nothing matches the search.");
+                return;
+            }
+
+            foreach ((ScriptableObject item, string name, string label) in shown)
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField(new GUIContent(name, AssetDatabase.GetAssetPath(item)), GUILayout.MinWidth(110));
+                    EditorGUILayout.LabelField(label, EditorStyles.miniLabel, GUILayout.Width(120));
+                    using (new EditorGUI.DisabledScope(!canDrop))
+                    {
+                        if (WindowStyle.RowButton(new GUIContent("Drop", $"Put {name} on the loose row, for free (Play mode).")))
+                            AddHeroMenu.AddItem(item);
+                    }
+                    if (WindowStyle.RowButton(new GUIContent("Select", "Show it in the Project window.")))
+                        Reveal(item);
+                }
+            }
         }
 
         // any hero onto the bench for free - Play mode only, Stage Edit Mode not needed (See AddHeroMenu)
         private void DrawBench()
         {
-            WindowStyle.Section("Add to bench");
             bool canBench = AddHeroMenu.CanAdd;
             if (!canBench) WindowStyle.Hint("In Play mode, a Bench button puts that hero on your bench for free - no shop roll needed.");
 
@@ -291,6 +332,7 @@ namespace MagicSchool.Editor
                 .Where(comp => comp != null)
                 .OrderBy(comp => comp.name)
                 .ToList();
+            _items = ItemsIn(ItemFolder);
             Repaint();
         }
 
@@ -304,6 +346,25 @@ namespace MagicSchool.Editor
                 .Where(hero => hero != null)
                 .Select(hero => (hero, Describe(hero)))
                 .OrderBy(entry => entry.hero.Name)
+                .ToList();
+        }
+
+        // each item with its name and price, read off the asset - Editor cannot name ItemDataSO (it is in Items)
+        private static List<(ScriptableObject, string, string)> ItemsIn(string folder)
+        {
+            if (!AssetDatabase.IsValidFolder(folder)) return new List<(ScriptableObject, string, string)>();
+
+            return AssetDatabase.FindAssets("t:ItemDataSO", new[] { folder })
+                .Select(guid => AssetDatabase.LoadAssetAtPath<ScriptableObject>(AssetDatabase.GUIDToAssetPath(guid)))
+                .Where(item => item != null)
+                .Select(item =>
+                {
+                    var serialized = new SerializedObject(item);
+                    string name = serialized.FindProperty("_name")?.stringValue;
+                    SerializedProperty price = serialized.FindProperty("_price");
+                    return (item, string.IsNullOrEmpty(name) ? item.name : name, price != null ? $"{price.intValue} gold" : "");
+                })
+                .OrderBy(entry => entry.Item2)
                 .ToList();
         }
 
