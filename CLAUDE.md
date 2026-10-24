@@ -124,7 +124,7 @@ Rules that aren't visible from any single file:
   skill, which picks a `TemplateAction` (projectile / AoE / move / cast) - or several that start
   together, `Together(a, b)`, where the first one leads. Nothing follows `onHit` / `onExpired`;
   anything further is played from a hook on `SkillDefinition` (`OnAutoAttack`, `OnCombatStart`,
-  `OnHeroDied`, or a part's own `OnSkillHit`). Effects are applied through `IEffectable`, so
+  `OnHeroDied`, `OnDamageTaken` - the caster's own hits, raised from `Hero.TakeDamage` - or a part's own `OnSkillHit`). Effects are applied through `IEffectable`, so
   nothing here knows the `Hero` type. `SkillLibrary.Resolve` maps a `SkillIdEnum` to its builder.
 - **`Core/`** — the composition root: `GameManager` (phase, winner, wiring), `HeroMover`,
   `HeroFormation`, `HeroSpawner`.
@@ -166,7 +166,8 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   many hexes away in a straight line, 1 = adjacent, heroes in between do not block it and a missing hex on
   the way ends it; a hex off the straight lines adds a turn, `thenDirection` / `thenDistance`, 0 = none, and
   the two legs are tried in either order so a board edge does not lose it), then modifier, amount, and `percentOf` - None for a flat amount, else a percent of the
-  receiver's own base stat. A hero with two different bonuses has two marks. A mark can also pay its owner:
+  receiver's own base stat. `perOwnerAP` makes the ally amount per 100 of the mark owner's AP, read when aligning is worked out (Ettin's
+  green: 25% of the ally's base AS per 100 AP; `AlignMark.AllyAmount`). A hero with two different bonuses has two marks. A mark can also pay its owner:
   `selfModifier` / `selfAmount` / `selfPercentOf` are given to the owner once for every one of the mark's
   hexes an ally stands on; `selfAmount` 0 means none, and an ally `amount` of 0 makes it a self-only mark.
   `selfWhenEmpty` flips the self bonus: once for every one of the mark's hexes that is in the deploy zone
@@ -194,7 +195,8 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   the hexes within 6 in the middle, scrolling when the window is smaller than the grid (every one can be marked - the window works out the turn), one box per `AlignMark` on the
   right, and a row of pattern tabs above the hexes (`+ Rotated copy` drafts a new pattern as the selected one
   turned 60 degrees clockwise, to edit from there; a hero with no pattern shows a Start button, so looking never writes). It works through `SerializedObject` on the `HeroDataSO`, outside Play mode, because `Editor` does not
-  reference `Contracts` and so cannot name the modifier and stat enums. The inspector panel lists a hero's marks under ALIGNING (`IInspectableHero.AlignDescription`, written by `AlignText`, hidden when empty). The nine
+  reference `Contracts` and so cannot name the modifier and stat enums. The inspector panel lists a hero's marks under ALIGNING (`IInspectableHero.AlignDescriptionFor(formula)`, written by `AlignText`, hidden when empty; with Alt held a bonus that
+  scales with AP shows its formula, like skill text). The nine
   shop heroes all have marks, in three teams of three designed in the sheet's `Aligning` tab (Ettin / Dryad /
   Elf, Orc Blademaster / Werewolf / Shield Knight, Skeleton Archer / Reaper / Centaur); `_shopRoster` holds
   only those nine. The teams are being redesigned as three teams of five that share heroes (each carry -
@@ -292,9 +294,9 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   onto a hex outside it, anywhere on the board. A hex has no colour of its own: the board paints the
   zone blue and every other hex red in Preparation, and the whole board neutral otherwise
   (`BoardColours.ShowDeployZone` - `BattleBoard.Colours` makes every "what colour is this hex" decision, `DeployZone` only knows which hexes are in it; colours on `BattleBoard` in the Inspector) - the zone limits placing,
-  never walking. `BattleSetups/` holds only `Campaign/` and `Enemy Formation/`;
-  the old test setups (`Archive/`, `ClusterTests/`, `Phase1Seeds/`, `Build demo/`) were deleted and
-  live in git history.
+  never walking. `BattleSetups/` holds only `Campaign/` (the stages played) and `Team Comps/`. Everything older - the 5
+  `Enemy Formation/` stages played before enemy levels (and their README of each stage's puzzle), an older `Campaign/` of 10,
+  the `<Shape>-test` stages and the old test setups - was deleted and lives in git history.
 - Gold and the shop's rules work, and both live in `Economy`: `Wallet` is the player's gold, `Shop` is
   what each slot sells, buying and refreshing. `ShopPanelController` only draws and turns a drag
   into "buy slot i" - it reads everything through `IShop` (Contracts), which `GameManager` hands it
@@ -381,6 +383,13 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   import needs no step of its own: pick a run, a run to compare with, and aligned or not; it shows every comp x stage win
   rate with stages won, then one picked comp by stage and by hero. `.claude/scripts/team_dashboard.py --rebuild` builds
   both tabs again after the dashboard itself changes (20 comps, 10 stages and 12 heroes fit in its fixed rows).
+- Skill descriptions show numbers: a description writes an amount through `SkillDefinition.AD()` / `AP()` / `DF()` / `MaxHP()`
+  (e.g. `{AP(DamageRatio)}`), never as `{X}% AP`. The inspector shows it as the number for that hero's current stats ("deals
+  310"); holding **Alt** (`PlayerInputSystem.FormulaViewHeld`) shows the formula instead ("deals [200% AP]"). It goes through
+  `SkillDefinition.DescribeActive/DescribePassive(stats, formula)` - `IInspectableHero.SkillDescriptionFor(formula)`; a shop
+  preview uses its 1-star stats, a skill with no stats shows the formula. The inspector rewrites the text every frame (only
+  when it changed), so buffs, items, aligning and enemy levels show at once. A percent that is a buff, not an amount (Harpy's
+  "+X% AD every cast", attack speed buffs), stays written as a percent.
 - Skill numbers are tunable live (dev tool): a skill script writes each number as
   `private static float DamageRatio => Tuned(200f);` (never `const` - a const cannot change at runtime), and a
   number worked out from others is a plain `=> A * B` property. The value in the code is the default;
@@ -397,28 +406,44 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   winner, so the normal result screen, income, team-size growth and next stage follow. The team stays where it stood
   in Preparation (`PreparationState.SkipStage` remembers the formation as `CombatState.OnEnter` would); mid-fight it
   goes back to where the fight started, as after any win. A skipped round still goes into the balance log.
-- Adding a hero while testing (dev tool): the Stage Editor window's **Player** tab lists every hero (enemy-only ones folded
+- Adding a hero while testing (dev tool): the Stage Editor window's **Player > Bench** tab lists every hero (enemy-only ones folded
   under it) with a **Bench** button that puts it on the player's bench for free - Play mode only, Stage Edit Mode not needed,
   through `Core/Editor/AddHeroMenu.Add` -> `GameManager.AddHeroToBench`. The Align Editor's "Add to bench" button does the
   same for the hero it is editing. (It was a menu item on the Project window's selection; that was removed.)
+  **Player > Item** lists every item in `Data/Items/` (name and price) with a **Drop** button that puts it on the loose row for free,
+  where a bought one lands (`AddHeroMenu.AddItem` -> `GameManager.AddItemToLooseRow` -> `ItemDrop.Spawn`; typed
+  `ScriptableObject` because `Editor` does not reference `Items`). Play mode only.
 - Stage editing (dev tool): **Magic School 4 > Stage Editor** (`Core/Editor/StageEditorWindow`; it is the only way in - the
   old Stage Editor submenu was removed) has a Stage Edit Mode toggle (`GameManager._stageEditMode`: in Play mode set live, for
   that session only; outside it, the scene's value), a status line saying why a button is greyed out, a search box, and two tabs.
   With the mode on, in Preparation, enemies drag between the hexes outside the deploy zone like your own heroes do inside it, and
   dropping one on the shop removes it (no gold).
-  **Enemy tab:** every hero in `Data/Heroes/Stats/Enemy/` (and, folded, every other one in `Stats/Player/`) with an Add button that
-  puts it on the first free enemy hex; **Save To Current Stage** / **Save As New Stage...** write the enemy team into the
+  **Enemy tab** has three parts of its own (`WindowStyle.SubTabs`) - Stage (load), Add, Levels - with Edit deploy zone and the two
+  saves pinned under all of them. In it, every hero in `Data/Heroes/Stats/Enemy/` (and, folded, every other one in `Stats/Player/`) with an Add button that
+  puts it on the first free enemy hex, at the "Add at level" slider's level (`StageEditor.NewEnemyLevel`); under them every enemy on
+  the board with a level slider each and a "Set all", which change it live (`StageEditor.SetLevel`) and are saved with the stage;
+  under the save buttons, **Load a stage** lists every stage in `Campaign/` (enemy count and levels) with a Load button that goes to
+  the stage (`StageEditor.LoadStage` -> `GameManager.JumpToStage`): the run's stage number is set to it and Preparation opens
+  again (`GameStateMachine.Reenter`) as for a new stage - its board, enemies at their levels and deploy zone - so it is now the
+  current stage and Save To Current Stage writes to it. The team is remembered where it stands first (`Formation.Remember`), so
+  it stays put, or goes to the spare bench if the board changes; the shop is kept (`ConsumeKeepShop` skips the restock); the
+  team-size limit does not change. The current stage is marked in the list. A stage not in `_stages` only has its enemies swapped
+  in (`StageEditor.LoadEnemyTeam`, the old Load: its zone too with Edit deploy zone on, greyed out on another board), and the current
+  stage stays. Loading saves nothing. **Save To Current Stage** / **Save As New Stage...** write the enemy team into the
   current stage's `BattlePlacementSO` or a new one - red entries only, blue ones are kept - with the deploy zone. Clicking an
   empty hex puts it in or out of the zone (blue = in, red = out; read in `Player/ZonePainting`, ticked after `Dragging` so a
   click that picked something up never paints), and a save with an empty zone is refused. Its **Edit deploy zone** option is
   `StageEditor.EditsDeployZone`: off, a click paints nothing (`TryToggleDeployHex` refuses) and Save To Current Stage keeps the
   stage's zone; Save As New Stage always writes the board's zone, since a stage with none leaves the player nowhere to stand.
-  **Player tab:** every team comp in `Data/BattleSetups/Team Comps/` with a Load button, which swaps the blue heroes on the board
+  **Player tab** has three parts of its own, a smaller row of tabs (`WindowStyle.SubTabs`): Team Comp, Bench and Item (both
+  above). **Team Comp:** every team comp in `Data/BattleSetups/Team Comps/` with a Load button, which swaps the blue heroes on the board
   for the comp's, items included (items already on hexes go to the loose row; no gold either way; greyed out on a comp saved on
   another board layout, since hex numbers only mean something on their own); **Save Player Team As...** writes the blue heroes
   on the board (not the bench) into a team comp - a `BattlePlacementSO` with blue entries only and the board layout it was placed
   on - with each hero's worn item (`HeroPlacement.item`) and the items lying on hexes (`_itemsOnHexes`); both are typed
-  `ScriptableObject` because `Combat` cannot name `ItemDataSO`, and `Core` reads them back as items.
+  `ScriptableObject` because `Combat` cannot name `ItemDataSO`, and `Core` reads them back as items. Each hero's star is saved
+  too (`HeroPlacement.star`, 0 reads as 1) and given back by `Hero.UpgradeTo` in `HeroSeed` and `LoadPlayerTeam`, so the game
+  and the Team Comp Benchmark fight it upgraded.
   `Core/StageEditor` is the runtime half (`GameManager.StageEditor` is null while the mode is off, which is what `Dragging`
   checks); `Core/Editor/StageEditorMenu` - no menu items any more, just what the window's buttons call - writes the assets, and
   goes through `StageEditor` for anything team-specific because `Editor` does not reference `Contracts`.
@@ -428,10 +453,18 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
 - **Not built yet:** Trait Panel and Hero Panel are still empty slots. There is no "Start Battle" button: combat is triggered by the space bar in
   `PlayerController.TryStartCombat`, which is temporary. In a fight the same key pauses and goes on (`GameManager.TogglePause`
   -> `GameSpeed.SetPaused`, `Time.timeScale` 0; a speed picked while paused is kept); `CombatState.OnExit` always unpauses.
-- The run is 10 stages: `GameManager._stages` points at `Assets/Data/BattleSetups/Campaign/Stage 01`-`10`
-  (3 enemies on stage 1 up to 12 on stage 10, tier mix tracking the shop odds; stage 5 and 10 are the
-  bosses). Heroes of one role share the same stats whatever their tier, so difficulty comes from
-  enemy count and skills. Hero A (`SuperTank.asset`, 2000 HP, no skill) is enemy-only - it is not in
+- The run is 10 stages: `GameManager._stages` points at `Assets/Data/BattleSetups/Campaign/Stage 01`-`10`, all on the
+  `Wide Square Layout` (the board every team comp is saved on). They are a first pass at raising the power level: the 5
+  puzzle formations the game played before (the deleted `Enemy Formation/` stages, see their README in git history) twice over - stages 1-5 and again
+  6-10, so 5 and 10 are the Minotaur King boss - with every enemy at level 2 x the stage number (2 on stage 1 up to 20 on
+  stage 10). The formations are meant to be redesigned in the Stage Editor and the levels tuned with the Team Comp
+  Benchmark: a stage should be won aligned and lost not aligned. Heroes of one role share the same stats whatever their
+  tier, so difficulty comes from enemy count, skills and level.
+- Enemy level (`Combat/Heroes/HeroLevel`): 1-30, linear - every level past 1 adds 10% of the base HP, AD, AP and DF
+  (level 11 = 2x, 30 = 3.9x); attack speed, mana and range stay. It is per enemy in a stage, `HeroPlacement.level` (0, an
+  entry saved before levels, reads as 1), given by `HeroSeed` as it seeds the stage (`Hero.SetLevel` rebuilds the stats),
+  so the game and the Team Comp Benchmark both fight it. A summon takes its summoner's level (`HeroSpawner.SpawnSummon`).
+  A hero above level 1 is named "(Lv n)". It multiplies with stars, though stage enemies are 1 star. Hero A (`SuperTank.asset`, 2000 HP, no skill) is enemy-only - it is not in
   the shop roster. The enemy roster is designed in the sheet's `Enemies` tab and built into
   `Assets/Data/Heroes/Stats/Enemy/` (prefabs in `Assets/Prefabs/Hero/Enemy/`). The tanks and marksmen
   are built, on their shop role's stats until stats are decided: Minotaur (single-target stun), Basilisk
@@ -440,8 +473,7 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   assassin are still only in the sheet. None is in a stage yet - add them with the Stage Editor window.
   The first boss is the Minotaur King (`Enemy/MinotaurKing`, skill 44, prefab drawn 1.5x and tinted red),
   deliberately easy: 4000 HP, 70 AD at 0.5 AS, and Ground Slam (150% AD + 1s stun to the heroes next to
-  him). It is `Enemy Formation/Stage 05`, on the same board and deploy zone as stages 01-04 (in
-  `Enemy Formation/Stage 01/`, named by the order `GameManager._stages` plays them).
+  him). He is in `Campaign/Stage 05` and `Stage 10`.
 - A hero can put units on the board mid-fight: a skill calls `ISpawner.SpawnUnitsNearby` (Contracts) on
   its caster, `Hero` picks the nearest free hexes (`Combat/Heroes/HeroSpawn`) and raises
   `OnSpawnRequested`, and `HeroSpawner` - which subscribes to every hero it builds - spawns them. The
@@ -462,7 +494,8 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
 - **UI Builder deletes every comment in a `.uss`/`.uxml` it saves.** It reserializes the whole file from its in-memory model, and comments are not in that model — so opening a file to nudge one padding value silently strips the prose explaining every other value in it, with no warning and no diff until you look. It has already emptied `MatchStatus.uss` (10 blocks) and `HeroPanel.uxml` (4). Two consequences: after any UI Builder session, `git diff` the `.uss`/`.uxml` files and restore what it removed rather than assuming the deletions were deliberate; and prefer hand-editing these files in a text editor when the change is small enough to type. `HeroPanel.uxml` and `Ghost.uxml` carry a comment saying this, which the Builder will also delete.
 - **The Magic School 4 windows share one look** (`Core/Editor/WindowStyle`): a grey intro line at the top, tabs, a toolbar
   search field, a fixed side-list width with one pickable-item style, tall main buttons (`Action`) and compact row buttons
-  (`RowButton`), hints and status boxes. A new window, or a new control in an old one, draws through it instead of choosing
+  (`RowButton`), asset lists drawn row by row through `ListRow` (the button first, the name right beside it in a column as wide
+  as the longest name, details, Select at the far end; every other row shaded and the row under the mouse lit), hints and status boxes. A new window, or a new control in an old one, draws through it instead of choosing
   its own sizes and styles.
 - Moving script files between folders is safe as long as the `.meta` travels with the `.cs` — scene and prefab references are by GUID, so they survive both the move and a namespace change. Verify in Play mode anyway.
  — but respect explicit "Don't answer" notes on individual steps, those are self-notes rather than questions.

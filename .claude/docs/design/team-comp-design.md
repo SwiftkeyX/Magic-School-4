@@ -1,4 +1,4 @@
-# Team comp
+# Team comp Design
 
 ## Orc Blademaster + Ranger
 

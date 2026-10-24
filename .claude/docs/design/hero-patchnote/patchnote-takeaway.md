@@ -15,6 +15,12 @@
 - Normally, other tank heal through his skill mainly so it was easy to tweak. Assume that he use 100 mana to cast once, assume again that it take 10 sec to cast, and the skill heal for 1000, that mean this hero heal 10 hp/s. From what you can see, when the value can turn into hp/s, it's easy to tweak.
 - But troll is different to others tank. He healed for flat 150 when the enemy dies, we don't know when the enemy is going to die, so the value is harder to turn into hp/s which make it hard to tweak and balance. I suggest a wayout by making his skill work like a cashout, he build up his 1 time healed over time w (easily turn into hp/s), then the healed triggered when the enemy dies. Now his skill should be easier to tweak.
 
+[] Assassin are too strong. All those heroes that can access backliner e.g. Myconid, Lich, FrostWitch
+
+- Right now, when they cast 2 time, they kill the backliner which is a problem because it's too easy. If the 2 time cast was hard to achieved, then it wouldn't be a problem.
+- It's easy to assassinate backliner because player can just add Myconid to the team with like 1 AP item and 2 active mark, he can 2 shot the enemy. The cost feel too easy to me.
+- But maybe the cost wasn't easy? because Akshan in TFT can just 1 shot enemy too in the mid-game just by having him 2 start and have 5 shurima active.
+
 [] (deferred) In patch 1-0-1, player's team need at least 2 tank to win every single stage. Maybe this is bad, because it feel redundant to have 2 tank every single time.
 
 [] (deferred) I notice that the ally mark is boring, it only give stat. Need to spice it up.
