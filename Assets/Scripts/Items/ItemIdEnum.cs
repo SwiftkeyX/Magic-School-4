@@ -26,6 +26,7 @@ namespace MagicSchool.Items
         BulwarkCrest = 13,
         AegisShard = 14,
         WardensVow = 15,
+        ForgedIronPlate = 21,       // Blacksmith's, never in the shop
 
         // ======================================= Utility =======================================
         ChaliceOfDawn = 16,

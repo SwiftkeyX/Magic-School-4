@@ -21,7 +21,7 @@ namespace MagicSchool.Combat.Heroes
     ///     Hero.Skill.cs       => skill triggers, and the text the Hero Panel reads
     ///     Hero.Targeting.cs   => ITargeter, handed to FindTarget
     /// </summary>
-    public partial class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISpawner, IAligned, IHexMeasurable, IFallen, IFreeCaster, IRevivable
+    public partial class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISpawner, IAligned, IItemWearer, IHexMeasurable, IFallen, IFreeCaster, IRevivable
     {
         // ======================================== Dependency ========================================
         private HeroDataSO _SOData;
@@ -84,6 +84,15 @@ namespace MagicSchool.Combat.Heroes
         public bool HasItemRoom => _items != null && _items.HasRoom;
         public bool TryWear(IEquipment item) => _items != null && _items.TryWear(item);
         public bool TryTakeOff(IEquipment item) => _items != null && _items.TryTakeOff(item);
+
+        // IItemWearer: a skill asks for an item to be forged onto me; HeroSpawner makes it and calls WearForged
+        // e.g.     Blacksmith's cast
+        public HeroRoleEnum Role => _SOData != null ? _SOData.Role : HeroRoleEnum.None;
+        public event System.Action<Hero, ForgedItemEnum, ICombatant> OnForgedItemRequested;
+        public void ReceiveForgedItem(ForgedItemEnum item, ICombatant forger) => OnForgedItemRequested?.Invoke(this, item, forger);
+
+        // worn on top of the one slot, until the fight is over (See HeroItems.ClearForged)
+        public void WearForged(IEquipment item) => _items?.WearForged(item);
 
         // ======================================== life cycle ========================================
         // Give everything a hero needs to exist, in one call. 
@@ -155,7 +164,8 @@ namespace MagicSchool.Combat.Heroes
             _attackCooldown = new AttackCooldown();
             CancelRevive();
 
-            // the modifier from items is also reset, so re-grant it.
+            // what a skill forged lasted the fight only; the modifier from the rest is also reset, so re-grant it.
+            _items.ClearForged();
             _items.ReGrantAll();
 
             // ChangeState, not Start: the Dead state has to be left properly, and a hero that

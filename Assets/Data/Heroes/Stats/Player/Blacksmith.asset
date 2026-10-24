@@ -27,368 +27,100 @@ MonoBehaviour:
   _critChance: 25
   _skillId: 20
   _spawnUnit: {fileID: 0}
+  _forgedItems:
+  - {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
+  - {fileID: 11400000, guid: 8b49a667d55349aa96b2cb6c337ecd1c, type: 2}
+  - {fileID: 11400000, guid: c54c4238000481a40aee8b29054fe61b, type: 2}
   _alignPatterns:
   - marks:
     - hexes:
-      - direction: 4
-        distance: 1
-        thenDirection: 3
-        thenDistance: 1
-        isWearing: 1
-      - direction: 4
-        distance: 2
-        thenDirection: 3
-        thenDistance: 1
-        isWearing: 1
-      - direction: 2
-        distance: 1
-        thenDirection: 3
-        thenDistance: 1
-        isWearing: 0
-      - direction: 2
-        distance: 2
-        thenDirection: 3
-        thenDistance: 1
-        isWearing: 0
-      - direction: 0
-        distance: 2
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 0
-      - direction: 0
-        distance: 3
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 0
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 300
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: Anvil
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-  - marks:
-    - hexes:
-      - direction: 4
-        distance: 1
-        thenDirection: 5
-        thenDistance: 1
-        isWearing: 1
-      - direction: 4
-        distance: 1
-        thenDirection: 5
-        thenDistance: 2
-        isWearing: 1
-      - direction: 4
-        distance: 1
-        thenDirection: 3
-        thenDistance: 1
-        isWearing: 0
-      - direction: 4
-        distance: 1
-        thenDirection: 3
-        thenDistance: 2
-        isWearing: 0
-      - direction: 1
-        distance: 2
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 0
-      - direction: 1
-        distance: 3
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 0
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 300
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: Anvil
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-  - marks:
-    - hexes:
-      - direction: 5
-        distance: 1
-        thenDirection: 0
-        thenDistance: 1
-        isWearing: 1
-      - direction: 5
-        distance: 1
-        thenDirection: 0
-        thenDistance: 2
-        isWearing: 1
-      - direction: 4
-        distance: 1
-        thenDirection: 5
-        thenDistance: 1
-        isWearing: 0
-      - direction: 4
-        distance: 2
-        thenDirection: 5
-        thenDistance: 1
-        isWearing: 0
-      - direction: 2
-        distance: 2
-        thenDirection: 2
-        thenDistance: 0
-        isWearing: 0
-      - direction: 2
-        distance: 3
-        thenDirection: 2
-        thenDistance: 0
-        isWearing: 0
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 300
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: Anvil
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-  - marks:
-    - hexes:
-      - direction: 1
-        distance: 1
-        thenDirection: 0
-        thenDistance: 1
-        isWearing: 1
-      - direction: 1
-        distance: 2
-        thenDirection: 0
-        thenDistance: 1
-        isWearing: 1
-      - direction: 5
-        distance: 1
-        thenDirection: 0
-        thenDistance: 1
-        isWearing: 0
-      - direction: 5
-        distance: 2
-        thenDirection: 0
-        thenDistance: 1
-        isWearing: 0
       - direction: 3
-        distance: 2
+        distance: 1
         thenDirection: 3
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
+      - direction: 2
+        distance: 1
+        thenDirection: 2
+        thenDistance: 0
+        isWearing: 1
+      - direction: 1
+        distance: 1
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 1
+      - direction: 0
+        distance: 1
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 1
+      - direction: 5
+        distance: 1
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 1
+      - direction: 4
+        distance: 1
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 1
+      special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      perOwnerAP: 0
+      selfModifier: 0
+      selfAmount: 300
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes: []
+      special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      perOwnerAP: 0
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes:
       - direction: 3
-        distance: 3
+        distance: 1
         thenDirection: 3
         thenDistance: 0
-        isWearing: 0
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 300
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: Anvil
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-  - marks:
-    - hexes:
-      - direction: 1
-        distance: 1
-        thenDirection: 2
-        thenDistance: 1
         isWearing: 1
-      - direction: 1
+      - direction: 2
         distance: 1
         thenDirection: 2
-        thenDistance: 2
+        thenDistance: 0
         isWearing: 1
       - direction: 1
         distance: 1
         thenDirection: 0
-        thenDistance: 1
-        isWearing: 0
-      - direction: 1
+        thenDistance: 0
+        isWearing: 1
+      - direction: 0
         distance: 1
         thenDirection: 0
-        thenDistance: 2
-        isWearing: 0
+        thenDistance: 0
+        isWearing: 1
+      - direction: 5
+        distance: 1
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 1
       - direction: 4
-        distance: 2
+        distance: 1
         thenDirection: 3
         thenDistance: 0
-        isWearing: 0
-      - direction: 4
-        distance: 3
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 0
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 300
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
+        isWearing: 1
       special: Anvil
       modifier: 0
       amount: 0
       percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-  - marks:
-    - hexes:
-      - direction: 2
-        distance: 1
-        thenDirection: 3
-        thenDistance: 1
-        isWearing: 1
-      - direction: 2
-        distance: 1
-        thenDirection: 3
-        thenDistance: 2
-        isWearing: 1
-      - direction: 1
-        distance: 1
-        thenDirection: 2
-        thenDistance: 1
-        isWearing: 0
-      - direction: 1
-        distance: 2
-        thenDirection: 2
-        thenDistance: 1
-        isWearing: 0
-      - direction: 5
-        distance: 2
-        thenDirection: 5
-        thenDistance: 0
-        isWearing: 0
-      - direction: 5
-        distance: 3
-        thenDirection: 5
-        thenDistance: 0
-        isWearing: 0
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 300
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes: []
-      special: Anvil
-      modifier: 0
-      amount: 0
-      percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1

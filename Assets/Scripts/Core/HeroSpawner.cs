@@ -5,6 +5,7 @@ using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.CombatRecording;
 using MagicSchool.Skills;
+using MagicSchool.Items;
 
 namespace MagicSchool.Core
 {
@@ -58,6 +59,19 @@ namespace MagicSchool.Core
         // and put down, its buyer moves it like any other hero.
         public Hero SpawnUnboughtHero(HeroDataSO data, BattleBoard board) => Build(data, board, TeamEnum.Blue);
 
+        // the item asset is named on the forger's data, so neither the skill nor the hero names an item
+        private static void Forge(Hero wearer, ForgedItemEnum kind, ICombatant forger)
+        {
+            if (!(forger is Hero smith) || !(smith.Data.ForgedItem(kind) is ItemDataSO data))
+            {
+                Debug.LogError($"[HeroSpawner] {(forger as Hero)?.name} has no {kind} to forge - set it in its HeroDataSO's Forged Items.");
+                return;
+            }
+
+            Item item = Item.Spawn(data, wearer.transform.position);
+            if (item != null) wearer.WearForged(item);
+        }
+
         private Hero Build(HeroDataSO data, BattleBoard board, TeamEnum team)
         {
             // spawn hero
@@ -75,6 +89,10 @@ namespace MagicSchool.Core
             // a hero may ask for units of its own in the middle of a fight 
             // e.g.     Big Slime splits into smaller slime
             hero.OnSpawnRequested += (unit, unitTeam, placement, onBoard) => SpawnSummon(unit, unitTeam, placement, onBoard, hero.Level);
+
+            // a skill may forge an item onto this hero mid-fight (See IItemWearer)
+            // e.g.     Blacksmith hands an Archmage Tome to a mage
+            hero.OnForgedItemRequested += Forge;
 
             return hero;
         }

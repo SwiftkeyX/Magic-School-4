@@ -30,6 +30,8 @@ namespace MagicSchool.Combat.Heroes
         [SerializeField] private SkillIdEnum _skillId = SkillIdEnum.None;
         [Tooltip("The unit this hero's skill puts on the board. e.g. Big Slime -> Small Slime. Empty for almost everyone.")]
         [SerializeField] private HeroDataSO _spawnUnit;
+        [Tooltip("The item assets this hero's skill forges, in ForgedItemEnum order: Whetstone, Archmage Tome, Forged Iron Plate. Empty for everyone but Blacksmith.")]
+        [SerializeField] private List<ScriptableObject> _forgedItems = new List<ScriptableObject>();   // ItemDataSO, which Combat cannot name
         [Tooltip("Aligning: every way this hero can be turned, each with its own marks. Rotating switches to the next one. Edit in Magic School 4 > Align Editor.")]
         [SerializeField] private List<AlignPattern> _alignPatterns = new List<AlignPattern>();
         // FLAGGING: a dummy should be its own unit type, not a Hero. Let's see later if it make sense.
@@ -52,6 +54,7 @@ namespace MagicSchool.Combat.Heroes
         public float CritChance => _critChance;
         public SkillIdEnum SkillId => _skillId;
         public HeroDataSO SpawnUnit => _spawnUnit;
+        public ScriptableObject ForgedItem(ForgedItemEnum item) => (int)item < _forgedItems.Count ? _forgedItems[(int)item] : null;
 
         // a hero with no pattern still counts as one, with no marks: it cannot rotate
         public int AlignPatternCount => Mathf.Max(1, _alignPatterns.Count);

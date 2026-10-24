@@ -9,6 +9,7 @@ namespace MagicSchool.Combat.Heroes
         // one each: a hero gets more out of items by standing on an ally's wearing hex (See AlignBonuses)
         public const int Capacity = 1;
         private readonly List<IEquipment> _worn = new List<IEquipment>(Capacity);
+        private readonly List<IEquipment> _forged = new List<IEquipment>();     // worn too, past Capacity; gone when the fight is (See WearForged)
         private readonly Hero _wearer;
 
         private const float Strength = 1f;
@@ -48,6 +49,30 @@ namespace MagicSchool.Combat.Heroes
             return true;
         }
 
+        // An item a skill forged mid-fight: worn whatever the slot holds, any number of them, for the rest of the fight.
+        // e.g.     Blacksmith's Forged Iron Plates, piling up on her when every ally is wearing something
+        public void WearForged(IEquipment item)
+        {
+            if (item == null) return;
+
+            _worn.Add(item);
+            _forged.Add(item);
+            SeatAll();
+            Grant(item);
+        }
+
+        // The fight is over: what was forged in it is destroyed. Called as the stats are rebuilt, so no modifier is taken back.
+        public void ClearForged()
+        {
+            foreach (IEquipment item in _forged)
+            {
+                _worn.Remove(item);
+                if (item as Object != null) Object.Destroy(item.transform.gameObject);
+            }
+            _forged.Clear();
+            SeatAll();
+        }
+
         // Pull an item back off the wearer
         public bool TryTakeOff(IEquipment item)
         {
@@ -61,7 +86,7 @@ namespace MagicSchool.Combat.Heroes
             Unseat(item);
 
             // whatever is left shuffles down into the free slot
-            for (int slot = 0; slot < _worn.Count; slot++) Seat(_worn[slot], slot);
+            SeatAll();
 
             return true;
         }
@@ -93,13 +118,20 @@ namespace MagicSchool.Combat.Heroes
             _wearer.AddModifier(granted, _wearer, Strength);
         }
 
+        private void SeatAll()
+        {
+            for (int slot = 0; slot < _worn.Count; slot++)
+                if (_worn[slot] as Object != null) Seat(_worn[slot], slot);
+        }
+
         // Park the item under the hero, in its slot.
         private void Seat(IEquipment item, int slot)
         {
             Transform worn = item.transform;
 
             worn.SetParent(_wearer.transform, worldPositionStays: false);
-            worn.localPosition = new Vector3((slot - (Capacity - 1) / 2f) * Spacing, RowY, 0f);   // the row is centred under the hero
+            int count = Mathf.Max(Capacity, _worn.Count);
+            worn.localPosition = new Vector3((slot - (count - 1) / 2f) * Spacing, RowY, 0f);   // the row is centred under the hero
             worn.localScale = new Vector3(Scale, Scale, 1f);
         }
 
