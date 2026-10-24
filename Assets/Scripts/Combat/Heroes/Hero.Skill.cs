@@ -56,7 +56,8 @@ namespace MagicSchool.Combat.Heroes
         public string PassiveDescription => _skill != null ? _skill.PassiveDescription : string.Empty;
         public string SkillDescriptionFor(bool formula) => _skill != null ? _skill.DescriptionFor(this, formula) : string.Empty;
         public string PassiveDescriptionFor(bool formula) => _skill != null ? _skill.PassiveDescriptionFor(this, formula) : string.Empty;
-        public string AlignDescription => _SOData != null ? AlignText.Describe(AlignMarks, _alignPattern, AlignPatternCount) : string.Empty;
+        public string AlignDescriptionFor(bool formula)
+            => _SOData != null ? AlignText.Describe(AlignMarks, _alignPattern, AlignPatternCount, formula ? (float?)null : Magic) : string.Empty;
         public string DisplayName => (_SOData != null ? _SOData.Name : name) + (_star > HeroStar.Min ? $" ({_star}-star)" : "")
                                      + (_level > HeroLevel.Min ? $" (Lv {_level})" : "");
     }

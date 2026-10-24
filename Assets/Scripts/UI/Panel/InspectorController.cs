@@ -135,17 +135,16 @@ namespace MagicSchool.UI
             WriteAbilityText(unit);
 
             // show align ability
-            bool hasMarks = !string.IsNullOrEmpty(unit.AlignDescription);
-            SetShown(_alignSection, hasMarks);
-            if (hasMarks) _alignBody.text = unit.AlignDescription;
+            SetShown(_alignSection, !string.IsNullOrEmpty(unit.AlignDescriptionFor(false)));
         }
 
-        // the active and passive texts, as numbers or (Alt held) as formulas; written only when they change
+        // the active, passive and aligning texts, as numbers or (Alt held) as formulas; written only when they change
         private void WriteAbilityText(IInspectableHero unit)
         {
             bool formula = MagicSchool.Input.PlayerInputSystem.FormulaViewHeld;
             if (unit.HasSkill) SetText(_activeBody, unit.SkillDescriptionFor(formula));
             if (unit.HasAutoAttackPassive) SetText(_passiveBody, unit.PassiveDescriptionFor(formula));
+            SetText(_alignBody, unit.AlignDescriptionFor(formula));
         }
 
         private static void SetText(Label label, string text)

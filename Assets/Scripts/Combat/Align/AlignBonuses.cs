@@ -87,7 +87,7 @@ namespace MagicSchool.Combat.Align
                         }
 
                         // this mark give bonus to the receiver
-                        if (paysAllyOnly && isAlly && mark.HasAllyBonus) Give(receiver, mark.BuildAllyModifier(), me);
+                        if (paysAllyOnly && isAlly && mark.HasAllyBonus) Give(receiver, mark.BuildAllyModifier(me.Magic), me);
 
                         // this mark give bonus to self: for an ally standing there,
                         // or the opposite - for a hex left empty

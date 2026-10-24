@@ -20,7 +20,7 @@ namespace MagicSchool.Editor
 
         // the fields each box shows, in order. AlignMark's [Header]s title them.
         private static readonly string[] OrangeFields = { "selfModifier", "selfAmount", "selfPercentOf", "selfWhenEmpty", "healFromAllyDamage" };
-        private static readonly string[] GreenFields = { "modifier", "amount", "percentOf" };
+        private static readonly string[] GreenFields = { "modifier", "amount", "percentOf", "perOwnerAP" };
 
         private Vector2 _markScroll;
 
@@ -156,6 +156,7 @@ namespace MagicSchool.Editor
             mark.FindPropertyRelative("special").stringValue = special;
             mark.FindPropertyRelative("amount").floatValue = 0f;
             mark.FindPropertyRelative("percentOf").intValue = NoStat;
+            mark.FindPropertyRelative("perOwnerAP").boolValue = false;
             mark.FindPropertyRelative("selfAmount").floatValue = 0f;
             mark.FindPropertyRelative("selfPercentOf").intValue = NoStat;
             mark.FindPropertyRelative("selfWhenEmpty").boolValue = false;

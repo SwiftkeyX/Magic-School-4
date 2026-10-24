@@ -16,16 +16,18 @@ namespace MagicSchool.Combat.Align
     {
         // the marks of the pattern a hero is turned to, and which pattern that is when it has more than one
         // e.g.    "+30% attack speed\nPattern 2 of 6 (right-click while holding to rotate)"
-        public static string Describe(IReadOnlyList<AlignMark> marks, int pattern, int patternCount)
+        // ownerAP: the hero's AP, for a bonus that scales with it (See AlignMark.perOwnerAP). Null writes it as its formula,
+        // the way a skill's text does with Alt held: "+[25% AP]% attack speed".
+        public static string Describe(IReadOnlyList<AlignMark> marks, int pattern, int patternCount, float? ownerAP = null)
         {
-            string text = Describe(marks);
+            string text = Describe(marks, ownerAP);
             if (patternCount <= 1) return text;
 
             string turned = $"Pattern {pattern + 1} of {patternCount} (right-click while holding to rotate)";
             return string.IsNullOrEmpty(text) ? turned : text + "\n" + turned;
         }
 
-        public static string Describe(IReadOnlyList<AlignMark> marks)
+        public static string Describe(IReadOnlyList<AlignMark> marks, float? ownerAP = null)
         {
             if (marks == null || marks.Count == 0) return string.Empty;
 
@@ -52,7 +54,7 @@ namespace MagicSchool.Combat.Align
 
                     // green pays the ally standing on it
                     case AligningHex.Green:
-                        if (mark.HasAllyBonus) lines.Add($"Green: an ally here {Gets(Bonus(mark.modifier, mark.amount, mark.percentOf))}");
+                        if (mark.HasAllyBonus) lines.Add($"Green: an ally here {Gets(AllyBonus(mark, ownerAP))}");
                         break;
 
                     // white pays nobody: the skill reads who stands on it (the skill's own text says what for)
@@ -68,14 +70,27 @@ namespace MagicSchool.Combat.Align
             return string.Join("\n", lines);
         }
 
+        // a bonus that scales with the hero's AP reads as the number for its AP now, or as its formula with none to read
+        // e.g.     185 AP => "+46.3% attack speed"         formula => "+[25% AP]% attack speed"
+        private static string AllyBonus(AlignMark mark, float? ownerAP)
+        {
+            if (!mark.perOwnerAP) return Bonus(mark.modifier, mark.amount, mark.percentOf);
+
+            return ownerAP.HasValue
+                ? Bonus(mark.modifier, mark.AllyAmount(ownerAP.Value), mark.percentOf)
+                : Bonus(mark.modifier, mark.amount, mark.percentOf, formulaOf: "AP");
+        }
+
         // "+30 AP" reads after "gets"; "takes 15% less damage" and "heals for ..." already say what happens
         private static string Gets(string bonus)
             => bonus.StartsWith("takes ") || bonus.StartsWith("heals ") ? bonus : "gets " + bonus;
 
-        private static string Bonus(ModifierEnum modifier, float value, StatEnum percentOf)
+        // formulaOf: write the value as a percent of this stat, in brackets, e.g. "[25% AP]"
+        private static string Bonus(ModifierEnum modifier, float value, StatEnum percentOf, string formulaOf = null)
         {
             // a percent of the hero's own stat reads as a percent; anything else is the plain number
-            string amount = percentOf == StatEnum.None ? $"{value:0.#}" : $"{value:0.#}%";
+            string number = formulaOf == null ? $"{value:0.#}" : $"[{value:0.#}% {formulaOf}]";
+            string amount = percentOf == StatEnum.None ? number : number + "%";
 
             // a bonus can take away: -10 max mana
             string signed = (value < 0f ? "" : "+") + amount;

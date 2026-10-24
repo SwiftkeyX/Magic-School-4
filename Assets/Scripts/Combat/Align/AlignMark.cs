@@ -36,6 +36,7 @@ namespace MagicSchool.Combat.Align
     ///     2. Keep a modifier that was granted to the ally standing on a marked hex
     ///     3. Keep a modifier that was granted to the owner itself, once for every marked hex an ally stands on
     /// e.g.    Ettin: [SW 1, NW 1], AS, 30, percent of AS      => a hero on either hex behind him gains 30% of its own attack speed
+    /// e.g.    Ettin: ..., AS, 25, percent of AS, per owner AP  => the same, but 25% for every 100 AP Ettin has
     /// e.g.    Centaur: [SW 3], BonusHP, 200, None             => the hero behind-below him for 3 hex, gains 200 HP
     /// e.g.    [NE 2], ..., self ATK, 10, percent of ATK       => the owner gains 10% of its own AD, when an ally stands 2 hexes ahead-above
     ///
@@ -65,6 +66,10 @@ namespace MagicSchool.Combat.Align
 
         [Tooltip("None = the amount is added as it is. Otherwise the amount is a percent of this stat, read from the ally's own base stat.")]
         public StatEnum percentOf;
+
+        [Tooltip("On = the amount is per 100 of this hero's own AP, read when aligning is worked out (so at fight start). " +
+                 "e.g. 25, percent of AS => +25% attack speed at 100 AP, +50% at 200 AP. Off = the amount as it is.")]
+        public bool perOwnerAP;
 
         [Header("Self bonus")]
         [Tooltip("What this hero itself gets.")]
@@ -127,8 +132,12 @@ namespace MagicSchool.Combat.Align
 
         public bool HasWearingHex => hexes != null && hexes.Exists(alignHex => alignHex.isWearing);
 
-        // Get bonus modifier for ally
-        public ICustomModifier BuildAllyModifier() => Build(modifier, amount, percentOf);
+        // Get bonus modifier for ally. ownerAP: the AP of the hero whose mark this is (See perOwnerAP)
+        public ICustomModifier BuildAllyModifier(float ownerAP) => Build(modifier, AllyAmount(ownerAP), percentOf);
+
+        // the ally bonus's amount for an owner with this much AP
+        // e.g.     25 per owner AP, 150 AP => 37.5
+        public float AllyAmount(float ownerAP) => perOwnerAP ? amount * ownerAP / 100f : amount;
 
         // Get bonus modifier for self
         public ICustomModifier BuildSelfModifier() => Build(selfModifier, selfAmount, selfPercentOf);
