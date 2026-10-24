@@ -24,13 +24,20 @@ namespace MagicSchool.Combat.Placements
                  "0 (an entry from before levels) is level 1.")]
         public int level;
 
+        [Tooltip("The hero's star, 1-3 (See HeroStar). 0 (an entry from before stars were saved) is 1 star.")]
+        public int star;
+
         // the level to spawn at - 0 or out of range read as the nearest valid level
         public int Level => HeroLevel.Clamp(level);
 
+        // the star to spawn at - 0 or out of range read as the nearest valid star
+        public int Star => Mathf.Clamp(star, HeroStar.Min, HeroStar.Max);
+
         public HeroPlacement(HeroDataSO data, TeamEnum team, HexNumber hexPlacement, ScriptableObject item = null, int alignPattern = 0,
-                             int level = HeroLevel.Min)
+                             int level = HeroLevel.Min, int star = HeroStar.Min)
         {
             this.level = level;
+            this.star = star;
             this.dataSO = data;
             this.team = team;
             this.hexPlacement = hexPlacement;

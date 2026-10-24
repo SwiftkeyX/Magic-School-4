@@ -91,7 +91,7 @@ namespace MagicSchool.Core
             return _game.Board.HeroesOnBoard
                 .OfType<Hero>()
                 .Where(hero => hero != null && hero.Team == team && hero.CurrentHex != null)
-                .Select(hero => new HeroPlacement(hero.Data, hero.Team, hero.CurrentHex.Number, WornItemData(hero), hero.AlignPattern, hero.Level))
+                .Select(hero => new HeroPlacement(hero.Data, hero.Team, hero.CurrentHex.Number, WornItemData(hero), hero.AlignPattern, hero.Level, hero.Star))
                 .OrderBy(placement => placement.hexPlacement.column)
                 .ThenBy(placement => placement.hexPlacement.row)
                 .ToList();
@@ -188,6 +188,9 @@ namespace MagicSchool.Core
 
                 // turned the way it was saved
                 if (board.WhoReservedThisHex(hex) is Hero turned) turned.SetAlignMarkPattern(placement.alignPattern);
+
+                // at the star it was saved at (See HeroStar)
+                if (board.WhoReservedThisHex(hex) is Hero upgraded) upgraded.UpgradeTo(placement.Star);
 
                 // the spawn is immediate, so the hero is on the hex now
                 if (placement.item is ItemDataSO itemData && board.WhoReservedThisHex(hex) is Hero hero)

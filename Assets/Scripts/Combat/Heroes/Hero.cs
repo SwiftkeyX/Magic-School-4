@@ -185,5 +185,11 @@ namespace MagicSchool.Combat.Heroes
             transform.localScale = _baseScale * HeroStar.Scale(_star);
             return true;
         }
+
+        // upgrade straight to a star, with no copies spent: a hero spawned from a saved team comp
+        public void UpgradeTo(int star)
+        {
+            while (_star < star && Upgrade()) { }
+        }
     }
 }

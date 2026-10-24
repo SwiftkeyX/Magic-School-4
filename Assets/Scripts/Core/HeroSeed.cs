@@ -51,6 +51,9 @@ namespace MagicSchool.Core
 
                 // the spawn is immediate, so the hero is on the hex now: give it the stage's level (See HeroLevel)
                 if (heroPlacement.Level > HeroLevel.Min && _board.WhoReservedThisHex(hex) is Hero hero) hero.SetLevel(heroPlacement.Level);
+
+                // and its star, so a team comp saved with upgraded heroes fights upgraded (See HeroStar)
+                if (heroPlacement.Star > HeroStar.Min && _board.WhoReservedThisHex(hex) is Hero upgraded) upgraded.UpgradeTo(heroPlacement.Star);
             }
         }
     }
