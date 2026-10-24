@@ -19,6 +19,7 @@ namespace MagicSchool.Contracts
         CritChance = 18,
         ManaPerAttack = 20,
         MaxMana = 21,
+        ManaPerSecond = 22,
 
         // ======================================= Debuff =======================================
         DefendShred = 13,

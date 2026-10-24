@@ -22,5 +22,6 @@ namespace MagicSchool.Contracts
         CritChance = 10,
         Omnivamp = 11,
         ManaPerAttack = 12,
+        ManaPerSecond = 13,
     }
 }

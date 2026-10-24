@@ -62,7 +62,10 @@ namespace MagicSchool.Combat.Heroes
         }
 
         // ======================================== IEffectable ========================================
-        public bool IsAlive => this != null && IsInitialized && StateType != HeroStateEnum.Dead;
+        // 0 HP is dead at once, not only from the hero's next update, when the state machine moves it to Dead -
+        // until then a shot landing in the same frame would hit it and vanish
+        // e.g.     Skeleton Archer's second arrow landing on the hero his first one just killed
+        public bool IsAlive => this != null && IsInitialized && StateType != HeroStateEnum.Dead && CurrentHP > 0;
         public void AddModifier(ICustomModifier modifier, IHeroStats casterStats, float amplifier = 1f) => Stat.AddModifier(modifier, amplifier, casterStats, this);
         public bool RemoveModifier(ICustomModifier modifier) => Stat.RemoveModifier(modifier);
         public bool HasStatus(ModifierEnum status) => Stat.HasStatus(status);

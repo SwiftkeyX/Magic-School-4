@@ -19,7 +19,10 @@ namespace MagicSchool.Combat.Heroes.Stats
         private int _currentMana;
         private int _hpOwed; // HP a max HP loss could not take without killing (See FollowMaxHP)
 
-        private const int BaseManaPerAttack = 10;
+        // mana comes over time (See ManaRegen). An auto attack gives none by default; ManaPerAttack stays a stat
+        // so an item, mark or skill can still give mana per attack.
+        private const float BaseManaPerSecond = 5f;
+        private const int BaseManaPerAttack = 0;
 
         // ========================================== stat getter ==========================================
         public float GetBaseStat(StatEnum type) => _base[type];
@@ -42,6 +45,7 @@ namespace MagicSchool.Combat.Heroes.Stats
         public int StartMana => Mathf.RoundToInt(GetFinalStat(StatEnum.StartMana));
         public int MaxMana => Mathf.RoundToInt(GetFinalStat(StatEnum.MaxMana));
         public int ManaPerAttack => Mathf.RoundToInt(GetFinalStat(StatEnum.ManaPerAttack));
+        public float ManaPerSecond => GetFinalStat(StatEnum.ManaPerSecond);
         public float DamageReductionPercent => Mathf.RoundToInt(GetFinalStat(StatEnum.DamageReduction));
         public int CurrentHP => _currentHP;
         public int CurrentMana => _currentMana;
@@ -149,6 +153,7 @@ namespace MagicSchool.Combat.Heroes.Stats
             _base[StatEnum.CritChance] = so.CritChance;
             _base[StatEnum.Omnivamp] = 0f;
             _base[StatEnum.ManaPerAttack] = BaseManaPerAttack;
+            _base[StatEnum.ManaPerSecond] = BaseManaPerSecond;
 
             // there's chance MaxHP is modified at the start, so set _currentHP to MaxHP accordingly  
             _currentHP = MaxHP;

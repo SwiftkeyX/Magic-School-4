@@ -42,6 +42,7 @@ namespace MagicSchool.Modifiers
             { ModifierEnum.CritChance     , StatEnum.CritChance }     ,
             { ModifierEnum.Omnivamp       , StatEnum.Omnivamp }       ,
             { ModifierEnum.ManaPerAttack  , StatEnum.ManaPerAttack }  ,
+            { ModifierEnum.ManaPerSecond  , StatEnum.ManaPerSecond }  ,
             { ModifierEnum.MaxMana        , StatEnum.MaxMana }        ,
             // ...
 

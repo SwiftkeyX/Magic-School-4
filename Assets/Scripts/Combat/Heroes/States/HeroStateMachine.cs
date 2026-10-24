@@ -1,3 +1,4 @@
+using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.Skills;
 
@@ -17,6 +18,7 @@ namespace MagicSchool.Combat.Heroes.States
         private readonly HeroWalk _walk;
         private readonly HeroStunned _stunned;
         private readonly HeroCast _cast;
+        private readonly ManaRegen _manaRegen;
 
         public HeroState Current { get; private set; }
 
@@ -34,6 +36,7 @@ namespace MagicSchool.Combat.Heroes.States
             _dead = new HeroDead(hero, transition);
             _stunned = new HeroStunned(hero, transition);
             _cast = new HeroCast(hero, movement, transition);
+            _manaRegen = new ManaRegen(hero);
         }
 
         public void Start(HeroStateEnum initial)
@@ -56,6 +59,9 @@ namespace MagicSchool.Combat.Heroes.States
         public void Tick()
         {
             if (Current == null) return;
+
+            // mana every second of the fight, before the cast check below so a full bar casts this frame (See ManaRegen)
+            _manaRegen.Tick(Time.deltaTime, CurrentType);
 
             // interrupt state e.g. stun, dead
             if (TryResolveInterrupt(out HeroStateEnum forced))
