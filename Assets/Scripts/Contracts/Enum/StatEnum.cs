@@ -23,5 +23,6 @@ namespace MagicSchool.Contracts
         Omnivamp = 11,
         ManaPerAttack = 12,
         ManaPerSecond = 13,
+        HPPerSecond = 14,
     }
 }

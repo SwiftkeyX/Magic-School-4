@@ -20,6 +20,7 @@ namespace MagicSchool.Contracts
         ManaPerAttack = 20,
         MaxMana = 21,
         ManaPerSecond = 22,
+        HPPerSecond = 23,
 
         // ======================================= Debuff =======================================
         DefendShred = 13,

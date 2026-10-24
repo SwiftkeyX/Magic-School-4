@@ -105,6 +105,7 @@ namespace MagicSchool.Combat.Align
                 case ModifierEnum.StartMana: return $"{signed} starting mana";
                 case ModifierEnum.ManaPerAttack: return $"{signed} mana per attack";
                 case ModifierEnum.ManaPerSecond: return $"{signed} mana per second";
+                case ModifierEnum.HPPerSecond: return $"{signed} HP per second";
                 case ModifierEnum.MaxMana: return $"{signed} max mana";
                 case ModifierEnum.Range: return $"{signed} range";
 

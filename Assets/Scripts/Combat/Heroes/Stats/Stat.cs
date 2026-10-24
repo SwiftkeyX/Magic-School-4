@@ -46,6 +46,7 @@ namespace MagicSchool.Combat.Heroes.Stats
         public int MaxMana => Mathf.RoundToInt(GetFinalStat(StatEnum.MaxMana));
         public int ManaPerAttack => Mathf.RoundToInt(GetFinalStat(StatEnum.ManaPerAttack));
         public float ManaPerSecond => GetFinalStat(StatEnum.ManaPerSecond);
+        public float HPPerSecond => GetFinalStat(StatEnum.HPPerSecond);
         public float DamageReductionPercent => Mathf.RoundToInt(GetFinalStat(StatEnum.DamageReduction));
         public int CurrentHP => _currentHP;
         public int CurrentMana => _currentMana;
@@ -154,6 +155,7 @@ namespace MagicSchool.Combat.Heroes.Stats
             _base[StatEnum.Omnivamp] = 0f;
             _base[StatEnum.ManaPerAttack] = BaseManaPerAttack;
             _base[StatEnum.ManaPerSecond] = BaseManaPerSecond;
+            _base[StatEnum.HPPerSecond] = 0f;      // no one regenerates HP unless given it (See HPRegen)
 
             // there's chance MaxHP is modified at the start, so set _currentHP to MaxHP accordingly  
             _currentHP = MaxHP;

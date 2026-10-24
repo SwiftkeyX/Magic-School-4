@@ -19,6 +19,7 @@ namespace MagicSchool.Combat.Heroes.States
         private readonly HeroStunned _stunned;
         private readonly HeroCast _cast;
         private readonly ManaRegen _manaRegen;
+        private readonly HPRegen _hpRegen;
 
         public HeroState Current { get; private set; }
 
@@ -37,6 +38,7 @@ namespace MagicSchool.Combat.Heroes.States
             _stunned = new HeroStunned(hero, transition);
             _cast = new HeroCast(hero, movement, transition);
             _manaRegen = new ManaRegen(hero);
+            _hpRegen = new HPRegen(hero);
         }
 
         public void Start(HeroStateEnum initial)
@@ -62,6 +64,7 @@ namespace MagicSchool.Combat.Heroes.States
 
             // mana every second of the fight, before the cast check below so a full bar casts this frame (See ManaRegen)
             _manaRegen.Tick(Time.deltaTime, CurrentType);
+            _hpRegen.Tick(Time.deltaTime, CurrentType);
 
             // interrupt state e.g. stun, dead
             if (TryResolveInterrupt(out HeroStateEnum forced))

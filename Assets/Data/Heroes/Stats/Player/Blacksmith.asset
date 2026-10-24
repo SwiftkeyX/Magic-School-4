@@ -79,6 +79,16 @@ MonoBehaviour:
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
+    - hexes: []
+      special: Anvil
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
   - marks:
     - hexes:
       - direction: 4
@@ -130,6 +140,16 @@ MonoBehaviour:
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
+    - hexes: []
+      special: Anvil
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
   - marks:
     - hexes:
       - direction: 5
@@ -173,6 +193,16 @@ MonoBehaviour:
       healFromAllyDamage: 0
     - hexes: []
       special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes: []
+      special: Anvil
       modifier: 0
       amount: 0
       percentOf: -1
@@ -232,6 +262,16 @@ MonoBehaviour:
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
+    - hexes: []
+      special: Anvil
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
   - marks:
     - hexes:
       - direction: 1
@@ -283,6 +323,16 @@ MonoBehaviour:
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
+    - hexes: []
+      special: Anvil
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
   - marks:
     - hexes:
       - direction: 2
@@ -326,6 +376,16 @@ MonoBehaviour:
       healFromAllyDamage: 0
     - hexes: []
       special: 
+      modifier: 0
+      amount: 0
+      percentOf: -1
+      selfModifier: 0
+      selfAmount: 0
+      selfPercentOf: -1
+      selfWhenEmpty: 0
+      healFromAllyDamage: 0
+    - hexes: []
+      special: Anvil
       modifier: 0
       amount: 0
       percentOf: -1

@@ -43,6 +43,7 @@ namespace MagicSchool.Modifiers
             { ModifierEnum.Omnivamp       , StatEnum.Omnivamp }       ,
             { ModifierEnum.ManaPerAttack  , StatEnum.ManaPerAttack }  ,
             { ModifierEnum.ManaPerSecond  , StatEnum.ManaPerSecond }  ,
+            { ModifierEnum.HPPerSecond    , StatEnum.HPPerSecond }    ,
             { ModifierEnum.MaxMana        , StatEnum.MaxMana }        ,
             // ...
 
