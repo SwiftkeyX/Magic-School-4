@@ -40,8 +40,10 @@ namespace MagicSchool.Combat.Heroes
         // Get every enemy on the board.
         public List<ICombatant> GetAllEnemy()
         {
+            // a cache from earlier this frame drops whoever died since: a hero killed this frame is not an enemy to go for
+            // e.g.     Skeleton Archer walking toward the slime his own arrow just killed
             bool isCache = _enemyCacheFrame == Time.frameCount;
-            if (isCache) return _enemyCache;
+            if (isCache) return _enemyCache = WithoutTheDead(_enemyCache, enemy => enemy);
 
             _enemyCache = _board.HeroesOnBoard.Where(IsEnemy).ToList();
             _enemyCacheFrame = Time.frameCount;
@@ -60,7 +62,7 @@ namespace MagicSchool.Combat.Heroes
         public List<(ICombatant target, float dist)> Distances()
         {
             bool isCache = _distanceCacheFrame == Time.frameCount;
-            if (isCache) return _distanceCache;
+            if (isCache) return _distanceCache = WithoutTheDead(_distanceCache, e => e.target);
 
             Vector3 origin = _me.CurrentHex.transform.position;
 
@@ -79,7 +81,7 @@ namespace MagicSchool.Combat.Heroes
         public List<(ICombatant target, int steps)> Steps()
         {
             bool isCache = _stepCacheFrame == Time.frameCount;
-            if (isCache) return _stepCache;
+            if (isCache) return _stepCache = WithoutTheDead(_stepCache, e => e.target);
 
             RefreshStepMaps();
 
@@ -90,6 +92,10 @@ namespace MagicSchool.Combat.Heroes
         }
 
         // ========================================= private =========================================
+        // a new list, not the cached one edited: whoever is still looping over the old one is left alone
+        private static List<T> WithoutTheDead<T>(List<T> cache, System.Func<T, ICombatant> unit)
+            => cache.TrueForAll(entry => unit(entry).IsAlive) ? cache : cache.Where(entry => unit(entry).IsAlive).ToList();
+
         // easy boolean logic to filter the enemy
         private bool IsEnemy(ICombatant target)
         {

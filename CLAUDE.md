@@ -251,6 +251,10 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   it is arriving on (`ArrivingHex`, next to `CurrentHex()`): a unit is only handed its new hex when the step ends, so counting
   from the hex it left - with the hex it is entering reserved, so a wall - once made Reaper walk 6 hexes past a Minotaur
   stepping up next to her.
+  A hero is dead the moment its HP is 0 (`Hero.IsAlive`), not only from its next update, so a target killed this frame
+  must not be gone for: `EnemyScan`'s per-frame caches drop whoever died since they were built (a new list, never edited in
+  place), and `HeroAttack.CheckSwitchState` picks a new target when its own just died - before both, Skeleton Archer walked
+  toward the slime his own arrow had killed while another stood in his range.
 - Chosen target: when a player hero's nearest enemy is a tie (`FindTarget.TiedNearestEnemies` - the same tie
   `FindNearestEnemy` breaks, in-range enemies first), the player picks which one it goes for. In Preparation, right-clicking a
   placed hero inspects it; right-clicking it again while it is inspected steps through the tied enemies and back to automatic

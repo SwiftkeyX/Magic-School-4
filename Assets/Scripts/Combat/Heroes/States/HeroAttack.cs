@@ -68,6 +68,10 @@ namespace MagicSchool.Combat.Heroes.States
 
         protected override void CheckSwitchState()
         {
+            // my target died this frame - often to the attack just made: pick the next one before deciding,
+            // or I would walk toward the corpse while another enemy stands in range
+            if (_currentTarget != null && !_currentTarget.IsAlive) _currentTarget = _me.FindCurrentTarget();
+
             // guard
             if (_currentTarget == null) { _me.ChangeState(HeroStateEnum.Idle); return; }
 
