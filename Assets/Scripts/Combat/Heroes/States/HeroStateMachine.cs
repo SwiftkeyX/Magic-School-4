@@ -103,6 +103,10 @@ namespace MagicSchool.Combat.Heroes.States
                 return true;
             }
 
+            // a full bar waits for the step under way to land, a fraction of a second. Cast halfway, the hero kept the
+            // hex he was stepping onto booked and never arrived, and enemies next to it waited for him forever.
+            if (CurrentType == HeroStateEnum.Walk && _walk.IsMidStep) return false;
+
             // FLAGGING: Being stun while casting skill is useless for the stun user, since skill effect is already fire.
             // if mana is full, trigger OnCast skill
             bool success = _me.TriggerActiveSkill(_me.IsManaCapped());

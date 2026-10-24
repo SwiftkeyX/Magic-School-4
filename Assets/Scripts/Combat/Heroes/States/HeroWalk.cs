@@ -17,10 +17,16 @@ namespace MagicSchool.Combat.Heroes.States
             _step = new HexStep(hero, movement);
         }
 
+        // between two hexes: a cast waits for the step to land (See HeroStateMachine.TryResolveInterrupt)
+        public bool IsMidStep => _step.IsWalking;
+
         public override void OnEnter()
         {
             _step.StartTo(_me.ReservedHex);
         }
+
+        // only a stun or death leaves a step halfway (See HexStep.CutOff)
+        public override void OnExit() => _step.CutOff();
 
         public override void OnUpdate()
         {

@@ -51,6 +51,19 @@ namespace MagicSchool.Combat.Heroes.States
         // forget a step that was cut off (e.g. a stun) - the next one starts from wherever the hero is
         public void Cancel() => _isWalking = false;
 
+        // A step cut off halfway (a stun, death): back onto the hex it left, and let go of the hex it was stepping onto.
+        // Kept, that booking would never be used, and an enemy next to it waits for him to arrive there forever.
+        // e.g.     two Minotaurs standing still next to the hex Skeleton Archer was stepping onto when he was stunned
+        public void CutOff()
+        {
+            if (!_isWalking) return;
+            _isWalking = false;
+
+            if (_me.CurrentHex == null) return;
+            _me.transform.position = _me.CurrentHex.transform.position;
+            _me.SetReservedHex(_me.CurrentHex);
+        }
+
         // A unit arrive at new hex
         // un owner to previous hex, set new owner to the new hex.
         // NOTE: this use same pattern as HeroMover & Move Template action

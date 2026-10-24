@@ -40,6 +40,9 @@ namespace MagicSchool.Combat.Heroes.States
             CheckSwitchState();
         }
 
+        // a stun or death halfway through a step taken while casting (See HexStep.CutOff)
+        public override void OnExit() => _step.CutOff();
+
         protected override void CheckSwitchState()
         {
             // if still casting, return
