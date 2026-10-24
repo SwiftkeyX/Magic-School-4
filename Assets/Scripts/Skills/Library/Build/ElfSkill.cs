@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MagicSchool.Contracts;
 using static MagicSchool.Skills.SkillFactory;
 
@@ -6,44 +5,44 @@ namespace MagicSchool.Skills
 {
     internal class ElfSkill : SkillDefinition
     {
-        private static float DamageRatio => Tuned(200f);
-        private static float ShredDuration => Tuned(-1f);
-        private static float ShredFromAP => Tuned(20f);
+        private static float BuffDuration => Tuned(6f);
+        private static float AttackFromAP => Tuned(15f);        // +15% of her AP as AD
+        private static float AttackSpeedFromAP => Tuned(30f);   // +30% attack speed per 100 AP
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ElfSkill(registry);
 
         private ElfSkill(TemplateActionRegistrySO registry) : base(registry) { }
 
-        public override string SkillName => "Sundering Arrow";
+        public override string SkillName => "Hunter's Focus";
 
         public override string Description
-            => $"Fires a shot at the current target. The first enemy it finds takes {AD(DamageRatio)} "
-             + $"and loses {AP(ShredFromAP)} armour for the rest of the fight.";
+            => $"Focuses for {BuffDuration} seconds, gaining {AP(AttackFromAP)} AD and {AP(AttackSpeedFromAP)}% attack speed.";
 
         // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            SkillPart shootProjectile = Part(
+            // "X% attack speed per 100 AP" is base AS x AP, but a ratio only adds. Base AS never changes for a hero
+            // (stars and levels leave it), so it is folded into the AP ratio here: 100 AP on 0.75 AS -> +0.225 AS (+30%).
+            float baseAS = Caster is IHeroStats stats ? stats.GetBaseStat(StatEnum.AS) : 0f;
+
+            SkillPart focus = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
-                action: TemplateActionEnum.FirstHitProjectile,
-                target: AimTargetEnum.Current,
-
-                Damage(
-                    recipient: EffectRecipientEnum.SameToAimTarget,
-                    ratios: (StatEnum.ATK, DamageRatio)),
+                action: TemplateActionEnum.Cast,
+                target: AimTargetEnum.Self,
 
                 Apply(
-                    recipient: EffectRecipientEnum.SameToAimTarget,
+                    recipient: EffectRecipientEnum.Self,
                     modifier: BundleRefresh(
-                        duration: ShredDuration,
-                        modifiers: Debuff(
-                            modifier: ModifierEnum.DefendShred,
-                            // 20% of the total AP is the total that reduce the target's DF.
-                            ratios: (StatEnum.AP, ShredFromAP, ScaleFromEnum.Total))))
+                        duration: BuffDuration,
+                        modifiers: new[]
+                        {
+                            Buff(ModifierEnum.ATK, (StatEnum.AP, AttackFromAP, ScaleFromEnum.Total)),
+                            Buff(ModifierEnum.AS, (StatEnum.AP, AttackSpeedFromAP * baseAS / 100f, ScaleFromEnum.Total)),
+                        }))
             );
 
-            return Flow(onStart: shootProjectile);
+            return Flow(onStart: focus);
         }
     }
 }

@@ -67,8 +67,9 @@ MonoBehaviour:
         isWearing: 1
       special: 
       modifier: 5
-      amount: 20
+      amount: 25
       percentOf: 5
+      perOwnerAP: 1
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -113,8 +114,9 @@ MonoBehaviour:
         isWearing: 1
       special: 
       modifier: 5
-      amount: 20
+      amount: 25
       percentOf: 5
+      perOwnerAP: 1
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -159,8 +161,9 @@ MonoBehaviour:
         isWearing: 0
       special: 
       modifier: 5
-      amount: 20
+      amount: 25
       percentOf: 5
+      perOwnerAP: 1
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -205,8 +208,9 @@ MonoBehaviour:
         isWearing: 1
       special: 
       modifier: 5
-      amount: 20
+      amount: 25
       percentOf: 5
+      perOwnerAP: 1
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1

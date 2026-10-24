@@ -23,47 +23,87 @@ MonoBehaviour:
   _attackSpeed: 0.75
   _range: 4
   _startMana: 0
-  _maxMana: 50
+  _maxMana: 100
   _critChance: 25
   _skillId: 7
   _spawnUnit: {fileID: 0}
   _alignPatterns:
   - marks:
     - hexes:
-      - direction: 3
-        distance: 1
-        thenDirection: 3
+      - direction: 1
+        distance: 2
+        thenDirection: 0
         thenDistance: 0
         isWearing: 1
-      - direction: 0
+      - direction: 1
         distance: 1
         thenDirection: 0
         thenDistance: 0
         isWearing: 1
+      - direction: 5
+        distance: 1
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 1
+      - direction: 5
+        distance: 2
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 1
+      - direction: 1
+        distance: 1
+        thenDirection: 0
+        thenDistance: 1
+        isWearing: 0
+      - direction: 5
+        distance: 1
+        thenDirection: 0
+        thenDistance: 1
+        isWearing: 0
+      - direction: 2
+        distance: 2
+        thenDirection: 2
+        thenDistance: 0
+        isWearing: 0
+      - direction: 4
+        distance: 2
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
       special: 
       modifier: 0
       amount: 0
       percentOf: -1
-      selfModifier: 21
-      selfAmount: -10
-      selfPercentOf: -1
+      selfModifier: 5
+      selfAmount: 20
+      selfPercentOf: 5
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
-      - direction: 3
-        distance: 1
-        thenDirection: 3
+      - direction: 2
+        distance: 2
+        thenDirection: 2
         thenDistance: 0
-        isWearing: 1
-      - direction: 0
-        distance: 1
+        isWearing: 0
+      - direction: 1
+        distance: 2
         thenDirection: 0
         thenDistance: 0
         isWearing: 1
+      - direction: 5
+        distance: 2
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 1
+      - direction: 4
+        distance: 2
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 0
       special: 
       modifier: 8
       amount: 30
-      percentOf: 3
+      percentOf: -1
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -76,76 +116,75 @@ MonoBehaviour:
         thenDirection: 3
         thenDistance: 0
         isWearing: 1
-      - direction: 1
-        distance: 1
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 1
-      special: 
-      modifier: 0
-      amount: 0
-      percentOf: -1
-      selfModifier: 21
-      selfAmount: -10
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-    - hexes:
       - direction: 4
-        distance: 1
+        distance: 2
         thenDirection: 3
         thenDistance: 0
         isWearing: 1
-      - direction: 1
-        distance: 1
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 1
-      special: 
-      modifier: 8
-      amount: 30
-      percentOf: 3
-      selfModifier: 0
-      selfAmount: 0
-      selfPercentOf: -1
-      selfWhenEmpty: 0
-      healFromAllyDamage: 0
-  - marks:
-    - hexes:
-      - direction: 5
-        distance: 1
-        thenDirection: 5
-        thenDistance: 0
-        isWearing: 1
       - direction: 2
         distance: 1
         thenDirection: 2
         thenDistance: 0
         isWearing: 1
+      - direction: 2
+        distance: 2
+        thenDirection: 2
+        thenDistance: 0
+        isWearing: 1
+      - direction: 2
+        distance: 1
+        thenDirection: 3
+        thenDistance: 1
+        isWearing: 0
+      - direction: 4
+        distance: 1
+        thenDirection: 3
+        thenDistance: 1
+        isWearing: 0
+      - direction: 1
+        distance: 2
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 0
+      - direction: 5
+        distance: 2
+        thenDirection: 5
+        thenDistance: 0
+        isWearing: 0
       special: 
       modifier: 0
       amount: 0
       percentOf: -1
-      selfModifier: 21
-      selfAmount: -10
-      selfPercentOf: -1
+      selfModifier: 5
+      selfAmount: 20
+      selfPercentOf: 5
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
       - direction: 5
-        distance: 1
+        distance: 2
         thenDirection: 5
+        thenDistance: 0
+        isWearing: 0
+      - direction: 4
+        distance: 2
+        thenDirection: 3
         thenDistance: 0
         isWearing: 1
       - direction: 2
-        distance: 1
+        distance: 2
         thenDirection: 2
         thenDistance: 0
         isWearing: 1
+      - direction: 1
+        distance: 2
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 0
       special: 
       modifier: 8
       amount: 30
-      percentOf: 3
+      percentOf: -1
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1

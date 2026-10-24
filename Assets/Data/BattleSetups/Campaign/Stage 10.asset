@@ -21,6 +21,7 @@ MonoBehaviour:
     item: {fileID: 0}
     alignPattern: 0
     level: 20
+    star: 1
   - dataSO: {fileID: 11400000, guid: 323550731efc8b341ace76ed3fed3a5c, type: 2}
     team: 1
     hexPlacement:
@@ -29,6 +30,7 @@ MonoBehaviour:
     item: {fileID: 0}
     alignPattern: 0
     level: 20
+    star: 1
   - dataSO: {fileID: 11400000, guid: 323550731efc8b341ace76ed3fed3a5c, type: 2}
     team: 1
     hexPlacement:
@@ -37,6 +39,7 @@ MonoBehaviour:
     item: {fileID: 0}
     alignPattern: 0
     level: 20
+    star: 1
   - dataSO: {fileID: 11400000, guid: e2973ad7b1f34a79918c1367e14fa734, type: 2}
     team: 1
     hexPlacement:
@@ -45,6 +48,7 @@ MonoBehaviour:
     item: {fileID: 0}
     alignPattern: 0
     level: 20
+    star: 1
   - dataSO: {fileID: 11400000, guid: 332908cda09db9745af288f5883f93f4, type: 2}
     team: 1
     hexPlacement:
@@ -53,6 +57,16 @@ MonoBehaviour:
     item: {fileID: 0}
     alignPattern: 0
     level: 20
+    star: 1
+  - dataSO: {fileID: 11400000, guid: 03d052ead6319ee4fbcac688402e60d5, type: 2}
+    team: 1
+    hexPlacement:
+      column: 11
+      row: 0
+    item: {fileID: 0}
+    alignPattern: 0
+    level: 20
+    star: 1
   _deployZone:
   - column: 0
     row: 0
