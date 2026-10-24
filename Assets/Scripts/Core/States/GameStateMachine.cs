@@ -39,6 +39,15 @@ namespace MagicSchool.Core.States
             Current.OnEnter();
         }
 
+        // leave the current state and enter it again, e.g. Preparation opening on another stage (See GameManager.JumpToStage)
+        public void Reenter()
+        {
+            if (Current == null) return;
+
+            Current.OnExit();
+            Current.OnEnter();
+        }
+
         public void Tick()
         {
             if (Current == null) return;

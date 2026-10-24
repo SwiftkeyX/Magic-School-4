@@ -77,6 +77,7 @@ namespace MagicSchool.Core
         private bool _continueRequested;
         private bool _restartRequested;
         private bool _skipStageRequested;
+        private bool _keepShopOnce;
 
         // ======================================== getter ========================================
         public GamePhaseEnum Phase => _stateMachine == null ? GamePhaseEnum.Preparation : _stateMachine.CurrentType;
@@ -94,6 +95,7 @@ namespace MagicSchool.Core
 
         // ======================================== setter ========================================
         internal BattlePlacementSO GetStage(int index) => HasStages ? _stages[index] : _currentStage;
+        internal bool IsInRun(BattlePlacementSO stage) => HasStages && stage != null && System.Array.IndexOf(_stages, stage) >= 0;
         internal void SetWinner(TeamEnum? winner) => Winner = winner;
         internal void SetStageIndex(int index) => _stageIndex = Mathf.Clamp(index, 0, StageCount - 1);
         internal void GrowHeroLimit() => _heroLimit++;
@@ -334,6 +336,24 @@ namespace MagicSchool.Core
 
             _skipStageRequested = true;
         }
+
+        // Dev tool (the Stage Editor's Load): play this stage of the run now, in Preparation.
+        // Preparation opens again as it does for a new stage - the stage's board, enemies, levels and deploy zone, the stage
+        // number - but the team stays where it stands (the spare bench if the board changes) and the shop is kept.
+        // Returns false when the stage is not one of _stages, or it is not Preparation.
+        public bool JumpToStage(BattlePlacementSO stage)
+        {
+            if (Phase != GamePhaseEnum.Preparation || !IsInRun(stage)) return false;
+
+            _heroFormation.Remember(_board.HeroesOnBoard, TeamEnum.Blue);
+            SetStageIndex(System.Array.IndexOf(_stages, stage));
+            _keepShopOnce = true;
+            _stateMachine.Reenter();
+            return true;
+        }
+
+        // set by JumpToStage only, so it is not one of ClearPendingRequests' requests - Preparation clears those first
+        internal bool ConsumeKeepShop() => Consume(ref _keepShopOnce);
 
         // consume a request, then clear the flag to false immediately:
         // 1) start combat => let hero fight between heroes

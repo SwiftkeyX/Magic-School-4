@@ -195,27 +195,33 @@ namespace MagicSchool.Editor
 
             foreach (BattlePlacementSO stage in stages)
             {
-                bool fits = editor == null || editor.FitsThisBoard(stage);
+                bool inRun = editor == null || editor.IsInRun(stage);
+                bool fits = inRun || editor.FitsThisBoard(stage);
+                bool isCurrent = editor != null && editor.CurrentStage == stage;
                 (int count, string levels) = Enemies(stage);
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    EditorGUILayout.LabelField(new GUIContent(stage.name, AssetDatabase.GetAssetPath(stage)), GUILayout.MinWidth(110));
+                    string label = isCurrent ? $"{stage.name}  (current)" : stage.name;
+                    EditorGUILayout.LabelField(new GUIContent(label, AssetDatabase.GetAssetPath(stage)),
+                                               isCurrent ? EditorStyles.boldLabel : EditorStyles.label, GUILayout.MinWidth(110));
                     EditorGUILayout.LabelField($"{count} enemies, lv {levels}", EditorStyles.miniLabel, GUILayout.Width(120));
                     using (new EditorGUI.DisabledScope(!ready || !fits))
                     {
                         string board = stage.BoardLayout != null ? stage.BoardLayout.name : "another board";
-                        string tip = fits ? $"Swap the enemies on the board for {stage.name}'s" +
+                        string tip = inRun ? $"Go to {stage.name}: its board, enemies, levels and deploy zone, and it becomes the " +
+                                             "current stage. Your team and the shop are kept. Asks first."
+                                   : fits ? $"Not in the run: only swap the enemies on the board for {stage.name}'s" +
                                             (_editDeployZone ? ", and take its deploy zone." : ".") + " Asks first if the board has enemies."
-                                          : $"Fought on {board} - play a stage on that board to load it.";
+                                          : $"Not in the run, and fought on {board} - play a stage on that board to load it.";
                         if (WindowStyle.RowButton(new GUIContent("Load", tip)))
-                            StageEditorMenu.LoadEnemyTeam(stage);
+                            StageEditorMenu.LoadStage(stage);
                     }
                     if (WindowStyle.RowButton(new GUIContent("Select", "Show it in the Project window.")))
                         Reveal(stage);
                 }
             }
-            WindowStyle.Hint("Loading changes only the board. Save To Current Stage writes to the stage being played; to change the " +
-                             "loaded one, use Save As New Stage... and pick it.");
+            WindowStyle.Hint("Loading a stage of the run goes to it: it becomes the current stage, so Save To Current Stage writes to " +
+                             "it. A stage outside the run only has its enemies put on the board.");
         }
 
         // every enemy on the board with its level, changed live; saving writes them into the stage

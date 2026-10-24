@@ -17,7 +17,8 @@ namespace MagicSchool.Core
     ///     remove enemy        - drop an enemy on the shop
     ///     paint deploy zone   - click an empty hex to put it in or out of the zone
     ///     save formation      - ReadEnemyTeam() and ReadDeployZone() are what the board holds right now; the menu writes them into an asset
-    ///     load formation      - LoadEnemyTeam() puts a saved stage's enemies (and its deploy zone) back on the board
+    ///     load stage          - LoadStage() makes the run play a stage of GameManager._stages (See GameManager.JumpToStage);
+    ///                           LoadEnemyTeam() only puts a stage's enemies (and its deploy zone) on the board, for one outside the run
     ///     team comp           - ReadPlayerTeam() and ReadItemsOnHexes() save the player's heroes on the board, their items and
     ///                           the items on hexes; LoadPlayerTeam() puts a saved comp back
     ///
@@ -153,6 +154,12 @@ namespace MagicSchool.Core
             comp.ReplaceItemsOnHexes(itemsOnHexes);
             comp.SetBoardLayout(_game.Board.Layout);
         }
+
+        // is the stage one of the run's (GameManager._stages)? Only those can be gone to with LoadStage.
+        public bool IsInRun(BattlePlacementSO stage) => _game.IsInRun(stage);
+
+        // the run goes to this stage: its board, enemies, levels, deploy zone and number. False if it is not in the run.
+        public bool LoadStage(BattlePlacementSO stage) => CanEditNow && _game.JumpToStage(stage);
 
         // can the comp's hex numbers be read on the board as it is now?
         public bool FitsThisBoard(BattlePlacementSO comp) => comp.BoardLayout == null || _game.Board.HasLayout(comp.BoardLayout);

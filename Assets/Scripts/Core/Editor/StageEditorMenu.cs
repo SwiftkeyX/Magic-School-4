@@ -17,7 +17,8 @@ namespace MagicSchool.Editor
     //      SavePlayerTeam    - write the player's heroes on the board, the items they wear and the items on hexes into a
     //                          team comp (Data/BattleSetups/Team Comps)
     //      LoadTeamComp      - swap the player's heroes on the board for a saved comp's
-    //      LoadEnemyTeam     - swap the enemies on the board for a saved stage's (and its deploy zone, when it is being edited)
+    //      LoadStage         - go to a stage of the run (its board, enemies, deploy zone and number); a stage outside the run
+    //                          only has its enemies put on the board (and its deploy zone, when it is being edited)
     //
     // All of them need:
     //      Stage Edit Mode on > Play mode > Preparation state
@@ -153,10 +154,28 @@ namespace MagicSchool.Editor
             Debug.Log($"[StageEditor] loaded {placed} of {inComp} heroes from '{comp.name}'.");
         }
 
-        internal static void LoadEnemyTeam(BattlePlacementSO stage)
+        internal static void LoadStage(BattlePlacementSO stage)
         {
             if (!TryGetEditor(out StageEditor editor)) return;
+            if (!editor.IsInRun(stage))
+            {
+                LoadEnemyTeam(editor, stage);
+                return;
+            }
 
+            if (!EditorUtility.DisplayDialog("Go to stage",
+                    $"Play '{stage.name}' now?\n\nIts enemies, levels, deploy zone and board replace what is on the board, and it " +
+                    "becomes the current stage - Save To Current Stage writes to it. Unsaved enemy changes are lost.\n\n" +
+                    "Your team stays where it stands (on the spare bench if the board changes). The shop is kept.",
+                    "Go", "Cancel")) return;
+
+            if (editor.LoadStage(stage)) Debug.Log($"[StageEditor] went to '{stage.name}'.");
+            else Debug.LogWarning($"[StageEditor] could not go to '{stage.name}' - it can only be done in Preparation.");
+        }
+
+        // a stage that is not one of the run's: only its enemies (and zone) go on the board, and the current stage stays
+        private static void LoadEnemyTeam(StageEditor editor, BattlePlacementSO stage)
+        {
             int inStage = editor.EnemyCountIn(stage);
             if (inStage == 0)
             {
@@ -177,7 +196,7 @@ namespace MagicSchool.Editor
                     $"Replace the {onBoard} enemies on the board with the {inStage} in '{stage.name}'?" +
                     (withZone ? $"\n\nThe deploy zone becomes the stage's too ({editor.DeployZoneCountIn(stage)} hexes)."
                               : "\n\nThe deploy zone is kept ('Edit deploy zone' is off).") +
-                    "\n\nNothing is saved until you save - Save To Current Stage writes to the stage being played, not this one.",
+                    $"\n\n'{stage.name}' is not in the run, so the current stage stays - Save To Current Stage writes to that one, not this.",
                     "Load", "Cancel")) return;
 
             int placed = editor.LoadEnemyTeam(stage, withZone);
