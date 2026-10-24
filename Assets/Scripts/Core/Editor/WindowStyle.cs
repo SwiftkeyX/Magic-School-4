@@ -15,6 +15,7 @@ namespace MagicSchool.Editor
     //      Status      - why something cannot be done yet, or what to do first
     //      Action      - a main button (Save, Run, Write to code): tall
     //      RowButton   - a small button on a row of a list (Add, Load, Reset, Remove)
+    //      ListRow     - one row of an asset list: its button first, the name beside it, details, Select at the far end
     //      ListItem    - one pickable entry of a side list (a hero, a skill)
     //      Sidebar     - the side list's width
     internal static class WindowStyle
@@ -26,6 +27,12 @@ namespace MagicSchool.Editor
         public const float SubTabIndent = 12f;
 
         private static GUIStyle _listItem;
+
+        // the shading of every other row of a list, and of the row under the mouse (See ListRow)
+        private static Color Stripe => EditorGUIUtility.isProSkin ? new Color(1f, 1f, 1f, 0.035f) : new Color(0f, 0f, 0f, 0.045f);
+        private static Color Hover => EditorGUIUtility.isProSkin ? new Color(1f, 1f, 1f, 0.07f) : new Color(0f, 0f, 0f, 0.08f);
+
+        public enum RowClick { None, Button, Select }
 
         public static void Intro(string text)
         {
@@ -74,6 +81,45 @@ namespace MagicSchool.Editor
             => GUILayout.Button(content, EditorStyles.miniButton, GUILayout.Width(width));
 
         public static bool RowButton(string text, float width = RowButtonWidth) => RowButton(new GUIContent(text), width);
+
+        // One row of an asset list (stages, team comps, heroes, items): [Load] Stage 05   5 enemies, lv 10   ...   [Select].
+        // The button sits right beside the name however wide the window is, so the eye does not cross the window to find it.
+        // nameWidth: the list's name column, the same for every row so the details line up (See NameWidth).
+        // index: the row's place in its list - every other row is shaded, and the row under the mouse is lit; a window
+        // using this needs wantsMouseMove on and a Repaint on MouseMove for the light to follow the mouse.
+        public static RowClick ListRow(int index, GUIContent button, bool buttonEnabled, GUIContent name, float nameWidth,
+                                       string detail, GUIStyle nameStyle = null)
+        {
+            RowClick click = RowClick.None;
+
+            Rect row = EditorGUILayout.BeginHorizontal();
+            if (Event.current.type == EventType.Repaint)
+            {
+                if (index % 2 == 1) EditorGUI.DrawRect(row, Stripe);
+                if (row.Contains(Event.current.mousePosition)) EditorGUI.DrawRect(row, Hover);
+            }
+
+            using (new EditorGUI.DisabledScope(!buttonEnabled))
+            {
+                if (RowButton(button)) click = RowClick.Button;
+            }
+            GUILayout.Space(Gap);
+            GUILayout.Label(name, nameStyle ?? EditorStyles.label, GUILayout.Width(nameWidth));
+            GUILayout.Label(detail, EditorStyles.miniLabel);
+            GUILayout.FlexibleSpace();
+            if (RowButton(new GUIContent("Select", "Show it in the Project window."))) click = RowClick.Select;
+
+            EditorGUILayout.EndHorizontal();
+            return click;
+        }
+
+        // the name column of a list: as wide as its longest name (measured in bold, so a bold row fits too), never under 80
+        public static float NameWidth(System.Collections.Generic.IEnumerable<string> names)
+        {
+            float widest = 80f;
+            foreach (string name in names) widest = Mathf.Max(widest, EditorStyles.boldLabel.CalcSize(new GUIContent(name)).x);
+            return widest + 4f;
+        }
 
         // true when picked this frame - an entry already picked does not fire again
         public static bool ListItem(bool isPicked, string label)

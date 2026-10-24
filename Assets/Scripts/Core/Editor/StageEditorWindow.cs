@@ -60,12 +60,18 @@ namespace MagicSchool.Editor
         [MenuItem("Magic School 4/Stage Editor")]
         private static void Open() => GetWindow<StageEditorWindow>("Stage Editor");
 
-        private void OnEnable() => FindAssets();
+        private void OnEnable()
+        {
+            wantsMouseMove = true;      // the list row under the mouse is lit (See WindowStyle.ListRow)
+            FindAssets();
+        }
         private void OnProjectChange() => FindAssets();     // a hero or comp added, renamed or deleted
         private void OnInspectorUpdate() => Repaint();      // the status follows the game
 
         private void OnGUI()
         {
+            if (Event.current.type == EventType.MouseMove) Repaint();
+
             StageEditor editor = Editor();
             if (editor != null)
             {
@@ -193,32 +199,29 @@ namespace MagicSchool.Editor
                 return;
             }
 
-            foreach (BattlePlacementSO stage in stages)
+            BattlePlacementSO current = editor?.CurrentStage;
+            string LabelOf(BattlePlacementSO stage) => stage == current ? $"{stage.name}  (current)" : stage.name;
+            float nameWidth = WindowStyle.NameWidth(stages.Select(LabelOf));
+
+            for (int i = 0; i < stages.Count; i++)
             {
+                BattlePlacementSO stage = stages[i];
                 bool inRun = editor == null || editor.IsInRun(stage);
                 bool fits = inRun || editor.FitsThisBoard(stage);
-                bool isCurrent = editor != null && editor.CurrentStage == stage;
                 (int count, string levels) = Enemies(stage);
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    string label = isCurrent ? $"{stage.name}  (current)" : stage.name;
-                    EditorGUILayout.LabelField(new GUIContent(label, AssetDatabase.GetAssetPath(stage)),
-                                               isCurrent ? EditorStyles.boldLabel : EditorStyles.label, GUILayout.MinWidth(110));
-                    EditorGUILayout.LabelField($"{count} enemies, lv {levels}", EditorStyles.miniLabel, GUILayout.Width(120));
-                    using (new EditorGUI.DisabledScope(!ready || !fits))
-                    {
-                        string board = stage.BoardLayout != null ? stage.BoardLayout.name : "another board";
-                        string tip = inRun ? $"Go to {stage.name}: its board, enemies, levels and deploy zone, and it becomes the " +
-                                             "current stage. Your team and the shop are kept. Asks first."
-                                   : fits ? $"Not in the run: only swap the enemies on the board for {stage.name}'s" +
-                                            (_editDeployZone ? ", and take its deploy zone." : ".") + " Asks first if the board has enemies."
-                                          : $"Not in the run, and fought on {board} - play a stage on that board to load it.";
-                        if (WindowStyle.RowButton(new GUIContent("Load", tip)))
-                            StageEditorMenu.LoadStage(stage);
-                    }
-                    if (WindowStyle.RowButton(new GUIContent("Select", "Show it in the Project window.")))
-                        Reveal(stage);
-                }
+
+                string board = stage.BoardLayout != null ? stage.BoardLayout.name : "another board";
+                string tip = inRun ? $"Go to {stage.name}: its board, enemies, levels and deploy zone, and it becomes the " +
+                                     "current stage. Your team and the shop are kept. Asks first."
+                           : fits ? $"Not in the run: only swap the enemies on the board for {stage.name}'s" +
+                                    (_editDeployZone ? ", and take its deploy zone." : ".") + " Asks first if the board has enemies."
+                                  : $"Not in the run, and fought on {board} - play a stage on that board to load it.";
+
+                var click = WindowStyle.ListRow(i, new GUIContent("Load", tip), ready && fits,
+                                                new GUIContent(LabelOf(stage), AssetDatabase.GetAssetPath(stage)), nameWidth,
+                                                $"{count} enemies, lv {levels}", stage == current ? EditorStyles.boldLabel : null);
+                if (click == WindowStyle.RowClick.Button) StageEditorMenu.LoadStage(stage);
+                if (click == WindowStyle.RowClick.Select) Reveal(stage);
             }
             WindowStyle.Hint("Loading a stage of the run goes to it: it becomes the current stage, so Save To Current Stage writes to " +
                              "it. A stage outside the run only has its enemies put on the board.");
@@ -281,19 +284,14 @@ namespace MagicSchool.Editor
                 return;
             }
 
-            foreach ((HeroDataSO hero, string label) in shown)
+            float nameWidth = WindowStyle.NameWidth(shown.Select(entry => entry.hero.Name));
+            for (int i = 0; i < shown.Count; i++)
             {
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    EditorGUILayout.LabelField(new GUIContent(hero.Name, AssetDatabase.GetAssetPath(hero)), GUILayout.MinWidth(110));
-                    EditorGUILayout.LabelField(label, EditorStyles.miniLabel, GUILayout.Width(120));
-                    using (new EditorGUI.DisabledScope(!enabled))
-                    {
-                        if (WindowStyle.RowButton(button(hero))) onClick(hero);
-                    }
-                    if (WindowStyle.RowButton(new GUIContent("Select", "Show it in the Project window.")))
-                        Reveal(hero);
-                }
+                (HeroDataSO hero, string label) = shown[i];
+                var click = WindowStyle.ListRow(i, button(hero), enabled,
+                                                new GUIContent(hero.Name, AssetDatabase.GetAssetPath(hero)), nameWidth, label);
+                if (click == WindowStyle.RowClick.Button) onClick(hero);
+                if (click == WindowStyle.RowClick.Select) Reveal(hero);
             }
         }
 
@@ -306,24 +304,20 @@ namespace MagicSchool.Editor
             if (comps.Count == 0)
                 WindowStyle.Hint(_comps == null || _comps.Count == 0 ? $"No team comp in {TeamCompFolder} yet." : "Nothing matches the search.");
 
-            foreach (BattlePlacementSO comp in comps)
+            float nameWidth = WindowStyle.NameWidth(comps.Select(comp => comp.name));
+            for (int i = 0; i < comps.Count; i++)
             {
+                BattlePlacementSO comp = comps[i];
                 string board = comp.BoardLayout != null ? comp.BoardLayout.name : "any board";
                 bool fits = editor == null || editor.FitsThisBoard(comp);
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    EditorGUILayout.LabelField(new GUIContent(comp.name, AssetDatabase.GetAssetPath(comp)), GUILayout.MinWidth(110));
-                    EditorGUILayout.LabelField($"{comp.HeroesPlacement.Count} heroes, {board}", EditorStyles.miniLabel, GUILayout.Width(150));
-                    using (new EditorGUI.DisabledScope(!ready || !fits))
-                    {
-                        string tip = fits ? $"Swap your heroes on the board for {comp.name}'s. Asks first if the board has heroes."
-                                          : $"Saved on {board} - play a stage on that board to load it.";
-                        if (WindowStyle.RowButton(new GUIContent("Load", tip)))
-                            StageEditorMenu.LoadTeamComp(comp);
-                    }
-                    if (WindowStyle.RowButton(new GUIContent("Select", "Show it in the Project window.")))
-                        Reveal(comp);
-                }
+                string tip = fits ? $"Swap your heroes on the board for {comp.name}'s. Asks first if the board has heroes."
+                                  : $"Saved on {board} - play a stage on that board to load it.";
+
+                var click = WindowStyle.ListRow(i, new GUIContent("Load", tip), ready && fits,
+                                                new GUIContent(comp.name, AssetDatabase.GetAssetPath(comp)), nameWidth,
+                                                $"{comp.HeroesPlacement.Count} heroes, {board}");
+                if (click == WindowStyle.RowClick.Button) StageEditorMenu.LoadTeamComp(comp);
+                if (click == WindowStyle.RowClick.Select) Reveal(comp);
             }
 
             EditorGUILayout.Space(4);
@@ -349,20 +343,14 @@ namespace MagicSchool.Editor
                 return;
             }
 
-            foreach ((ScriptableObject item, string name, string label) in shown)
+            float nameWidth = WindowStyle.NameWidth(shown.Select(entry => entry.name));
+            for (int i = 0; i < shown.Count; i++)
             {
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    EditorGUILayout.LabelField(new GUIContent(name, AssetDatabase.GetAssetPath(item)), GUILayout.MinWidth(110));
-                    EditorGUILayout.LabelField(label, EditorStyles.miniLabel, GUILayout.Width(120));
-                    using (new EditorGUI.DisabledScope(!canDrop))
-                    {
-                        if (WindowStyle.RowButton(new GUIContent("Drop", $"Put {name} on the loose row, for free (Play mode).")))
-                            AddHeroMenu.AddItem(item);
-                    }
-                    if (WindowStyle.RowButton(new GUIContent("Select", "Show it in the Project window.")))
-                        Reveal(item);
-                }
+                (ScriptableObject item, string name, string label) = shown[i];
+                var click = WindowStyle.ListRow(i, new GUIContent("Drop", $"Put {name} on the loose row, for free (Play mode)."), canDrop,
+                                                new GUIContent(name, AssetDatabase.GetAssetPath(item)), nameWidth, label);
+                if (click == WindowStyle.RowClick.Button) AddHeroMenu.AddItem(item);
+                if (click == WindowStyle.RowClick.Select) Reveal(item);
             }
         }
 
