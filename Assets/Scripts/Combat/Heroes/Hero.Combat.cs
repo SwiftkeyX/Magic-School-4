@@ -86,7 +86,11 @@ namespace MagicSchool.Combat.Heroes
             if (HasStatus(ModifierEnum.Untargetable)) return 0;
 
             // calculate damage
-            DamageOutcome outcome = CombatMath.ResolveDamage(damage, Stat.DF, Stat.DamageReductionPercent, Stat.CurrentHP, Stat.Shield, out int absorbed);
+            // the attacker's armor penetration and lethality lower the DF this hit meets - autos, skills and burn alike
+            int defense = source is IHeroStats attacker
+                ? CombatMath.DFAfterPenetration(Stat.DF, attacker.GetStat(StatEnum.ArmorPen), attacker.GetStat(StatEnum.Lethality))
+                : Stat.DF;
+            DamageOutcome outcome = CombatMath.ResolveDamage(damage, defense, Stat.DamageReductionPercent, Stat.CurrentHP, Stat.Shield, out int absorbed);
             bool wasAlive = Stat.CurrentHP > 0;
             Stat.ConsumeShield(absorbed);
             Stat.SetCurrentHP(outcome.NewHP);

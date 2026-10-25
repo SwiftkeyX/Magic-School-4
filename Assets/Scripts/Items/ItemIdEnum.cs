@@ -35,5 +35,15 @@ namespace MagicSchool.Items
         FarsightLens = 18,
         LongshotQuiver = 19,
         VitalisWeave = 20,
+
+        // ======================================= Mana regen =======================================
+        DewdropCharm = 23,
+        MoonwellPendant = 24,
+        StarwellOrb = 25,
+
+        // ======================================= Armor penetration =======================================
+        SerratedFang = 26,
+        PiercingBolt = 27,
+        GiantsBane = 28,
     }
 }

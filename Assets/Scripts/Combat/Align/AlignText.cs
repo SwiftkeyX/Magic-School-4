@@ -106,6 +106,7 @@ namespace MagicSchool.Combat.Align
                 case ModifierEnum.ManaPerAttack: return $"{signed} mana per attack";
                 case ModifierEnum.ManaPerSecond: return $"{signed} mana per second";
                 case ModifierEnum.HPPerSecond: return $"{signed} HP per second";
+                case ModifierEnum.Lethality: return $"{signed} lethality";
                 case ModifierEnum.MaxMana: return $"{signed} max mana";
                 case ModifierEnum.Range: return $"{signed} range";
 
@@ -113,6 +114,7 @@ namespace MagicSchool.Combat.Align
                 case ModifierEnum.CritChance: return $"{signed}% crit chance";
                 case ModifierEnum.Omnivamp: return $"heals for {amount}% of damage dealt";
                 case ModifierEnum.DamageReduction: return $"takes {amount}% less damage";
+                case ModifierEnum.ArmorPen: return $"{signed}% armor penetration";
 
                 default: return $"{signed} {modifier}";
             }

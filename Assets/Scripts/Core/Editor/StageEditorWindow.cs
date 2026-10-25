@@ -418,7 +418,7 @@ namespace MagicSchool.Editor
             return (levels.Count, levels.Count == 0 ? "-" : string.Join("/", levels.Distinct().OrderBy(l => l)));
         }
 
-        // each item with its name and price, read off the asset - Editor cannot name ItemDataSO (it is in Items)
+        // each item with its name, price and what it gives, read off the asset - Editor cannot name ItemDataSO (it is in Items)
         private static List<(ScriptableObject, string, string)> ItemsIn(string folder)
         {
             if (!AssetDatabase.IsValidFolder(folder)) return new List<(ScriptableObject, string, string)>();
@@ -431,10 +431,21 @@ namespace MagicSchool.Editor
                     var serialized = new SerializedObject(item);
                     string name = serialized.FindProperty("_name")?.stringValue;
                     SerializedProperty price = serialized.FindProperty("_price");
-                    return (item, string.IsNullOrEmpty(name) ? item.name : name, price != null ? $"{price.intValue} gold" : "");
+                    string stats = StatsOf(serialized.FindProperty("_description")?.stringValue);
+                    string label = (price != null ? $"{price.intValue} gold" : "") + (stats.Length > 0 ? $"    {stats}" : "");
+                    return (item, string.IsNullOrEmpty(name) ? item.name : name, label);
                 })
                 .OrderBy(entry => entry.Item2)
                 .ToList();
+        }
+
+        // what an item gives: its description up to the flavour text, which starts after the first ". "
+        // e.g.     "+20 AP, +15 Starting Mana. Tapped straight off..." => "+20 AP, +15 Starting Mana"
+        private static string StatsOf(string description)
+        {
+            if (string.IsNullOrEmpty(description)) return "";
+            int end = description.IndexOf(". ", System.StringComparison.Ordinal);
+            return (end < 0 ? description : description.Substring(0, end)).TrimEnd('.');
         }
 
         private static string Describe(HeroDataSO hero)

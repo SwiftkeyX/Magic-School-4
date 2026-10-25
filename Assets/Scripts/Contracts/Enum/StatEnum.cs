@@ -24,5 +24,7 @@ namespace MagicSchool.Contracts
         ManaPerAttack = 12,
         ManaPerSecond = 13,
         HPPerSecond = 14,
+        ArmorPen = 15,          // % of the target's DF this hero's hits ignore (LoL's armor penetration)
+        Lethality = 16,         // flat DF this hero's hits ignore, after ArmorPen (LoL's lethality)
     }
 }

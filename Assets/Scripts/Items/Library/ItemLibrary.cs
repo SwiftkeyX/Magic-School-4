@@ -41,6 +41,16 @@ namespace MagicSchool.Items
                 { ItemIdEnum.FarsightLens,    FarsightLens.Build },
                 { ItemIdEnum.LongshotQuiver,  LongshotQuiver.Build },
                 { ItemIdEnum.VitalisWeave,    VitalisWeave.Build },
+
+                // mana regen
+                { ItemIdEnum.DewdropCharm,    DewdropCharm.Build },
+                { ItemIdEnum.MoonwellPendant, MoonwellPendant.Build },
+                { ItemIdEnum.StarwellOrb,     StarwellOrb.Build },
+
+                // armor penetration
+                { ItemIdEnum.SerratedFang,    SerratedFang.Build },
+                { ItemIdEnum.PiercingBolt,    PiercingBolt.Build },
+                { ItemIdEnum.GiantsBane,      GiantsBane.Build },
             };
 
         /// Return a modifier that match itemID.

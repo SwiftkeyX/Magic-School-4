@@ -37,6 +37,19 @@ namespace MagicSchool.Combat.Heroes
             return new HealOutcome(newHP, gained, healed - gained, incoming - healed);
         }
 
+        // The DF a hit from this attacker meets, LoL's way: the % armor penetration first, then the flat lethality.
+        // Penetration never takes DF below 0, and DF already below 0 (shredded) is left as it is.
+        // e.g.     100 DF, 40% pen, 15 lethality => 100 * 0.6 - 15 = 45 DF
+        //          20 DF, 15 lethality           => 5 DF;   10 DF, 15 lethality => 0, not -5
+        public static int DFAfterPenetration(int defense, float armorPenPercent, float lethality)
+        {
+            if (defense <= 0) return defense;
+
+            float pen = Mathf.Clamp(armorPenPercent, 0f, 100f);     // two pen items add up; past 100% would be negative DF
+            float df = defense * (1f - pen / 100f) - Mathf.Max(0f, lethality);
+            return Mathf.Max(0, Mathf.RoundToInt(df));
+        }
+
         // ======================================== private ========================================
         private static int DamageAfterMitigation(int rawDamage, int defense, float damageReductionPercent)
         {

@@ -44,6 +44,8 @@ namespace MagicSchool.Modifiers
             { ModifierEnum.ManaPerAttack  , StatEnum.ManaPerAttack }  ,
             { ModifierEnum.ManaPerSecond  , StatEnum.ManaPerSecond }  ,
             { ModifierEnum.HPPerSecond    , StatEnum.HPPerSecond }    ,
+            { ModifierEnum.ArmorPen       , StatEnum.ArmorPen }       ,
+            { ModifierEnum.Lethality      , StatEnum.Lethality }      ,
             { ModifierEnum.MaxMana        , StatEnum.MaxMana }        ,
             // ...
 
