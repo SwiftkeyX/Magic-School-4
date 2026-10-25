@@ -92,6 +92,11 @@ namespace MagicSchool.Skills
         protected string DF(float percent) => Scaled(percent, "DF", stats => stats.Defence);
         protected string MaxHP(float percent) => Scaled(percent, "max HP", stats => stats.MaxHP);
 
+        // whose numbers the description is written for, and whether as the formula - for a number AD() / AP() cannot write
+        // e.g.     Skeleton Archer's long shot bonus, which grows with his star
+        protected IHeroStats TextStats => _textStats ?? Caster as IHeroStats;
+        protected bool TextFormula => _textFormula;
+
         private string Scaled(float percent, string stat, Func<IHeroStats, int> read)
         {
             IHeroStats stats = _textStats ?? Caster as IHeroStats;

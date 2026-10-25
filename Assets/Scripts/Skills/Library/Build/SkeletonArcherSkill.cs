@@ -17,7 +17,8 @@ namespace MagicSchool.Skills
 
         // a long shot - its target 3+ hexes away when it lands - deals [this]% more for every ally on his Long Shot mark
         private static int LongShotHexes => Tuned(3);
-        private static float LongShotBonusPerAlly => Tuned(75f);
+        private static float LongShotBonusPerAlly => Tuned(30f);
+        private static float LongShotBonusPerAllyPerStar => Tuned(10f);
 
         private const string LongShotMark = "Long Shot";
         public override IReadOnlyList<string> SpecialMarks => new[] { LongShotMark };
@@ -31,7 +32,15 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Fires {BarrageCount} barrages of {ShotsPerBarrage} shots at the furthest enemy, picking the furthest again "
              + $"for every barrage. Each shot lands for {AD(ADDamagePerShot)} + {AP(MGDamagePerShot)}. "
-             + $"A shot that lands {LongShotHexes}+ hexes away deals {LongShotBonusPerAlly}% more for every ally on his {LongShotMark} mark.";
+             + $"A shot that lands {LongShotHexes}+ hexes away deals {PerAllyText()} more for every ally on his {LongShotMark} mark.";
+
+        // e.g. "50%" for a 2-star, or with Alt held "[30% + 10% per star]"
+        private string PerAllyText()
+        {
+            IHeroStats stats = TextStats;
+            if (TextFormula || stats == null) return $"[{LongShotBonusPerAlly}% + {LongShotBonusPerAllyPerStar}% per star]";
+            return $"{PerAlly(stats.Star):0.##}%";
+        }
 
         // ============================== active ==============================
         // one barrage is one round, played BarrageCount times. Every shot aims at the furthest enemy when it is fired,
@@ -62,9 +71,16 @@ namespace MagicSchool.Skills
             return Flow(onStart: shoot);
         }
 
-        // e.g. 3 allies on his Long Shot mark => +45%
+        // (30% + 10% per star) for every ally on his Long Shot mark
+        // e.g. a 2-star with 2 allies on it => 2 x 50% = +100%
         private static float LongShotBonus(IEffectable caster)
-            => caster is IAligned aligned ? aligned.AlliesOnSpecialMark(LongShotMark).Count * LongShotBonusPerAlly / 100f : 0f;
+        {
+            if (!(caster is IAligned aligned)) return 0f;
+            int star = caster is IHeroStats stats ? stats.Star : 1;
+            return aligned.AlliesOnSpecialMark(LongShotMark).Count * PerAlly(star) / 100f;
+        }
+
+        private static float PerAlly(int star) => LongShotBonusPerAlly + LongShotBonusPerAllyPerStar * star;
 
     }
 }

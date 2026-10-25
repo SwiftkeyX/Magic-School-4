@@ -17,26 +17,53 @@ MonoBehaviour:
   _tier: 1
   _role: 4
   _hp: 500
-  _attack: 55
+  _attack: 35
   _defend: 15
   _magic: 100
   _attackSpeed: 0.75
-  _range: 4
+  _range: 6
   _startMana: 0
   _maxMana: 70
   _critChance: 25
   _skillId: 14
   _spawnUnit: {fileID: 0}
+  _forgedItems: []
   _alignPatterns:
   - marks:
-    - hexes: []
+    - hexes:
+      - direction: 4
+        distance: 1
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 1
+      - direction: 4
+        distance: 2
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 1
+      - direction: 4
+        distance: 2
+        thenDirection: 3
+        thenDistance: 1
+        isWearing: 1
+      - direction: 4
+        distance: 3
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 1
+      - direction: 4
+        distance: 2
+        thenDirection: 5
+        thenDistance: 1
+        isWearing: 1
       special: 
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 6
-      selfAmount: 10
-      selfPercentOf: 3
+      selfAmount: 20
+      selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -45,10 +72,21 @@ MonoBehaviour:
         thenDirection: 0
         thenDistance: 0
         isWearing: 0
+      - direction: 4
+        distance: 2
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 1
+      - direction: 4
+        distance: 3
+        thenDirection: 3
+        thenDistance: 0
+        isWearing: 1
       special: 
       modifier: 15
       amount: 40
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -59,31 +97,32 @@ MonoBehaviour:
         distance: 1
         thenDirection: 3
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       - direction: 4
         distance: 3
         thenDirection: 3
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       - direction: 4
         distance: 2
         thenDirection: 3
         thenDistance: 1
-        isWearing: 0
+        isWearing: 1
       - direction: 4
         distance: 2
         thenDirection: 5
         thenDistance: 1
-        isWearing: 0
+        isWearing: 1
       - direction: 4
         distance: 2
         thenDirection: 3
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       special: Long Shot
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -95,9 +134,10 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 6
-      selfAmount: 10
-      selfPercentOf: 3
+      selfAmount: 20
+      selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -110,6 +150,7 @@ MonoBehaviour:
       modifier: 15
       amount: 40
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -120,6 +161,7 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -131,9 +173,10 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 6
-      selfAmount: 10
-      selfPercentOf: 3
+      selfAmount: 20
+      selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -146,6 +189,7 @@ MonoBehaviour:
       modifier: 15
       amount: 40
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -156,20 +200,47 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
   - marks:
-    - hexes: []
+    - hexes:
+      - direction: 1
+        distance: 1
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 1
+      - direction: 1
+        distance: 2
+        thenDirection: 2
+        thenDistance: 1
+        isWearing: 1
+      - direction: 1
+        distance: 2
+        thenDirection: 0
+        thenDistance: 1
+        isWearing: 1
+      - direction: 1
+        distance: 2
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 1
+      - direction: 1
+        distance: 3
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 1
       special: 
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 6
-      selfAmount: 10
-      selfPercentOf: 3
+      selfAmount: 20
+      selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -178,10 +249,21 @@ MonoBehaviour:
         thenDirection: 3
         thenDistance: 0
         isWearing: 0
+      - direction: 1
+        distance: 2
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 1
+      - direction: 1
+        distance: 3
+        thenDirection: 0
+        thenDistance: 0
+        isWearing: 1
       special: 
       modifier: 15
       amount: 40
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -192,31 +274,32 @@ MonoBehaviour:
         distance: 1
         thenDirection: 0
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       - direction: 1
         distance: 2
         thenDirection: 0
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       - direction: 1
         distance: 3
         thenDirection: 0
         thenDistance: 0
-        isWearing: 0
+        isWearing: 1
       - direction: 1
         distance: 2
         thenDirection: 2
         thenDistance: 1
-        isWearing: 0
+        isWearing: 1
       - direction: 1
         distance: 2
         thenDirection: 0
         thenDistance: 1
-        isWearing: 0
+        isWearing: 1
       special: Long Shot
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -228,9 +311,10 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 6
-      selfAmount: 10
-      selfPercentOf: 3
+      selfAmount: 20
+      selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -243,6 +327,7 @@ MonoBehaviour:
       modifier: 15
       amount: 40
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -253,6 +338,7 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -264,9 +350,10 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 6
-      selfAmount: 10
-      selfPercentOf: 3
+      selfAmount: 20
+      selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -279,6 +366,7 @@ MonoBehaviour:
       modifier: 15
       amount: 40
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
@@ -289,6 +377,7 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1

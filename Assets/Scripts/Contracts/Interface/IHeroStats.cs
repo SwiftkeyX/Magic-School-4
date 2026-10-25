@@ -16,5 +16,6 @@ namespace MagicSchool.Contracts
         int Magic { get; }
         float AttackSpeed { get; }
         int Range { get; }
+        int Star { get; }                   // 1-3, how many times upgraded + 1 (See HeroStar)
     }
 }

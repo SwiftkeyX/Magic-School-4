@@ -25,6 +25,7 @@ namespace MagicSchool.Combat.Heroes
 
         // === IInspectable ===
         public string DisplayName => _data.Name;
+        public int Star => HeroStar.Min;     // a shop slot sells a 1-star
         public bool IsAlive => _isStillOffered == null || _isStillOffered();
 
         // === IInspectableHero ===
