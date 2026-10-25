@@ -83,6 +83,7 @@ namespace MagicSchool.Editor
             WindowStyle.Intro("Edit the stage being played: add enemies, paint the deploy zone and save it - or load and save " +
                               "the player's team comps. Works in Play mode, in Preparation.");
             DrawStatus(editor);
+            DrawQuickSave(editor);
             EditorGUILayout.Space(WindowStyle.Gap);
             _tab = WindowStyle.Tabs(_tab, Tabs);
             if (_tab == 0) _enemyTab = WindowStyle.SubTabs(_enemyTab, EnemyTabs);
@@ -167,6 +168,29 @@ namespace MagicSchool.Editor
         }
 
         // under every enemy part: whether clicks paint the zone, and the two saves
+        // above both tabs: both teams in one slot, to pick up where the last Play session stopped (See StageEditorMenu.QuickSave)
+        private void DrawQuickSave(StageEditor editor)
+        {
+            bool ready = WhyNot(editor) == null;
+            string summary = StageEditorMenu.QuickSaveSummary;
+
+            using (new EditorGUI.DisabledScope(!ready))
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (WindowStyle.Action(new GUIContent("Quick Save", "Remember the player's heroes on the board (stars, patterns, " +
+                        "items), the enemies (levels), the deploy zone and the stage - one slot, overwritten without asking.")))
+                    StageEditorMenu.QuickSave();
+
+                using (new EditorGUI.DisabledScope(summary == null))
+                {
+                    if (WindowStyle.Action(new GUIContent("Quick Load", "Go to the saved stage and put both saved teams back on the " +
+                            "board. The bench is left alone; heroes on the board now are removed, not refunded.")))
+                        StageEditorMenu.QuickLoad();
+                }
+            }
+            WindowStyle.Hint(summary != null ? $"Quick save: {summary}" : "No quick save yet.");
+        }
+
         private void DrawEnemySave(StageEditor editor, bool ready)
         {
             EditorGUILayout.Space(WindowStyle.Gap);

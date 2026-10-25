@@ -264,6 +264,28 @@ namespace MagicSchool.Core
             return placed;
         }
 
+        // ======================================== quick save ========================================
+        // A quick save is one BattlePlacementSO holding both teams: the player's (as a team comp) and the enemies (as a stage).
+        // e.g.     Quick Save, stop Play, Play again, Quick Load => the board is as it was
+        public void WriteQuickSave(BattlePlacementSO save)
+        {
+            WritePlayerTeam(save, ReadPlayerTeam(), ReadItemsOnHexes());
+            WriteEnemyTeam(save, ReadEnemyTeam());
+            WriteDeployZone(save, ReadDeployZone());
+        }
+
+        // both teams on the board are swapped for the save's, and the deploy zone too. The bench is left alone.
+        // The player's heroes go first, so none of them stands on a hex a saved enemy needs.
+        public (int players, int enemies) LoadQuickSave(BattlePlacementSO save)
+        {
+            if (save == null || !CanEditNow) return (0, 0);
+
+            _game.Board.ClearTeam(PlayerTeam);
+            int enemies = LoadEnemyTeam(save, withZone: true);
+            int players = LoadPlayerTeam(save);
+            return (players, enemies);
+        }
+
         // ======================================== private ========================================
         // an enemy may stand on any hex outside the deploy zone.
         private Hex FirstFreeEnemyHex()

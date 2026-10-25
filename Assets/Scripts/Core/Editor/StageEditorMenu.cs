@@ -203,6 +203,86 @@ namespace MagicSchool.Editor
             Debug.Log($"[StageEditor] loaded {placed} of {inStage} enemies from '{stage.name}'.");
         }
 
+        // ======================================== quick save ========================================
+        // One slot, overwritten without asking: both teams and the deploy zone in QuickSavePath, the stage being played in EditorPrefs.
+        // It lives outside Campaign/ and Team Comps/, so it is never listed as a stage or a comp, nor fought by the benchmark.
+        internal const string QuickSavePath = "Assets/Data/BattleSetups/QuickSave.asset";
+        private const string QuickSaveStageKey = "MagicSchool4.QuickSave.Stage";
+        private const string QuickSaveWhenKey = "MagicSchool4.QuickSave.When";
+
+        internal static bool HasQuickSave => AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(QuickSavePath) != null;
+
+        // e.g.     "09:41, Stage 03: 5 heroes vs 6 enemies"
+        internal static string QuickSaveSummary
+        {
+            get
+            {
+                var save = AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(QuickSavePath);
+                if (save == null) return null;
+
+                // read as serialized ints: Editor cannot name TeamEnum (Contracts); 0 = the player's team
+                int heroes = 0, enemies = 0;
+                SerializedProperty list = new SerializedObject(save).FindProperty("_heroesPlacement");
+                for (int i = 0; list != null && i < list.arraySize; i++)
+                {
+                    SerializedProperty entry = list.GetArrayElementAtIndex(i);
+                    if (entry.FindPropertyRelative("dataSO").objectReferenceValue == null) continue;
+                    if (entry.FindPropertyRelative("team").intValue == 0) heroes++;
+                    else enemies++;
+                }
+                string stage = System.IO.Path.GetFileNameWithoutExtension(EditorPrefs.GetString(QuickSaveStageKey, ""));
+                string when = EditorPrefs.GetString(QuickSaveWhenKey, "");
+                return $"{when}{(when.Length > 0 ? ", " : "")}{(stage.Length > 0 ? stage : "no stage")}: {heroes} heroes vs {enemies} enemies";
+            }
+        }
+
+        internal static void QuickSave()
+        {
+            if (!TryGetEditor(out StageEditor editor)) return;
+
+            var save = AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(QuickSavePath);
+            if (save == null)
+            {
+                save = BattlePlacementSO.CreateRuntime(new List<HeroPlacement>());
+                AssetDatabase.CreateAsset(save, QuickSavePath);
+            }
+
+            editor.WriteQuickSave(save);
+            EditorUtility.SetDirty(save);
+            AssetDatabase.SaveAssetIfDirty(save);
+
+            BattlePlacementSO stage = editor.CurrentStage;
+            EditorPrefs.SetString(QuickSaveStageKey, stage != null ? AssetDatabase.GetAssetPath(stage) : "");
+            EditorPrefs.SetString(QuickSaveWhenKey, System.DateTime.Now.ToString("HH:mm"));
+            Debug.Log($"[StageEditor] quick saved - {QuickSaveSummary}.");
+        }
+
+        // goes to the saved stage first (its board, number and shop rules), then puts both teams back
+        internal static void QuickLoad()
+        {
+            if (!TryGetEditor(out StageEditor editor)) return;
+
+            var save = AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(QuickSavePath);
+            if (save == null)
+            {
+                Debug.LogWarning("[StageEditor] there is no quick save yet.");
+                return;
+            }
+
+            var stage = AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(EditorPrefs.GetString(QuickSaveStageKey, ""));
+            if (stage != null && stage != editor.CurrentStage && editor.IsInRun(stage)) editor.LoadStage(stage);
+
+            // its hex numbers would land on the wrong hexes of another board
+            if (!editor.FitsThisBoard(save))
+            {
+                Debug.LogWarning($"[StageEditor] the quick save was made on '{save.BoardLayout.name}' - play a stage on that board to load it.");
+                return;
+            }
+
+            (int players, int enemies) = editor.LoadQuickSave(save);
+            Debug.Log($"[StageEditor] quick loaded {players} heroes and {enemies} enemies{(stage != null ? $" on '{stage.name}'" : "")}.");
+        }
+
         // ======================================== helper ========================================
         private static void EnsureFolder(string folder)
         {
