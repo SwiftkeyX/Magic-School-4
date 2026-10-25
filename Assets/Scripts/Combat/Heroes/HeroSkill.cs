@@ -18,6 +18,7 @@ namespace MagicSchool.Combat.Heroes
         public float GetCastTime() => _skill?.CastTime ?? 0f;
         public bool CanWalkWhileCasting() => _skill != null && _skill.CanWalkWhileCasting;
         public bool IsSkillRepeating() => _skill != null && _skill.IsRepeating;
+        public bool IsSkillMovingMe() => _skill != null && _skill.IsMovingCaster;
 
         // Some heroes (e.g. generic dummy/tank archetypes) have no skill at all.
         public bool HasSkill => _skill != null && _skill.HasActive;

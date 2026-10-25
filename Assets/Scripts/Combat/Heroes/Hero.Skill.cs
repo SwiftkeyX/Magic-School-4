@@ -37,6 +37,7 @@ namespace MagicSchool.Combat.Heroes
         public float GetCastTime() => _skill.GetCastTime();
         public bool CanWalkWhileCasting() => _skill.CanWalkWhileCasting();
         public bool IsSkillRepeating() => _skill.IsSkillRepeating();
+        public bool IsSkillMovingMe() => _skill.IsSkillMovingMe();
 
         // a skill reads its numbers once, when built; Skill Tuner changed one since
         public bool IsSkillOutdated => _skillTuningVersion != SkillTuning.Version;

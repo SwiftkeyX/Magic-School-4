@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.Engine;
@@ -14,6 +15,15 @@ namespace MagicSchool.Skills
         private IPlacement _landing;    // hex the caster ends up on after moving
         private CurveMotion _jump;
         private bool _isJumping;
+
+        // every caster a Move is moving right now, with how many: its Cast state holds until it lands (See IsMoving)
+        private static readonly Dictionary<ICombatant, int> Moving = new Dictionary<ICombatant, int>();
+        private bool _isCounted;
+
+        // a skill is still moving this caster: its Cast state must not end yet, or it would start a step mid-air, and that
+        // step would carry it back to where it jumped from once it landed
+        // e.g.     Knight's leap, longer than his cast time
+        internal static bool IsMoving(ICombatant caster) => caster != null && Moving.TryGetValue(caster, out int n) && n > 0;
 
         // ======================================== override ========================================
         protected override void ApplyTypedTuning(MoveTuning moveTuning)
@@ -39,6 +49,8 @@ namespace MagicSchool.Skills
                 duration: _jumpDuration,
                 curve: _jumpCurve);
             _isJumping = true;
+            Moving[_me] = (Moving.TryGetValue(_me, out int n) ? n : 0) + 1;
+            _isCounted = true;
 
             SetLifeTime();
         }
@@ -114,6 +126,18 @@ namespace MagicSchool.Skills
             _lifetime = _jumpDuration;
         }
 
+        // landed, or gone any other way (the caster sold, the board cleared): no longer moving him
+        private void OnDestroy() => StopCounting();
+
+        private void StopCounting()
+        {
+            if (!_isCounted) return;
+            _isCounted = false;
+
+            if (Moving.TryGetValue(_me, out int n) && n > 1) Moving[_me] = n - 1;
+            else Moving.Remove(_me);
+        }
+
         // ======================================== private ========================================
         private void Update()
         {
@@ -127,6 +151,7 @@ namespace MagicSchool.Skills
 
             // after finish landing, set current placement there
             TakeLandingPlacement();
+            StopCounting();
 
             // die where the caster landed, so OnExpired hands the "landing spot" to the next step
             transform.position = _jump.End;

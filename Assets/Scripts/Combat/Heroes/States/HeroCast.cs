@@ -51,6 +51,10 @@ namespace MagicSchool.Combat.Heroes.States
             // a step taken while casting finishes on its hex first
             if (_step.IsWalking) return;
 
+            // a jump or dash lands first: walking off mid-air, the step would carry him back once he landed
+            // e.g.     Knight's leap lasts longer than his cast time
+            if (_me.IsSkillMovingMe()) return;
+
             // if the skill still repeats, return
             // e.g. Rogue's third shadowstep
             if (_me.IsSkillRepeating()) return;

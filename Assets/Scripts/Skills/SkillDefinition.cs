@@ -25,6 +25,9 @@ namespace MagicSchool.Skills
 
         public bool IsRepeating { get; private set; }
 
+        // a part of this skill is still moving the caster (a jump, a dash): the cast is not over until it lands
+        public bool IsMovingCaster => Move.IsMoving(Caster);
+
         protected SkillDefinition(TemplateActionRegistrySO registry)
         {
             _registry = registry;
