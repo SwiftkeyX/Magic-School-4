@@ -12,6 +12,7 @@ namespace MagicSchool.Skills
         private readonly DamageKindEnum _kind;  
         private readonly bool _canCrit;     // skill damage does not crit by default, unless the skill was built to
         private float _lifestealPercent;
+        private System.Action<int> _onLanded;
 
         public AttackSkillEffect(EffectRecipientEnum recipient, IReadOnlyList<StatRatio> ratios, Cadence cadence = null,
                                  List<SkillCondition> conditions = null, float amplifier = 0f, bool canCrit = false,
@@ -28,6 +29,14 @@ namespace MagicSchool.Skills
         public AttackSkillEffect WithLifesteal(float percent)
         {
             _lifestealPercent = percent;
+            return this;
+        }
+
+        // Told what every hit of this effect actually dealt, after armour and shields
+        // e.g.     Damage(...).WhenLanded(GainShield)      Knight's shield is the damage his landing deals
+        public AttackSkillEffect WhenLanded(System.Action<int> onLanded)
+        {
+            _onLanded = onLanded;
             return this;
         }
 
@@ -79,6 +88,8 @@ namespace MagicSchool.Skills
 
                 // if this effect have lifesteal, whoever played the action heals off the damage dealt
                 Omnivamp.HealFromDamage(actor, landed, _lifestealPercent, source: _caster);
+
+                _onLanded?.Invoke(landed);
             }
         }
     }
