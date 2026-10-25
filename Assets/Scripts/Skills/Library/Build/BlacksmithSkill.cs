@@ -9,8 +9,8 @@ namespace MagicSchool.Skills
     internal class BlacksmithSkill : SkillDefinition
     {
         private static float HPPerSecondPerCast => Tuned(2f);      // % of her max HP, healed every second
-        private static float MaxHPPerSecond => Tuned(6f);          // the stacks stop here: 3 casts at 2%
-        private static int MaxRegenStacks => Mathf.FloorToInt(MaxHPPerSecond / HPPerSecondPerCast);
+        private static float HPPerSecondPerAnvilAlly => Tuned(0.3f);   // % of her max HP more per cast, for every ally on Anvil
+        private static int MaxRegenStacks => Tuned(3);             // casts that give regen; later ones only forge
         private static float RestOfFight => Tuned(-1f);
 
         // every cast she forges one item, picked by role from her forge table (HeroDataSO); every MarksPerTier allies on her
@@ -29,7 +29,8 @@ namespace MagicSchool.Skills
         public override string SkillName => "Forge";
 
         public override string Description
-            => $"Every cast, she gains {MaxHP(HPPerSecondPerCast)} HP a second for the rest of the fight (stacks, up to {MaxHP(MaxHPPerSecond)}), "
+            => $"Every cast, she gains {MaxHP(HPPerSecondPerCast)} HP a second, plus {MaxHP(HPPerSecondPerAnvilAlly)} for every ally on her "
+             + $"{AnvilMark} mark, for the rest of the fight (stacks {MaxRegenStacks} times), "
              + "and forges an item for the nearest ally wearing nothing: a Whetstone for a fighter, marksman or assassin, "
              + "an Archmage Tome for a mage, an Iron Plate for a tank - "
              + $"a better plate for every {(MarksPerTier == 1 ? "ally" : $"{MarksPerTier} allies")} on her {AnvilMark} mark. "
@@ -37,7 +38,8 @@ namespace MagicSchool.Skills
              + "Forged items last the fight.";
 
         // ============================== on cast ==============================
-        // e.g. 1400 max HP, 3 casts => 84 HP a second (See HPRegen); a 4th cast forges but adds no regen
+        // e.g. 1400 max HP, 2 allies on Anvil => 2.6% = 36.4 HP a second a cast, 3 casts => 109.2 (See HPRegen);
+        //      a 4th cast forges but adds no regen. The allies are counted at each cast.
         public override bool OnCast()
         {
             if (!base.OnCast()) return false;
@@ -46,11 +48,18 @@ namespace MagicSchool.Skills
             {
                 _regenStacks++;
                 Caster.AddModifier(BundleStack(RestOfFight,
-                                       Buff(ModifierEnum.HPPerSecond, (StatEnum.MaxHP, HPPerSecondPerCast, ScaleFromEnum.Total))),
+                                       Buff(ModifierEnum.HPPerSecond, (StatEnum.MaxHP, RegenThisCast(), ScaleFromEnum.Total))),
                                    Caster as IHeroStats);
             }
             Forge();
             return true;
+        }
+
+        // 2% of her max HP, plus 0.3% for every ally on her Anvil mark
+        private float RegenThisCast()
+        {
+            int onAnvil = Caster is IAligned aligned ? aligned.AlliesOnSpecialMark(AnvilMark).Count : 0;
+            return HPPerSecondPerCast + HPPerSecondPerAnvilAlly * onAnvil;
         }
 
         // the regen is for the fight, so is its count
