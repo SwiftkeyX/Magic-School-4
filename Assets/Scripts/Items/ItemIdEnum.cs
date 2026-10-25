@@ -28,6 +28,8 @@ namespace MagicSchool.Items
         WardensVow = 15,
         ForgedIronPlate = 21,       // Blacksmith's, never in the shop
         MasterworkIronPlate = 22,   // Blacksmith's, never in the shop
+        TemperedIronPlate = 29,     // Blacksmith's, never in the shop
+        ReinforcedIronPlate = 30,   // Blacksmith's, never in the shop
 
         // ======================================= Utility =======================================
         ChaliceOfDawn = 16,

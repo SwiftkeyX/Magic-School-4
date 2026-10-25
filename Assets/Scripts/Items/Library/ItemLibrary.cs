@@ -34,6 +34,8 @@ namespace MagicSchool.Items
                 { ItemIdEnum.WardensVow,      WardensVow.Build },
                 { ItemIdEnum.ForgedIronPlate, ForgedIronPlate.Build },
                 { ItemIdEnum.MasterworkIronPlate, MasterworkIronPlate.Build },
+                { ItemIdEnum.TemperedIronPlate, TemperedIronPlate.Build },
+                { ItemIdEnum.ReinforcedIronPlate, ReinforcedIronPlate.Build },
 
                 // utility
                 { ItemIdEnum.ChaliceOfDawn,   ChaliceOfDawn.Build },

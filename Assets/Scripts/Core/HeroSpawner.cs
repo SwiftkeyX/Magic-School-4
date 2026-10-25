@@ -59,12 +59,12 @@ namespace MagicSchool.Core
         // and put down, its buyer moves it like any other hero.
         public Hero SpawnUnboughtHero(HeroDataSO data, BattleBoard board) => Build(data, board, TeamEnum.Blue);
 
-        // the item asset is named on the forger's data, so neither the skill nor the hero names an item
-        private static void Forge(Hero wearer, ForgedItemEnum kind, ICombatant forger)
+        // the item asset is named on the forger's forge table, so neither the skill nor the hero names an item
+        private static void Forge(Hero wearer, HeroRoleEnum forRole, int tier, ICombatant forger)
         {
-            if (!(forger is Hero smith) || !(smith.Data.ForgedItem(kind) is ItemDataSO data))
+            if (!(forger is Hero smith) || !(smith.Data.ForgedItem(forRole, tier) is ItemDataSO data))
             {
-                Debug.LogError($"[HeroSpawner] {(forger as Hero)?.name} has no {kind} to forge - set it in its HeroDataSO's Forged Items.");
+                Debug.LogError($"[HeroSpawner] {(forger as Hero)?.name} has nothing to forge for a {forRole} - set it in its HeroDataSO's Forge Table.");
                 return;
             }
 

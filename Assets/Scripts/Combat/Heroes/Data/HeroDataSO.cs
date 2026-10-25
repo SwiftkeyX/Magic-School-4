@@ -11,6 +11,15 @@ namespace MagicSchool.Combat.Heroes
     /// SO for hero.
     /// ONLY use to seed a Hero's runtime state AND SkillSO.
     /// </summary>
+    // one row of a forge table: the items a role gets, from tier 0 up (See HeroDataSO.ForgedItem)
+    [System.Serializable]
+    public class ForgeRow
+    {
+        public HeroRoleEnum role;
+        [Tooltip("Tier 0 first. Typed ScriptableObject because Combat cannot name ItemDataSO - drop item assets here.")]
+        public List<ScriptableObject> itemsByTier = new List<ScriptableObject>();
+    }
+
     [CreateAssetMenu(fileName = "HeroStat", menuName = "Magic School 4/Hero Stat")]
     public class HeroDataSO : ScriptableObject
     {
@@ -30,8 +39,9 @@ namespace MagicSchool.Combat.Heroes
         [SerializeField] private SkillIdEnum _skillId = SkillIdEnum.None;
         [Tooltip("The unit this hero's skill puts on the board. e.g. Big Slime -> Small Slime. Empty for almost everyone.")]
         [SerializeField] private HeroDataSO _spawnUnit;
-        [Tooltip("The item assets this hero's skill forges, in ForgedItemEnum order: Whetstone, Archmage Tome, Forged Iron Plate, Iron Plate, Masterwork Iron Plate. Empty for everyone but Blacksmith.")]
-        [SerializeField] private List<ScriptableObject> _forgedItems = new List<ScriptableObject>();   // ItemDataSO, which Combat cannot name
+        [Tooltip("What this hero's skill forges, by the role of whoever gets it: one row per role, its items from tier 0 up. " +
+                 "Past the last item a row stays on its last one; a role with no row gets nothing. Empty for everyone but Blacksmith.")]
+        [SerializeField] private List<ForgeRow> _forgeTable = new List<ForgeRow>();
         [Tooltip("Aligning: every way this hero can be turned, each with its own marks. Rotating switches to the next one. Edit in Magic School 4 > Align Editor.")]
         [SerializeField] private List<AlignPattern> _alignPatterns = new List<AlignPattern>();
         // FLAGGING: a dummy should be its own unit type, not a Hero. Let's see later if it make sense.
@@ -54,7 +64,16 @@ namespace MagicSchool.Combat.Heroes
         public float CritChance => _critChance;
         public SkillIdEnum SkillId => _skillId;
         public HeroDataSO SpawnUnit => _spawnUnit;
-        public ScriptableObject ForgedItem(ForgedItemEnum item) => (int)item < _forgedItems.Count ? _forgedItems[(int)item] : null;
+
+        // the item the forge table lists for this role at this tier, or null when the role has no row
+        // e.g.     Tank row [Iron Plate, Tempered, Reinforced, Forged]: tier 1 => Tempered, tier 9 => Forged
+        public ScriptableObject ForgedItem(HeroRoleEnum role, int tier)
+        {
+            ForgeRow row = _forgeTable.Find(r => r.role == role && r.itemsByTier.Count > 0);
+            return row?.itemsByTier[Mathf.Clamp(tier, 0, row.itemsByTier.Count - 1)];
+        }
+
+        public bool CanForgeFor(HeroRoleEnum role) => ForgedItem(role, 0) != null;
 
         // a hero with no pattern still counts as one, with no marks: it cannot rotate
         public int AlignPatternCount => Mathf.Max(1, _alignPatterns.Count);
