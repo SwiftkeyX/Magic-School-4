@@ -11,9 +11,11 @@ namespace MagicSchool.Skills
         private static float HPPerSecondPerCast => Tuned(2f);      // % of her max HP, healed every second
         private static float RestOfFight => Tuned(-1f);
 
-        // every cast she forges one item for every ally standing on her Anvil mark (See Forge)
+        // every cast she forges one item; every MarksPerTier allies on her Anvil mark make a tank's plate a tier better (See Forge)
         private const string AnvilMark = "Anvil";
         public override IReadOnlyList<string> SpecialMarks => new[] { AnvilMark };
+        private static int MarksPerTier => Tuned(2);
+        private static int MaxWornOnSelf => Tuned(3);      // every item she wears counts, yours too
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new BlacksmithSkill(registry);
 
@@ -23,9 +25,11 @@ namespace MagicSchool.Skills
 
         public override string Description
             => $"Every cast, she gains {MaxHP(HPPerSecondPerCast)} HP a second for the rest of the fight (stacks), "
-             + $"and forges an item for every ally on her {AnvilMark} mark, each for the nearest ally wearing nothing: "
-             + "a Whetstone for a fighter, marksman or assassin, an Archmage Tome for a mage, a Forged Iron Plate (+50 DF) for a tank. "
-             + "What nobody takes she wears herself, as Forged Iron Plates. Forged items last the fight.";
+             + "and forges an item for the nearest ally wearing nothing: a Whetstone for a fighter, marksman or assassin, "
+             + "an Archmage Tome for a mage, an Iron Plate for a tank - "
+             + $"+20 DF, +50 DF with {MarksPerTier} allies on her {AnvilMark} mark, +100 DF with {MarksPerTier * 2}. "
+             + $"When every ally wears something, she wears the plate herself, while she wears fewer than {MaxWornOnSelf} items. "
+             + "Forged items last the fight.";
 
         // ============================== on cast ==============================
         // e.g. 1400 max HP, 3 casts => 84 HP a second (See HPRegen)
@@ -40,37 +44,33 @@ namespace MagicSchool.Skills
             return true;
         }
 
-        // One item for every ally on her Anvil mark, handed to the allies wearing nothing - anywhere, not only on the mark -
-        // nearest first, by role. The rest go on her.
-        // e.g. 3 allies on Anvil, a mage and a tank with nothing on => a Tome, a Plate, and a Plate on herself
+        // One item: for the nearest ally wearing nothing, by role - anywhere, not only on the mark. Nobody left: a plate on
+        // herself, unless she already wears MaxWornOnSelf items of any kind.
+        // e.g. 2 allies on Anvil, a bare tank => a +50 DF plate on him
         private void Forge()
         {
             if (!(Caster is ICombatant me)) return;
 
-            int items = Caster is IAligned aligned ? aligned.AlliesOnSpecialMark(AnvilMark).Count : 0;
-            if (items <= 0) return;
+            int tier = Caster is IAligned aligned ? aligned.AlliesOnSpecialMark(AnvilMark).Count / Mathf.Max(1, MarksPerTier) : 0;
 
             Vector3 at = me.transform.position;
-            List<IItemWearer> bare = (Caster is ITargeter targeter ? targeter.FindAllAllies() : new List<ICombatant>())
+            IItemWearer bare = (Caster is ITargeter targeter ? targeter.FindAllAllies() : new List<ICombatant>())
                 .Where(ally => ally != null && ally.IsAlive && ally is IItemWearer wearer && wearer.WornItemCount == 0
-                               && ForgeFor(wearer.Role).HasValue)
+                               && ForgeFor(wearer.Role, tier).HasValue)
                 .OrderBy(ally => (ally.transform.position - at).sqrMagnitude)
                 .Cast<IItemWearer>()
-                .ToList();
+                .FirstOrDefault();
 
-            for (int i = 0; i < items; i++)
-            {
-                if (i < bare.Count) bare[i].ReceiveForgedItem(ForgeFor(bare[i].Role).Value, me);
-                else if (Caster is IItemWearer self) self.ReceiveForgedItem(ForgedItemEnum.ForgedIronPlate, me);
-            }
+            if (bare != null) bare.ReceiveForgedItem(ForgeFor(bare.Role, tier).Value, me);
+            else if (Caster is IItemWearer self && self.WornItemCount < MaxWornOnSelf) self.ReceiveForgedItem(PlateOf(tier), me);
         }
 
         // what an ally of this role gets; none for a unit with no role (a dummy, a minion)
-        private static ForgedItemEnum? ForgeFor(HeroRoleEnum role)
+        private static ForgedItemEnum? ForgeFor(HeroRoleEnum role, int tier)
         {
             switch (role)
             {
-                case HeroRoleEnum.Tank: return ForgedItemEnum.ForgedIronPlate;
+                case HeroRoleEnum.Tank: return PlateOf(tier);
                 case HeroRoleEnum.Mage: return ForgedItemEnum.ArchmageTome;
                 case HeroRoleEnum.Fighter:
                 case HeroRoleEnum.Marksman:
@@ -78,6 +78,10 @@ namespace MagicSchool.Skills
                 default: return null;
             }
         }
+
+        // 0-1 allies on Anvil: +20 DF, 2-3: +50 DF, 4+: +100 DF
+        private static ForgedItemEnum PlateOf(int tier)
+            => tier <= 0 ? ForgedItemEnum.IronPlate : tier == 1 ? ForgedItemEnum.ForgedIronPlate : ForgedItemEnum.MasterworkIronPlate;
 
         // ============================== active ==============================
         // no hammer any more: the cast itself is the whole active - she stands and forges (See OnCast)

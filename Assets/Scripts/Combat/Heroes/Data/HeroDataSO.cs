@@ -30,7 +30,7 @@ namespace MagicSchool.Combat.Heroes
         [SerializeField] private SkillIdEnum _skillId = SkillIdEnum.None;
         [Tooltip("The unit this hero's skill puts on the board. e.g. Big Slime -> Small Slime. Empty for almost everyone.")]
         [SerializeField] private HeroDataSO _spawnUnit;
-        [Tooltip("The item assets this hero's skill forges, in ForgedItemEnum order: Whetstone, Archmage Tome, Forged Iron Plate. Empty for everyone but Blacksmith.")]
+        [Tooltip("The item assets this hero's skill forges, in ForgedItemEnum order: Whetstone, Archmage Tome, Forged Iron Plate, Iron Plate, Masterwork Iron Plate. Empty for everyone but Blacksmith.")]
         [SerializeField] private List<ScriptableObject> _forgedItems = new List<ScriptableObject>();   // ItemDataSO, which Combat cannot name
         [Tooltip("Aligning: every way this hero can be turned, each with its own marks. Rotating switches to the next one. Edit in Magic School 4 > Align Editor.")]
         [SerializeField] private List<AlignPattern> _alignPatterns = new List<AlignPattern>();

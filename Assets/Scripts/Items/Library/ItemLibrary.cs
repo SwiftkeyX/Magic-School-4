@@ -33,6 +33,7 @@ namespace MagicSchool.Items
                 { ItemIdEnum.AegisShard,      AegisShard.Build },
                 { ItemIdEnum.WardensVow,      WardensVow.Build },
                 { ItemIdEnum.ForgedIronPlate, ForgedIronPlate.Build },
+                { ItemIdEnum.MasterworkIronPlate, MasterworkIronPlate.Build },
 
                 // utility
                 { ItemIdEnum.ChaliceOfDawn,   ChaliceOfDawn.Build },
