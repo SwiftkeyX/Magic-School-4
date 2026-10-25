@@ -11,7 +11,7 @@ namespace MagicSchool.Combat.Heroes
     // FindTarget have 4 category:
     // 1) CurrentTarget - the [combatant] that me was currently attacking (hero won't stop attack current target, until something break them off)
     // 2) NearestEnemy - the [combatant] that was closest to me (hero will always find next nearest enemy as next current target)
-    // 3) FurthestEnemy - the [combatant] that was furthest to me in distance NOT hop (some skill prioritize the furthest enemy)
+    // 3) FurthestEnemy - the [combatant] that was furthest to me in hexes (some skill prioritize the furthest enemy)
     // 4) Clustered - the [placement/combatant] that hit the most combatant with specify skill's [radius/width].
     // 5) EnemiesNear - the [combatant] in [x] hop of the specify target
     internal class FindTarget
@@ -136,23 +136,49 @@ namespace MagicSchool.Combat.Heroes
 
         // Picks [count] furthest enemies within reachRange
         // furthest first, second furthest, third furthest, and so on ...
+        // Furthest is counted in hexes, and enemies the same hexes away are shuffled: measured in world distance, a diagonal
+        // hex (~1.118 apart) always beat a straight one (1.0), so of two enemies 5 hexes away the same one won every time.
         // e.g.     Goblin Slinger shoots the 2 furthest enemies
+        //          Skeleton Archer, two enemies 6 hexes away, one above and one below => either, at random, every barrage
         public IReadOnlyList<ICombatant> FindFurthestEnemies(int reachRange, int count = 1)
         {
-            var enemyDistances = _scan.Distances().Where(e => e.dist <= reachRange).ToList();
+            var inReach = _scan.Distances().Where(e => e.dist <= reachRange).Select(e => e.target).ToList();
+            if (inReach.Count == 0) return Array.Empty<ICombatant>();
 
-            if (enemyDistances.Count == 0) return Array.Empty<ICombatant>();
+            Dictionary<Hex, int> hexesAway = HexesAwayFromMe();
+            int HexesTo(ICombatant enemy)
+                => enemy.CurrentHex() is Hex hex && hexesAway.TryGetValue(hex, out int n) ? n : 0;
 
-            // the furthest one - a tie is broken the same way it is for every other pick
-            float furthestDist = enemyDistances.Max(e => e.dist);
-            var tiedFurthest = enemyDistances.Where(e => e.dist >= furthestDist - TieEpsilon).Select(e => e.target).ToList();
-            ICombatant furthest = BreakTie(tiedFurthest, _currentTarget);
+            return inReach
+                .Select(enemy => (enemy, hexes: HexesTo(enemy), shuffle: UnityEngine.Random.value))
+                .OrderByDescending(e => e.hexes)
+                .ThenBy(e => e.shuffle)
+                .Select(e => e.enemy)
+                .Take(count)
+                .ToList();
+        }
 
-            // then everyone else, by distance
-            var picked = new List<ICombatant> { furthest };
-            picked.AddRange(enemyDistances.Where(e => e.target != furthest).OrderByDescending(e => e.dist).Select(e => e.target));
+        // every hex of the board with how many hexes it is from mine, counted step by step (as Hex.IsWithinRange counts)
+        private Dictionary<Hex, int> HexesAwayFromMe()
+        {
+            var hexesAway = new Dictionary<Hex, int>();
+            Hex myHex = _me.CurrentHex;
+            if (myHex == null) return hexesAway;
 
-            return picked.Take(count).ToList();
+            hexesAway[myHex] = 0;
+            var frontier = new Queue<Hex>();
+            frontier.Enqueue(myHex);
+            while (frontier.Count > 0)
+            {
+                Hex hex = frontier.Dequeue();
+                foreach (Hex neighbor in hex.GetNeighbors())
+                {
+                    if (hexesAway.ContainsKey(neighbor)) continue;
+                    hexesAway[neighbor] = hexesAway[hex] + 1;
+                    frontier.Enqueue(neighbor);
+                }
+            }
+            return hexesAway;
         }
 
         // Pick a placement where:

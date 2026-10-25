@@ -18,6 +18,8 @@ namespace MagicSchool.Skills
         private IReadOnlyList<ICombatant> _furthestTargets;
         private int _nextFurthest;
 
+        private ICombatant _barrageTarget;      // aim = Furthest: every shot of this barrage goes to it
+
         protected override void ApplyTypedTuning(FireTimingRunnerProjectileTuning tuning)
         {
             base.ApplyTypedTuning(tuning);
@@ -35,6 +37,17 @@ namespace MagicSchool.Skills
             if (_innerAimTarget == AimTargetEnum.Random)
             {
                 ICombatant chosen = PickRandomTarget();
+                if (chosen == null) return;
+
+                shotAimTarget = AimTargetEnum.Assigned;
+                shotTarget = chosen;
+            }
+
+            // if aim = furthest, the runner picks it once and every shot goes there - a tie is random now, so a shot
+            // left to aim itself could go elsewhere (See FindTarget.FindFurthestEnemies)
+            else if (_innerAimTarget == AimTargetEnum.Furthest)
+            {
+                ICombatant chosen = PickBarrageTarget();
                 if (chosen == null) return;
 
                 shotAimTarget = AimTargetEnum.Assigned;
@@ -71,6 +84,16 @@ namespace MagicSchool.Skills
             if (_randomTargets == null) _randomTargets = new RandomTargetPool(_me, _randomPoolRadius);
 
             return _randomTargets.Next();
+        }
+
+        // the furthest enemy, picked on the first shot of the barrage and kept; picked again only once it is dead
+        // e.g.     Skeleton Archer's 3 shots all go to the one Minotaur, not split between two tied for furthest
+        private ICombatant PickBarrageTarget()
+        {
+            if (_barrageTarget != null && _barrageTarget.IsAlive) return _barrageTarget;
+
+            int reachRange = (_innerTuning as ProjectileTuning)?.Range ?? int.MaxValue;
+            return _barrageTarget = _me.FindFurthestEnemy(reachRange);
         }
 
         // pick several furthest enemy but different one each time
