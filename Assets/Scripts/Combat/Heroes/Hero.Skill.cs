@@ -20,6 +20,7 @@ namespace MagicSchool.Combat.Heroes
         public void UseFreeCast() { if (_freeCasts > 0) _freeCasts--; }
         public bool TriggerOnAutoAttack(ICombatant target) => _skill.TriggerOnAutoAttack(target);
         public ICombatant PickAutoAttackTarget(ICombatant target) => _skill.PickAutoAttackTarget(target);
+        public float AutoAttackDamageMultiplier(ICombatant target) => _skill.AutoAttackDamageMultiplier(target);
         // a fight starts: the crit count starts again too (read Crit.cs)
         public bool TriggerOnCombatStart()
         {

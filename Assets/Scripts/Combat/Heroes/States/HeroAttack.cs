@@ -100,8 +100,8 @@ namespace MagicSchool.Combat.Heroes.States
             if (!_me.HasStatus(ModifierEnum.AutoAttackWasReplaced))
             {
                 // FLAGGING: attack animation got skip by skill which is not intended
-                // every auto attack can crit
-                float damage = Crit.Roll(_me.AttackDamage, _me, out _);
+                // every auto attack can crit; the skill may scale it first (e.g. Skeleton Archer's Long Shot)
+                float damage = Crit.Roll(_me.AttackDamage * _me.AutoAttackDamageMultiplier(target), _me, out _);
 
                 // apply damage to target
                 int landed = target.TakeDamage(

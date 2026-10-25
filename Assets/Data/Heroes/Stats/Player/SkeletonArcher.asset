@@ -20,14 +20,14 @@ MonoBehaviour:
   _attack: 35
   _defend: 15
   _magic: 100
-  _attackSpeed: 0.75
+  _attackSpeed: 0.55
   _range: 6
   _startMana: 0
   _maxMana: 70
   _critChance: 25
   _skillId: 14
   _spawnUnit: {fileID: 0}
-  _forgedItems: []
+  _forgeTable: []
   _alignPatterns:
   - marks:
     - hexes:
@@ -63,7 +63,7 @@ MonoBehaviour:
       perOwnerAP: 0
       selfModifier: 6
       selfAmount: 20
-      selfPercentOf: -1
+      selfPercentOf: 1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -137,7 +137,7 @@ MonoBehaviour:
       perOwnerAP: 0
       selfModifier: 6
       selfAmount: 20
-      selfPercentOf: -1
+      selfPercentOf: 1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -176,7 +176,7 @@ MonoBehaviour:
       perOwnerAP: 0
       selfModifier: 6
       selfAmount: 20
-      selfPercentOf: -1
+      selfPercentOf: 1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -240,7 +240,7 @@ MonoBehaviour:
       perOwnerAP: 0
       selfModifier: 6
       selfAmount: 20
-      selfPercentOf: -1
+      selfPercentOf: 1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -314,7 +314,7 @@ MonoBehaviour:
       perOwnerAP: 0
       selfModifier: 6
       selfAmount: 20
-      selfPercentOf: -1
+      selfPercentOf: 1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:
@@ -353,7 +353,7 @@ MonoBehaviour:
       perOwnerAP: 0
       selfModifier: 6
       selfAmount: 20
-      selfPercentOf: -1
+      selfPercentOf: 1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
     - hexes:

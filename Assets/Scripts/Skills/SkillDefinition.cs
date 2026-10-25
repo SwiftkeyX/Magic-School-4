@@ -127,6 +127,10 @@ namespace MagicSchool.Skills
         // e.g. Goblin Archer auto attack a random enemy
         public virtual ICombatant OnPickAutoAttackTarget(ICombatant target) => target;
 
+        // An auto attack's damage is multiplied by this before it lands (crit rolled after), 1 = unchanged.
+        // e.g. Skeleton Archer's Long Shot mark and his close-shot nerf apply to his auto attacks too
+        public virtual float AutoAttackDamageMultiplier(ICombatant target) => 1f;
+
         // At combat start, play OnCombatStart.
         public virtual bool OnCombatStart() => false;
 

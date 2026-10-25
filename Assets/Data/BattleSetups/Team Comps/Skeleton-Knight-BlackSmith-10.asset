@@ -13,42 +13,60 @@ MonoBehaviour:
   m_Name: Skeleton-Knight-BlackSmith-10
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
   _heroesPlacement:
-  - dataSO: {fileID: 11400000, guid: 81eb954f0f0758046a44fafb654cecf8, type: 2}
+  - dataSO: {fileID: 11400000, guid: 76e948a66c5e474439a5a33fcd03137a, type: 2}
     team: 0
     hexPlacement:
       column: 1
-      row: 3
-    item: {fileID: 0}
+      row: 2
+    item: {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
+    alignPattern: 0
+    level: 1
+    star: 1
+  - dataSO: {fileID: 11400000, guid: 81eb954f0f0758046a44fafb654cecf8, type: 2}
+    team: 0
+    hexPlacement:
+      column: 2
+      row: 2
+    item: {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
     alignPattern: 3
     level: 1
     star: 2
-  - dataSO: {fileID: 11400000, guid: 118f557ddedafb84d938ad49509e53fe, type: 2}
+  - dataSO: {fileID: 11400000, guid: e3572f7949186fc4191265167e10d06c, type: 2}
     team: 0
     hexPlacement:
       column: 3
-      row: 2
-    item: {fileID: 0}
+      row: 1
+    item: {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
+    alignPattern: 0
+    level: 1
+    star: 2
+  - dataSO: {fileID: 11400000, guid: e7d86f4be25b22c498716c553aa2a217, type: 2}
+    team: 0
+    hexPlacement:
+      column: 4
+      row: 0
+    item: {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
+    alignPattern: 0
+    level: 1
+    star: 1
+  - dataSO: {fileID: 11400000, guid: 118f557ddedafb84d938ad49509e53fe, type: 2}
+    team: 0
+    hexPlacement:
+      column: 4
+      row: 1
+    item: {fileID: 11400000, guid: e06f9ca047114c0dbbced71a935de7d1, type: 2}
     alignPattern: 4
     level: 1
     star: 2
   - dataSO: {fileID: 11400000, guid: 2a1cf15a07e0dff4386f17605b31d532, type: 2}
     team: 0
     hexPlacement:
-      column: 4
-      row: 2
-    item: {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
+      column: 5
+      row: 0
+    item: {fileID: 0}
     alignPattern: 1
     level: 1
     star: 3
-  - dataSO: {fileID: 11400000, guid: 0f207332a3e601b46b3c098900106a8f, type: 2}
-    team: 0
-    hexPlacement:
-      column: 5
-      row: 1
-    item: {fileID: 0}
-    alignPattern: 0
-    level: 1
-    star: 1
   _deployZone: []
   _boardLayout: {fileID: 2821033882997051323, guid: d07d3d269e6884b42a2b2daced65229a, type: 3}
   _itemsOnHexes: []

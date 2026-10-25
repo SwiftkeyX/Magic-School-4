@@ -113,6 +113,13 @@ Rules that aren't visible from any single file:
   two heroes target the same free hex in one frame. A step is `HexStep`, shared by `HeroWalk` and `HeroCast`:
   a skill part tuned `walkWhileCasting: true` keeps its caster in Cast for the whole cast time (no attacking)
   but walking toward its target as Walk would, standing still once in range (Orc Blademaster's storm).
+  A full mana bar waits for a step under way to land before casting (`HeroWalk.IsMidStep`); a stun or death halfway
+  through a step puts the hero back on the hex it left and lets go of the one it was stepping onto (`HexStep.CutOff`, from
+  `OnExit` of Walk and Cast). A booking left behind never gets used, and `Transition.CanWalk` makes an enemy next to a hex
+  booked by its foe wait for it - which once froze two Minotaurs beside a casting Skeleton Archer for the rest of the fight.
+  Cast also holds while a skill's `Move` (a jump or dash) is still moving its caster (`Move.IsMoving` ->
+  `SkillDefinition.IsMovingCaster` -> `Hero.IsSkillMovingMe`): Knight's leap outlasts his cast time, and leaving Cast mid-air
+  started a step whose motion, still running after he landed, carried him back to where he jumped from.
 - **`Combat/Placements/Hex/HexNumber.cs`** — `struct HexNumber { int column; int row; }`. The board
   is one grid of 8 columns (0 = far left) with row 0 at the top of each column; a hex's number carries
   no team. A unit's side is on its `HeroPlacement.team`, not on the hex it stands on. Must stay a
@@ -144,10 +151,17 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
 ## What's built vs. pending
 
 - Movement, A* pathfinding and hex reservation work.
-- Combat works: auto-attack on an attack-speed cooldown, mana (10 per attack, the base of `StatEnum.ManaPerAttack`, set in `Stat`),
+- Combat works: auto-attack on an attack-speed cooldown, mana - mainly over time, 5 a second (`StatEnum.ManaPerSecond`, ticked by `Combat/Heroes/States/ManaRegen` from
+  `HeroStateMachine.Tick`, stopped while stunned, casting, dead or mana blocked), and none per auto attack by default (`StatEnum.ManaPerAttack`, 0, kept as a stat for items, marks
+  and skills to raise);
+  both bases are constants in `Stat`. HP over time is `StatEnum.HPPerSecond`, 0 by default, healed once a second by `States/HPRegen`
+  (through `Heal`, so a wound cuts it; it keeps going while stunned or casting) - Blacksmith gains 2% of her max HP, plus 0.3% per ally on her Anvil mark (counted at each cast), every cast, stacking for the fight for 3 casts (`MaxRegenStacks`; the count resets in `OnCombatStart`) -
   skill cast when mana caps and spent in `HeroCast.OnEnter`, damage/heal via `CombatMath`, and
   modifiers/statuses through `Stat`/`ModifierResolver`. There is no magic resist: DF reduces every hit, auto attack or skill
   (`CombatMath`, damage / (1 + DF/100)). MR was removed; `StatEnum` 4 and `ModifierEnum` 16 are left empty so stored ints keep their meaning.
+  Armor penetration is LoL's: the attacker's `StatEnum.ArmorPen` (% of the target's DF ignored, sources add, capped at 100)
+  then `Lethality` (flat), worked out in `Hero.TakeDamage` from `source` (`CombatMath.DFAfterPenetration`); it never takes DF
+  below 0 and leaves DF already below 0 (shredded) alone. Items: Serrated Fang (+15 lethality), Piercing Bolt (25%), Giant's Bane (40%).
 - Crit is pseudo-random (Dota/Warcraft 3's PRD), not a coin flip: `StatScaling/Crit` counts each attacker's hits since
   its last crit, auto attacks and crit-able skills together, and the n-th crits at `C * n`, with `C` solved from the crit
   chance so the long-run rate is still exactly the chance (25% -> C 8.47%, never more than ~11 hits without one). The count
@@ -219,7 +233,21 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   every pattern of the hero by itself, after orange and green (it asks `HeroDataSO.SpecialMarksOf`, which builds the skill),
   and will not remove it; its hexes are painted separately in each pattern. `AlignBonuses.Refresh` records who stands on
   each one and the skill reads them through `IAligned.AlliesOnSpecialMark(name)`. The board paints them white
-  (`BoardColours._specialColor`). Rock Golem's wards are the allies on his Ward mark. Troll grows only from the kills of the
+  (`BoardColours._specialColor`). Rock Golem's wards are the allies on his Ward mark. Skeleton Archer's Long Shot bonus and his close-shot nerf (50% under 3
+  hexes) apply to his auto attacks too, through `SkillDefinition.AutoAttackDamageMultiplier(target)` (1 by default), which
+  `HeroAttack.PerformAutoAttack` multiplies into AD before the crit roll. Knight's landing deals 100% AD plus 50% AD for every ally on his
+  Valor mark (`AmplifiedBy`, as a share of the base, so it stays +50% AD each whatever the base is tuned to). Blacksmith forges one item every cast, for
+  the nearest ally wearing nothing (anywhere, not only on the mark) whose role her **forge table** has a row for. The table is
+  `HeroDataSO._forgeTable`, tuned in the Inspector: one `ForgeRow` per role, its items from tier 0 up (typed `ScriptableObject`,
+  as Combat cannot name `ItemDataSO`); past the end a row stays on its last item, and a role with no row gets nothing. The tier
+  is the allies on her Anvil mark / `MarksPerTier` (1). Default rows - Tank: Iron Plate +20 DF, Tempered +30, Reinforced +40,
+  Forged +50; Mage: Archmage Tome; Fighter / Marksman / Assassin: Whetstone. With every ally wearing something she takes the tank
+  row's item herself, while she wears fewer than 3 items of any kind. A forged item is a real `Item`: the skill calls
+  `IItemWearer.ReceiveForgedItem(role, tier, forger)` (Contracts; `IForger.CanForgeFor` asks the table first), `Hero` raises
+  `OnForgedItemRequested`, and `HeroSpawner` spawns `HeroDataSO.ForgedItem(role, tier)` and calls `Hero.WearForged` - worn past
+  `HeroItems.Capacity`, any number, and destroyed by `HeroItems.ClearForged` in `Hero.ResetForNewStage`, so it lasts the fight.
+  The forged plates - `ForgedIronPlate` (21), `MasterworkIronPlate` (22, +100, not in her table), `TemperedIronPlate` (29),
+  `ReinforcedIronPlate` (30) - are not in the shop. Troll grows only from the kills of the
   allies on his Feed mark: a unit that dies records who landed the killing hit (`IFallen.KilledBy`, Contracts), and a
   unit a hero spawned mid-fight is a summon (`IFallen.IsSummon`, set by `HeroSpawner`), whose death never feeds him.
   Reaper's Reap mark: every 3 enemies she kills herself (summons excluded), each ally on it casts its skill once for free -
@@ -255,6 +283,9 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   must not be gone for: `EnemyScan`'s per-frame caches drop whoever died since they were built (a new list, never edited in
   place), and `HeroAttack.CheckSwitchState` picks a new target when its own just died - before both, Skeleton Archer walked
   toward the slime his own arrow had killed while another stood in his range.
+- Furthest enemy (`FindTarget.FindFurthestEnemies`, `AimTargetEnum.Furthest`: Skeleton Archer, Myconid, Goblin Slinger) is
+  counted in hexes (a BFS over the board from the hero's hex), and enemies the same hexes away are picked at random. In world
+  distance a diagonal hex (~1.118) always beat a straight one (1.0), so the same one of two equally far enemies won every time.
 - Chosen target: when a player hero's nearest enemy is a tie (`FindTarget.TiedNearestEnemies` - the same tie
   `FindNearestEnemy` breaks, in-range enemies first), the player picks which one it goes for. In Preparation, right-clicking a
   placed hero inspects it; right-clicking it again while it is inspected steps through the tied enemies and back to automatic
@@ -420,6 +451,10 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
 - Stage editing (dev tool): **Magic School 4 > Stage Editor** (`Core/Editor/StageEditorWindow`; it is the only way in - the
   old Stage Editor submenu was removed) has a Stage Edit Mode toggle (`GameManager._stageEditMode`: in Play mode set live, for
   that session only; outside it, the scene's value), a status line saying why a button is greyed out, a search box, and two tabs.
+  Above the tabs, **Quick Save** / **Quick Load** keep one slot, to pick up after restarting Play: both teams on the board
+  (the player's as a team comp would save them, the enemies with levels) and the deploy zone in `Data/BattleSetups/QuickSave.asset`
+  (outside `Campaign/` and `Team Comps/`, so never listed or benchmarked), the stage being played in EditorPrefs. Load goes to that
+  stage (`JumpToStage`) and then puts both teams back (`StageEditor.LoadQuickSave`); neither asks first. The bench is not saved.
   With the mode on, in Preparation, enemies drag between the hexes outside the deploy zone like your own heroes do inside it, and
   dropping one on the shop removes it (no gold).
   **Enemy tab** has three parts of its own (`WindowStyle.SubTabs`) - Stage (load), Add, Levels - with Edit deploy zone and the two
@@ -475,7 +510,8 @@ way round — `Hero._SOData` is assigned at runtime by `HeroSpawner` via `Hero.I
   (+DF every cast), Big Slime (splits into 2 Small Slimes on death), Goblin Slinger (shoots the 2
   furthest enemies) and Kobold Skirmisher (3 shots at random enemies). Supports, fighters and the
   assassin are still only in the sheet. None is in a stage yet - add them with the Stage Editor window.
-  The first boss is the Minotaur King (`Enemy/MinotaurKing`, skill 44, prefab drawn 1.5x and tinted red),
+  The first boss is the Minotaur King (`Enemy/MinotaurKing`, skill 44, prefab drawn 1.5x and tinted red - his
+  `PolygonCollider2D` points are overridden to 2/3 so his hitbox stays a normal hero's),
   deliberately easy: 4000 HP, 70 AD at 0.5 AS, and Ground Slam (150% AD + 1s stun to the heroes next to
   him). He is in `Campaign/Stage 05` and `Stage 10`.
 - A hero can put units on the board mid-fight: a skill calls `ISpawner.SpawnUnitsNearby` (Contracts) on

@@ -51,10 +51,15 @@ Before all this, to make the game playable, we need to balance the game first.
 
 ## Deferred plan
 
-[] (deferred) BIG REFACTOR TIME
+[] (deferred) BIG REFACTOR TIME - plan: [refactor-plan.md](refactor-plan.md), review: [architecture-review.md](architecture-review.md)
 
-- [] Hey could you also look the claude skill about clean architecture or something similar, espectially for Unity project.
-- [] Spawn new instance of Opus to review the entire code base. Base on the skill we founded.
+- [x] Hey could you also look the claude skill about clean architecture or something similar, espectially for Unity project.
+- [x] Spawn new instance of Opus to review the entire code base. Base on the skill we founded.
+- Personal REVIEW:
+  - Get rid of most comment. After I work in a team, I realize that comment isn't needed every single line, just a summary comment above a class should be enough but it should really be understandable though, and every class doesn't need it, only a few one need comment.
+  - This project use too much interface. I don't think Hero class should have like 10 interface inherit.
+  - A class here in this project is usually too big? I don't sure.
+  - GameManager also should be separated into several manager.
 - I notice that there's a lot of changed. I have not read the code myself for quite a long time. So there must be a lot of inconsistency which is fine. As long as you can work with it efficiently. What do you think of this code based base on this requirement?
 
 My review:

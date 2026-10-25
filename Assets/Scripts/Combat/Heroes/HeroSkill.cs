@@ -63,6 +63,11 @@ namespace MagicSchool.Combat.Heroes
             return _skill.OnPickAutoAttackTarget(target) ?? target;
         }
 
+        // an auto attack's damage, scaled by the skill (1 = unchanged)
+        // e.g. Skeleton Archer's Long Shot mark
+        public float AutoAttackDamageMultiplier(ICombatant target)
+            => _skill == null ? 1f : _skill.AutoAttackDamageMultiplier(target);
+
         // at start of the combat, play OnCombat type of skill
         public bool TriggerOnCombatStart()
         {

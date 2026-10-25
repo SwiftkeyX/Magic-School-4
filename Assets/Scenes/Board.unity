@@ -628,11 +628,16 @@ MonoBehaviour:
   _spareBench: {fileID: 1228923829}
   _templateActions: {fileID: 11400000, guid: 31d48e144b9be4e40b79fd94b16f49ed, type: 2}
   _stages:
-  - {fileID: 11400000, guid: f058dbbe8d7f68a469537cd0ccc45d5c, type: 2}
-  - {fileID: 11400000, guid: f6718b4d7b7ed63439b4c0e0466b312e, type: 2}
-  - {fileID: 11400000, guid: 6502be1447072ac42890511cc213a58d, type: 2}
-  - {fileID: 11400000, guid: 951a59ae32cb2e3459d82c8d64ef9a25, type: 2}
-  - {fileID: 11400000, guid: 5a83960228374f358c78d5b801909939, type: 2}
+  - {fileID: 11400000, guid: 439fb3c5a5c90574fa9430dbd82312c5, type: 2}
+  - {fileID: 11400000, guid: 1f04dda85e92d6f4da1b17fa9dcd0520, type: 2}
+  - {fileID: 11400000, guid: 448d86d2549303240bb02d2abc6b7c6c, type: 2}
+  - {fileID: 11400000, guid: 030d9983e26b200428b1bda5480963a6, type: 2}
+  - {fileID: 11400000, guid: 52baf0166c42ebf438b3d310f057f42e, type: 2}
+  - {fileID: 11400000, guid: 82546546ee166994eb96f7943335ac61, type: 2}
+  - {fileID: 11400000, guid: 0c1dad84c1357da42b63aaa4918afaf9, type: 2}
+  - {fileID: 11400000, guid: 4c2d2e2592aa7504b80a26d0baf3cfdf, type: 2}
+  - {fileID: 11400000, guid: ee1d59098ed570b46988894f59cc62a6, type: 2}
+  - {fileID: 11400000, guid: 681d0bf35f2acef47942cfbfdc2ba258, type: 2}
   _startingHeroLimit: 12
   _startingGold: 15
   _stageIncome: 5
@@ -684,6 +689,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c15d89114cbb478daa8343a04905d3c7, type: 2}
   - {fileID: 11400000, guid: 3ad0e98a5bdd4b55b163ebc32e4455e0, type: 2}
   - {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
+  - {fileID: 11400000, guid: 261e05ba059541c7aea2ce919a4af60a, type: 2}
+  - {fileID: 11400000, guid: 75dc008e94574bbdaa8655c13e88ae17, type: 2}
+  - {fileID: 11400000, guid: e06f9ca047114c0dbbced71a935de7d1, type: 2}
+  - {fileID: 11400000, guid: 9af6bb1202ba47f6b1d0edf152604359, type: 2}
+  - {fileID: 11400000, guid: ed3fc36b59954b62bff22e493bf00942, type: 2}
+  - {fileID: 11400000, guid: c0e8db38ed154b6eac72fbbf45c9f8bf, type: 2}
   _shopOdds: {fileID: 11400000, guid: e892444f78d247f42987d213bd487c0e, type: 2}
   _useRewardPanel: 0
   _isPlayerSeed: 0

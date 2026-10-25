@@ -36,7 +36,17 @@ namespace MagicSchool.Skills
             => $"Fires {BarrageCount} barrages of {ShotsPerBarrage} shots at the furthest enemy, picking the furthest again "
              + $"for every barrage. Each shot lands for {AD(ADDamagePerShot)} + {AP(MGDamagePerShot)}. "
              + $"A shot that lands closer than {LongShotHexes} hexes deals only {CloseShotDamage}%. "
-             + $"Every shot deals {PerAllyText()} more for every ally on his {LongShotMark} mark.";
+             + $"Every shot deals {PerAllyText()} more for every ally on his {LongShotMark} mark. "
+             + "Both apply to his auto attacks too.";
+
+        // his auto attacks follow the same two rules as his shots: the Long Shot bonus, and only CloseShotDamage% when the
+        // target is closer than LongShotHexes
+        // e.g. a 2-star with 2 allies on Long Shot, hitting someone 2 hexes away => (1 + 100%) x 50% = 100% of his AD
+        public override float AutoAttackDamageMultiplier(ICombatant target)
+        {
+            bool far = Caster is IHexMeasurable me && target != null && me.IsAtLeastHexesAway(target, LongShotHexes);
+            return (1f + LongShotBonus(Caster)) * (far ? 1f : CloseShotDamage / 100f);
+        }
 
         // e.g. "50%" for a 2-star, or with Alt held "[30% + 10% per star]"
         private string PerAllyText()
