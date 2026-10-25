@@ -15,8 +15,11 @@ namespace MagicSchool.Skills
         private static float PauseBetweenBarrage => Tuned(1.5f);
         private static float BarrageCastTime => IntervalBetweenShot * (ShotsPerBarrage - 1);
 
-        // a long shot - its target 3+ hexes away when it lands - deals [this]% more for every ally on his Long Shot mark
+        // a shot deals full damage to a target 3+ hexes away when it lands, and [CloseShotDamage]% to a closer one
         private static int LongShotHexes => Tuned(3);
+        private static float CloseShotDamage => Tuned(50f);
+
+        // every shot deals [this]% more for every ally on his Long Shot mark, near or far
         private static float LongShotBonusPerAlly => Tuned(30f);
         private static float LongShotBonusPerAllyPerStar => Tuned(10f);
 
@@ -32,7 +35,8 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Fires {BarrageCount} barrages of {ShotsPerBarrage} shots at the furthest enemy, picking the furthest again "
              + $"for every barrage. Each shot lands for {AD(ADDamagePerShot)} + {AP(MGDamagePerShot)}. "
-             + $"A shot that lands {LongShotHexes}+ hexes away deals {PerAllyText()} more for every ally on his {LongShotMark} mark.";
+             + $"A shot that lands closer than {LongShotHexes} hexes deals only {CloseShotDamage}%. "
+             + $"Every shot deals {PerAllyText()} more for every ally on his {LongShotMark} mark.";
 
         // e.g. "50%" for a 2-star, or with Alt held "[30% + 10% per star]"
         private string PerAllyText()
@@ -60,12 +64,11 @@ namespace MagicSchool.Skills
                 tuning: TuneFireTimingRunnerProjectile(ShotsPerBarrage, FireTimingModeEnum.Sequence, IntervalBetweenShot, tune,
                                                        castTime: BarrageCastTime, pauseAfter: PauseBetweenBarrage),
 
-                DamageWhen(
+                Damage(
                     recipient: EffectRecipientEnum.SameToAimTarget,
-                    conditions: new List<SkillCondition> { new FarFromCasterCondition(LongShotHexes) },
-                    amplifier: 0f,
                     (StatEnum.ATK, ADDamagePerShot), (StatEnum.AP, MGDamagePerShot)
                 ).AmplifiedBy(LongShotBonus)
+                 .FullOnlyWhen(new FarFromCasterCondition(LongShotHexes), CloseShotDamage / 100f)
             );
 
             return Flow(onStart: shoot);

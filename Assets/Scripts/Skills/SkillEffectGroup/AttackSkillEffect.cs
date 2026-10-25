@@ -13,6 +13,8 @@ namespace MagicSchool.Skills
         private readonly bool _canCrit;     // skill damage does not crit by default, unless the skill was built to
         private float _lifestealPercent;
         private System.Action<int> _onLanded;
+        private SkillCondition _fullWhen;       // a hit that does not meet it deals _otherwise of its damage
+        private float _otherwise = 1f;
 
         public AttackSkillEffect(EffectRecipientEnum recipient, IReadOnlyList<StatRatio> ratios, Cadence cadence = null,
                                  List<SkillCondition> conditions = null, float amplifier = 0f, bool canCrit = false,
@@ -37,6 +39,15 @@ namespace MagicSchool.Skills
         public AttackSkillEffect WhenLanded(System.Action<int> onLanded)
         {
             _onLanded = onLanded;
+            return this;
+        }
+
+        // Full damage only to a recipient the condition holds for; any other takes [otherwise] of it, after the amplifier.
+        // e.g.     Damage(...).FullOnlyWhen(new FarFromCasterCondition(3), 0.5f)    Skeleton Archer's close shots deal half
+        public AttackSkillEffect FullOnlyWhen(SkillCondition condition, float otherwise)
+        {
+            _fullWhen = condition;
+            _otherwise = otherwise;
             return this;
         }
 
@@ -72,6 +83,14 @@ namespace MagicSchool.Skills
 
                 // if pass specify condition, amplify the effect
                 dmg *= AmplifierFor(recipient);
+
+                // a recipient the full-damage condition does not hold for takes part of it
+                if (_fullWhen != null)
+                {
+                    _fullWhen.Init(_caster);
+                    if (SkillCondition.Ask(new List<SkillCondition> { _fullWhen }, recipient) != ConditionResultEnum.ConditionIsMet)
+                        dmg *= _otherwise;
+                }
 
                 // roll the crit once per recipient
                 if (_canCrit) dmg = Crit.Roll(dmg, _caster as IHeroStats, out _);
