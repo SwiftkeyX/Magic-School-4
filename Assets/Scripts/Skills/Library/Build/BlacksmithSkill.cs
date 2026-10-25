@@ -9,6 +9,8 @@ namespace MagicSchool.Skills
     internal class BlacksmithSkill : SkillDefinition
     {
         private static float HPPerSecondPerCast => Tuned(2f);      // % of her max HP, healed every second
+        private static float MaxHPPerSecond => Tuned(6f);          // the stacks stop here: 3 casts at 2%
+        private static int MaxRegenStacks => Mathf.FloorToInt(MaxHPPerSecond / HPPerSecondPerCast);
         private static float RestOfFight => Tuned(-1f);
 
         // every cast she forges one item; every MarksPerTier allies on her Anvil mark make a tank's plate a tier better (See Forge)
@@ -19,12 +21,14 @@ namespace MagicSchool.Skills
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new BlacksmithSkill(registry);
 
+        private int _regenStacks;       // casts that gave regen this fight
+
         private BlacksmithSkill(TemplateActionRegistrySO registry) : base(registry) { }
 
         public override string SkillName => "Forge";
 
         public override string Description
-            => $"Every cast, she gains {MaxHP(HPPerSecondPerCast)} HP a second for the rest of the fight (stacks), "
+            => $"Every cast, she gains {MaxHP(HPPerSecondPerCast)} HP a second for the rest of the fight (stacks, up to {MaxHP(MaxHPPerSecond)}), "
              + "and forges an item for the nearest ally wearing nothing: a Whetstone for a fighter, marksman or assassin, "
              + "an Archmage Tome for a mage, an Iron Plate for a tank - "
              + $"+20 DF, +50 DF with {MarksPerTier} allies on her {AnvilMark} mark, +100 DF with {MarksPerTier * 2}. "
@@ -32,16 +36,27 @@ namespace MagicSchool.Skills
              + "Forged items last the fight.";
 
         // ============================== on cast ==============================
-        // e.g. 1400 max HP, 3 casts => 84 HP a second (See HPRegen)
+        // e.g. 1400 max HP, 3 casts => 84 HP a second (See HPRegen); a 4th cast forges but adds no regen
         public override bool OnCast()
         {
             if (!base.OnCast()) return false;
 
-            Caster.AddModifier(BundleStack(RestOfFight,
-                                   Buff(ModifierEnum.HPPerSecond, (StatEnum.MaxHP, HPPerSecondPerCast, ScaleFromEnum.Total))),
-                               Caster as IHeroStats);
+            if (_regenStacks < MaxRegenStacks)
+            {
+                _regenStacks++;
+                Caster.AddModifier(BundleStack(RestOfFight,
+                                       Buff(ModifierEnum.HPPerSecond, (StatEnum.MaxHP, HPPerSecondPerCast, ScaleFromEnum.Total))),
+                                   Caster as IHeroStats);
+            }
             Forge();
             return true;
+        }
+
+        // the regen is for the fight, so is its count
+        public override bool OnCombatStart()
+        {
+            _regenStacks = 0;
+            return base.OnCombatStart();
         }
 
         // One item: for the nearest ally wearing nothing, by role - anywhere, not only on the mark. Nobody left: a plate on
