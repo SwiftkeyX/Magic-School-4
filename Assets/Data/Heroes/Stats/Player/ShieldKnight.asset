@@ -27,6 +27,7 @@ MonoBehaviour:
   _critChance: 25
   _skillId: 3
   _spawnUnit: {fileID: 0}
+  _forgedItems: []
   _alignPatterns:
   - marks:
     - hexes:
@@ -132,16 +133,6 @@ MonoBehaviour:
         thenDirection: 3
         thenDistance: 0
         isWearing: 1
-      - direction: 4
-        distance: 3
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 1
-      - direction: 5
-        distance: 3
-        thenDirection: 5
-        thenDistance: 0
-        isWearing: 1
       special: Guard
       modifier: 0
       amount: 0
@@ -256,16 +247,6 @@ MonoBehaviour:
         thenDirection: 5
         thenDistance: 0
         isWearing: 1
-      - direction: 5
-        distance: 3
-        thenDirection: 5
-        thenDistance: 0
-        isWearing: 1
-      - direction: 0
-        distance: 3
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 1
       special: Guard
       modifier: 0
       amount: 0
@@ -377,16 +358,6 @@ MonoBehaviour:
         isWearing: 1
       - direction: 0
         distance: 4
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 1
-      - direction: 0
-        distance: 3
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 1
-      - direction: 1
-        distance: 3
         thenDirection: 0
         thenDistance: 0
         isWearing: 1
@@ -504,16 +475,6 @@ MonoBehaviour:
         thenDirection: 0
         thenDistance: 0
         isWearing: 1
-      - direction: 1
-        distance: 3
-        thenDirection: 0
-        thenDistance: 0
-        isWearing: 1
-      - direction: 2
-        distance: 3
-        thenDirection: 2
-        thenDistance: 0
-        isWearing: 1
       special: Guard
       modifier: 0
       amount: 0
@@ -628,16 +589,6 @@ MonoBehaviour:
         thenDirection: 2
         thenDistance: 0
         isWearing: 1
-      - direction: 2
-        distance: 3
-        thenDirection: 2
-        thenDistance: 0
-        isWearing: 1
-      - direction: 3
-        distance: 3
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 1
       special: Guard
       modifier: 0
       amount: 0
@@ -749,16 +700,6 @@ MonoBehaviour:
         isWearing: 1
       - direction: 3
         distance: 4
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 1
-      - direction: 3
-        distance: 3
-        thenDirection: 3
-        thenDistance: 0
-        isWearing: 1
-      - direction: 4
-        distance: 3
         thenDirection: 3
         thenDistance: 0
         isWearing: 1
