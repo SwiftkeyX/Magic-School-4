@@ -18,8 +18,8 @@ namespace MagicSchool.Editor
         private const int GreenMark = 1;
         private const int FirstSpecialMark = 2;
 
-        private static readonly string[] OrangeFields = { "selfModifier", "selfAmount", "selfPercentOf", "selfWhenEmpty", "healFromAllyDamage" };
-        private static readonly string[] GreenFields = { "modifier", "amount", "percentOf", "perOwnerAP" };
+        private static readonly string[] OrangeFields = { nameof(AlignMark.selfModifier), nameof(AlignMark.selfAmount), nameof(AlignMark.selfPercentOf), nameof(AlignMark.selfWhenEmpty), nameof(AlignMark.healFromAllyDamage) };
+        private static readonly string[] GreenFields = { nameof(AlignMark.modifier), nameof(AlignMark.amount), nameof(AlignMark.percentOf), nameof(AlignMark.perOwnerAP) };
 
         private Vector2 _markScroll;
 
@@ -139,15 +139,15 @@ namespace MagicSchool.Editor
             marks.arraySize++;
             SerializedProperty mark = marks.GetArrayElementAtIndex(marks.arraySize - 1);
 
-            mark.FindPropertyRelative("hexes").ClearArray();
-            mark.FindPropertyRelative("special").stringValue = special;
-            mark.FindPropertyRelative("amount").floatValue = 0f;
-            mark.FindPropertyRelative("percentOf").intValue = NoStat;
-            mark.FindPropertyRelative("perOwnerAP").boolValue = false;
-            mark.FindPropertyRelative("selfAmount").floatValue = 0f;
-            mark.FindPropertyRelative("selfPercentOf").intValue = NoStat;
-            mark.FindPropertyRelative("selfWhenEmpty").boolValue = false;
-            mark.FindPropertyRelative("healFromAllyDamage").floatValue = 0f;
+            mark.FindPropertyRelative(nameof(AlignMark.hexes)).ClearArray();
+            mark.FindPropertyRelative(nameof(AlignMark.special)).stringValue = special;
+            mark.FindPropertyRelative(nameof(AlignMark.amount)).floatValue = 0f;
+            mark.FindPropertyRelative(nameof(AlignMark.percentOf)).intValue = NoStat;
+            mark.FindPropertyRelative(nameof(AlignMark.perOwnerAP)).boolValue = false;
+            mark.FindPropertyRelative(nameof(AlignMark.selfAmount)).floatValue = 0f;
+            mark.FindPropertyRelative(nameof(AlignMark.selfPercentOf)).intValue = NoStat;
+            mark.FindPropertyRelative(nameof(AlignMark.selfWhenEmpty)).boolValue = false;
+            mark.FindPropertyRelative(nameof(AlignMark.healFromAllyDamage)).floatValue = 0f;
         }
 
         private void AddMissingMarks(SerializedProperty marks)
@@ -175,7 +175,7 @@ namespace MagicSchool.Editor
         }
 
         private static string SpecialOf(SerializedProperty marks, int mark)
-            => marks.GetArrayElementAtIndex(mark).FindPropertyRelative("special").stringValue;
+            => marks.GetArrayElementAtIndex(mark).FindPropertyRelative(nameof(AlignMark.special)).stringValue;
 
         private static bool IsSpecial(SerializedProperty marks, int mark) => !string.IsNullOrEmpty(SpecialOf(marks, mark));
 
@@ -196,7 +196,7 @@ namespace MagicSchool.Editor
         }
 
         private static SerializedProperty HexesOf(SerializedProperty marks, int mark)
-            => marks.GetArrayElementAtIndex(mark).FindPropertyRelative("hexes");
+            => marks.GetArrayElementAtIndex(mark).FindPropertyRelative(nameof(AlignMark.hexes));
 
         private static List<int> MarksHolding(SerializedProperty marks, Vector2Int offset)
             => Enumerable.Range(0, marks.arraySize).Where(i => IndexOfHex(HexesOf(marks, i), offset) >= 0).ToList();
@@ -227,7 +227,7 @@ namespace MagicSchool.Editor
             selected.arraySize++;
             SerializedProperty added = selected.GetArrayElementAtIndex(selected.arraySize - 1);
             AlignHexOffset.Write(added, offset);
-            added.FindPropertyRelative("isWearing").boolValue = isWearing;
+            added.FindPropertyRelative(nameof(AlignHex.isWearing)).boolValue = isWearing;
         }
 
         private static bool IsWearing(SerializedProperty marks, Vector2Int offset)
@@ -241,7 +241,7 @@ namespace MagicSchool.Editor
         private static SerializedProperty WearingOf(SerializedProperty marks, int mark, Vector2Int offset)
         {
             SerializedProperty hexes = HexesOf(marks, mark);
-            return hexes.GetArrayElementAtIndex(IndexOfHex(hexes, offset)).FindPropertyRelative("isWearing");
+            return hexes.GetArrayElementAtIndex(IndexOfHex(hexes, offset)).FindPropertyRelative(nameof(AlignHex.isWearing));
         }
     }
 }

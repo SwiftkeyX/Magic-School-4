@@ -27,7 +27,7 @@ MagicSchool.UI              -> Contracts, Combat, Items, Input, UnityEngine.UI
 MagicSchool.Core            -> Contracts, Engine, Skills, Combat, CombatRecording, Items, Economy
 MagicSchool.Player          -> Contracts, Combat, Core, Items, Input
 MagicSchool.DevTools        -> Core and everything Core references       (not in release builds)
-MagicSchool.Editor          -> Core, Combat, Skills, DevTools             (Editor-only)
+MagicSchool.Editor          -> Core, Combat, Skills, DevTools, Contracts, Items   (Editor-only)
 MagicSchool.Combat.Tests    -> Combat, Contracts, Skills                  (tests)
 MagicSchool.Core.Tests      -> Contracts, Combat, Skills, Items, Modifiers, StatScaling, Economy  (tests)
 ```

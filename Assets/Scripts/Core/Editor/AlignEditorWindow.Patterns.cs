@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using MagicSchool.Combat.Align;
 
 namespace MagicSchool.Editor
 {
@@ -61,7 +62,7 @@ namespace MagicSchool.Editor
         }
 
         private static SerializedProperty MarksOf(SerializedProperty patterns, int pattern)
-            => patterns.GetArrayElementAtIndex(pattern).FindPropertyRelative("marks");
+            => patterns.GetArrayElementAtIndex(pattern).FindPropertyRelative(nameof(AlignPattern.marks));
 
         private void AddPattern(SerializedProperty patterns, int rotatedFrom)
         {

@@ -415,9 +415,9 @@ namespace MagicSchool.Editor
             for (int i = 0; list != null && i < list.arraySize; i++)
             {
                 SerializedProperty entry = list.GetArrayElementAtIndex(i);
-                if (entry.FindPropertyRelative("dataSO").objectReferenceValue == null) continue;
-                if (entry.FindPropertyRelative("team").intValue == 0) continue;
-                levels.Add(HeroLevel.Clamp(entry.FindPropertyRelative("level").intValue));
+                if (entry.FindPropertyRelative(nameof(HeroPlacement.dataSO)).objectReferenceValue == null) continue;
+                if (entry.FindPropertyRelative(nameof(HeroPlacement.team)).intValue == 0) continue;
+                levels.Add(HeroLevel.Clamp(entry.FindPropertyRelative(nameof(HeroPlacement.level)).intValue));
             }
             return (levels.Count, levels.Count == 0 ? "-" : string.Join("/", levels.Distinct().OrderBy(l => l)));
         }

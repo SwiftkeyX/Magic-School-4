@@ -135,10 +135,12 @@ singleton is only used from where it is allowed. So the split is by job, not by 
 
 ## Phase 9 - Editor typing (S)
 
-- [] Let `MagicSchool.Editor` reference Contracts / Items / Combat (editor-only, so free). Replace the 40+ field-name
-  strings in the Align Editor and Stage Editor with `nameof(...)`, so a rename cannot silently break them.
-- [] Optional: allow `Combat -> Items` (it is acyclic) and type `ForgeRow` items and `HeroPlacement.item` as
-  `ItemDataSO` instead of `ScriptableObject`.
+- [x] `MagicSchool.Editor` references Contracts and Items too (editor-only, so free). The 30 field-name strings for
+  public fields (`AlignMark`, `AlignHex`, `AlignPattern`, `HeroPlacement`) are `nameof(...)`, so a rename is a compile
+  error. Seven stay strings because the fields are private and `nameof` cannot reach them from another assembly:
+  `_alignPatterns`, `_heroesPlacement`, `_stageEditMode`, `_skillId`, `_price`, `_name`, `_description`.
+- [ ] Optional, not done: allow `Combat -> Items` and type `ForgeRow` items and `HeroPlacement.item` as `ItemDataSO`.
+  The docs record "Combat does not reference Items" as a deliberate boundary, so this is the owner's call.
 
 ## Phase 10 - Skill builder primitives (M) (bench)
 

@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using MagicSchool.Combat.Align;
 
 namespace MagicSchool.Editor
 {
@@ -65,21 +66,21 @@ namespace MagicSchool.Editor
 
         public static Vector2Int Read(SerializedProperty hex)
         {
-            int steps = Mathf.Max(1, hex.FindPropertyRelative("distance").intValue);
-            int thenSteps = Mathf.Max(0, hex.FindPropertyRelative("thenDistance").intValue);
+            int steps = Mathf.Max(1, hex.FindPropertyRelative(nameof(AlignHex.distance)).intValue);
+            int thenSteps = Mathf.Max(0, hex.FindPropertyRelative(nameof(AlignHex.thenDistance)).intValue);
 
-            return DirectionSteps[hex.FindPropertyRelative("direction").intValue] * steps
-                 + DirectionSteps[hex.FindPropertyRelative("thenDirection").intValue] * thenSteps;
+            return DirectionSteps[hex.FindPropertyRelative(nameof(AlignHex.direction)).intValue] * steps
+                 + DirectionSteps[hex.FindPropertyRelative(nameof(AlignHex.thenDirection)).intValue] * thenSteps;
         }
 
         public static void Write(SerializedProperty hex, Vector2Int offset)
         {
             Legs legs = LegsOf(offset);
 
-            hex.FindPropertyRelative("direction").intValue = legs.Direction;
-            hex.FindPropertyRelative("distance").intValue = legs.Steps;
-            hex.FindPropertyRelative("thenDirection").intValue = legs.ThenDirection;
-            hex.FindPropertyRelative("thenDistance").intValue = legs.ThenSteps;
+            hex.FindPropertyRelative(nameof(AlignHex.direction)).intValue = legs.Direction;
+            hex.FindPropertyRelative(nameof(AlignHex.distance)).intValue = legs.Steps;
+            hex.FindPropertyRelative(nameof(AlignHex.thenDirection)).intValue = legs.ThenDirection;
+            hex.FindPropertyRelative(nameof(AlignHex.thenDistance)).intValue = legs.ThenSteps;
         }
     }
 }

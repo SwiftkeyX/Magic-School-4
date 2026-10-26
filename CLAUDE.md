@@ -44,7 +44,7 @@ MagicSchool.UI              -> Contracts, Combat, Items, Input, UnityEngine.UI
 MagicSchool.Core            -> Contracts, Engine, Skills, Combat, CombatRecording, Items, Economy
 MagicSchool.Player          -> Contracts, Combat, Core, Items, Input
 MagicSchool.DevTools        -> Core and everything Core references   benchmarks, Stage Editor (not in release builds)
-MagicSchool.Editor          -> Core, Combat, Skills, DevTools        (Core/Editor/, Editor-only)
+MagicSchool.Editor          -> Core, Combat, Skills, DevTools, Contracts, Items   (Core/Editor/, Editor-only)
 ```
 
 Rules no single file shows:
@@ -63,8 +63,8 @@ Rules no single file shows:
 - **`Heroes/` and `Placements/` share the `Combat` assembly on purpose** (a hero needs its hex, a board tracks its
   occupant; splitting was tried). Aligning is a folder of `Combat` for the same reason.
 - **Combat cannot name `ItemDataSO`**, so item fields there are typed `ScriptableObject` (`ForgeRow`, `HeroPlacement.item`).
-  **Editor cannot see Contracts**, so the Align and Stage Editors reach fields through `SerializedObject` by name - a
-  field rename there breaks them silently.
+  The Align and Stage Editors reach fields through `SerializedObject`: public ones by `nameof`, private ones
+  (`_alignPatterns`, `_heroesPlacement`, ...) by string - renaming one of those breaks the window silently.
 - **Folder names match assembly names; namespaces follow the folder** (`Combat/Heroes/Hero.cs` is
   `MagicSchool.Combat.Heroes`). Grouping folders that are not namespace segments are fine (`Contracts/Interface/`).
   That is why it is `StatScaling/` and `Economy/`: a namespace `MagicSchool.Scaling` holding a class `Scaling` cannot be

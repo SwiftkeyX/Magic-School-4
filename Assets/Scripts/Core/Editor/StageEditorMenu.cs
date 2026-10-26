@@ -216,8 +216,8 @@ namespace MagicSchool.Editor
                 for (int i = 0; list != null && i < list.arraySize; i++)
                 {
                     SerializedProperty entry = list.GetArrayElementAtIndex(i);
-                    if (entry.FindPropertyRelative("dataSO").objectReferenceValue == null) continue;
-                    if (entry.FindPropertyRelative("team").intValue == 0) heroes++;
+                    if (entry.FindPropertyRelative(nameof(HeroPlacement.dataSO)).objectReferenceValue == null) continue;
+                    if (entry.FindPropertyRelative(nameof(HeroPlacement.team)).intValue == 0) heroes++;
                     else enemies++;
                 }
                 string stage = System.IO.Path.GetFileNameWithoutExtension(EditorPrefs.GetString(QuickSaveStageKey, ""));
