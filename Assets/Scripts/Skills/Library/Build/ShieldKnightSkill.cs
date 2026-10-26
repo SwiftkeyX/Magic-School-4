@@ -9,9 +9,9 @@ namespace MagicSchool.Skills
     // start like every mark), and heals HealAmount plus GuardHeal per guard in all: 2 guards => a 4s brace healing
     // 300% AP. The heal is built for the 2s brace, so on a longer one each tick is scaled to land on that total
     // (HealPerTickScale; 2 guards => 300 x 2 / (200 x 4) = 0.75).
-    // It counts the HP he loses while bracing (after DF and his damage reduction); the slam returns SlamReturnPerAP%
-    // of it per 100 AP (30 at 100 AP => 30%, 60% at 200). The ratio gives the fraction of AP and the amplifier
-    // multiplies it by the damage taken (an amplifier of n - 1 is x n).
+    // It counts the HP he loses while bracing (after DF and his damage reduction); the slam returns SlamReturnPerAP% of it
+    // per 100 AP (30 at 100 AP => 30%, 60% at 200): the ratio gives the fraction of AP, Scaled multiplies it by the damage
+    // taken. The brace's cast time and heal length are read at each cast (_braceSeconds), not written into built parts.
     internal class ShieldKnightSkill : SkillDefinition
     {
         private static float BraceDuration => Tuned(2f);
@@ -28,8 +28,6 @@ namespace MagicSchool.Skills
 
         private int _guards;
         private float _braceSeconds = BraceDuration;
-        private Tuning _braceTuning;
-        private HealSkillEffect _braceHeal;
 
         private float _takenWhileBracing;
         private float _braceEndsAt = float.NegativeInfinity;
@@ -54,8 +52,6 @@ namespace MagicSchool.Skills
         {
             _guards = Caster?.AlliesOnSpecialMark(GuardMark).Count ?? 0;
             _braceSeconds = BraceDuration + GuardSeconds * _guards;
-            _braceTuning.CastTime = _braceSeconds;
-            _braceHeal.Cadence.cadenceDuration = _braceSeconds;
 
             if (!base.OnCast()) return false;
 
@@ -76,23 +72,21 @@ namespace MagicSchool.Skills
 
         private SkillPart Brace(TemplateActionRegistrySO registry)
         {
-            _braceTuning = Tune(castTime: BraceDuration);
-
-            _braceHeal = HealOverTime(
+            HealSkillEffect braceHeal = HealOverTime(
                 recipient: EffectRecipientEnum.Self,
                 duration: BraceDuration,
                 interval: TickInterval,
                 ratios: (StatEnum.AP, HealAmount)
-            ).AmplifiedBy(_ => HealPerTickScale() - 1f);
+            ).LastingFor(() => _braceSeconds).Scaled(_ => HealPerTickScale());
 
             SkillPart brace = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
-                tuning: _braceTuning,
+                tuning: Tune(castTime: () => _braceSeconds),
 
-                _braceHeal,
+                braceHeal,
 
                 Apply(
                     recipient: EffectRecipientEnum.Self,
@@ -121,7 +115,7 @@ namespace MagicSchool.Skills
                 Damage(
                     recipient: EffectRecipientEnum.EnemiesInArea,
                     ratios: (StatEnum.AP, SlamReturnPerAP / 100f)
-                ).AmplifiedBy(_ => _takenWhileBracing - 1f)
+                ).Scaled(_ => _takenWhileBracing)
             );
 
             return slam;

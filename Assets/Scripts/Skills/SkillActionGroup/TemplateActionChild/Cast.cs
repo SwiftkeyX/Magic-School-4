@@ -95,7 +95,7 @@ namespace MagicSchool.Skills
 
         private float GetDuration(SkillEffect effect)
         {
-            if (effect.Cadence.isCadence) return effect.Cadence.cadenceDuration;
+            if (effect.Cadence.isCadence) return effect.Cadence.Duration;
 
             if (effect is ModifierSkillEffect modifierEffect) return modifierEffect.Modifier.GetDuration();
 
@@ -119,7 +119,7 @@ namespace MagicSchool.Skills
             List<ICombatant> recipients = new List<ICombatant> { hero };
             float elapsed = 0f;
 
-            while (elapsed < effect.Cadence.cadenceDuration)
+            while (elapsed < effect.Cadence.Duration)
             {
                 yield return wait;
                 elapsed += effect.Cadence.cadenceInterval;

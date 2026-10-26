@@ -62,7 +62,7 @@ namespace MagicSchool.Skills
                 if (_interval == VALUENOTASSIGN)
                 {
                     _interval = effect.Cadence.cadenceInterval;
-                    _duration = effect.Cadence.cadenceDuration;
+                    _duration = effect.Cadence.Duration;
                 }
 
                 else
@@ -70,8 +70,8 @@ namespace MagicSchool.Skills
                     if (effect.Cadence.cadenceInterval != _interval)
                         Debug.LogError($"{name}: cadence effects on the same zone must share one interval, found {_interval} and {effect.Cadence.cadenceInterval} - only {_interval} will be used", this);
 
-                    if (effect.Cadence.cadenceDuration != _duration)
-                        Debug.LogError($"{name}: cadence effects on the same zone must share one duration, found {_duration} and {effect.Cadence.cadenceDuration} - only {_duration} will be used", this);
+                    if (effect.Cadence.Duration != _duration)
+                        Debug.LogError($"{name}: cadence effects on the same zone must share one duration, found {_duration} and {effect.Cadence.Duration} - only {_duration} will be used", this);
                 }
             }
         }

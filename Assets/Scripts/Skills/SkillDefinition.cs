@@ -247,7 +247,7 @@ namespace MagicSchool.Skills
         }
 
         private static float CastTimeOf(SkillPart part)
-            => part.Tuning?.CastTime ?? part.TemplateAction.CastTime;
+            => part.Tuning?.CastTimeNow ?? part.TemplateAction.CastTime;
 
         private static bool WalksWhileCasting(SkillPart part) => part.Tuning?.WalkWhileCasting ?? false;
     }

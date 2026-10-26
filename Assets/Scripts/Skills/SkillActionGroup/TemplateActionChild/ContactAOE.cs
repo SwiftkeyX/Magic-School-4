@@ -54,7 +54,7 @@ namespace MagicSchool.Skills
             List<ICombatant> recipients = new List<ICombatant> { hero };
             float elapsed = 0f;
 
-            while (elapsed < effect.Cadence.cadenceDuration)
+            while (elapsed < effect.Cadence.Duration)
             {
                 yield return wait;
                 elapsed += effect.Cadence.cadenceInterval;

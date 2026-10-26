@@ -96,7 +96,7 @@ namespace MagicSchool.Skills
         {
             if (tuning == null) return;
 
-            if (tuning.CastTime.HasValue) _castTime = tuning.CastTime.Value;
+            if (tuning.CastTimeNow.HasValue) _castTime = tuning.CastTimeNow.Value;
         }
 
         protected virtual void InitRider() { }

@@ -17,7 +17,7 @@ namespace MagicSchool.Skills
     // Flow(onStart, onHit, onExpired): one skill; onHit plays when onStart hits, onExpired when it expires, and
     // nothing follows them. Together(a, b) starts parts at once and only the first, the lead, decides what plays next.
     // Repeat(flow, times) or a Func of rounds. Tune lengths and widths are world units (a circle 4.5 across is 4.5 by
-    // 4.5).
+    // 4.5); Tune(castTime: () => x) reads the cast time each time the part is played.
     internal static class SkillFactory
     {
         public static AttackSkillEffect Damage(EffectRecipientEnum recipient, params StatRatio[] ratios)
@@ -137,6 +137,9 @@ namespace MagicSchool.Skills
 
         public static Tuning Tune(float? castTime = null, bool? walkWhileCasting = null)
             => new Tuning { CastTime = castTime, WalkWhileCasting = walkWhileCasting };
+
+        public static Tuning Tune(System.Func<float> castTime, bool? walkWhileCasting = null)
+            => new Tuning { CastTimeOf = castTime, WalkWhileCasting = walkWhileCasting };
 
         public static AOETuning TuneAOE(float? castTime = null, float? duration = null,
                                         float? length = null, float? width = null,

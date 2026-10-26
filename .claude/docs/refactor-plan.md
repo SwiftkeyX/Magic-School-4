@@ -144,10 +144,11 @@ singleton is only used from where it is allowed. So the split is by job, not by 
 
 ## Phase 10 - Skill builder primitives (M) (bench)
 
-- [] `Scaled(×n)` to replace the `AmplifiedBy(_ => x - 1f)` trick (Shield Knight, Ettin), and a dynamic
-  `Tune(castTime: () => ...)` instead of editing built parts at cast time. Check each ported skill with Hero
-  Benchmark "Run Selected".
-- [] `Tuned()` stops allocating a string on every read (it runs on every auto attack).
+- [x] `Scaled(×n)` replaces the `AmplifiedBy(_ => x - 1f)` trick (Shield Knight, Ettin). `Tune(castTime: () => ...)`
+  and `HealSkillEffect.LastingFor(() => ...)` are read when played, so Shield Knight no longer edits built parts at
+  cast time. Verified: tests; Hero Benchmark numbers for Shield Knight and Ettin identical to before.
+  Follow-up: Dwarf still resizes its blast tuning at each cast.
+- [x] `Tuned()` keys its numbers by caller (file + member), so a read no longer builds a string.
 
 ## Phase 11 - AlignMark colour as a field (M, touches assets) - last
 

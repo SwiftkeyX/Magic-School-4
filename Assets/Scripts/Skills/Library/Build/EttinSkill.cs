@@ -5,8 +5,8 @@ using static MagicSchool.Skills.SkillFactory;
 namespace MagicSchool.Skills
 {
     // His max HP bonus is a stack bundle, so each cast adds on top. Every auto attack also hits for a share of his max
-    // HP that grows with AP (5% per 100 AP); "max HP x AP" is a product a ratio cannot write, so the HP ratio is
-    // amplified by AP / 100 - 1 at each hit (AmplifiedBy adds to 1x: 100 AP is +0, 200 AP is +1, 0 AP is -1).
+    // HP that grows with AP (5% per 100 AP); "max HP x AP" is a product a ratio cannot write, so the HP ratio is Scaled by AP / 100 at each hit
+    // (100 AP x1, 200 AP x2, 0 AP nothing).
     internal class EttinSkill : SkillDefinition
     {
         private static float FlatBonusHP => Tuned(100f);
@@ -56,13 +56,13 @@ namespace MagicSchool.Skills
                 Damage(
                     EffectRecipientEnum.SameToAimTarget,
                     (StatEnum.MaxHP, MaxHPPerAttackFromAP)
-                ).AmplifiedBy(PerHundredAP)
+                ).Scaled(PerHundredAP)
             );
 
             return Flow(onStart: onAutoAttack);
         }
 
         private static float PerHundredAP(IEffectable caster)
-            => caster is IHeroStats stats ? stats.Magic / 100f - 1f : 0f;
+            => caster is IHeroStats stats ? stats.Magic / 100f : 1f;
     }
 }

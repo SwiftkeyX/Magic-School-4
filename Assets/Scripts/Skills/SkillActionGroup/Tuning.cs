@@ -13,6 +13,8 @@ namespace MagicSchool.Skills
     public class Tuning
     {
         public float? CastTime;
+        public System.Func<float> CastTimeOf;     // read when the part is played, in place of CastTime
+        public float? CastTimeNow => CastTimeOf != null ? CastTimeOf() : CastTime;
         public bool? WalkWhileCasting;
     }
 

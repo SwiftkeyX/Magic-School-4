@@ -14,6 +14,7 @@ namespace MagicSchool.Skills
         protected List<SkillCondition> _conditions;
         protected float _amplifier = 0.3f;
         protected Func<IEffectable, float> _amplifierOf;
+        protected Func<IEffectable, float> _scaleOf;
         protected IEffectable _caster;
 
         protected SkillEffect(EffectRecipientEnum recipient, Cadence cadence = null,
@@ -36,7 +37,9 @@ namespace MagicSchool.Skills
             foreach (SkillCondition condition in _conditions) condition?.Init(caster);
         }
 
-        protected float AmplifierFor(IEffectable recipient)
+        protected float AmplifierFor(IEffectable recipient) => Amplified(recipient) * (_scaleOf?.Invoke(_caster) ?? 1f);
+
+        private float Amplified(IEffectable recipient)
         {
             if (_amplifierOf != null && _conditions.Count == 0) return 1f + _amplifierOf(_caster);
 

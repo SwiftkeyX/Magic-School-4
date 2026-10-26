@@ -9,8 +9,8 @@ namespace MagicSchool.Skills
     // WithLifesteal heals whoever played the action, apart from Omnivamp (Priest's fairy heals its owner). WhenLanded
     // is told what each hit really dealt, after armour and shields (Knight's shield). FullOnlyWhen: a recipient the
     // condition fails for takes [otherwise] of the damage (Skeleton Archer's close shots, half). AmplifiedBy(caster =>
-    // x) works the amplifier out at the hit; with no conditions it applies to every hit. An amplifier adds to 1x: an
-    // amplifier of n - 1 is x n. The crit is rolled once per recipient.
+    // x) works the amplifier out at the hit; with no conditions it applies to every hit. An amplifier adds to 1x (+30% is
+    // 0.3); Scaled(caster => n) multiplies the damage by n, on top of any amplifier. The crit is rolled once per recipient.
     internal class AttackSkillEffect : SkillEffect
     {
         private readonly IReadOnlyList<StatRatio> _ratios;
@@ -56,6 +56,12 @@ namespace MagicSchool.Skills
             return this;
         }
 
+        public AttackSkillEffect Scaled(System.Func<IEffectable, float> multiplier)
+        {
+            _scaleOf = multiplier;
+            return this;
+        }
+
         public override void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null)
             => ApplyEffect(recipients, actor, 1f);
 
@@ -68,7 +74,7 @@ namespace MagicSchool.Skills
                 if (recipient == null || !recipient.IsAlive) continue;
 
                 float dmg;
-                if (_cadence.isCadence) dmg = damageAmount * _cadence.cadenceInterval / _cadence.cadenceDuration;
+                if (_cadence.isCadence) dmg = damageAmount * _cadence.cadenceInterval / _cadence.Duration;
 
                 else dmg = damageAmount;
 

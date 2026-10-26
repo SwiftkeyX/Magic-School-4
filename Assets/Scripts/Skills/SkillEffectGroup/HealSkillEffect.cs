@@ -28,6 +28,20 @@ namespace MagicSchool.Skills
             return this;
         }
 
+        public HealSkillEffect Scaled(System.Func<IEffectable, float> multiplier)
+        {
+            _scaleOf = multiplier;
+            return this;
+        }
+
+        // the heal over time lasts as long as this says when it is played, rather than the duration it was built with;
+        // the ticks are still counted from that one, so scale them if the whole heal must stay the same
+        public HealSkillEffect LastingFor(System.Func<float> seconds)
+        {
+            Cadence.LastingFor(seconds);
+            return this;
+        }
+
         public override void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null)
         {
             int totalTicks = Mathf.Max(1, Mathf.RoundToInt(_duration / Cadence.cadenceInterval));

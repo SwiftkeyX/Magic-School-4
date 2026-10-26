@@ -20,5 +20,11 @@ namespace MagicSchool.Skills
             cadenceInterval = interval;
             cadenceDuration = duration;
         }
+
+        private System.Func<float> _durationOf;
+
+        public float Duration => _durationOf != null ? _durationOf() : cadenceDuration;
+
+        public void LastingFor(System.Func<float> seconds) => _durationOf = seconds;
     }
 }

@@ -26,6 +26,7 @@ namespace MagicSchool.Skills
         }
 
         private static readonly Dictionary<string, Number> Numbers = new Dictionary<string, Number>();
+        private static readonly Dictionary<(string file, string name), Number> ByCaller = new Dictionary<(string file, string name), Number>();
         private static readonly Dictionary<string, float> Overrides = new Dictionary<string, float>();
 
         public static int Version { get; private set; }
@@ -35,17 +36,21 @@ namespace MagicSchool.Skills
 
         internal static float Get(string filePath, string name, float defaultValue, bool isInt)
         {
-            string skill = Path.GetFileNameWithoutExtension(filePath);
-            string key = skill + "." + name;
-
-            if (!Numbers.TryGetValue(key, out Number number))
+            if (!ByCaller.TryGetValue((filePath, name), out Number number))
             {
-                number = new Number { Key = key, Skill = skill, Name = name, FilePath = filePath, IsInt = isInt };
-                Numbers[key] = number;
+                string skill = Path.GetFileNameWithoutExtension(filePath);
+                string key = skill + "." + name;
+
+                if (!Numbers.TryGetValue(key, out number))
+                {
+                    number = new Number { Key = key, Skill = skill, Name = name, FilePath = filePath, IsInt = isInt };
+                    Numbers[key] = number;
+                }
+                ByCaller[(filePath, name)] = number;
             }
             number.Default = defaultValue;
 
-            return Overrides.TryGetValue(key, out float value) ? value : defaultValue;
+            return Overrides.TryGetValue(number.Key, out float value) ? value : defaultValue;
         }
 
         public static float ValueOf(Number number)
