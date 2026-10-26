@@ -4,6 +4,10 @@ using MagicSchool.Contracts;
 
 namespace MagicSchool.Modifiers
 {
+    // A group of modifiers sharing one timer. Applied again to a hero who has it: isStack adds another with its own
+    // timer, otherwise it replaces the old one and the timer restarts.
+    // keepsHealth: when it expires max HP goes back but current HP stays (capped), so Husk keeps the HP he stole. The
+    // duration is a Func so it can change after construction.
     public class CustomModifier : ICustomModifier
     {
         private readonly IReadOnlyList<IModifier> _modifiers;
@@ -11,20 +15,14 @@ namespace MagicSchool.Modifiers
         public float GetDuration() => _duration();
         public IReadOnlyList<IModifier> GetModifiers() => _modifiers;
 
-        // What happens when this same modifier is applied to a hero who already has it:
-        //      stack   = modifier is stack, each has its own timer.
-        //      refresh = no stack, the modifier is replaced, so the timer restarts.
         private readonly bool _isStack;
         public bool IsStack() => _isStack;
 
-        // When it expires, does the hero keep the HP its max HP gave him? Normally current HP goes down with max HP,
-        // e.g. Husk's stolen HP is his to keep, while the enemy he stole from gets back only what was taken.
         public bool KeepsHealth { get; }
 
         public CustomModifier(float duration, IReadOnlyList<IModifier> modifiers, bool isStack, bool keepsHealth = false)
             : this(() => duration, modifiers, isStack, keepsHealth) { }
 
-        // duration is Func<Float> because it allow the duration to be adjust after initialize in constructor.
         public CustomModifier(Func<float> duration, IReadOnlyList<IModifier> modifiers, bool isStack, bool keepsHealth = false)
         {
             KeepsHealth = keepsHealth;

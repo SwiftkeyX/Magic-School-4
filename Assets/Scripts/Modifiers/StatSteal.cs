@@ -6,6 +6,8 @@ namespace MagicSchool.Modifiers
 {
     // steal stat from the victim 
     // e.g.     Take(me, victim, 10%, 10s, ATK) = I steal your 10% of your ATK for 10s.
+    // The HP moves for good: when the steal ends both max HPs go back, but the thief keeps the HP he took and the
+    // victim does not get it back (CustomModifier keepsHealth).
     public static class StatSteal
     {
         private static readonly Dictionary<StatEnum, ModifierEnum> Stealable = new Dictionary<StatEnum, ModifierEnum>
@@ -38,8 +40,6 @@ namespace MagicSchool.Modifiers
             if (taken.Count == 0) return;
 
             IHeroStats thiefStats = thief as IHeroStats;
-            // the HP moves for good: when it ends both max HPs go back, but the thief keeps the HP he took
-            // and the victim does not get it back (See CustomModifier.KeepsHealth)
             victim.AddModifier(new CustomModifier(duration, taken, isStack: true, keepsHealth: true), thiefStats);
             thief.AddModifier(new CustomModifier(duration, given, isStack: true, keepsHealth: true), thiefStats);
         }

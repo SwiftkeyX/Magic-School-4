@@ -4,9 +4,9 @@ using MagicSchool.Contracts;
 namespace MagicSchool.Modifiers
 {
     // A shield is a extra health that absorb damage before HP. Can expired on duration.
+    // The shield expiring soonest absorbs first; what is left of the hit is the caller's to take off HP.
     internal static class Shield
     {
-        // Get current total shield
         public static float Total(IReadOnlyList<ActiveCustomModifier> actives)
         {
             float total = 0f;
@@ -14,14 +14,10 @@ namespace MagicSchool.Modifiers
             return total;
         }
 
-        // Absorb damage with the active shields. 
-        // The one expiring soon absorb first.
-        // Returns how much damage was absorbed, the rest is the caller's to take HP off.
         public static float Absorb(IReadOnlyList<ActiveCustomModifier> actives, float damage)
         {
             if (damage <= 0f) return 0f;
 
-            // find the soonest expired modifier
             var bySoonest = new List<ActiveCustomModifier>(actives);
             bySoonest.Sort((a, b) => a.Remaining.CompareTo(b.Remaining));
 
