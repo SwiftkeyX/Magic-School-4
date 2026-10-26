@@ -9,7 +9,7 @@ namespace MagicSchool.Contracts
         int SlotCount { get; }
         int Gold { get; }
         int RefreshCost { get; }
-        event Action OnChanged;             // the stock or the player's gold changed - draw again. FLAGGING: we don't have to lump 2 event togehter.
+        event Action OnChanged;
 
         ShopOffer OfferAt(int slot);
         IInspectable InspectableAt(int slot);   

@@ -7,9 +7,9 @@ namespace MagicSchool.Contracts
     // e.g. player move hero by dragging
     public interface IPlaceable
     {
-        Transform transform { get; }                        // to use Unity's transform 
-        IPlacement CurrentPlacement { get; }                // the placement this unit is standing on
-        void SetCurrentPlacement(IPlacement placement);     // set new placement this unit'll be standing on
-        bool IsInCombat { get; }                // FLAGGING: this one shouldn't belong in this interface, no?
+        Transform transform { get; }
+        IPlacement CurrentPlacement { get; }
+        void SetCurrentPlacement(IPlacement placement);
+        bool IsInCombat { get; }
     }
 }

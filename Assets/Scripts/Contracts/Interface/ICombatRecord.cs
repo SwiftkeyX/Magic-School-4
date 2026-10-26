@@ -4,22 +4,19 @@ namespace MagicSchool.Contracts
     // e.g. Werewolf do 400 damage, take 300 damage, and healed for 120
     public interface ICombatRecord
     {
-        // === what this unit did to others ===
-        int DamageDealt { get; }            // AutoAttackDamage + SkillDamage
+        int DamageDealt { get; }
         int AutoAttackDamage { get; }
         int SkillDamage { get; }
         int Overkill { get; }
         int HealingDone { get; }
         int Overhealing { get; }
 
-        // === what others did to this unit ===
         int DamageTaken { get; }
         int DamageMitigated { get; }
         int HealingReceived { get; }
         int HealingLostToWound { get; }
 
-        // === time ===
-        float FightSeconds { get; }         // how long the round has lasted 
-        float SecondsAlive { get; }         // how long this unit lasted
+        float FightSeconds { get; }
+        float SecondsAlive { get; }
     }
 }

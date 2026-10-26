@@ -1,12 +1,12 @@
 namespace MagicSchool.Contracts
 {
     // IHeroStats answer: how much is hero stat?
+    // Star is 1-3: how many times upgraded, plus 1 (See HeroStar).
     public interface IHeroStats
     {
         float GetStat(StatEnum type);       
         float GetBaseStat(StatEnum type);
 
-        // FLAGGING: since we have GetStat() now, all this below is no need. ???   
         int CurrentHP { get; }
         int MaxHP { get; }
         int CurrentMana { get; }
@@ -16,6 +16,6 @@ namespace MagicSchool.Contracts
         int Magic { get; }
         float AttackSpeed { get; }
         int Range { get; }
-        int Star { get; }                   // 1-3, how many times upgraded + 1 (See HeroStar)
+        int Star { get; }
     }
 }

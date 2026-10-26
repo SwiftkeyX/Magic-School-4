@@ -2,8 +2,8 @@ namespace MagicSchool.Contracts
 {
     public readonly struct HealEvent
     {
-        public readonly IEffectable Source;      // who healed
-        public readonly IEffectable Target;      // who was healed
+        public readonly IEffectable Source;
+        public readonly IEffectable Target;
         public readonly HealOutcome Outcome;
 
         public HealEvent(IEffectable source, IEffectable target, HealOutcome outcome)

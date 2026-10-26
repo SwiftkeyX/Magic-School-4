@@ -1,9 +1,10 @@
 namespace MagicSchool.Contracts
 {
+    // Source is null when nothing authored the hit.
     public readonly struct DamageEvent
     {
-        public readonly IEffectable Source;      // who dealt it. null if nothing authored the hit
-        public readonly IEffectable Target;      // who took it
+        public readonly IEffectable Source;
+        public readonly IEffectable Target;
         public readonly DamageKindEnum Kind;
         public readonly DamageOutcome Outcome;
 

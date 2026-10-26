@@ -6,7 +6,7 @@ namespace MagicSchool.Contracts
     {
         public readonly string Name;
         public readonly TeamEnum Team;
-        public readonly bool IsAlive;   // FLAGGING: I don't like it here, let leave it for now.
+        public readonly bool IsAlive;
         public readonly ICombatRecord Record;
 
         public ScoreRow(string name, TeamEnum team, bool isAlive, ICombatRecord record)

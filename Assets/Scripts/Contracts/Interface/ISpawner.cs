@@ -4,6 +4,6 @@ namespace MagicSchool.Contracts
     // e.g.     Big Slime splits into Small Slimes when it dies
     public interface ISpawner
     {
-        int SpawnUnitsNearby(int count);    // spanw the said unit for "count"
+        int SpawnUnitsNearby(int count);
     }
 }

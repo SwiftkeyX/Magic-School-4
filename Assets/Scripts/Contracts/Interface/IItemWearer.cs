@@ -3,13 +3,13 @@ namespace MagicSchool.Contracts
     // IItemWearer answers: what does this unit wear, and can a skill hand it an item mid-fight?
     // A forged item is a real item, worn on top of the one slot, for the rest of the fight only.
     // e.g.     Blacksmith forges an item for the nearest ally wearing nothing
+    // ReceiveForgedItem: the item the forger's table lists for that role and tier, e.g. a tank at tier 2 gets the +40
+    // DF plate (See IForger, HeroDataSO.ForgedItem).
     public interface IItemWearer
     {
         int WornItemCount { get; }
         HeroRoleEnum Role { get; }
 
-        // forged by `forger`: the item its forge table lists for `forRole` at `tier` (See IForger, HeroDataSO.ForgedItem)
-        // e.g.     a tank at tier 2 => the +40 DF plate
         void ReceiveForgedItem(HeroRoleEnum forRole, int tier, ICombatant forger);
     }
 
