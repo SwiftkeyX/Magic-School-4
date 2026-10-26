@@ -28,6 +28,8 @@ namespace MagicSchool.Combat.Heroes
         // the enemy the player picked for me among the tied nearest, in Preparation. null = automatic (See SwitchChosenTarget)
         private ICombatant _chosenTarget;
 
+        internal void ForgetScanCaches() => _scan.Invalidate();
+
         public FindTarget(Hero me, BattleBoard board)
         {
             _me = me;

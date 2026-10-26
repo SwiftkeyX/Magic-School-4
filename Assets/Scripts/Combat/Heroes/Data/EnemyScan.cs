@@ -30,6 +30,15 @@ namespace MagicSchool.Combat.Heroes
         private int _stepCacheFrame = -1;
 
 
+        // drops every cache, as the next frame would; for EditMode tests, where no frame ever passes
+        internal void Invalidate()
+        {
+            _stepMapFrame = -1;
+            _enemyCacheFrame = -1;
+            _distanceCacheFrame = -1;
+            _stepCacheFrame = -1;
+        }
+
         public EnemyScan(Hero me, BattleBoard board)
         {
             _me = me;

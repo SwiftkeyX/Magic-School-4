@@ -43,9 +43,7 @@ namespace MagicSchool.Combat.Tests
 
             // EditMode runs no player loop, so Awake never fires - kick off the hex discovery that
             // BattleBoard would normally do there, now that the hexes exist to be discovered.
-            typeof(BattleBoard)
-                .GetMethod("InitializeHex", BindingFlags.Instance | BindingFlags.NonPublic)
-                .Invoke(Board, null);
+            Board.InitializeHex();
         }
 
         // ============================== the board ==============================
@@ -127,18 +125,7 @@ namespace MagicSchool.Combat.Tests
         /// </summary>
         private void ForgetCachedEnemies()
         {
-            foreach (Hero hero in _heroes)
-            {
-                object finder = GetPrivateField(hero, "_findEnemy");
-                if (finder == null) continue;
-
-                // the caches live on the scan the finder owns, not on the finder itself
-                object scan = GetPrivateField(finder, "_scan");
-
-                SetPrivateField(scan, "_enemyCacheFrame", -1);
-                SetPrivateField(scan, "_distanceCacheFrame", -1);
-                SetPrivateField(scan, "_stepCacheFrame", -1);
-            }
+            foreach (Hero hero in _heroes) hero.ForgetScanCaches();
         }
 
         // ============================== plumbing ==============================
@@ -148,11 +135,6 @@ namespace MagicSchool.Combat.Tests
             _spawned.Add(created);
             return created;
         }
-
-        private static object GetPrivateField(object target, string field)
-            => target.GetType()
-                     .GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)
-                     .GetValue(target);
 
         private static void SetPrivateField(object target, string field, object value)
             => target.GetType()

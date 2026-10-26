@@ -28,6 +28,7 @@ namespace MagicSchool.Modifiers
         private float _remaining;
 
         // pair of modifier & stat - tell which stat is increase by this modifier
+        internal static IReadOnlyDictionary<ModifierEnum, StatEnum> StatFedBy => _lookup;
         private static readonly Dictionary<ModifierEnum, StatEnum> _lookup = new Dictionary<ModifierEnum, StatEnum>
         {
             // buff

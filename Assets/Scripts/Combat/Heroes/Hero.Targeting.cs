@@ -23,6 +23,7 @@ namespace MagicSchool.Combat.Heroes
         public IReadOnlyList<ICombatant> FindRandomEnemies(int count) => _findEnemy.FindRandomEnemies(count);
         public ICombatant FindNearestAlly() => _findEnemy.FindNearestAlly();
         public ICombatant FindLowestHealthAlly() => _findEnemy.FindLowestHealthAlly();
+        internal void ForgetScanCaches() => _findEnemy?.ForgetScanCaches();
 
         // ======================================== path lean ========================================
         // Which way I go when two routes are equally short and equally near the target: +1 over the top, -1 under the bottom.

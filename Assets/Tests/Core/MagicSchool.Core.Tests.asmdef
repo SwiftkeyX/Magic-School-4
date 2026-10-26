@@ -1,0 +1,30 @@
+{
+    "name": "MagicSchool.Core.Tests",
+    "rootNamespace": "",
+    "references": [
+        "MagicSchool.Contracts",
+        "MagicSchool.Combat",
+        "MagicSchool.Skills",
+        "MagicSchool.Items",
+        "MagicSchool.Modifiers",
+        "MagicSchool.StatScaling",
+        "MagicSchool.Economy",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

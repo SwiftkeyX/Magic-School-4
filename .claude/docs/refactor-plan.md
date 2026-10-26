@@ -18,18 +18,36 @@ fewer files, and checking its own work without Play mode. It is not a re-archite
 
 ## Phase 0 - Baseline (S)
 
-- [] Commit the WIP. Run the full Hero Benchmark and Team Comp Benchmark and keep both reports as the baseline.
+- [x] Commit the WIP. Run the full Hero Benchmark and Team Comp Benchmark and keep both reports as the baseline.
+  Baseline, on commit `2dba717` (2026-10-25):
+  - Hero: `BalanceLogs/benchmark-2026-10-25_21-09-15.csv`
+  - Team comp: `BalanceLogs/teamcomp-2026-10-25_21-41-17.csv` (3,900 fights, 32 min). Stages won aligned / not:
+    Elf-Ettin-ShieldKnight-10 10/5, -9 9/4, -5 5/1; Skeleton-Knight-BlackSmith-10 10/5, -5 2/1; the other 8 comps 1/0.
+- [] Bug found during the run (not a refactor item): `Move.Update` (`Skills/.../TemplateActionChild/Move.cs:146`)
+  keeps moving its caster after the caster is destroyed - a benchmark lane ending mid-leap floods the console with
+  `MissingReferenceException` every frame. Fixed in code (`Move.Update` stops and destroys itself once its caster
+  is gone); not yet checked live.
 
 ## Phase 1 - Safety net first (S-M)
 
 Tests before touching code, so later phases fail loudly instead of silently.
 
-- [] `RegistryTests` (EditMode, no scene): every `SkillIdEnum` / `ItemIdEnum` has a builder; every `HeroDataSO` has a
-  `BaseHero`-variant prefab and a skill that resolves; every Campaign stage has a layout and a deploy zone.
-- [] `ModifierResolver.StatSlots` computed from `StatEnum` instead of hand-kept (it already broke once).
-- [] Fix the test fixture: `EnemyScan.Invalidate()` + `InternalsVisibleTo` instead of reflection (it misses `_stepMapFrame`).
-- [] Tests for the pure classes: `CombatMath`, `Crit`, `Stat`/`ModifierResolver`, `HeroStar`, `HeroLevel`, `HeroPrice`, `Wallet`.
-- [] Write down the command that runs the tests headless, so an agent can verify without Play mode.
+- [x] `RegistryTests` (`Assets/Tests/Core`, EditMode, no scene): every `SkillIdEnum` / `ItemIdEnum` builds; every stat
+  can be modified; every `HeroDataSO` has a `BaseHero`-variant prefab and a skill that resolves; every item asset
+  resolves (except `Data/Items/default`, `BaseItem.prefab`'s placeholder); every Campaign stage and team comp has a
+  layout, a deploy zone and real heroes.
+- [x] `ModifierResolver.StatSlots` computed from `StatEnum` instead of hand-kept.
+- [x] Test fixture: `EnemyScan.Invalidate()` (all four frame caches) + `InternalsVisibleTo` instead of reflection.
+- [x] Tests for the pure classes: `CombatMath`, `Crit`, `Stat`/`ModifierResolver`, `HeroStar`, `HeroLevel`, `HeroPrice`,
+  `Wallet`, in a new `MagicSchool.Core.Tests` assembly. 58 tests in all (24 old, 34 new).
+- [x] How to run the tests:
+  - **Editor open (Coplay):** `execute_script` on `.claude/scripts/RunEditModeTests.cs`. It returns at once (or times
+    out - harmless) and writes `Temp/test-results.txt`: a `TOTAL passed= failed=` line, then one line per test.
+    It refuses to start while a scene has unsaved changes: the Test Runner would open a modal "save?" dialog and
+    freeze the Editor.
+  - **Editor closed (headless):**
+    `"C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Unity.exe" -batchmode -projectPath . -runTests -testPlatform EditMode -testResults Temp/test-results.xml -logFile -`
+    Exit code 0 = all passed, 2 = a test failed. It cannot run while the Editor has the project open.
 
 ## Phase 2 - Docs diet (S, no code risk)
 

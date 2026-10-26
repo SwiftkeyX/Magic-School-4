@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MagicSchool.Contracts;
 
 namespace MagicSchool.Modifiers
@@ -16,7 +17,8 @@ namespace MagicSchool.Modifiers
         // the amount of bonus stat give by all modifier
         private readonly float[] _bonus = new float[StatSlots];
 
-        private static readonly int StatSlots = 17;     // one per StatEnum value, Lethality (16) the last
+        // one per StatEnum value, worked out from the enum: a hand-kept count once fell one short and Omnivamp did nothing
+        internal static readonly int StatSlots = Enum.GetValues(typeof(StatEnum)).Cast<int>().Max() + 1;
 
         // tracking if the bonus stat from modifier is stale 
         private bool _isBonusStale = true;

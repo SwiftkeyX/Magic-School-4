@@ -44,7 +44,7 @@ namespace MagicSchool.Combat.Placements
 
         // =================================== initialzie ===================================
         // BattleBoard find reference to each hex
-        void InitializeHex()
+        internal void InitializeHex()
         {
             var allHexes = new List<Hex>(GetComponentsInChildren<Hex>(true));
 
