@@ -32,7 +32,7 @@ namespace MagicSchool.Combat.Heroes
         private BattleBoard _board;
         private FindTarget _findEnemy;
         private HeroVisuals _visuals;
-        private HeroSkill _skill;
+        private SkillDefinition _skill;
         private int _skillTuningVersion;
         private HeroItems _items;
         private HeroSpawn _spawn;
@@ -98,7 +98,7 @@ namespace MagicSchool.Combat.Heroes
             _isDummy = _SOData.IsDummy;
 
             _visuals = GetComponent<HeroVisuals>();
-            _skill = new HeroSkill(this, skill);
+            SetSkill(skill);
             _skillTuningVersion = SkillTuning.Version;
             _items = new HeroItems(this);
             _spawn = new HeroSpawn(this, _board, (unit, unitTeam, placement, onBoard) => OnSpawnRequested?.Invoke(unit, unitTeam, placement, onBoard));

@@ -35,7 +35,7 @@ namespace MagicSchool.DevTools
 
         private readonly GameManager _game;
 
-        public event Action<HeroDataSO, TeamEnum, IPlacement, BattleBoard> OnSpawnRequested;
+        private Func<HeroDataSO, TeamEnum, IPlacement, BattleBoard, Hero> _spawn;
 
         internal StageEditor(GameManager game)
         {
@@ -51,7 +51,7 @@ namespace MagicSchool.DevTools
             if (game == null) return;
 
             var editor = new StageEditor(game);
-            editor.OnSpawnRequested += game.Spawner.SpawnHero;
+            editor._spawn = game.Spawner.SpawnHero;
             game.RegisterStageEditor(editor);
         }
 
@@ -79,13 +79,11 @@ namespace MagicSchool.DevTools
         public bool TryAddEnemy(HeroDataSO data)
         {
             if (data == null || !CanEditNow) return false;
-            if (OnSpawnRequested == null) { Debug.LogError("Can't add the enemy. Nothing is listening for spawn requests."); return false; }
 
             Hex free = FirstFreeEnemyHex();
             if (free == null) return false;
 
-            OnSpawnRequested.Invoke(data, EnemyTeam, free, _game.Board);
-            if (_game.Board.WhoReservedThisHex(free) is Hero added) added.SetLevel(NewEnemyLevel);
+            _spawn(data, EnemyTeam, free, _game.Board).SetLevel(NewEnemyLevel);
             return true;
         }
 
@@ -156,7 +154,6 @@ namespace MagicSchool.DevTools
         public int LoadPlayerTeam(BattlePlacementSO comp)
         {
             if (comp == null || !CanEditNow) return 0;
-            if (OnSpawnRequested == null) { Debug.LogError("Can't load the team. Nothing is listening for spawn requests."); return 0; }
 
             BattleBoard board = _game.Board;
             board.ClearTeam(PlayerTeam);
@@ -176,14 +173,14 @@ namespace MagicSchool.DevTools
                     continue;
                 }
 
-                OnSpawnRequested.Invoke(placement.dataSO, PlayerTeam, hex, board);
+                Hero hero = _spawn(placement.dataSO, PlayerTeam, hex, board);
                 placed++;
 
-                if (board.WhoReservedThisHex(hex) is Hero turned) turned.SetAlignMarkPattern(placement.alignPattern);
+                hero.SetAlignMarkPattern(placement.alignPattern);
 
-                if (board.WhoReservedThisHex(hex) is Hero upgraded) upgraded.UpgradeTo(placement.Star);
+                hero.UpgradeTo(placement.Star);
 
-                if (placement.item is ItemDataSO itemData && board.WhoReservedThisHex(hex) is Hero hero)
+                if (placement.item is ItemDataSO itemData)
                 {
                     Item worn = Item.Spawn(itemData, hex.transform.position);
                     if (worn != null && !hero.TryWear(worn)) ItemDrop.MoveToFreeSpot(worn);
@@ -213,7 +210,6 @@ namespace MagicSchool.DevTools
         public int LoadEnemyTeam(BattlePlacementSO stage, bool withZone)
         {
             if (stage == null || !CanEditNow) return 0;
-            if (OnSpawnRequested == null) { Debug.LogError("Can't load the enemies. Nothing is listening for spawn requests."); return 0; }
 
             BattleBoard board = _game.Board;
             board.ClearTeam(EnemyTeam);
@@ -234,8 +230,7 @@ namespace MagicSchool.DevTools
                     continue;
                 }
 
-                OnSpawnRequested.Invoke(placement.dataSO, EnemyTeam, hex, board);
-                if (board.WhoReservedThisHex(hex) is Hero enemy) enemy.SetLevel(placement.Level);
+                _spawn(placement.dataSO, EnemyTeam, hex, board).SetLevel(placement.Level);
                 placed++;
             }
 

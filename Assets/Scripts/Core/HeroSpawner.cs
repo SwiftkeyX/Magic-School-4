@@ -28,12 +28,16 @@ namespace MagicSchool.Core
             _templateActions = templateActions;
             _recorder = recorder;
 
-            if (bench != null) bench.OnSpawnRequested += SpawnHero;
-            if (seed != null) seed.OnSpawnRequested += SpawnHero;
+            if (bench != null) bench.OnSpawnRequested += (data, team, placement, board) => SpawnHero(data, team, placement, board);
+            if (seed != null) seed.SpawnWith(SpawnHero);
         }
 
-        public void SpawnHero(HeroDataSO data, TeamEnum team, IPlacement placement, BattleBoard board)
-            => Place(Build(data, board, team), placement);
+        public Hero SpawnHero(HeroDataSO data, TeamEnum team, IPlacement placement, BattleBoard board)
+        {
+            Hero hero = Build(data, board, team);
+            Place(hero, placement);
+            return hero;
+        }
 
         private void SpawnSummon(HeroDataSO data, TeamEnum team, IPlacement placement, BattleBoard board, int level)
         {

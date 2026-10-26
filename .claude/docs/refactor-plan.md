@@ -85,9 +85,12 @@ Your call: the benchmark gets its own module.
 
 ## Phase 5 - Remove pass-through layers (S-M) (bench)
 
-- [] Delete `HeroSkill` (100% null-check forwarding). `Hero` holds a never-null `SkillDefinition`. A new skill hook
-  goes from 4-5 files to 2.
-- [] `HeroSpawner.Spawn` returns the `Hero` for callers inside Core, instead of an event + lookup by hex.
+- [x] Deleted `HeroSkill`. `Hero` holds a never-null `SkillDefinition` (`Skills/NoSkill` for a hero without one) and
+  calls it directly. A new skill hook is `SkillDefinition` + `Hero.Skill.cs` (+ the caller).
+- [x] `HeroSpawner.SpawnHero` returns the `Hero`. `HeroSeed` and the Stage Editor are handed it and use the hero it
+  returns, instead of an event + a lookup by hex. `Bench` keeps its event (Combat cannot see Core).
+- [x] Verified: tests; Team Comp Run Selected on Skeleton-Knight-BlackSmith-5 and Elf-Ettin-ShieldKnight-5
+  (`teamcomp-2026-10-26_08-28-00`) win the same stages as the baseline; Stage Editor adds an enemy in Play mode.
 
 ## Phase 6 - One copy of fight start and team loading (M) (bench)
 

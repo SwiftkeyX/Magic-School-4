@@ -9,14 +9,16 @@ namespace MagicSchool.Core
     // seed the hero onto the board
     // e.g. enemy side always got seed, player side don't use seed since player drag hero onto the board themself. 
     // p.s. but player can also be seeded too for fast testing.
-    // OnSpawnRequested fires before anything is spawned and HeroSpawner handles it at once, so once it returns the
-    // hero is on its hex; the stage's level and the saved star are given then (See HeroLevel, HeroStar).
+    // HeroSpawner hands it its spawn (SpawnWith); each hero gets the stage's level and the saved star once it stands on
+    // its hex (See HeroLevel, HeroStar).
     public class HeroSeed
     {
         private BattlePlacementSO _placementSO;
         private readonly BattleBoard _board;
 
-        public event Action<HeroDataSO, TeamEnum, IPlacement, BattleBoard> OnSpawnRequested;
+        private Func<HeroDataSO, TeamEnum, IPlacement, BattleBoard, Hero> _spawn;
+
+        public void SpawnWith(Func<HeroDataSO, TeamEnum, IPlacement, BattleBoard, Hero> spawn) => _spawn = spawn;
 
         public HeroSeed(BattlePlacementSO placementSO, BattleBoard board)
         {
@@ -29,7 +31,7 @@ namespace MagicSchool.Core
         public void SpawnTeamOnBoard(TeamEnum team)
         {
             if (_placementSO == null) { DebugTool.LogError("Can't seed the hero. Hero Placement is null"); return; }
-            if (OnSpawnRequested == null) { DebugTool.LogError("Can't seed the hero. Nothing is listening for spawn requests."); return; }
+            if (_spawn == null) { DebugTool.LogError("Can't seed the hero. No spawner was handed to the seed."); return; }
 
             foreach (var heroPlacement in _placementSO.HeroesPlacement)
             {
@@ -44,11 +46,11 @@ namespace MagicSchool.Core
                     continue;
                 }
 
-                OnSpawnRequested.Invoke(data, heroPlacement.team, hex, _board);
+                Hero hero = _spawn(data, heroPlacement.team, hex, _board);
 
-                if (heroPlacement.Level > HeroLevel.Min && _board.WhoReservedThisHex(hex) is Hero hero) hero.SetLevel(heroPlacement.Level);
+                if (heroPlacement.Level > HeroLevel.Min) hero.SetLevel(heroPlacement.Level);
 
-                if (heroPlacement.Star > HeroStar.Min && _board.WhoReservedThisHex(hex) is Hero upgraded) upgraded.UpgradeTo(heroPlacement.Star);
+                if (heroPlacement.Star > HeroStar.Min) hero.UpgradeTo(heroPlacement.Star);
             }
         }
     }

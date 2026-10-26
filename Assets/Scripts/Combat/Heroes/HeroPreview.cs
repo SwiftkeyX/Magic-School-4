@@ -12,7 +12,7 @@ namespace MagicSchool.Combat.Heroes
     {
         private readonly HeroDataSO _data;
         private readonly Stat _stat;
-        private readonly HeroSkill _skill;
+        private readonly SkillDefinition _skill;
         private readonly Func<bool> _isStillOffered;
 
         public HeroPreview(HeroDataSO data, SkillDefinition skill, Func<bool> isStillOffered)
@@ -20,7 +20,8 @@ namespace MagicSchool.Combat.Heroes
             _data = data;
             _stat = new Stat(data);
             _isStillOffered = isStillOffered;
-            _skill = new HeroSkill(null, skill);    
+            _skill = skill ?? new NoSkill();
+            _skill.Init(null);
         }
 
         public string DisplayName => _data.Name;
@@ -28,13 +29,13 @@ namespace MagicSchool.Combat.Heroes
         public bool IsAlive => _isStillOffered == null || _isStillOffered();
 
         public TeamEnum Team => TeamEnum.Blue;
-        public bool HasSkill => _skill.HasSkill;
+        public bool HasSkill => _skill.HasActive;
         public string SkillName => _skill.SkillName;
         public string SkillDescription => _skill.Description;
         public bool HasAutoAttackPassive => _skill.HasAutoAttackPassive;
         public string PassiveDescription => _skill.PassiveDescription;
-        public string SkillDescriptionFor(bool formula) => _skill.DescriptionFor(this, formula);
-        public string PassiveDescriptionFor(bool formula) => _skill.PassiveDescriptionFor(this, formula);
+        public string SkillDescriptionFor(bool formula) => _skill.DescribeActive(this, formula);
+        public string PassiveDescriptionFor(bool formula) => _skill.DescribePassive(this, formula);
         public string AlignDescriptionFor(bool formula)
             => AlignText.Describe(_data.AlignMarksOf(0), 0, _data.AlignPatternCount, formula ? (float?)null : Magic);
 

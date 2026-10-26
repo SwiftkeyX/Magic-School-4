@@ -92,7 +92,7 @@ namespace MagicSchool.Combat.Heroes
             var damageEvent = new DamageEvent(source, this, kind, outcome);
             OnDamaged?.Invoke(damageEvent);
 
-            _skill?.TriggerOnDamageTaken(damageEvent);
+            _skill?.OnDamageTaken(damageEvent);
 
             if (source is Hero dealer) dealer.OnDamageDealt?.Invoke(damageEvent);
 
