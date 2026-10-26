@@ -18,6 +18,7 @@ namespace MagicSchool.Editor
     //      ListRow     - one row of an asset list: its button first, the name beside it, details, Select at the far end
     //      ListItem    - one pickable entry of a side list (a hero, a skill)
     //      Sidebar     - the side list's width
+    // ListRow lights the row under the mouse only when the window sets wantsMouseMove and repaints on MouseMove.
     internal static class WindowStyle
     {
         public const float Sidebar = 180f;
@@ -28,7 +29,6 @@ namespace MagicSchool.Editor
 
         private static GUIStyle _listItem;
 
-        // the shading of every other row of a list, and of the row under the mouse (See ListRow)
         private static Color Stripe => EditorGUIUtility.isProSkin ? new Color(1f, 1f, 1f, 0.035f) : new Color(0f, 0f, 0f, 0.045f);
         private static Color Hover => EditorGUIUtility.isProSkin ? new Color(1f, 1f, 1f, 0.07f) : new Color(0f, 0f, 0f, 0.08f);
 
@@ -47,7 +47,6 @@ namespace MagicSchool.Editor
             return picked;
         }
 
-        // a second, smaller row under a tab that has parts of its own, set in so it reads as belonging to that tab
         public static int SubTabs(int selected, GUIContent[] tabs)
         {
             int picked;
@@ -82,11 +81,6 @@ namespace MagicSchool.Editor
 
         public static bool RowButton(string text, float width = RowButtonWidth) => RowButton(new GUIContent(text), width);
 
-        // One row of an asset list (stages, team comps, heroes, items): [Load] Stage 05   5 enemies, lv 10   ...   [Select].
-        // The button sits right beside the name however wide the window is, so the eye does not cross the window to find it.
-        // nameWidth: the list's name column, the same for every row so the details line up (See NameWidth).
-        // index: the row's place in its list - every other row is shaded, and the row under the mouse is lit; a window
-        // using this needs wantsMouseMove on and a Repaint on MouseMove for the light to follow the mouse.
         public static RowClick ListRow(int index, GUIContent button, bool buttonEnabled, GUIContent name, float nameWidth,
                                        string detail, GUIStyle nameStyle = null)
         {
@@ -113,7 +107,6 @@ namespace MagicSchool.Editor
             return click;
         }
 
-        // the name column of a list: as wide as its longest name (measured in bold, so a bold row fits too), never under 80
         public static float NameWidth(System.Collections.Generic.IEnumerable<string> names)
         {
             float widest = 80f;
@@ -121,7 +114,6 @@ namespace MagicSchool.Editor
             return widest + 4f;
         }
 
-        // true when picked this frame - an entry already picked does not fire again
         public static bool ListItem(bool isPicked, string label)
         {
             _listItem ??= new GUIStyle(EditorStyles.miniButton) { alignment = TextAnchor.MiddleLeft, fixedHeight = 20f };

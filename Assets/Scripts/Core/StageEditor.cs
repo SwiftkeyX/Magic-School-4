@@ -24,6 +24,9 @@ namespace MagicSchool.Core
     ///
     /// Tick GameManager._stageEditMode to use this tool.
     /// </summary>
+    // A team comp is a BattlePlacementSO of blue entries plus the board they were placed on: a hex number only means
+    // something on its own layout. A quick save holds both teams; on load the player's heroes go first, so none stands
+    // on a hex a saved enemy needs.
     public class StageEditor
     {
         private const TeamEnum EnemyTeam = TeamEnum.Red;
@@ -38,20 +41,14 @@ namespace MagicSchool.Core
             _game = game;
         }
 
-        // ======================================== getter ========================================
         public BattlePlacementSO CurrentStage => _game.GetStage(_game.StageIndex);
         public bool CanEditNow => _game.Phase == GamePhaseEnum.Preparation;
         public int EnemyCountOnBoard => _game.Board.CountTeamOnBoard(EnemyTeam);
 
-        // On: clicking an empty hex puts it in or out of the deploy zone, and a save writes the zone.
-        // Off: clicks paint nothing, and saving to an existing stage keeps the zone it has (See StageEditorMenu).
-        // Set from the Stage Editor window.
         public bool EditsDeployZone { get; set; } = true;
 
-        // the level an added enemy starts at (See HeroLevel). Set from the Stage Editor window.
         public int NewEnemyLevel { get; set; } = HeroLevel.Min;
 
-        // every enemy on the board, by hex, for the window's level list
         public List<Hero> EnemiesOnBoard => _game.Board.HeroesOnBoard
             .OfType<Hero>()
             .Where(hero => hero != null && hero.Team == EnemyTeam && hero.CurrentHex != null)
@@ -65,8 +62,6 @@ namespace MagicSchool.Core
             enemy.SetLevel(level);
         }
 
-        // ======================================== add ========================================
-        // put a new enemy on the first free enemy hex
         public bool TryAddEnemy(HeroDataSO data)
         {
             if (data == null || !CanEditNow) return false;
@@ -80,11 +75,8 @@ namespace MagicSchool.Core
             return true;
         }
 
-        // ======================================== read ========================================
-        // get every enemy on the board and the hex it stands on
         public List<HeroPlacement> ReadEnemyTeam() => ReadTeam(EnemyTeam);
 
-        // get every player hero on the board and the hex it stands on (the bench is not part of a comp)
         public List<HeroPlacement> ReadPlayerTeam() => ReadTeam(PlayerTeam);
 
         private List<HeroPlacement> ReadTeam(TeamEnum team)
@@ -98,11 +90,9 @@ namespace MagicSchool.Core
                 .ToList();
         }
 
-        // the item the hero wears, as data. A hero wears one item at most (See HeroItems.Capacity)
         private static ItemDataSO WornItemData(Hero hero)
             => hero.WornItems.OfType<Item>().FirstOrDefault(item => item != null)?.Data;
 
-        // get every item lying on a hex and the hex it lies on
         public List<ItemPlacement> ReadItemsOnHexes()
         {
             return _game.Board.Items.All()
@@ -111,11 +101,8 @@ namespace MagicSchool.Core
                 .ToList();
         }
 
-        // get current deploy zone 
         public List<HexNumber> ReadDeployZone() => _game.Board.DeployZone.GetDeployZone();
 
-        // ======================================== deploy zone ========================================
-        // Toggle hex into deploy zone
         public bool TryToggleDeployHex(Hex hex)
         {
             if (hex == null || !CanEditNow || !EditsDeployZone) return false;
@@ -125,29 +112,20 @@ namespace MagicSchool.Core
             return true;
         }
 
-        // ======================================== write ========================================
-        // how many enemies now?
         public int EnemyCountIn(BattlePlacementSO stage)
             => stage.HeroesPlacement.Count(placement => placement.team == EnemyTeam);
 
-        // how many hexes in the deploy zone now?
         public int DeployZoneCountIn(BattlePlacementSO stage) => stage.DeployZone.Count;
 
-        // overwrite enemy team's SO to the specify one
         public void WriteEnemyTeam(BattlePlacementSO stage, IEnumerable<HeroPlacement> team)
             => stage.ReplaceTeam(EnemyTeam, team);
 
-        // overwrite the deploy zone's SO to the specify one
         public void WriteDeployZone(BattlePlacementSO stage, IEnumerable<HexNumber> zone)
             => stage.ReplaceDeployZone(zone);
 
-        // ======================================== team comp ========================================
-        // A team comp is a BattlePlacementSO holding blue entries only, plus the board they were placed on:
-        // a hex number only means something on its own layout.
         public int PlayerCountOnBoard => _game.Board.CountTeamOnBoard(PlayerTeam);
         public int PlayerCountIn(BattlePlacementSO comp) => comp.HeroesPlacement.Count(placement => placement.team == PlayerTeam);
 
-        // overwrite the player team of the SO (worn items included) and the items on hexes, and remember which board it stands on
         public void WritePlayerTeam(BattlePlacementSO comp, IEnumerable<HeroPlacement> team, IEnumerable<ItemPlacement> itemsOnHexes)
         {
             comp.ReplaceTeam(PlayerTeam, team);
@@ -155,18 +133,12 @@ namespace MagicSchool.Core
             comp.SetBoardLayout(_game.Board.Layout);
         }
 
-        // is the stage one of the run's (GameManager._stages)? Only those can be gone to with LoadStage.
         public bool IsInRun(BattlePlacementSO stage) => _game.IsInRun(stage);
 
-        // the run goes to this stage: its board, enemies, levels, deploy zone and number. False if it is not in the run.
         public bool LoadStage(BattlePlacementSO stage) => CanEditNow && _game.JumpToStage(stage);
 
-        // can the comp's hex numbers be read on the board as it is now?
         public bool FitsThisBoard(BattlePlacementSO comp) => comp.BoardLayout == null || _game.Board.HasLayout(comp.BoardLayout);
 
-        // swap the player's team on the board for the comp's, with the items they wear and the items on hexes.
-        // The heroes on the board go with the items they wear; items already lying on hexes go to the loose row.
-        // The bench is left alone, and no gold changes hands. Returns how many heroes were put down.
         public int LoadPlayerTeam(BattlePlacementSO comp)
         {
             if (comp == null || !CanEditNow) return 0;
@@ -193,13 +165,10 @@ namespace MagicSchool.Core
                 OnSpawnRequested.Invoke(placement.dataSO, PlayerTeam, hex, board);
                 placed++;
 
-                // turned the way it was saved
                 if (board.WhoReservedThisHex(hex) is Hero turned) turned.SetAlignMarkPattern(placement.alignPattern);
 
-                // at the star it was saved at (See HeroStar)
                 if (board.WhoReservedThisHex(hex) is Hero upgraded) upgraded.UpgradeTo(placement.Star);
 
-                // the spawn is immediate, so the hero is on the hex now
                 if (placement.item is ItemDataSO itemData && board.WhoReservedThisHex(hex) is Hero hero)
                 {
                     Item worn = Item.Spawn(itemData, hex.transform.position);
@@ -214,7 +183,6 @@ namespace MagicSchool.Core
                 Item item = Item.Spawn(itemData, Vector3.zero);
                 if (item == null) continue;
 
-                // the hex must still be there and free - a hero or another item on it means it can't lie there
                 bool isLaid = board.Hexs.TryGetValue(lying.hexPlacement, out Hex hex)
                               && board.WhoReservedThisHex(hex) == null
                               && board.Items.Place(item, hex);
@@ -228,9 +196,6 @@ namespace MagicSchool.Core
             return placed;
         }
 
-        // ======================================== enemy team ========================================
-        // swap the enemies on the board for the stage's, at their saved levels; withZone also takes the stage's deploy zone.
-        // The player's heroes are left where they stand - a hex one of them takes is skipped. Returns how many were put down.
         public int LoadEnemyTeam(BattlePlacementSO stage, bool withZone)
         {
             if (stage == null || !CanEditNow) return 0;
@@ -264,9 +229,6 @@ namespace MagicSchool.Core
             return placed;
         }
 
-        // ======================================== quick save ========================================
-        // A quick save is one BattlePlacementSO holding both teams: the player's (as a team comp) and the enemies (as a stage).
-        // e.g.     Quick Save, stop Play, Play again, Quick Load => the board is as it was
         public void WriteQuickSave(BattlePlacementSO save)
         {
             WritePlayerTeam(save, ReadPlayerTeam(), ReadItemsOnHexes());
@@ -274,8 +236,6 @@ namespace MagicSchool.Core
             WriteDeployZone(save, ReadDeployZone());
         }
 
-        // both teams on the board are swapped for the save's, and the deploy zone too. The bench is left alone.
-        // The player's heroes go first, so none of them stands on a hex a saved enemy needs.
         public (int players, int enemies) LoadQuickSave(BattlePlacementSO save)
         {
             if (save == null || !CanEditNow) return (0, 0);
@@ -286,8 +246,6 @@ namespace MagicSchool.Core
             return (players, enemies);
         }
 
-        // ======================================== private ========================================
-        // an enemy may stand on any hex outside the deploy zone.
         private Hex FirstFreeEnemyHex()
         {
             BattleBoard board = _game.Board;

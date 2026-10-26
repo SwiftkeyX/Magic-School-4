@@ -27,7 +27,6 @@ namespace MagicSchool.Core.Benchmark
             return path;
         }
 
-        // per comp: how many stages it wins (WinLine of its runs or more) with aligning and without
         private static string Summary(List<IGrouping<(Combat.Placements.BattlePlacementSO comp, int stage, bool aligning), Fight>> groups)
         {
             var lines = new List<string>();
@@ -51,7 +50,6 @@ namespace MagicSchool.Core.Benchmark
         private static float WinRate(List<Fight> runs)
             => runs.Count == 0 ? 0f : (float)runs.Count(f => f.Outcome == Outcome.Win) / runs.Count;
 
-        // counted in wins rather than as a float share, so 14 of 20 is exactly on the line
         private static bool IsWon(List<Fight> runs)
             => runs.Count > 0 && runs.Count(f => f.Outcome == Outcome.Win) >= Mathf.CeilToInt(WinLine * runs.Count - 0.0001f);
 
@@ -62,7 +60,6 @@ namespace MagicSchool.Core.Benchmark
             string path = Path.Combine(ReportFolder, Prefix + stamp + ".csv");
 
             var text = new StringBuilder();
-            // won / win_line: this run's verdict and the line it used, so the Sheet never has to know the setting
             text.AppendLine("row,comp,stage,stage_setup,aligning,runs,win_rate,won,win_line,wins,timeouts,avg_seconds,heroes_left,team_hp_left,team_dps," +
                             "hero,dps,damage_share,damage_taken,healing,survive_rate,died_at,error");
 
@@ -88,7 +85,6 @@ namespace MagicSchool.Core.Benchmark
                                 $"{runs.Count(f => f.Outcome == Outcome.Timeout)},{F(seconds / runs.Count)},{F(heroesLeft)},{Pct(hpLeft)}," +
                                 $"{F(seconds > 0 ? teamDamage / seconds : 0)},,,,,,,,");
 
-                // a hero twice in one comp is one row, its numbers added up
                 foreach (var hero in runs.SelectMany(f => f.Heroes).GroupBy(h => h.Name).OrderByDescending(g => g.Sum(h => h.Damage)))
                 {
                     List<HeroLine> lines = hero.ToList();

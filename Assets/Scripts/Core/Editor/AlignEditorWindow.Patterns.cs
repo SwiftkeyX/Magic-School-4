@@ -49,12 +49,11 @@ namespace MagicSchool.Editor
             EditorGUILayout.EndVertical();
         }
 
-        // The rest of this pass was laid out for the pattern selected before, which may be gone now: save, and start again
         private void SelectPattern(int pattern)
         {
             _selectedPattern = pattern;
             _selectedMark = 0;
-            GUI.FocusControl(null);     // a field still focused would carry its typed value over to the other pattern
+            GUI.FocusControl(null);
 
             _serializedHero.ApplyModifiedProperties();
             Repaint();
@@ -64,10 +63,8 @@ namespace MagicSchool.Editor
         private static SerializedProperty MarksOf(SerializedProperty patterns, int pattern)
             => patterns.GetArrayElementAtIndex(pattern).FindPropertyRelative("marks");
 
-        // A new pattern at the end, and select it: empty, or a copy of another pattern turned 60 degrees clockwise.
         private void AddPattern(SerializedProperty patterns, int rotatedFrom)
         {
-            // Unity fills a new list entry with a copy of the last one, so copy from the wanted one, or wipe it
             if (rotatedFrom >= 0)
             {
                 patterns.InsertArrayElementAtIndex(rotatedFrom);
@@ -87,7 +84,6 @@ namespace MagicSchool.Editor
             SelectPattern(added);
         }
 
-        // Every hex of every mark turned 60 degrees clockwise round the hero: N becomes NE, NE becomes SE, and so on.
         private static void RotateClockwise(SerializedProperty marks)
         {
             for (int i = 0; i < marks.arraySize; i++)

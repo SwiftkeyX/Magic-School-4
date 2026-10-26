@@ -24,6 +24,8 @@ namespace MagicSchool.Editor
     //
     // The changed values are kept by the window, so they survive entering and leaving Play mode,
     // but not closing the window - write them to code first.
+    // Changes are kept by the window, because SkillTuning is static and every domain reload wipes it. Reading each
+    // skill's static numbers once is what makes SkillTuning learn them and their defaults.
     internal class SkillTunerWindow : EditorWindow
     {
         [Serializable]
@@ -33,7 +35,6 @@ namespace MagicSchool.Editor
             public float Value;
         }
 
-        // kept by the window: SkillTuning is static and is wiped by every domain reload
         [SerializeField] private List<Change> _changes = new List<Change>();
         [SerializeField] private string _selectedSkill;
 
@@ -46,12 +47,10 @@ namespace MagicSchool.Editor
         [MenuItem("Magic School 4/Skill Tuner")]
         private static void Open() => GetWindow<SkillTunerWindow>("Skill Tuner");
 
-        // ======================================== life cycle ========================================
         private void OnEnable()
         {
             FindSkills();
 
-            // a change already written to code is the default now
             _changes.RemoveAll(change => !IsKnown(change.Key) || Default(change.Key) == change.Value);
             PushChanges();
 
@@ -59,7 +58,6 @@ namespace MagicSchool.Editor
             else if (string.IsNullOrEmpty(_selectedSkill) && _skills.Count > 0) _selectedSkill = _skills[0];
         }
 
-        // picking a hero in the Project window picks its skill here
         private void OnSelectionChange()
         {
             if (!(Selection.activeObject is HeroDataSO selected)) return;
@@ -68,14 +66,11 @@ namespace MagicSchool.Editor
             Repaint();
         }
 
-        // the in-game description is read live, so keep it fresh while playing
         private void OnInspectorUpdate()
         {
             if (Application.isPlaying) Repaint();
         }
 
-        // Every skill script deriving SkillDefinition. Reading each of its static numbers once makes
-        // SkillTuning learn the number and its default.
         private void FindSkills()
         {
             _skillTypes = typeof(SkillDefinition).Assembly.GetTypes()
@@ -105,7 +100,6 @@ namespace MagicSchool.Editor
             if (_skills.Contains(skill)) _selectedSkill = skill;
         }
 
-        // ======================================== changes ========================================
         private bool IsKnown(string key) => SkillTuning.All.Any(number => number.Key == key);
         private float Default(string key) => SkillTuning.All.First(number => number.Key == key).Default;
         private Change ChangeOf(string key) => _changes.FirstOrDefault(change => change.Key == key);
@@ -138,7 +132,6 @@ namespace MagicSchool.Editor
             foreach (SkillTuning.Number number in numbers.ToList()) SetValue(number, number.Default);
         }
 
-        // ======================================== draw ========================================
         private void OnGUI()
         {
             WindowStyle.Intro("Change a skill's numbers while the game runs, then write the ones worth keeping back into its " +
@@ -159,7 +152,6 @@ namespace MagicSchool.Editor
             {
                 if (_search.Length > 0 && skill.IndexOf(_search, StringComparison.OrdinalIgnoreCase) < 0) continue;
 
-                // a skill with changed numbers is marked, so nothing unsaved is forgotten
                 string label = skill.Replace("Skill", "") + (HasChanges(skill) ? "  *" : "");
                 if (WindowStyle.ListItem(skill == _selectedSkill, label))
                 {
@@ -241,8 +233,6 @@ namespace MagicSchool.Editor
             EditorGUILayout.EndHorizontal();
         }
 
-        // ======================================== skill text ========================================
-        // A skill built with no registry and no caster only knows its text - the shop's preview does the same.
         private SkillDefinition Instance(string skill)
         {
             if (!_skillTypes.TryGetValue(skill, out Type type)) return null;
@@ -274,9 +264,6 @@ namespace MagicSchool.Editor
             catch (Exception e) { return $"(the description could not be built: {e.Message})"; }
         }
 
-        // ======================================== write to code ========================================
-        // Replace the default inside `Name => Tuned(...)` in the skill's script with the changed value.
-        // While playing, the script is only recompiled once Play mode ends; the change stays applied until then.
         private void WriteToCode(List<Change> changes)
         {
             int written = 0;

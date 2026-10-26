@@ -12,20 +12,18 @@ namespace MagicSchool.Editor
     // Every setting of the two benchmarks, with a tooltip on each, and a button to run each one.
     // The settings live in Data/Benchmark/BenchmarkSettings.asset (See BenchmarkSettingsSO), so they are kept.
     // A run reads them when it starts: changing one mid-run does nothing to it.
+    // The time estimates were measured 2026-10-23 on the defaults. The Advanced fold's label counts how many settings
+    // are not the default, so a change cannot sit there unnoticed.
     internal class BenchmarkWindow : EditorWindow
     {
         private const string TeamCompFolder = "Assets/Data/BattleSetups/Team Comps";
 
-        // rough real seconds, measured 2026-10-23 on the defaults: one batch of hero lanes through the three 30s tests,
-        // and one team comp fight at 32 lanes
         private const float SecondsPerHeroBatch = 9f;
         private const float SecondsPerTeamFight = 0.5f;
 
-        // shown on each tab: what changes what the report says
         private static readonly string[] HeroFields = { "alliesSmallTeam", "alliesBigTeam", "flagBand" };
         private static readonly string[] TeamFields = { "runsAligned", "runsNotAligned", "timeLimit", "winLine" };
 
-        // folded away under Advanced: how the tests are built, and speed - nothing a normal run needs to touch
         private static readonly string[] HeroAdvanced =
         {
             "shortSeconds", "longSeconds", "pressurePerHit", "pressureInterval", "dummyRefillBelow", "heroLanes",
@@ -38,10 +36,10 @@ namespace MagicSchool.Editor
             new GUIContent("Team Comp Benchmark", "Each saved team comp vs every campaign stage - which stages it wins."),
         };
 
-        [SerializeField] private int _tab;      // kept by the window, so it reopens on the same tab
+        [SerializeField] private int _tab;
         [SerializeField] private bool _heroAdvancedOpen, _teamAdvancedOpen;
         private BenchmarkSettingsSO _settings;
-        private BenchmarkSettingsSO _defaults;  // to say how many advanced settings are not the default
+        private BenchmarkSettingsSO _defaults;
         private SerializedObject _serialized;
         private Vector2 _scroll;
 
@@ -49,8 +47,8 @@ namespace MagicSchool.Editor
         private static void Open() => GetWindow<BenchmarkWindow>("Benchmark");
 
         private void OnEnable() => Bind();
-        private void OnSelectionChange() => Repaint();      // the "Selected" buttons count the selection
-        private void OnInspectorUpdate() => Repaint();      // the buttons follow Play mode
+        private void OnSelectionChange() => Repaint();
+        private void OnInspectorUpdate() => Repaint();
 
         private void Bind()
         {
@@ -81,7 +79,6 @@ namespace MagicSchool.Editor
             _serialized.ApplyModifiedProperties();
         }
 
-        // =================================== top ===================================
         private void DrawTop()
         {
             WindowStyle.Intro("Set up and run the balance benchmarks. Hover a setting to read what it does; a run uses these from " +
@@ -105,7 +102,6 @@ namespace MagicSchool.Editor
             }
         }
 
-        // =================================== hero benchmark ===================================
         private void DrawHeroBenchmark()
         {
             Section("Hero Benchmark", "Every shop hero alone vs a 2000 HP dummy: a damage test, an AoE test (6 dummies) and a " +
@@ -131,7 +127,6 @@ namespace MagicSchool.Editor
                        "for the role comparison come from the newest full report.", HeroBenchmarkMenu.RunSelected, selected > 0);
         }
 
-        // =================================== team comp benchmark ===================================
         private void DrawTeamCompBenchmark()
         {
             Section("Team Comp Benchmark", "Every saved team comp vs every campaign stage, with aligning and without, " +
@@ -144,7 +139,6 @@ namespace MagicSchool.Editor
             int stages = ArraySize("_stages");
             int perStage = Mathf.Max(1, _settings.runsAligned) + Mathf.Max(0, _settings.runsNotAligned);
             int fights = comps * stages * perStage;
-            // fewer lanes than measured is slower; more than 32 gains little, so it is not counted
             float seconds = fights * SecondsPerTeamFight * (32f / Mathf.Clamp(_settings.teamLanes, 1, 32));
             int needed = Mathf.CeilToInt(_settings.winLine * Mathf.Max(1, _settings.runsAligned) - 0.0001f);
             EditorGUILayout.HelpBox(
@@ -159,9 +153,6 @@ namespace MagicSchool.Editor
                        TeamCompBenchmarkMenu.RunSelected, selected > 0);
         }
 
-        // =================================== helpers ===================================
-        // A folded section of settings a normal run never needs. Its label says how many are not the default,
-        // so a change cannot sit there unnoticed while folded.
         private bool Advanced(bool open, string[] fields)
         {
             if (_defaults == null) _defaults = CreateInstance<BenchmarkSettingsSO>();
@@ -186,7 +177,6 @@ namespace MagicSchool.Editor
             if (_defaults != null) DestroyImmediate(_defaults);
         }
 
-        // the tab already names it: only what it does
         private static void Section(string title, string about)
         {
             WindowStyle.Hint(about);
@@ -196,7 +186,6 @@ namespace MagicSchool.Editor
         private static void RunButtons(string all, string allTip, System.Action runAll,
                                        string some, string someTip, System.Action runSome, bool canRunSome)
         {
-            // one run at a time: a run enters Play mode, and leaves it when done
             bool busy = EditorApplication.isPlayingOrWillChangePlaymode;
             using (new EditorGUI.DisabledScope(busy))
             using (new EditorGUILayout.HorizontalScope())
@@ -208,7 +197,6 @@ namespace MagicSchool.Editor
             if (busy) WindowStyle.Hint("Running (or in Play mode) - the buttons come back once it is done.");
         }
 
-        // how many entries GameManager has in one of its lists, read off the scene - Editor cannot reach its internals
         private static int ArraySize(string field)
         {
             var game = Object.FindAnyObjectByType<GameManager>();

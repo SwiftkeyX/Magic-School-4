@@ -23,8 +23,6 @@ namespace MagicSchool.Core.Benchmark
             }
         }
 
-        // the end of a whole test: 
-        // compare everyone's numbers, write the CSV, say what was flagged. Returns the CSV's path.
         private static string Report(List<Result> results, bool isPartialMode, float realStart)
         {
             List<Peer> borrowed = BorrowPeers(isPartialMode, out string peersNote);
@@ -36,7 +34,6 @@ namespace MagicSchool.Core.Benchmark
             return path;
         }
 
-        // a partial run borrows everyone else's numbers from the latest full report, a full run use its own full report
         private static List<Peer> BorrowPeers(bool isPartialMode, out string peersNote)
         {
             peersNote = "";
@@ -49,7 +46,6 @@ namespace MagicSchool.Core.Benchmark
             return borrowed;
         }
 
-        // this run's heroes, plus every borrowed hero this run did not retest
         private static void CompareToPeers(List<Result> results, List<Peer> borrowed)
         {
             var tested = new HashSet<string>(results.Select(r => r.Hero.Name));
@@ -159,8 +155,6 @@ namespace MagicSchool.Core.Benchmark
             return path;
         }
 
-        // the newest full run's per-hero numbers. Only full reports - a partial one only knows a few heroes.
-        // Reports from before the AoE test have no aoe column; those heroes then carry 0 there.
         private static List<Peer> LatestFullReport(out string source)
         {
             source = null;

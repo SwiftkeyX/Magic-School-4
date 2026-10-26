@@ -24,7 +24,7 @@ namespace MagicSchool.Core.Benchmark
             public Result Result;
             public Hero Hero;
             public readonly List<Hero> Dummies = new List<Hero>();
-            public float NextHit;                   // specific to tank test. pressure hit time
+            public float NextHit;
 
             public Lane(BattleBoard board, HeroSeed seed)
             {
@@ -35,7 +35,6 @@ namespace MagicSchool.Core.Benchmark
             public Hero Dummy => Dummies.Count > 0 ? Dummies[0] : null;
         }
 
-        // Create lane. Assign the board, seeder
         private static List<Lane> CreateLanes(GameManager game, int count)
         {
             var lanes = new List<Lane>();
@@ -49,8 +48,6 @@ namespace MagicSchool.Core.Benchmark
             return lanes;
         }
 
-        // A hidden copy of the real board, below it, with its own seed and spawner - a hero only sees its own board's heroes.
-        // Also used by TeamCompBenchmark.
         internal static BattleBoard CopyBoard(GameManager game, int index, float spacing, out HeroSeed seed)
         {
             Transform original = game.Board.transform;
@@ -61,8 +58,6 @@ namespace MagicSchool.Core.Benchmark
             BattleBoard board = copy.GetComponent<BattleBoard>();
             seed = new HeroSeed(null, board);
 
-            // its own spawner:
-            // but the same recorder, so every lane's numbers land in one place
             new HeroSpawner(new HeroMover(), game.TemplateActions, game.Recorder, seed: seed);
             return board;
         }
@@ -79,16 +74,9 @@ namespace MagicSchool.Core.Benchmark
             }
         }
 
-        // ================================= spawning =================================
-        // every lane spawn
-        //  1) a hero on HeroHex
-        //  2) a dummy on each of dummyHexes
-        // maxMarks above 0: before the dummies, up to that many of the hero's own mark hexes are filled and aligning
-        // given (See FillMarks). 0 = the hero alone
         private static IEnumerator Spawn(List<Lane> lanes, HeroDataSO dummy, int maxMarks, params HexNumber[] dummyHexes)
         {
             bool marked = maxMarks > 0;
-            // reset the board, hero, dummy
             foreach (Lane lane in lanes)
             {
                 lane.Board.SetBattleOn(false);
@@ -96,9 +84,8 @@ namespace MagicSchool.Core.Benchmark
                 lane.Hero = null;
                 lane.Dummies.Clear();
             }
-            yield return null;  // wait 1 frame
+            yield return null;
 
-            // seed new hero, dummy - and, marked, a stand-in ally on each of the hero's orange hexes
             foreach (Lane lane in lanes)
             {
                 List<HeroPlacement> placements = new List<HeroPlacement>();
@@ -114,19 +101,18 @@ namespace MagicSchool.Core.Benchmark
                 lane.Seed.SpawnTeamOnBoard(TeamEnum.Blue);
                 if (!marked) lane.Seed.SpawnTeamOnBoard(TeamEnum.Red);
             }
-            yield return null; // wait 1 frame
+            yield return null;
 
             if (marked)
             {
                 foreach (Lane lane in lanes)
                 {
                     FillMarks(lane, maxMarks);
-                    lane.Seed.SpawnTeamOnBoard(TeamEnum.Red);   // on hexes the stand-ins may have just freed
+                    lane.Seed.SpawnTeamOnBoard(TeamEnum.Red);
                 }
                 yield return null;
             }
 
-            // find reference to tested hero and dummy
             foreach (Lane lane in lanes)
             {
                 lane.Hero = lane.Board.HeroesOnBoard.OfType<Hero>().FirstOrDefault(h => h != null && h.Team == TeamEnum.Blue);
@@ -149,8 +135,8 @@ namespace MagicSchool.Core.Benchmark
         // spare, and the hexes an empty-hex mark counts are hexes those allies are not standing on.
         private readonly struct MarkFill
         {
-            public readonly List<HexNumber> StandIns;   // ally-paid orange hexes
-            public readonly List<HexNumber> LeftEmpty;  // empty-paid orange hexes
+            public readonly List<HexNumber> StandIns;
+            public readonly List<HexNumber> LeftEmpty;
 
             private MarkFill(List<HexNumber> standIns, List<HexNumber> leftEmpty)
             {
@@ -185,7 +171,6 @@ namespace MagicSchool.Core.Benchmark
             }
         }
 
-        // the stand-ins and the hero are on the board: give aligning, then send the stand-ins away
         private static void FillMarks(Lane lane, int maxMarks)
         {
             BattleBoard board = lane.Board;
@@ -199,7 +184,7 @@ namespace MagicSchool.Core.Benchmark
 
             foreach (Hero standIn in board.HeroesOnBoard.OfType<Hero>().Where(h => h != null && h != hero && h.Team == TeamEnum.Blue).ToList())
                 board.Remove(standIn);
-            AlignBonuses.ClearSpecialMarks(hero);   // the stand-ins are gone: no skill may count them
+            AlignBonuses.ClearSpecialMarks(hero);
 
             lane.Result.Marks = fill.Count;
         }
@@ -210,8 +195,6 @@ namespace MagicSchool.Core.Benchmark
             board.ClearTeam(TeamEnum.Red);
         }
 
-        // This start battle on every lane.
-        // Mimic what CombatState.OnEnter() does for a real fight.
         private static void BeginFight(GameManager game, List<Lane> lanes)
         {
             game.Recorder.BeginRound();
@@ -226,13 +209,11 @@ namespace MagicSchool.Core.Benchmark
             }
         }
 
-        // counterpart to BeginFight()
         private static void EndFight(List<Lane> lanes)
         {
             foreach (Lane lane in lanes) lane.Board.SetBattleOn(false);
         }
 
-        // Keep the dummy alive forever. In test, dummy shouldn't die. 
         private static void KeepAlive(Lane lane)
         {
             foreach (Hero dummy in lane.Dummies)

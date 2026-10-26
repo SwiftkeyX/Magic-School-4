@@ -10,7 +10,6 @@ namespace MagicSchool.Core.Benchmark
     [CreateAssetMenu(fileName = "BenchmarkSettings", menuName = "Magic School 4/Benchmark Settings")]
     public class BenchmarkSettingsSO : ScriptableObject
     {
-        // =================================== hero benchmark ===================================
         [Header("Hero Benchmark - tests")]
         [Tooltip("Seconds into the damage and AoE tests the first DPS sample is taken (dps_15s, aoe_dps_15s).")]
         [Min(1f)] public float shortSeconds = 15f;
@@ -45,7 +44,6 @@ namespace MagicSchool.Core.Benchmark
                  "past that it does nothing.")]
         [Range(1, 64)] public int heroLanes = 8;
 
-        // =================================== team comp benchmark ===================================
         [Header("Team Comp Benchmark - fights")]
         [Tooltip("Times each comp fights each stage with aligning. More = steadier win rates, longer runs.")]
         [Min(1)] public int runsAligned = 20;
@@ -66,19 +64,16 @@ namespace MagicSchool.Core.Benchmark
                  "little. Very many lanes can make the Editor slow to come back when the run ends.")]
         [Range(1, 128)] public int teamLanes = 32;
 
-        // what every lane setting shares - checked 2026-10-23: 0 of 14,679 hits at 32 lanes landed on another lane's board
         private const string SpeedOnly =
             "How many fights run at the same time. Speed only: a fight plays out the same however many run beside it - " +
             "each is on its own hidden copy of the board, far enough from the others that no skill reaches across, and " +
             "time moves in the same fixed 1/30s steps. Each fight still gets its own random rolls, so two runs differ a " +
             "little whatever this is set to.";
 
-        // =================================== current ===================================
         public const string AssetPath = "Assets/Data/Benchmark/BenchmarkSettings.asset";
 
         private static BenchmarkSettingsSO _current;
 
-        // what the running benchmark reads; the defaults until a run hands one over
         public static BenchmarkSettingsSO Current
         {
             get
@@ -96,7 +91,7 @@ namespace MagicSchool.Core.Benchmark
         private void OnValidate()
         {
             if (shortSeconds > longSeconds) shortSeconds = longSeconds;
-            if (alliesSmallTeam > alliesBigTeam) alliesSmallTeam = alliesBigTeam;     // the smaller team is never the bigger
+            if (alliesSmallTeam > alliesBigTeam) alliesSmallTeam = alliesBigTeam;
         }
     }
 }

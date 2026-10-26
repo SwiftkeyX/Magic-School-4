@@ -9,11 +9,10 @@ namespace MagicSchool.Editor
     // Every hex within reach of the hero. Left-click gives a hex to the selected mark, right-click makes a marked hex a wearing hex.
     internal partial class AlignEditorWindow
     {
-        private const int Reach = 6;                // how many hexes out from the hero the window draws
-        private const float ColumnStep = 46f;       // pixels between two columns
-        private const float RowStep = 46f;          // pixels between two hexes of one column
+        private const int Reach = 6;
+        private const float ColumnStep = 46f;
+        private const float RowStep = 46f;
 
-        // the board's own colours (See BoardColours), so the window looks like what the game paints
         private static readonly Color FreeColor = new Color(0.353f, 0.608f, 1f);
         private static readonly Color FirstBonusColor = new Color(1f, 0.62f, 0.2f);
         private static readonly Color SecondBonusColor = new Color(0.4f, 0.9f, 0.5f);
@@ -23,7 +22,6 @@ namespace MagicSchool.Editor
 
         private Vector2 _hexScroll;
 
-        // orange, green, a special mark white, and a third ordinary mark grey: it does nothing (See AligningHex.ColourOf)
         private static Color ColorOf(SerializedProperty marks, int mark)
         {
             if (IsSpecial(marks, mark)) return SpecialColor;
@@ -38,13 +36,11 @@ namespace MagicSchool.Editor
             WindowStyle.Hint("Right-click a marked hex to make it a wearing hex: an item lying there, or the item of an ally standing there, is worn by the hero. Right-click again to undo.");
             WindowStyle.Hint("The enemy is to the right.");
 
-            // the grid is about 600 pixels square at reach 6: scroll when the window is smaller than that
             _hexScroll = EditorGUILayout.BeginScrollView(_hexScroll);
 
             float size = (Reach * 2 + 1) * RowStep + 20f;
             Vector2 centre = GUILayoutUtility.GetRect(size, size, GUILayout.ExpandWidth(true)).center;
 
-            // (a, b): a steps NE and b steps N from the hero. Every hex within reach is one such pair.
             for (int a = -Reach; a <= Reach; a++)
             {
                 for (int b = -Reach; b <= Reach; b++)
@@ -60,7 +56,6 @@ namespace MagicSchool.Editor
             EditorGUILayout.EndScrollView();
         }
 
-        // one hex: its colour, its label, and what a click on it does
         private void DrawHexCell(SerializedProperty marks, Vector2Int offset, Vector2 position)
         {
             if (offset == Vector2Int.zero)
@@ -83,13 +78,11 @@ namespace MagicSchool.Editor
                               : isMarked ? $"{label}\n{name}"
                               : name);
 
-            // right-click a marked hex: an item lying there is worn, or no longer is
             if (isMarked && IsClicked(position, button: 1)) Use(() => SetWearing(marks, offset, !isWearing));
 
             if (IsClicked(position, button: 0)) Use(() => Toggle(marks, offset));
         }
 
-        // act on the click, and keep anything else from acting on it too
         private void Use(System.Action edit)
         {
             edit();
@@ -97,7 +90,6 @@ namespace MagicSchool.Editor
             Repaint();
         }
 
-        // a flat-top hex, squashed the way the board's hexes are. Several colours are drawn as rings, the first outermost.
         private static void DrawHex(Vector2 centre, Color[] fills, bool isOutlined)
         {
             if (Event.current.type != EventType.Repaint) return;
@@ -110,7 +102,6 @@ namespace MagicSchool.Editor
                 Handles.DrawAAConvexPolygon(CornersOf(centre, 1f - i * 0.3f));
             }
 
-            // the selected bonus' hexes get a white rim
             if (!isOutlined) return;
 
             Handles.color = Color.white;

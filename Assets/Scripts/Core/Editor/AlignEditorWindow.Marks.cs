@@ -18,7 +18,6 @@ namespace MagicSchool.Editor
         private const int GreenMark = 1;
         private const int FirstSpecialMark = 2;
 
-        // the fields each box shows, in order. AlignMark's [Header]s title them.
         private static readonly string[] OrangeFields = { "selfModifier", "selfAmount", "selfPercentOf", "selfWhenEmpty", "healFromAllyDamage" };
         private static readonly string[] GreenFields = { "modifier", "amount", "percentOf", "perOwnerAP" };
 
@@ -37,7 +36,6 @@ namespace MagicSchool.Editor
                 break;
             }
 
-            // what the inspector panel in the game will say, once these edits are applied
             _serializedHero.ApplyModifiedProperties();
             WindowStyle.Section($"In the game's inspector (pattern {_selectedPattern + 1})");
             EditorGUILayout.LabelField(AlignText.Describe(_hero.AlignMarksOf(_selectedPattern)), EditorStyles.wordWrappedLabel);
@@ -48,7 +46,6 @@ namespace MagicSchool.Editor
             EditorGUILayout.EndScrollView();
         }
 
-        // One mark's box. True when its Remove button was clicked - only a special mark the skill no longer reads has one.
         private bool DrawMark(SerializedProperty marks, int index)
         {
             SerializedProperty mark = marks.GetArrayElementAtIndex(index);
@@ -58,7 +55,6 @@ namespace MagicSchool.Editor
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             EditorGUILayout.BeginHorizontal();
 
-            // the colour the game paints this mark's hexes
             Rect swatch = GUILayoutUtility.GetRect(14f, 14f, GUILayout.Width(14f));
             EditorGUI.DrawRect(swatch, ColorOf(marks, index));
 
@@ -93,11 +89,6 @@ namespace MagicSchool.Editor
             return isRemoved || (!isSpecial && index >= FirstSpecialMark && GUILayout.Button("Remove this mark", EditorStyles.miniButton));
         }
 
-        // ======================================== one bonus for every pattern ========================================
-        // A pattern only moves the hexes: orange's and green's bonuses are the hero's, the same in every pattern.
-        // They are still stored on each pattern's own mark, so the editor keeps the copies equal.
-
-        // A bonus edited in the pattern on screen is written into every pattern at once.
         private void DrawBonusFields(SerializedProperty mark, int index, string[] fields)
         {
             EditorGUI.BeginChangeCheck();
@@ -105,14 +96,12 @@ namespace MagicSchool.Editor
             if (EditorGUI.EndChangeCheck()) CopyBonuses(_serializedHero.FindProperty("_alignPatterns"), _selectedPattern, index);
         }
 
-        // Every pattern gets pattern 1's bonuses: one added empty, one edited before this rule, or one whose boxes were only just added.
         private static void MatchBonusesToFirstPattern(SerializedProperty patterns)
         {
             CopyBonuses(patterns, 0, OrangeMark);
             CopyBonuses(patterns, 0, GreenMark);
         }
 
-        // That mark's bonus fields, from one pattern into every other. A pattern without the mark yet gets it when it is shown.
         private static void CopyBonuses(SerializedProperty patterns, int fromPattern, int mark)
         {
             SerializedProperty fromMarks = MarksOf(patterns, fromPattern);
@@ -131,7 +120,6 @@ namespace MagicSchool.Editor
             }
         }
 
-        // only what a bonus field can be: an enum, a number or a tick
         private static void CopyValue(SerializedProperty from, SerializedProperty to)
         {
             switch (from.propertyType)
@@ -144,10 +132,9 @@ namespace MagicSchool.Editor
             }
         }
 
-        // A new, empty mark at the end. Unity fills a new list entry with a copy of the last one, so wipe it.
         private static void AddMark(SerializedProperty marks, string special = "")
         {
-            const int NoStat = -1;      // StatEnum.None
+            const int NoStat = -1;
 
             marks.arraySize++;
             SerializedProperty mark = marks.GetArrayElementAtIndex(marks.arraySize - 1);
@@ -163,11 +150,8 @@ namespace MagicSchool.Editor
             mark.FindPropertyRelative("healFromAllyDamage").floatValue = 0f;
         }
 
-        // Every pattern has orange and green first, then every special mark the hero's skill reads (See AlignMark).
-        // A pattern missing any of them gets it, so the boxes are always there without anyone adding them.
         private void AddMissingMarks(SerializedProperty marks)
         {
-            // orange and green: two ordinary marks in front of everything else
             while (marks.arraySize < FirstSpecialMark || IsSpecial(marks, OrangeMark) || IsSpecial(marks, GreenMark))
             {
                 int at = marks.arraySize == 0 || IsSpecial(marks, OrangeMark) ? OrangeMark : GreenMark;
@@ -190,7 +174,6 @@ namespace MagicSchool.Editor
             _selectedMark = Mathf.Clamp(_selectedMark, 0, marks.arraySize - 1);
         }
 
-        // ======================================== what a mark is ========================================
         private static string SpecialOf(SerializedProperty marks, int mark)
             => marks.GetArrayElementAtIndex(mark).FindPropertyRelative("special").stringValue;
 
@@ -204,7 +187,6 @@ namespace MagicSchool.Editor
             return $"Unused mark {mark + 1}";
         }
 
-        // what a marked hex says on it for this mark: O, G, or the special mark's name
         private static string ShortNameOf(SerializedProperty marks, int mark)
         {
             if (IsSpecial(marks, mark)) return SpecialOf(marks, mark);
@@ -213,11 +195,9 @@ namespace MagicSchool.Editor
             return "?";
         }
 
-        // ======================================== which hex belongs to which mark ========================================
         private static SerializedProperty HexesOf(SerializedProperty marks, int mark)
             => marks.GetArrayElementAtIndex(mark).FindPropertyRelative("hexes");
 
-        // Every mark that holds this hex: a hex can be orange, green and white at once.
         private static List<int> MarksHolding(SerializedProperty marks, Vector2Int offset)
             => Enumerable.Range(0, marks.arraySize).Where(i => IndexOfHex(HexesOf(marks, i), offset) >= 0).ToList();
 
@@ -231,8 +211,6 @@ namespace MagicSchool.Editor
             return -1;
         }
 
-        // Give the hex to the selected mark, or take it away when that mark already has it. The other marks keep theirs.
-        // A new hex is a wearing hex when another mark already has it as one, so the hex stays one or the other.
         private void Toggle(SerializedProperty marks, Vector2Int offset)
         {
             SerializedProperty selected = HexesOf(marks, _selectedMark);
@@ -252,7 +230,6 @@ namespace MagicSchool.Editor
             added.FindPropertyRelative("isWearing").boolValue = isWearing;
         }
 
-        // Is this hex a wearing hex? It is one for every mark holding it, or for none.
         private static bool IsWearing(SerializedProperty marks, Vector2Int offset)
             => MarksHolding(marks, offset).Any(mark => WearingOf(marks, mark, offset).boolValue);
 
@@ -261,7 +238,6 @@ namespace MagicSchool.Editor
             foreach (int mark in MarksHolding(marks, offset)) WearingOf(marks, mark, offset).boolValue = isWearing;
         }
 
-        // The "isWearing" of this hex of the mark. Only called for a mark that holds the hex.
         private static SerializedProperty WearingOf(SerializedProperty marks, int mark, Vector2Int offset)
         {
             SerializedProperty hexes = HexesOf(marks, mark);

@@ -14,7 +14,6 @@ namespace MagicSchool.Editor
     {
         public static bool CanAdd => EditorApplication.isPlaying && GameManager.Instance != null;
 
-        // say why, rather than fail with no explanation
         public static bool Add(HeroDataSO hero)
         {
             if (!CanAdd)
@@ -29,7 +28,6 @@ namespace MagicSchool.Editor
             return false;
         }
 
-        // item: an ItemDataSO - Editor cannot name the type (it is in Items), so GameManager checks it
         public static bool AddItem(ScriptableObject item)
         {
             if (!CanAdd)

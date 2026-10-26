@@ -9,6 +9,9 @@ namespace MagicSchool.Core.Benchmark
     /// no frame cap, no vSync, and nothing drawn - then put it all back.
     /// Shared by HeroBenchmark and TeamCompBenchmark.
     /// </summary>
+    // Drawing is most of a frame's cost and nobody is watching, so cameras, UI and the heroes' world-space bars are
+    // off. Restore is also called when a run is cut short (Play mode stopped mid-way), so the clock is never left
+    // fixed or the screen dark.
     internal class BenchmarkSpeed
     {
         private float _savedTimeScale, _savedCaptureDelta;
@@ -31,7 +34,6 @@ namespace MagicSchool.Core.Benchmark
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = -1;
 
-            // drawing is most of a frame's cost, and nobody is watching
             foreach (Camera cam in Camera.allCameras)
             {
                 if (!cam.enabled) continue;
@@ -46,13 +48,11 @@ namespace MagicSchool.Core.Benchmark
                 doc.rootVisualElement.style.display = DisplayStyle.None;
             }
 
-            // the heroes' world-space bars update every frame even unseen
             MagicSchool.Combat.Heroes.Hero.IsDrawn = false;
 
             _fast = true;
         }
 
-        // also called when a run is cut short (Play mode stopped mid-way), so the clock is never left fixed or the screen dark
         public void GoNormal()
         {
             if (!_fast) return;

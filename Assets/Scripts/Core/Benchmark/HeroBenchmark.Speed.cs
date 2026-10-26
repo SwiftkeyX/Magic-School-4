@@ -8,7 +8,6 @@ namespace MagicSchool.Core.Benchmark
         private void GoFast() => _speed.GoFast(TimeStep);
         private void GoNormal() => _speed.GoNormal();
 
-        // a run cut short (Play mode stopped mid-way) must not leave the clock fixed or the screen dark
         private void OnDestroy() => GoNormal();
     }
 }

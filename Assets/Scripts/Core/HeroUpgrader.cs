@@ -16,6 +16,9 @@ namespace MagicSchool.Core
     /// The other copy goes; its item moves to the one that stays, or drops to the loose row if that one already wears one.
     /// (See HeroStar for what a star changes)
     /// </summary>
+    // The board is listed first, so the copy standing on the board is the one kept. A combine can make a new pair (two
+    // 2-stars), so it looks again after each. The other copy's item goes to the keeper if it has room, else to the
+    // loose row.
     public class HeroUpgrader
     {
         private const TeamEnum PlayerTeam = TeamEnum.Blue;
@@ -31,14 +34,10 @@ namespace MagicSchool.Core
             _spareBench = spareBench;
         }
 
-        // Combine every pair there is, until none is left. Returns whether anything combined.
-        // includeBoard false = mid-fight: the board's heroes are fighting, so only the benches combine.
-        // They combine with the board once the next Preparation starts.
         public bool CombineAll(bool includeBoard)
         {
             bool anyCombined = false;
 
-            // a combine can make a new pair (two 2-stars), so look again after each one
             while (TryCombineOnePair(includeBoard)) anyCombined = true;
 
             return anyCombined;
@@ -53,7 +52,6 @@ namespace MagicSchool.Core
 
             if (pair == null) return false;
 
-            // Owned lists the board first, so a hero standing on the board is the one that stays
             Hero keeper = pair.First();
             Hero copy = pair.Skip(1).First();
 
@@ -63,7 +61,6 @@ namespace MagicSchool.Core
 
         private void Combine(Hero keeper, Hero copy)
         {
-            // the copy's item: worn by the keeper if there's room, otherwise back to the loose row
             foreach (IEquipment item in copy.WornItems.ToList())
             {
                 copy.TryTakeOff(item);
@@ -77,7 +74,6 @@ namespace MagicSchool.Core
             Debug.Log($"[Upgrade] {keeper.DisplayName}");
         }
 
-        // the player's heroes: the board first, then the bench, then the spare bench
         private IEnumerable<Hero> Owned(bool includeBoard)
         {
             IEnumerable<Hero> onBoard = includeBoard
@@ -90,7 +86,6 @@ namespace MagicSchool.Core
             return onBoard.Concat(onBenches).Where(hero => hero.IsInitialized);
         }
 
-        // take the copy off whatever it stands on and delete it (the same as selling, with no gold)
         private static void Remove(Hero hero)
         {
             IPlacement placement = hero.CurrentPlacement;

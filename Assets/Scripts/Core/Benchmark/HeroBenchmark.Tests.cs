@@ -10,13 +10,10 @@ namespace MagicSchool.Core.Benchmark
     // the benchmark was separated into 3 tests. (read HeroBenchmark.cs)
     public partial class HeroBenchmark
     {
-        // Damage test = a hero vs a dummy, for 30s. DPS at 15s and 30s
         private IEnumerator DamageTest(GameManager game, List<Lane> lanes, HeroDataSO dummy, int maxMarks)
         {
-            // spawn a tested hero and dummy
             yield return Spawn(lanes, dummy, maxMarks, DummyHex);
 
-            // start battle on every lane
             List<Lane> live = lanes.Where(l => l.Result.Error == null).ToList();
             BeginFight(game, live);
 
@@ -24,14 +21,11 @@ namespace MagicSchool.Core.Benchmark
             bool sampledShort = false;
             bool sampledLong = false;
 
-            // testing until the record is finished
             float totalTime = 0f;
             while ((sampledShort && sampledLong) == false)
             {
-                // don't let dummy die
                 foreach (Lane lane in live) KeepAlive(lane);
 
-                // record at 15 sec mark
                 if (!sampledShort && totalTime >= ShortSeconds)
                 {
                     foreach (Lane lane in live)
@@ -42,7 +36,6 @@ namespace MagicSchool.Core.Benchmark
                     sampledShort = true;
                 }
 
-                // record another time at 30 sec mark
                 if (!sampledLong && totalTime >= LongSeconds)
                 {
                     foreach (Lane lane in live)
@@ -63,13 +56,10 @@ namespace MagicSchool.Core.Benchmark
             EndFight(lanes);
         }
 
-        // AoE test = a hero vs a cluster of 6 dummies. 
         private IEnumerator AoeTest(GameManager game, List<Lane> lanes, HeroDataSO dummy, int maxMarks)
         {
-            // spawn a tested hero and a cluster of dummies
             yield return Spawn(lanes, dummy, maxMarks, ClusterHexes);
 
-            // start battle on every lane
             List<Lane> live = lanes.Where(l => l.Result.Error == null).ToList();
             BeginFight(game, live);
 
@@ -77,14 +67,11 @@ namespace MagicSchool.Core.Benchmark
             bool sampledShort = false;
             bool sampledLong = false;
 
-            // testing until the record is finished
             float totalTime = 0f;
             while ((sampledShort && sampledLong) == false)
             {
-                // don't let any dummy die
                 foreach (Lane lane in live) KeepAlive(lane);
 
-                // record at 15 sec mark
                 if (!sampledShort && totalTime >= ShortSeconds)
                 {
                     foreach (Lane lane in live)
@@ -95,7 +82,6 @@ namespace MagicSchool.Core.Benchmark
                     sampledShort = true;
                 }
 
-                // record another time at 30 sec mark 
                 if (!sampledLong && totalTime >= LongSeconds)
                 {
                     foreach (Lane lane in live)
@@ -114,35 +100,27 @@ namespace MagicSchool.Core.Benchmark
             EndFight(lanes);
         }
 
-        // tank test = a hero vs a dummy, while a pressure continuously damage a tested hero, until it dies or 30s pass.
         private IEnumerator TankTest(GameManager game, List<Lane> lanes, HeroDataSO dummy, int maxMarks)
         {
-            // spawn a tested hero and dummy
             yield return Spawn(lanes, dummy, maxMarks, DummyHex);
 
-            // start battle on every lane
             List<Lane> live = lanes.Where(l => l.Result.Error == null).ToList();
             BeginFight(game, live);
 
             float start = Time.time;
             bool sampled = false;
 
-            // ...
             foreach (Lane lane in live) lane.NextHit = PressureInterval;
 
-            // testing until the record is finished - every hero has died, or 30 sec has passed
             float totalTime = 0f;
             while (sampled == false)
             {
                 foreach (Lane lane in live)
                 {
-                    // tested hero is dead, continue 
                     if (lane.Hero.CurrentHP <= 0) continue;
 
-                    // don't let dummy die
                     KeepAlive(lane);
 
-                    // pressure hit the tested hero
                     while (totalTime >= lane.NextHit && lane.Hero.CurrentHP > 0)
                     {
                         lane.Hero.TakeDamage(PressurePerHit, lane.Dummy, DamageKindEnum.AutoAttack);
@@ -150,7 +128,6 @@ namespace MagicSchool.Core.Benchmark
                     }
                 }
 
-                // record once every hero is dead, or at 30 sec mark
                 bool allDead = live.All(l => l.Hero.CurrentHP <= 0);
                 if (allDead || totalTime >= LongSeconds)
                 {
