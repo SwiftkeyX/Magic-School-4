@@ -27,14 +27,17 @@ over `Combat`. Player team only: an enemy's marks do nothing.
   `AlignBonuses` to `Hero.OnDamageDealt` and cut on the next `Refresh`. Shield Knight has it at 10% on his N/S mark.
 - `AlignHex.isWearing` makes a hex a wearing hex (see [items.md](items.md)).
 
-## Mark colours are fixed by position
+## Mark colours
 
-A pattern's `marks` are:
+Each mark's colour is its `kind` (`AlignMarkKindEnum`, `AligningHex.ColourOf`):
 
-- `[0]` **orange**: pays only its self bonus (per ally on it, per empty hex with `selfWhenEmpty`, or the
+- **orange**: pays only its self bonus (per ally on it, per empty hex with `selfWhenEmpty`, or the
   `healFromAllyDamage` link);
-- `[1]` **green**: pays only its ally bonus;
-- then the **white** special marks, which pay nobody. A third ordinary mark does nothing (`AligningHex.ColourOf`).
+- **green**: pays only its ally bonus;
+- **special** (white): pays nobody; the skill reads who stands there. `Unused`: a third ordinary mark, does nothing.
+
+The Align Editor keeps orange first, green second, then the special marks, and stamps every mark's kind from that
+position (`StampKinds`). A mark with no kind (`Unset`, saved before the field) reads by the same position rule.
 
 One hex can be in several marks (Elf's and Shield Knight's are orange and green both). The board draws a hex in several
 as rings (`Hex.SetColors`: ring sprites made on demand, order 0 nudged toward the camera so they stay under heroes at

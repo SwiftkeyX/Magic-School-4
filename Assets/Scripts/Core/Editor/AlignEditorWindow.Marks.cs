@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using MagicSchool.Combat.Align;
+using MagicSchool.Combat.Heroes;
 
 namespace MagicSchool.Editor
 {
@@ -172,6 +173,40 @@ namespace MagicSchool.Editor
             }
 
             _selectedMark = Mathf.Clamp(_selectedMark, 0, marks.arraySize - 1);
+        }
+
+        // Every mark's kind from where it sits, which AddMissingMarks keeps: orange first, green second, special marks
+        // after. Writes only what differs, so looking at a hero whose kinds are already right changes nothing.
+        internal static void StampKinds(SerializedProperty patterns)
+        {
+            for (int p = 0; p < patterns.arraySize; p++)
+            {
+                SerializedProperty marks = MarksOf(patterns, p);
+                for (int i = 0; i < marks.arraySize; i++)
+                {
+                    int kind = (int)(IsSpecial(marks, i) ? AlignMarkKindEnum.Special
+                                   : i == OrangeMark ? AlignMarkKindEnum.Orange
+                                   : i == GreenMark ? AlignMarkKindEnum.Green
+                                   : AlignMarkKindEnum.Unused);
+                    SerializedProperty stored = marks.GetArrayElementAtIndex(i).FindPropertyRelative(nameof(AlignMark.kind));
+                    if (stored.intValue != kind) stored.intValue = kind;
+                }
+            }
+        }
+
+        // One-off: stamp the kind on every mark of every hero, the colour its position already gave it.
+        internal static int StampKindsOnAllHeroes()
+        {
+            int changed = 0;
+            foreach (string guid in AssetDatabase.FindAssets("t:HeroDataSO"))
+            {
+                var hero = AssetDatabase.LoadAssetAtPath<HeroDataSO>(AssetDatabase.GUIDToAssetPath(guid));
+                var serialized = new SerializedObject(hero);
+                StampKinds(serialized.FindProperty("_alignPatterns"));
+                if (serialized.ApplyModifiedPropertiesWithoutUndo()) changed++;
+            }
+            AssetDatabase.SaveAssets();
+            return changed;
         }
 
         private static string SpecialOf(SerializedProperty marks, int mark)

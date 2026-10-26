@@ -10,9 +10,9 @@ namespace MagicSchool.Combat.Align
     /// </summary>
 
     // Get hexes that was marked by aligning mechanic
-    // A pattern's marks are fixed by position: [0] orange pays the hero itself, [1] green pays the ally standing
-    // there, then the special marks (white) pay nobody; a third ordinary mark is not used. A hex can be in several
-    // marks: an ally there gets the green bonus and pays the hero the orange one (Elf: N and S are both).
+    // A mark's colour is its kind: orange pays the hero itself, green pays the ally standing there, a special mark
+    // (white) pays nobody. A mark saved before kinds existed reads by position (See KindByPosition). A hex can be in
+    // several marks: an ally there gets the green bonus and pays the hero the orange one (Elf: N and S are both).
     public static class AligningHex
     {
         public const int Orange = 0;
@@ -36,10 +36,22 @@ namespace MagicSchool.Combat.Align
 
         public static int ColourOf(IReadOnlyList<AlignMark> marks, int index)
         {
-            if (marks[index].IsSpecial) return Special;
-            if (index == 0) return Orange;
-            if (index == 1) return Green;
-            return None;
+            AlignMarkKindEnum kind = marks[index].kind != AlignMarkKindEnum.Unset ? marks[index].kind : KindByPosition(marks, index);
+            switch (kind)
+            {
+                case AlignMarkKindEnum.Orange: return Orange;
+                case AlignMarkKindEnum.Green: return Green;
+                case AlignMarkKindEnum.Special: return Special;
+                default: return None;
+            }
+        }
+
+        public static AlignMarkKindEnum KindByPosition(IReadOnlyList<AlignMark> marks, int index)
+        {
+            if (marks[index].IsSpecial) return AlignMarkKindEnum.Special;
+            if (index == 0) return AlignMarkKindEnum.Orange;
+            if (index == 1) return AlignMarkKindEnum.Green;
+            return AlignMarkKindEnum.Unused;
         }
 
         public static List<Hex> WearingHexes(Hero giver, Hex standingOn)

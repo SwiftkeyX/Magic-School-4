@@ -147,13 +147,20 @@ singleton is only used from where it is allowed. So the split is by job, not by 
 - [x] `Scaled(×n)` replaces the `AmplifiedBy(_ => x - 1f)` trick (Shield Knight, Ettin). `Tune(castTime: () => ...)`
   and `HealSkillEffect.LastingFor(() => ...)` are read when played, so Shield Knight no longer edits built parts at
   cast time. Verified: tests; Hero Benchmark numbers for Shield Knight and Ettin identical to before.
+  Team Comp Run Selected on the two comps (`teamcomp-2026-10-26_18-21-06`): same stages won as the baseline.
   Follow-up: Dwarf still resizes its blast tuning at each cast.
 - [x] `Tuned()` keys its numbers by caller (file + member), so a read no longer builds a string.
 
 ## Phase 11 - AlignMark colour as a field (M, touches assets) - last
 
-- [] An explicit `kind` (Orange / Green / Special) instead of meaning-by-list-position, migrated in `OnValidate`.
-  Diff every `HeroDataSO` afterwards.
+- [x] `AlignMark.kind` (`AlignMarkKindEnum`: Unset, Orange, Green, Special, Unused) is what `AligningHex.ColourOf`
+  reads; Unset falls back to the old position rule. The Align Editor stamps every mark's kind from its position
+  (`StampKinds`), and `StampKindsOnAllHeroes` migrated the 26 heroes once (done from the Editor rather than
+  `OnValidate`, so it runs once and the diff can be read).
+- [x] Diff: every mark gains `kind:` (101 orange, 101 green, 48 special). Unity also wrote fields the code already had
+  but older assets never saved, all at their defaults (`perOwnerAP: 0`, `_forgeTable: []`), and dropped an empty
+  `_forgedItems` the code no longer has. Every hero's colours read the same before and after (compared in the Editor).
+- [x] Verified: tests; Team Comp Run Selected on two comps (`teamcomp-2026-10-26_18-29-44`): same stages won.
 
 ---
 

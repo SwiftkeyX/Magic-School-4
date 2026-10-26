@@ -125,6 +125,7 @@ namespace MagicSchool.Editor
             SerializedProperty marks = MarksOf(patterns, _selectedPattern);
             AddMissingMarks(marks);
             MatchBonusesToFirstPattern(patterns);
+            StampKinds(patterns);
 
             EditorGUILayout.BeginVertical();
             DrawHeader();

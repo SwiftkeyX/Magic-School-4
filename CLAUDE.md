@@ -90,8 +90,9 @@ Rules no single file shows:
 - A new hero needs: `SkillIdEnum` entry, `SkillLibrary` entry, the skill class, a `HeroDataSO`, a `BaseHero` variant,
   and `GameManager._shopRoster` in `Scenes/Board.unity` if sold. A new item: `ItemIdEnum`, `ItemLibrary`, a
   `Library/Build/` file, an `ItemDataSO`. `RegistryTests` catches a missed registration.
-- Mark colours are fixed by list position: `marks[0]` orange (self bonus only), `[1]` green (ally bonus only), then
-  special (white). A third ordinary mark does nothing.
+- A mark's colour is its `AlignMark.kind`: orange (self bonus only), green (ally bonus only), special (white, pays
+  nobody). The Align Editor stamps it from position - orange first, green second, special after - so keep that order
+  when editing marks by hand. An unset kind reads by position.
 - Combat is started by the space bar (`PlayerController.TryStartCombat`); a diagnostic calls
   `GameManager.Instance.StartCombat()` itself.
 
