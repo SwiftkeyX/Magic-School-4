@@ -11,7 +11,7 @@ over `Combat`. Player team only: an enemy's marks do nothing.
   by hand. A pattern need not be the one before it turned; it can mark other hexes, but its bonuses are the hero's
   (orange and green pay the same in every pattern; the Align Editor copies an edit to every pattern).
 - In Preparation, right-clicking while holding a player hero turns it to its next pattern, and does not inspect
-  (`GameManager.RotateAlign` -> `Hero.RotateAlignMark`, then aligning is refreshed). A hero with one pattern cannot turn.
+  (`PlayerActions.RotateAlign` -> `Hero.RotateAlignMark`, then aligning is refreshed). A hero with one pattern cannot turn.
   The pattern lives on the `Hero`, so it is kept between stages, and team comps save it (`HeroPlacement.alignPattern`).
 - One `AlignMark` is one bonus and every hex that gives it: `hexes`, a list of `AlignHex` - direction, and `distance`
   (hexes away in a straight line, 1 = adjacent; heroes between do not block it; a missing hex on the way ends it). A hex
@@ -54,7 +54,7 @@ What each skill does with its mark is in [skills.md](skills.md).
 ## Working it out
 
 `AlignBonuses.Refresh` (owned by `GameManager`, `RefreshAligning`) takes back every bonus it gave and gives them again for
-where everyone stands now: after every `GameManager.MoveHero` and `Sell`, when a stage opens, and once more in
+where everyone stands now: after every `PlayerActions.MoveHero` and `Sell`, when a stage opens, and once more in
 `CombatState.OnEnter`, so the inspector's numbers follow the placing. The bonuses are ordinary rest-of-fight modifiers,
 fixed by where everyone stood when the fight started; `Aligning` only answers which hexes are marked.
 

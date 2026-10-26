@@ -41,14 +41,14 @@ fight. The roster (`_shopRoster`, `_shopItems`) and numbers are on `GameManager`
 ## Buying and selling by drag
 
 - **Hero slot**: pressing it hands the player the hero itself, unbought (`IShop.TryPickUp` -> `Shop.OnHeroPickedUp` ->
-  `GameManager.OnShopHeroPickedUp`, built by `HeroSpawner.SpawnUnboughtHero`: on no placement, so untracked, no aligning,
+  `PlayerActions.OnShopHeroPickedUp`, built by `HeroSpawner.SpawnUnboughtHero`: on no placement, so untracked, no aligning,
   no combine). `Dragging` holds it like a hero off the board, so `AlignHighlight` shows its marks. Putting it down buys
-  it (`GameManager.BuyShopHero` -> `Shop.TryBuyPickedUp`): on the free placement under the pointer if it may stand
+  it (`PlayerActions.BuyShopHero` -> `Shop.TryBuyPickedUp`): on the free placement under the pointer if it may stand
   there (mid-fight a bench slot only), else the first free bench slot; then copies combine. Dropping it back on the
   shop, Esc, or a failed buy (re-rolled, no gold, bench full) destroys it (`ReturnShopHero`) and nothing is paid.
 - **Item slot**: still a UI ghost. Drag it outside the shop panel to buy, drop it back inside to cancel
   (`ShopPanelController.ResolveDrop`).
-- **Selling**: drop a held world-space hero onto the shop (`Dragging.DropHero` -> `GameManager.Sell` -> `Seller`), in
+- **Selling**: drop a held world-space hero onto the shop (`Dragging.DropHero` -> `PlayerActions.Sell` -> `Seller`), in
   Preparation only. A loose item sells for its full price, in any phase. Because the two drags live in different
   coordinate spaces and `Player` may not reference `UI`, the shop answers `ISellZone.IsInSellBoundary(screenPosition)`
   rather than handing out its rect; it owns the screen-to-panel conversion, y-flip included. A drop only sells when no

@@ -43,7 +43,7 @@ namespace MagicSchool.Core.States
 
         protected override void CheckSwitchState()
         {
-            if (!_game.ConsumeContinueRequest()) return;
+            if (!_game.Requests.ConsumeContinue()) return;
 
             bool playerWon = _game.Winner == TeamEnum.Blue;
             bool runCleared = _game.IsRunCleared;

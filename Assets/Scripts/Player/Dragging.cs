@@ -66,7 +66,7 @@ namespace MagicSchool.Player
             _team = team;
             _teamSize = teamSize;
 
-            GameManager.Instance.OnShopHeroPickedUp += HoldFromShop;
+            GameManager.Instance.Actions.OnShopHeroPickedUp += HoldFromShop;
         }
 
         public void Tick()
@@ -159,7 +159,7 @@ namespace MagicSchool.Player
             {
                 if (!IsPreparation) return null;
 
-                GameManager.Instance.TakeItemOffHero(wearer, item);
+                GameManager.Instance.Actions.TakeItemOffHero(wearer, item);
                 _itemWornBy = wearer;
             }
 
@@ -167,7 +167,7 @@ namespace MagicSchool.Player
             {
                 if (!IsPreparation) return null;
 
-                GameManager.Instance.TakeItemOffHex(item);
+                GameManager.Instance.Actions.TakeItemOffHex(item);
                 _itemLayOn = lyingOn;
             }
 
@@ -196,7 +196,7 @@ namespace MagicSchool.Player
         {
             if (IsHolding || UsedPressThisFrame)
             {
-                GameManager.Instance.ReturnShopHero(hero);
+                GameManager.Instance.Actions.ReturnShopHero(hero);
                 return;
             }
 
@@ -247,7 +247,7 @@ namespace MagicSchool.Player
 
             if (targetPlacement == null && IsPointerOverSellZone())
             {
-                GameManager.Instance.Sell(hero);
+                GameManager.Instance.Actions.Sell(hero);
                 Release();
                 return;
             }
@@ -264,7 +264,7 @@ namespace MagicSchool.Player
 
             if (isOverShop)
             {
-                GameManager.Instance.ReturnShopHero(hero);
+                GameManager.Instance.Actions.ReturnShopHero(hero);
                 return;
             }
 
@@ -272,7 +272,7 @@ namespace MagicSchool.Player
                               && (IsPreparation || target is BenchSlot)
                               && ValidatePlacement(target, hero);
 
-            GameManager.Instance.BuyShopHero(hero, slot, canStandThere ? target : null);
+            GameManager.Instance.Actions.BuyShopHero(hero, slot, canStandThere ? target : null);
         }
 
         private void PlaceAndSwap(Hero holded, IPlacement targetPlacement)
@@ -280,11 +280,11 @@ namespace MagicSchool.Player
             Hero previousOwner = OccupantOf(targetPlacement);
             IPlacement myPreviousPlacement = holded.CurrentPlacement;
 
-            GameManager.Instance.MoveHero(holded, targetPlacement);
+            GameManager.Instance.Actions.MoveHero(holded, targetPlacement);
 
             if (previousOwner == null || previousOwner == holded || myPreviousPlacement == null) return;
 
-            GameManager.Instance.MoveHero(previousOwner, myPreviousPlacement);
+            GameManager.Instance.Actions.MoveHero(previousOwner, myPreviousPlacement);
         }
 
         private void DropItem(Item item, Vector3 worldPos)
@@ -293,7 +293,7 @@ namespace MagicSchool.Player
 
             if (IsPointerOverSellZone())
             {
-                GameManager.Instance.Sell(item);
+                GameManager.Instance.Actions.Sell(item);
                 return;
             }
 
@@ -303,13 +303,13 @@ namespace MagicSchool.Player
             {
                 if (hero == null || hero.Team != _team) return;
 
-                GameManager.Instance.WearItem(hero, item);
+                GameManager.Instance.Actions.WearItem(hero, item);
                 return;
             }
 
             if (Picker.At<Hex>(worldPos) is Hex hex && hex.IsInDeployZone && _board.WhoReservedThisHex(hex) == null)
             {
-                GameManager.Instance.PutItemOnHex(item, hex);
+                GameManager.Instance.Actions.PutItemOnHex(item, hex);
             }
         }
 
@@ -317,7 +317,7 @@ namespace MagicSchool.Player
         {
             if (IsFromShop)
             {
-                GameManager.Instance.ReturnShopHero((Hero)_held);
+                GameManager.Instance.Actions.ReturnShopHero((Hero)_held);
                 Release();
                 return;
             }
@@ -336,8 +336,8 @@ namespace MagicSchool.Player
 
         private void PutItemBack(Item item)
         {
-            bool isBack = _itemWornBy != null ? GameManager.Instance.WearItem(_itemWornBy, item)
-                        : _itemLayOn != null && GameManager.Instance.PutItemOnHex(item, _itemLayOn);
+            bool isBack = _itemWornBy != null ? GameManager.Instance.Actions.WearItem(_itemWornBy, item)
+                        : _itemLayOn != null && GameManager.Instance.Actions.PutItemOnHex(item, _itemLayOn);
 
             if (!isBack) item.transform.position = _itemLooseAt;
         }

@@ -166,7 +166,7 @@ namespace MagicSchool.DevTools
                 (data, hex) => _spawn(data, PlayerTeam, hex, board),
                 ItemDrop.MoveToFreeSpot).Count;
 
-            _game.RefreshAligning();
+            _game.Actions.RefreshAligning();
             return placed;
         }
 
@@ -197,7 +197,7 @@ namespace MagicSchool.DevTools
                 placed++;
             }
 
-            _game.RefreshAligning();
+            _game.Actions.RefreshAligning();
             return placed;
         }
 

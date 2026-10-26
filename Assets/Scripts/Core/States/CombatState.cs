@@ -34,7 +34,7 @@ namespace MagicSchool.Core.States
 
         protected override void CheckSwitchState()
         {
-            if (_game.ConsumeSkipStageRequest())
+            if (_game.Requests.ConsumeSkipStage())
             {
                 _game.Board.ClearTeam(TeamEnum.Red);
                 _game.SetWinner(TeamEnum.Blue);

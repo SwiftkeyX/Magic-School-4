@@ -14,16 +14,10 @@ using MagicSchool.Skills;
 
 namespace MagicSchool.Core
 {
-    // The composition root: builds every service in Awake and wires the panels through Contracts interfaces, and owns
-    // the phase, the stage and the player's actions.
-    // Every action that moves a hero or an item, wears or takes one off, sells, or turns a pattern works aligning out
-    // again: standing and wearing hexes are what the bonuses come from. Turning a pattern is Preparation only, since
-    // bonuses are fixed by where everyone stood when the fight started.
-    // Combining: only Preparation touches the board; mid-fight the benches combine alone and meet the board at the
-    // next Preparation. A combine rebuilds stats, which drops aligning bonuses, so they are given again. A hero
-    // spawned on a hex (a seed, a team comp, an enemy) never starts one.
-    // Only a fight pauses; CombatState unpauses as it ends, so no other phase is left paused. JumpToStage's flag is
-    // not one of ClearPendingRequests' requests, because Preparation clears those first.
+    // The composition root: builds every service in Awake and wires the panels through Contracts interfaces. It holds
+    // the run (stage, winner, team size), speed and pause; what the player does is PlayerActions (Actions), what they
+    // asked to happen next is PhaseRequests (Requests). Only a fight pauses; CombatState unpauses as it ends, so no
+    // other phase is left paused.
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
@@ -82,11 +76,6 @@ namespace MagicSchool.Core
         private IScoreboardPanel _scoreboard;
         private int _stageIndex;
         private int _heroLimit;
-        private bool _startCombatRequested;
-        private bool _continueRequested;
-        private bool _restartRequested;
-        private bool _skipStageRequested;
-        private bool _keepShopOnce;
 
         public GamePhaseEnum Phase => _stateMachine == null ? GamePhaseEnum.Preparation : _stateMachine.CurrentType;
         internal TeamEnum? Winner { get; private set; }
@@ -101,6 +90,8 @@ namespace MagicSchool.Core
         public IStageEditing StageEditor => _stageEditMode ? _stageEditor : null;
         internal void RegisterStageEditor(IStageEditing editor) => _stageEditor = editor;
         internal HeroSpawner Spawner => _heroSpawner;
+        public PlayerActions Actions { get; private set; }
+        public PhaseRequests Requests { get; private set; }
         internal bool IsRunCleared => Winner == TeamEnum.Blue && _stageIndex + 1 >= StageCount;
 
         internal BattlePlacementSO GetStage(int index) => HasStages ? _stages[index] : _currentStage;
@@ -124,105 +115,8 @@ namespace MagicSchool.Core
         internal IRewardPanel Reward => _reward;
         internal IScoreboardPanel Scoreboard => _scoreboard;
         internal void ChangeState(GamePhaseEnum next) => _stateMachine.ChangeState(next);
-        public void MoveHero(ICombatant hero, IPlacement placement)
-        {
-            _heroMover.MoveThisHeroTo(hero, placement);
-            RefreshAligning();
-        }
 
-        public void Sell(ISellable sellable)
-        {
-            if (sellable is ICombatant && Phase != GamePhaseEnum.Preparation) return;
-
-            _seller.Sell(sellable);
-            RefreshAligning();
-        }
-
-        public bool AddHeroToBench(HeroDataSO data) => data != null && _bench.SpawnHeroOnBench(data);
-
-        public bool AddItemToLooseRow(ScriptableObject data) => data is ItemDataSO item && ItemDrop.Spawn(item) != null;
-
-        public bool PutItemOnHex(IEquipment item, Hex hex)
-        {
-            if (!_board.Items.Place(item, hex)) return false;
-
-            RefreshAligning();
-            return true;
-        }
-
-        public void TakeItemOffHex(IEquipment item)
-        {
-            if (_board.Items.Remove(item)) RefreshAligning();
-        }
-
-        public bool WearItem(Hero hero, IEquipment item)
-        {
-            if (!hero.TryWear(item)) return false;
-
-            RefreshAligning();
-            return true;
-        }
-
-        public void TakeItemOffHero(Hero hero, IEquipment item)
-        {
-            if (hero.TryTakeOff(item)) RefreshAligning();
-        }
-
-        public event System.Action<Hero, int> OnShopHeroPickedUp;
-
-        private void HandOutShopHero(int slot, HeroDataSO data)
-            => OnShopHeroPickedUp?.Invoke(_heroSpawner.SpawnUnboughtHero(data, _board), slot);
-
-        public bool BuyShopHero(Hero hero, int slot, IPlacement placement)
-        {
-            placement ??= _bench.FindFreeSlot();
-            if (placement == null)
-            {
-                Debug.Log("Bench is full - nowhere to put the hero.");
-                ReturnShopHero(hero);
-                return false;
-            }
-
-            if (!_shop.TryBuyPickedUp(slot, hero.Data))
-            {
-                ReturnShopHero(hero);
-                return false;
-            }
-
-            MoveHero(hero, placement);
-
-            CombineCopies();
-            return true;
-        }
-
-        public void ReturnShopHero(Hero hero)
-        {
-            if (hero != null) Destroy(hero.gameObject);
-        }
-
-        public bool RotateAlign(Hero hero, int step)
-        {
-            if (Phase != GamePhaseEnum.Preparation || hero == null || hero.Team != TeamEnum.Blue) return false;
-            if (!hero.RotateAlignMark(step)) return false;
-
-            RefreshAligning();
-            return true;
-        }
-
-        internal void RefreshAligning() => _alignBonuses.Refresh(_board, TeamEnum.Blue);
         internal AlignBonuses Aligning => _alignBonuses;
-
-        internal void CombineCopies()
-        {
-            bool isPreparation = Phase == GamePhaseEnum.Preparation;
-
-            if (_upgrader.CombineAll(includeBoard: isPreparation) && isPreparation) RefreshAligning();
-        }
-
-        private void CombineIfBenched(Hero hero)
-        {
-            if (hero.Team == TeamEnum.Blue && hero.CurrentPlacement is BenchSlot) CombineCopies();
-        }
 
         void Awake()
         {
@@ -240,14 +134,14 @@ namespace MagicSchool.Core
 
             _heroSpawner = new HeroSpawner(_heroMover, _templateActions, _recorder, _bench, _seed);
             _upgrader = new HeroUpgrader(_board, _bench, _spareBench);
-            _heroSpawner.OnSpawned += CombineIfBenched;
             _wallet = new Wallet(_startingGold);
             _seller = new Seller(_wallet);
             _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopOdds, () => StageNumber, _shopSlots, _refreshCost,
                              (data, isStillOffered) => new HeroPreview(data, SkillLibrary.Resolve(data.SkillId, _templateActions), isStillOffered));
-            _shop.OnHeroPickedUp += HandOutShopHero;
             _heroFormation = new HeroFormation(_heroMover, _spareBench, _bench);
             _heroLimit = _startingHeroLimit;
+            Actions = new PlayerActions(() => Phase, _board, _bench, _heroMover, _seller, _shop, _upgrader, _alignBonuses, _heroSpawner);
+            Requests = new PhaseRequests(() => Phase);
             _stateMachine = new GameStateMachine(this);
 
             MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -284,63 +178,14 @@ namespace MagicSchool.Core
             else if (Phase == GamePhaseEnum.Combat) _hint?.ShowCombat(StageNumber, StageCount);
         }
 
-        public void StartCombat()
-        {
-            if (Phase != GamePhaseEnum.Preparation) return;
-
-            _startCombatRequested = true;
-        }
-
-        public void ContinueFromResult()
-        {
-            if (Phase != GamePhaseEnum.Result) return;
-
-            _continueRequested = true;
-        }
-
-        public void Restart()
-        {
-            _restartRequested = true;
-        }
-
-        public void SkipStage()
-        {
-            if (Phase != GamePhaseEnum.Preparation && Phase != GamePhaseEnum.Combat) return;
-
-            _skipStageRequested = true;
-        }
-
         public bool JumpToStage(BattlePlacementSO stage)
         {
             if (Phase != GamePhaseEnum.Preparation || !IsInRun(stage)) return false;
 
             _heroFormation.Remember(_board.HeroesOnBoard, TeamEnum.Blue);
             SetStageIndex(System.Array.IndexOf(_stages, stage));
-            _keepShopOnce = true;
+            Requests.KeepShopOnce();
             _stateMachine.Reenter();
-            return true;
-        }
-
-        internal bool ConsumeKeepShop() => Consume(ref _keepShopOnce);
-
-        internal bool ConsumeStartCombatRequest() => Consume(ref _startCombatRequested);
-        internal bool ConsumeContinueRequest() => Consume(ref _continueRequested);
-        internal bool ConsumeRestartRequest() => Consume(ref _restartRequested);
-        internal bool ConsumeSkipStageRequest() => Consume(ref _skipStageRequested);
-
-        internal void ClearPendingRequests()
-        {
-            _startCombatRequested = false;
-            _continueRequested = false;
-            _restartRequested = false;
-            _skipStageRequested = false;
-        }
-
-        private static bool Consume(ref bool requested)
-        {
-            if (!requested) return false;
-
-            requested = false;
             return true;
         }
     }

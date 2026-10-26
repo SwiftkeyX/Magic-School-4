@@ -4,7 +4,7 @@
 
 `Combat/Heroes/Hero.cs` is the only MonoBehaviour for a hero, a partial class split by job (`Hero.Board.cs`,
 `Hero.Skill.cs`, `Hero.Targeting.cs`, ...). It delegates to plain C# helpers: `HeroStateMachine`, `FindTarget`,
-`HeroItems`, `HeroSpawn`, `Stat`, `AttackCooldown`. It implements 15 interfaces (see the class declaration) and is built
+`HeroItems`, `HeroSpawn`, `Stat`, `AttackCooldown`. It implements 7 interfaces; everything a skill may ask of it is `ISkillCaster` and is built
 by `HeroSpawner` through `Hero.Init(data, board, team, skill)`. `Hero._SOData` is set at runtime by that call.
 
 ## Fighting
@@ -45,7 +45,7 @@ star higher, up to 3 stars (4 copies). Each star multiplies base HP by 1.8 and b
 range stay. `Stat` is built from `HeroDataSO` + star, so `Hero.Upgrade` rebuilds it, re-grants items and draws the hero
 15% bigger per star; aligning is refreshed after.
 
-A combine starts when a player hero lands on the bench (`HeroSpawner.OnSpawned` -> `GameManager.CombineCopies`) and
+A combine starts when a player hero lands on the bench (`HeroSpawner.OnSpawned` -> `PlayerActions.CombineCopies`) and
 again at `PreparationState.OnEnter`; mid-fight only the benches combine. The copy on the board stays; the other's item
 moves over or drops loose. A hero sells for every copy in it (`Hero.Price`). Heroes spawned on hexes (seeds, team comps)
 never start a combine.

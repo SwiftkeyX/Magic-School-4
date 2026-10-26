@@ -9,7 +9,7 @@ Other windows: Align Editor ([aligning.md](aligning.md)), Skill Tuner ([skills.m
 
 ## Skipping a stage
 
-**N**, in Preparation or mid-fight, wins the stage on the spot (`GameManager.SkipStage`). The enemies are taken off the
+**N**, in Preparation or mid-fight, wins the stage on the spot (`PhaseRequests.SkipStage`). The enemies are taken off the
 board (`ClearTeam`, so no death skill fires) and Blue wins, so the normal result screen, income, team-size growth and
 next stage follow. The team stays where it stood in Preparation (`PreparationState.SkipStage` remembers the formation as
 `CombatState.OnEnter` would); mid-fight it goes back to where the fight started. A skipped round still goes into the
@@ -54,6 +54,6 @@ writes the assets.
   (`HeroPlacement.star`, 0 reads as 1, given back by `Hero.UpgradeTo`) and pattern, and the items on hexes
   (`_itemsOnHexes`). Items are typed `ScriptableObject` because `Combat` cannot name `ItemDataSO`.
 - **Bench**: every hero with a **Bench** button that puts it on the bench for free (Play mode;
-  `Core/Editor/AddHeroMenu.Add` -> `GameManager.AddHeroToBench`).
+  `Core/Editor/AddHeroMenu.Add` -> `PlayerActions.AddHeroToBench`).
 - **Item**: every item in `Data/Items/` with a **Drop** button that puts it on the loose row for free
-  (`AddHeroMenu.AddItem` -> `GameManager.AddItemToLooseRow` -> `ItemDrop.Spawn`).
+  (`AddHeroMenu.AddItem` -> `PlayerActions.AddItemToLooseRow` -> `ItemDrop.Spawn`).

@@ -8,13 +8,13 @@ item's effect is a modifier built in code: `Items/Library/Build/<Item>.cs`, mapp
 
 - Dropping an item on a hero wears it. A hero wears one item (`HeroItems.Capacity`); it gets more by sharing: an ally
   standing on its wearing hex lends it the item that ally wears (only its own, so sharing never chains).
-- Wearing and taking off go through `GameManager.WearItem` / `TakeItemOffHero`, so aligning is worked out again.
+- Wearing and taking off go through `PlayerActions.WearItem` / `TakeItemOffHero`, so aligning is worked out again.
 - Forged items (Blacksmith) are worn past capacity and last one fight, see [skills.md](skills.md).
 
 ## Items on hexes
 
 Aligning's second filler, because five heroes cannot fill many marks. In Preparation an item dropped on a free
-deploy-zone hex lies there (`Dragging.DropItem` -> `GameManager.PutItemOnHex` -> `BattleBoard.Items`, a `HexItems`). It
+deploy-zone hex lies there (`Dragging.DropItem` -> `PlayerActions.PutItemOnHex` -> `BattleBoard.Items`, a `HexItems`). It
 takes the hex (no hero can be placed on it) but does not block walking. A marked hex whose `AlignHex.isWearing` is ticked
 is a wearing hex (per hex, not per bonus; set by right-clicking it in the Align Editor): `AlignBonuses.Refresh` gives the
 mark's owner the modifier of an item lying on one, through the same give-and-take-back list as every other bonus.

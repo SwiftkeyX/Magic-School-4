@@ -123,9 +123,15 @@ Your review: `Hero` has 15 interfaces.
 Your review: split it into several managers. The review found it is a sound composition root at 385 lines, and the
 singleton is only used from where it is allowed. So the split is by job, not by more singletons:
 
-- [] After Phase 4, list what it still does. Move each group of jobs into a plain C# class it builds and holds
-  (likely: team moves / sell / wear / combine / aligning refresh; and stage progression / skip / jump).
-- [] `GameManager` stays the one MonoBehaviour that wires things up at start.
+- [x] `Core/PlayerActions` (move, sell, wear, items on hexes, turn a pattern, buy / put back a shop hero, combine, each
+  followed by aligning) and `Core/PhaseRequests` (start combat, continue, restart, skip, keep the shop once), built and
+  held by GameManager as `Actions` and `Requests`. Callers name the job (`GameManager.Instance.Actions.MoveHero`)
+  rather than GameManager forwarding, which would only be a new pass-through layer. GameManager: 347 -> 199 lines.
+- [x] `GameManager` stays the one MonoBehaviour that wires things up at start, and holds the run (stage, winner, team
+  size), speed and pause.
+- [x] Verified: tests; in Play mode a hero added to the bench and moved onto the board, a fight started, the stage
+  skipped and the next stage reached (Preparation -> Combat -> Result -> Preparation, stage 2), console clean; Team
+  Comp Run Selected on two comps (`teamcomp-2026-10-26_09-47-29`) wins the same stages as the baseline.
 
 ## Phase 9 - Editor typing (S)
 

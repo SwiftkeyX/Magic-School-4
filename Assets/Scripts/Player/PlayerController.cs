@@ -70,13 +70,13 @@ namespace MagicSchool.Player
 
             if (GameManager.Instance.Phase == GamePhaseEnum.Result)
             {
-                GameManager.Instance.ContinueFromResult();
+                GameManager.Instance.Requests.ContinueFromResult();
                 return;
             }
 
             else if (GameManager.Instance.Phase == GamePhaseEnum.Preparation)
             {
-                GameManager.Instance.StartCombat();
+                GameManager.Instance.Requests.StartCombat();
             }
 
             else if (GameManager.Instance.Phase == GamePhaseEnum.Combat)
@@ -105,14 +105,14 @@ namespace MagicSchool.Player
         {
             if (!PlayerInputSystem.RestartPressedThisFrame) return;
 
-            GameManager.Instance.Restart();
+            GameManager.Instance.Requests.Restart();
         }
 
         private void TrySkipStage()
         {
             if (!PlayerInputSystem.SkipStagePressedThisFrame) return;
 
-            GameManager.Instance.SkipStage();
+            GameManager.Instance.Requests.SkipStage();
         }
 
         private bool TryRotateAlign()
@@ -120,7 +120,7 @@ namespace MagicSchool.Player
             Hero held = _dragging?.HeldHero;
             if (!PlayerInputSystem.InspectPressedThisFrame || held == null) return false;
 
-            GameManager.Instance.RotateAlign(held, 1);
+            GameManager.Instance.Actions.RotateAlign(held, 1);
             return true;
         }
 

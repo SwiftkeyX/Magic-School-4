@@ -27,11 +27,11 @@ namespace MagicSchool.Core.States
             _game.Board.SetBattleOn(false);
 
             _game.SetWinner(null);
-            _game.ClearPendingRequests();
+            _game.Requests.ClearPending();
 
             ClearBoard();
 
-            _game.CombineCopies();
+            _game.Actions.CombineCopies();
 
             ReturnItems();
 
@@ -41,9 +41,9 @@ namespace MagicSchool.Core.States
 
             ApplyDeployZone();
 
-            _game.RefreshAligning();
+            _game.Actions.RefreshAligning();
 
-            if (!_game.ConsumeKeepShop()) _game.Shop.Restock();
+            if (!_game.Requests.ConsumeKeepShop()) _game.Shop.Restock();
 
             _game.Hint?.ShowPreparation(_game.StageNumber, _game.StageCount);
             _game.Banner?.SetShown(false);
@@ -51,13 +51,13 @@ namespace MagicSchool.Core.States
 
         protected override void CheckSwitchState()
         {
-            if (_game.ConsumeSkipStageRequest())
+            if (_game.Requests.ConsumeSkipStage())
             {
                 SkipStage();
                 return;
             }
 
-            if (!_game.ConsumeStartCombatRequest()) return;
+            if (!_game.Requests.ConsumeStartCombat()) return;
 
             bool hasHeroesOnBoard = _game.Board.HeroesOnBoard.Any(h => h.Team == TeamEnum.Blue);
             if (!hasHeroesOnBoard)

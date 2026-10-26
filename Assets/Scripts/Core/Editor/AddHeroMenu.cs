@@ -22,7 +22,7 @@ namespace MagicSchool.Editor
                 return false;
             }
 
-            if (GameManager.Instance.AddHeroToBench(hero)) return true;
+            if (GameManager.Instance.Actions.AddHeroToBench(hero)) return true;
 
             Debug.LogWarning($"[AddHero] no free bench slot left for {hero.Name}.");
             return false;
@@ -36,7 +36,7 @@ namespace MagicSchool.Editor
                 return false;
             }
 
-            if (GameManager.Instance.AddItemToLooseRow(item)) return true;
+            if (GameManager.Instance.Actions.AddItemToLooseRow(item)) return true;
 
             Debug.LogWarning($"[AddItem] could not drop {(item != null ? item.name : "nothing")} - is it an ItemDataSO?");
             return false;
