@@ -41,7 +41,7 @@ Tests before touching code, so later phases fail loudly instead of silently.
 - [x] Tests for the pure classes: `CombatMath`, `Crit`, `Stat`/`ModifierResolver`, `HeroStar`, `HeroLevel`, `HeroPrice`,
   `Wallet`, in a new `MagicSchool.Core.Tests` assembly. 58 tests in all (24 old, 34 new).
 - [x] How to run the tests:
-  - **Editor open (Coplay):** `execute_script` on `.claude/scripts/RunEditModeTests.cs`. It returns at once (or times
+  - **Editor open (Coplay):** see CLAUDE.md "Tests" (`wait-for-tests.ps1` + `RunEditModeTests.cs`). It returns at once (or times
     out - harmless) and writes `Temp/test-results.txt`: a `TOTAL passed= failed=` line, then one line per test.
     It refuses to start while a scene has unsaved changes: the Test Runner would open a modal "save?" dialog and
     freeze the Editor.

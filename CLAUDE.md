@@ -77,6 +77,8 @@ Rules no single file shows:
 - **Hero prefabs are all variants of `Assets/Prefabs/Hero/BaseHero.prefab`.** Add shared components to `BaseHero`, never
   to one hero; add a new hero only as a variant of it. A hero's `HeroDataSO` (`Data/Heroes/Stats/`) holds the prefab, not
   the other way round.
+- **`==` on an interface-typed reference does not see a destroyed Unity object** (plain reference equality). Cast
+  first: `x as Object == null`, or `x is Object o && o == null`.
 - **Never reuse a retired `SkillIdEnum` / `ItemIdEnum` / `StatEnum` / `ModifierEnum` int**: assets store the ints.
 - **Skill numbers are `Tuned(...)` properties, never `const`** (live tuning rewrites them).
 - **A skill description writes amounts through `AD()` / `AP()` / `DF()` / `MaxHP()`**, never as `{X}% AP`.
@@ -93,9 +95,10 @@ Rules no single file shows:
 EditMode tests in `Assets/Tests/EditMode` (`MagicSchool.Combat.Tests`, targeting) and `Assets/Tests/Core`
 (`MagicSchool.Core.Tests`: registries, maths, stats). Run them after any non-trivial change:
 
-- **Editor open:** Coplay `execute_script` on `.claude/scripts/RunEditModeTests.cs`. It returns at once (or times out -
-  harmless) and writes `Temp/test-results.txt`: a `TOTAL passed= failed=` line, then one line per test. It refuses while a
-  scene has unsaved changes: the Test Runner would open a modal "save?" dialog that freezes the Editor.
+- **Editor open:** start `.claude/scripts/wait-for-tests.ps1` in the background (PowerShell), then Coplay
+  `execute_script` on `.claude/scripts/RunEditModeTests.cs`. The script refuses if a scene really differs from disk; the
+  helper clicks Save on the "Scene(s) Have Been Modified" dialog the Test Runner opens anyway (it freezes the Editor),
+  then prints the `TOTAL passed= failed=` line and any failure from `Temp/test-results.txt`.
 - **Editor closed:** `"C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Unity.exe" -batchmode -projectPath . -runTests
   -testPlatform EditMode -testResults Temp/test-results.xml -logFile -` (exit 0 = passed, 2 = a test failed).
 
