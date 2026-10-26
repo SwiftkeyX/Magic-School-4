@@ -5,19 +5,17 @@ namespace MagicSchool.Skills
     // e.g. HeroSO contain enum "Elf" => use the enum to find "ElfSkill.cs"
     // Serialized into HeroDataSO assets as a raw int. The numbers were kept when the roster was
     // renamed (Vesper -> Elf, ...), so never reuse a retired one - an old asset may still hold it.
+    // Assets store these ints: never reuse one. Retired: 6 (Solace), 8 (Pip), 17 (Verity).
     public enum SkillIdEnum
     {
         None = 0,
 
-        // =================== player side ===================
         Werewolf = 1,
         Naga = 2,
         ShieldKnight = 3,
         OrcBlademaster = 4,
         Ranger = 5,
-        // 6 retired (Solace)
         Elf = 7,
-        // 8 retired (Pip)
         DireWolf = 9,
         Dryad = 10,
         Knight = 11,
@@ -26,7 +24,6 @@ namespace MagicSchool.Skills
         SkeletonArcher = 14,
         Imp = 15,
         Reaper = 16,
-        // 17 retired (Verity)
         Myconid = 18,
         Monk = 19,
         Blacksmith = 20,
@@ -49,14 +46,12 @@ namespace MagicSchool.Skills
         Fencer = 37,
         Priest = 38,
 
-        // =================== enemy side ===================
         Minotaur = 39,
         BigSlime = 40,
         Basilisk = 41,
         GoblinSlinger = 42,
         KoboldSkirmisher = 43,
 
-        // =================== boss ===================
         MinotaurKing = 44,
     }
 }

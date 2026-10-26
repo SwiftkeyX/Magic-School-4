@@ -22,7 +22,6 @@ namespace MagicSchool.Skills
              + "seconds does less. If target is already wounded, amplified damage by "
              + $"+{WoundedAmplifier * 100}%";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             List<SkillCondition> amplifierCondition = new List<SkillCondition>
@@ -33,7 +32,6 @@ namespace MagicSchool.Skills
                     wantPresent: true),
             };
 
-            // homing projectile to furthest enemy
             SkillPart shootProjectile = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,

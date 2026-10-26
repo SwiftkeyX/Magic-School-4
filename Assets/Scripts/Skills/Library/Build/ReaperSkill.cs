@@ -5,18 +5,18 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // Every KillsPerFreeCast enemies she kills herself, the allies on her Reap mark cast once for free. Once a fight
+    // she gets back up ReviveDelay seconds after she dies, with ReviveHPPercent% of her max HP.
     internal class ReaperSkill : SkillDefinition
     {
-        private static float MGDamagePerSnip => Tuned(100f);   // sheet: 100/150/400% AP
+        private static float MGDamagePerSnip => Tuned(100f);
         private static int SnipCount => Tuned(3);
         private static float IntervalBetweenSnip => Tuned(0.2f);
         private static float TotalCastTime => IntervalBetweenSnip * (SnipCount - 1);
 
-        // passive - every [this] kills of hers, the allies on her Reap mark cast their skill once for free
         private static int KillsPerFreeCast => Tuned(3);
         private int _kills;
 
-        // passive - once a fight, she gets back up [ReviveDelay] seconds after she dies, with [ReviveHPPercent]% of her max HP
         private static float ReviveDelay => Tuned(3f);
         private static float ReviveHPPercent => Tuned(30f);
         private bool _hasRevived;
@@ -39,8 +39,7 @@ namespace MagicSchool.Skills
              + "without using mana. Summoned units do not count. "
              + $"Once a fight, when she dies she gets back up {ReviveDelay} seconds later with {ReviveHPPercent}% of her max HP.";
 
-        // ============================== passive ==============================
-        public override bool HasAutoAttackPassive => true;   // so the inspector shows the passive
+        public override bool HasAutoAttackPassive => true;
 
         public override bool OnCombatStart()
         {
@@ -50,7 +49,6 @@ namespace MagicSchool.Skills
             return base.OnCombatStart();
         }
 
-        // an enemy she killed herself - every KillsPerFreeCast of them, the allies on her Reap mark cast for free
         public override void OnHeroDied(ICombatant dead)
         {
             if (dead.Team == Caster.Team) return;
@@ -68,7 +66,6 @@ namespace MagicSchool.Skills
             }
         }
 
-        // she died - the first time this fight, she gets back up
         public override void OnDeath()
         {
             if (_hasRevived || !(Caster is IRevivable revivable)) return;
@@ -77,7 +74,6 @@ namespace MagicSchool.Skills
             revivable.ReviveAfter(ReviveDelay, ReviveHPPercent / 100f);
         }
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             return Snip(registry);

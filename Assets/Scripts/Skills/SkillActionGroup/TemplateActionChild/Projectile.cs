@@ -7,26 +7,25 @@ namespace MagicSchool.Skills
     /// <summary>
     /// Projectile was aim toward the "target", what determined which recipients get hit is based on the projectile type.
     /// </summary>
+    // Size 1 means as drawn and touches nothing: it used to be written onto both axes, flattening every prefab (the
+    // bolts are 0.1 by 0.3) to the same 1x1 square. Any other size is set outright, so the projectile comes out
+    // square. A target that dies first leaves the projectile flying on.
     public abstract class Projectile : TemplateAction<ProjectileTuning>
     {
         const float PROJECTILELIFETIME = 10f;
         protected Vector3 _direction;
-        protected ICombatant _target;   // who the projectile is aiming at?
-        protected Transform _aimAt;     // what will projectile fly at?
+        protected ICombatant _target;
+        protected Transform _aimAt;
 
-        // =================================== Tune able ======================================
         [SerializeField] protected float _speed = 8f;
-        protected float _size = 1f;                  // projectile size; 1 leaves the prefab as drawn
-        protected int _reachRange = int.MaxValue;    // how far a projectile can reach, in hexes, default to global range
-        protected float _spread = 1f;                // how wide the AOE (next SkillFlow) will be spread
-        protected float _falloff = 0f;               // a piercing shot's damage, less this much per enemy already hit (See PiercingProjectile)
+        protected float _size = 1f;
+        protected int _reachRange = int.MaxValue;
+        protected float _spread = 1f;
+        protected float _falloff = 0f;
 
-
-        // ==================================== OnHit event ====================================
-        private event Action<Vector3> OnHit;        // fire when the projectile lands on someone the first time, return where it landed
+        private event Action<Vector3> OnHit;
         private bool _hasReportedHit;
 
-        // Projectile have OnHit event
         protected override void SubscribeTriggers(TemplateActionCallbacks callbacks)
         {
             base.SubscribeTriggers(callbacks);
@@ -34,7 +33,6 @@ namespace MagicSchool.Skills
             OnHit += callbacks.OnHit;
         }
 
-        // Report where the projectile hit
         protected void ReportHitPosition()
         {
             if (_hasReportedHit) return;
@@ -45,7 +43,6 @@ namespace MagicSchool.Skills
 
         protected bool IsTargetAlive => _target != null && _target.IsAlive;
 
-        // ======================================== override method ========================================
         protected override void ApplyTypedTuning(ProjectileTuning projectileTuning)
         {
             if (projectileTuning.Range.HasValue) _reachRange = projectileTuning.Range.Value;
@@ -57,49 +54,37 @@ namespace MagicSchool.Skills
 
         protected override void Play()
         {
-            // starting position
             transform.position = GetSpawnPosition();
 
             SetProjectileSize(_size);
 
-            // find where the projectile shoot direction
             GetAimDirection();
 
-            // set rotation
             FaceAimTarget();
 
             SetLifeTime();
         }
 
-        // source = where projectile spawn from
         protected override bool ResolveSource(ActionSourceEnum source)
         {
-            // spawn projectile at self
             if (source == ActionSourceEnum.Self)
             {
                 _source = _me.transform.position;
             }
 
-            // else if ...
-
-            // fallback - a projectile always has somewhere to come from, so this never fails
             else _source = _me.transform.position;
 
             return true;
         }
 
-
-        // aim = where projectile shoot direction is. Returns false if no valid target was found (caller skips the cast).
         protected override bool ResolveAimTarget(AimTargetEnum aimTarget)
         {
-            // aim skill at self
             if (aimTarget == AimTargetEnum.Self)
             {
                 Debug.LogWarning("[Scriptable Object] Projectile can't be aim at self", this);
                 return false;
             }
 
-            // aim skill at current target
             else if (aimTarget == AimTargetEnum.Current)
             {
                 _target = _me.FindCurrentTarget();
@@ -108,7 +93,6 @@ namespace MagicSchool.Skills
                 _aimAt = _target.transform;
             }
 
-            // aim skill at furthest enemy from self (furthest in _aimRange)
             else if (aimTarget == AimTargetEnum.Furthest)
             {
                 _target = _me.FindFurthestEnemy(_reachRange);
@@ -117,7 +101,6 @@ namespace MagicSchool.Skills
                 _aimAt = _target.transform;
             }
 
-            // aim down the line that passes through the most enemies (clustered in _aimRange)
             else if (aimTarget == AimTargetEnum.ClusteredLaser)
             {
                 _target = _me.FindClusteredLaser(_reachRange, _spread);
@@ -126,7 +109,6 @@ namespace MagicSchool.Skills
                 _aimAt = _target.transform;
             }
 
-            // aim at clustered that measure by specify radius (clustered in _aimRange)
             else if (aimTarget == AimTargetEnum.ClusteredCircle)
             {
                 IPlacement blastCentre = _me.FindClusteredCircle(_reachRange, _spread, isJump: false);
@@ -135,8 +117,6 @@ namespace MagicSchool.Skills
                 _aimAt = blastCentre.transform;
             }
 
-            // this shot's target was already chosen for it
-            // e.g. FireTimingRunner's pseudo-random 
             else if (aimTarget == AimTargetEnum.Assigned)
             {
                 _target = _assignedTarget;
@@ -145,9 +125,6 @@ namespace MagicSchool.Skills
                 _aimAt = _target.transform;
             }
 
-            // else if () ...
-
-            // nothing to shoot at, so don't shoot
             else
             {
                 Debug.LogWarning($"[Scriptable Object] Projectile can't aim at {aimTarget}", this);
@@ -159,48 +136,35 @@ namespace MagicSchool.Skills
 
         protected override Vector3 GetSpawnPosition() => _source;
 
-        // set object lifetime - this is for fallback despawn if it never reaches anyone
         protected override void SetLifeTime()
         {
             _lifetime = PROJECTILELIFETIME;
             ExpireAfter(_lifetime);
         }
 
-        // =========================================== virtual ===========================================
         protected virtual void GetAimDirection()
         {
-            // if target die beforehand, return => let projectile keep heading forward 
             if (_target != null && !IsTargetAlive) return;
 
             if (_aimAt == null) return;
 
-            // destination = whatever it was aimed at, read fresh so a moving one stays tracked
             _aimTarget = _aimAt.position;
 
-            // lock projectile shoot direction 
             _direction = (_aimTarget - transform.position).normalized;
 
-            // if no direction, destroy 
             if (_direction == Vector3.zero)
             {
                 DestroyMe();
             }
         }
 
-        // update projectile position to make it visually fly at target
         protected virtual void Update()
         {
             transform.position += _direction * (_speed * Time.deltaTime);
         }
 
-        // ======================================== private ========================================
         private const float Default = 1f;
 
-        // Size 1 means "however this projectile was drawn", so it touches nothing. It used to be
-        // written onto both axes like any other size, which flattened every prefab to the same
-        // 1x1 square - the bolts are drawn 0.1 wide by 0.3 tall - and that is why one projectile
-        // looked like the next whatever it was authored as. Any other size is still set outright,
-        // so a projectile that asks for one comes out square.
         private void SetProjectileSize(float size = Default)
         {
             if (size == Default) return;
@@ -208,8 +172,6 @@ namespace MagicSchool.Skills
             this.transform.localScale = new Vector3(size, size, this.transform.localScale.z);
         }
 
-        // FLAGGING: This is duplicated of AOE's method
-        // Point the AOE tip toward aim target
         private void FaceAimTarget()
         {
             Vector3 facing = _aimTarget - _source;

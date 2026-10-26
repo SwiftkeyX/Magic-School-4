@@ -10,7 +10,6 @@ namespace MagicSchool.Skills
     {
         None = 0,
 
-        // ==================================== AOE ====================================
         BoxAOE = 1,
         CircleAOE = 2,
         CircleAOESticky = 15,
@@ -18,18 +17,15 @@ namespace MagicSchool.Skills
         TriangleAOE = 4,
         ZoneAOE = 5,
 
-        // ==================================== Projectile ====================================
         FirstHitProjectile = 7,
         HomingProjectile = 8,
         PiercingProjectile = 9,
 
-        // ==================================== FireTimingRunner ====================================
         FireTimingRunnerHomingProjectile = 18,
         FireTimingRunnerFirstHitProjectile = 21,
         FireTimingRunnerTriangleAOE = 19,
         FireTimingRunnerCast = 20,
 
-        // ==================================== Other ====================================
         Cast = 10,
         Move = 13,
         Summon = 22,

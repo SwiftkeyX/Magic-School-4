@@ -4,16 +4,16 @@ using MagicSchool.Contracts;
 
 namespace MagicSchool.Skills
 {
+    // It follows its target every frame so it never misses. Aimed at a hex rather than a hero it may collide with
+    // nothing, so arriving counts as the hit.
     internal class HomingProjectile : Projectile
     {
         private const float ArrivalDistance = 0.15f;
 
-        // ======================================== override method ==============================================
         protected override void Play()
         {
             base.Play();
 
-            // initialize hitbox: apply effects once, on first contact
             OnContactHitbox onceHitbox = new OnContactHitbox();
             onceHitbox.OnHit += HandleHit;
             _hitbox = onceHitbox;
@@ -22,7 +22,6 @@ namespace MagicSchool.Skills
 
         protected override void Update()
         {
-            // homing projectile update target position every frame, so it never miss on target enemy
             GetAimDirection();
 
             base.Update();
@@ -30,8 +29,6 @@ namespace MagicSchool.Skills
             ExplodeOnArrival();
         }
 
-        // Context: HomingProjectile could target the hex instead of hero, so sometime it don't collide with anything 
-        // Resolve that by counting the projectile arrival as collision
         private void ExplodeOnArrival()
         {
             if (_target != null || _aimAt == null) return;
@@ -42,11 +39,8 @@ namespace MagicSchool.Skills
             DestroyMe();
         }
 
-        // ======================================== private ==============================================
-
         private void HandleHit(ICombatant hero)
         {
-            // if hero is hit isn't the target one, don't apply effect
             if (hero != _target) return;
 
             ReportSkillHit(hero);
@@ -57,10 +51,8 @@ namespace MagicSchool.Skills
                 ApplyEffectToRecipients(effect, recipients);
             }
 
-            // tell the next step where this landed, before the destroy
             ReportHitPosition();
 
-            // destroy homing projectile once it hit target
             DestroyMe();
         }
 

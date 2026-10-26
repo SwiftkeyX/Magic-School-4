@@ -4,10 +4,10 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // The roster sheet says stunned without a length: 1s is a placeholder.
     internal class MyconidSkill : SkillDefinition
     {
         private static float DamageRatio => Tuned(400f);
-        // the roster sheet says "stunned" without a length - 1s is a placeholder until it does
         private static float StunDuration => Tuned(1f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new MyconidSkill(registry);
@@ -20,7 +20,6 @@ namespace MagicSchool.Skills
             => $"Shoots a spore at the furthest enemy. Everyone in its path takes {AP(DamageRatio)} "
              + $"and is stunned for {StunDuration} seconds.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             ICustomModifier stun = BundleRefresh(StunDuration, Status(ModifierEnum.Stun));

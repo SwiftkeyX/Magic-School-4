@@ -14,12 +14,10 @@ namespace MagicSchool.Skills
 
         private ICombatant _owner;
 
-        // ======================================= tune able =======================================
-        private SkillPart _act;             // what the companion plays on every interval
-        private float _duration = 5f;       // how long the companion stays
-        private float _interval = 1f;       // act cooldown
+        private SkillPart _act;
+        private float _duration = 5f;
+        private float _interval = 1f;
 
-        // ======================================= override =======================================
         protected override void ApplyTypedTuning(SummonTuning summonTuning)
         {
             if (summonTuning.Act != null) _act = summonTuning.Act;
@@ -32,11 +30,9 @@ namespace MagicSchool.Skills
             Companion companion = Instantiate(_companionPrefab);
             companion.Begin(_owner, _act, _duration, _interval);
 
-            // after spawn companion, destroy itself
             DestroyMe();
         }
 
-        // source mean nothing to Summon
         protected override bool ResolveSource(ActionSourceEnum source)
         {
             _source = _me.transform.position;
@@ -44,44 +40,35 @@ namespace MagicSchool.Skills
             return true;
         }
 
-        // aim = the owner, the unit the companion is given to
         protected override bool ResolveAimTarget(AimTargetEnum aimTarget)
         {
-            // guard
             if (_act == null)
             {
                 Debug.LogWarning("[Summon] has no act for its companion. Give it one with TuneSummon(act: ...)", this);
                 return false;
             }
 
-            // give to me
             if (aimTarget == AimTargetEnum.Self)
             {
                 _owner = _me;
             }
 
-            // give to the closest ally.
             else if (aimTarget == AimTargetEnum.NearestAlly)
             {
                 _owner = _me.FindNearestAlly() ?? _me;
             }
 
-            // give to the ally with the smallest percentage health left.
             else if (aimTarget == AimTargetEnum.LowestHealthAlly)
             {
                 _owner = _me.FindLowestHealthAlly() ?? _me;
             }
 
-            // the owner was already chosen for it
             else if (aimTarget == AimTargetEnum.Assigned)
             {
                 _owner = _assignedTarget;
                 if (_owner == null) return false;
             }
 
-            // else if () ...
-
-            // fallback
             else _owner = _me;
 
             _aimTarget = _owner.transform.position;

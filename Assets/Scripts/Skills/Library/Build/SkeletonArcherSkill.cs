@@ -4,9 +4,13 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // 2 barrages of 4 shots, 25% each, keep the old total of 4 x 50%. One barrage is one round; each shot aims at the
+    // furthest enemy when fired, so the second barrage goes to whoever is furthest then, not to one the first already
+    // killed. A shot deals full damage 3+ hexes away and CloseShotDamage% closer, and (30% + 10% per star) more per
+    // ally on his Long Shot mark; his auto attacks follow both rules (a 2-star, 2 allies, 2 hexes away => (1 + 100%) x
+    // 50% = 100% AD).
     internal class SkeletonArcherSkill : SkillDefinition
     {
-        // 2 barrages of 4 shots = 8 shots, so 25% each keeps the old total of 4 x 50%
         private static float ADDamagePerShot => Tuned(25f);
         private static float MGDamagePerShot => Tuned(25f);
         private static int BarrageCount => Tuned(2);
@@ -15,11 +19,9 @@ namespace MagicSchool.Skills
         private static float PauseBetweenBarrage => Tuned(1.5f);
         private static float BarrageCastTime => IntervalBetweenShot * (ShotsPerBarrage - 1);
 
-        // a shot deals full damage to a target 3+ hexes away when it lands, and [CloseShotDamage]% to a closer one
         private static int LongShotHexes => Tuned(3);
         private static float CloseShotDamage => Tuned(50f);
 
-        // every shot deals [this]% more for every ally on his Long Shot mark, near or far
         private static float LongShotBonusPerAlly => Tuned(30f);
         private static float LongShotBonusPerAllyPerStar => Tuned(10f);
 
@@ -39,16 +41,12 @@ namespace MagicSchool.Skills
              + $"Every shot deals {PerAllyText()} more for every ally on his {LongShotMark} mark. "
              + "Both apply to his auto attacks too.";
 
-        // his auto attacks follow the same two rules as his shots: the Long Shot bonus, and only CloseShotDamage% when the
-        // target is closer than LongShotHexes
-        // e.g. a 2-star with 2 allies on Long Shot, hitting someone 2 hexes away => (1 + 100%) x 50% = 100% of his AD
         public override float AutoAttackDamageMultiplier(ICombatant target)
         {
             bool far = Caster is IHexMeasurable me && target != null && me.IsAtLeastHexesAway(target, LongShotHexes);
             return (1f + LongShotBonus(Caster)) * (far ? 1f : CloseShotDamage / 100f);
         }
 
-        // e.g. "50%" for a 2-star, or with Alt held "[30% + 10% per star]"
         private string PerAllyText()
         {
             IHeroStats stats = TextStats;
@@ -56,9 +54,6 @@ namespace MagicSchool.Skills
             return $"{PerAlly(stats.Star):0.##}%";
         }
 
-        // ============================== active ==============================
-        // one barrage is one round, played BarrageCount times. Every shot aims at the furthest enemy when it is fired,
-        // so the second barrage goes to whoever is furthest then, not to a target the first one already killed.
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
             => Repeat(Shoot(registry), times: BarrageCount);
 
@@ -84,8 +79,6 @@ namespace MagicSchool.Skills
             return Flow(onStart: shoot);
         }
 
-        // (30% + 10% per star) for every ally on his Long Shot mark
-        // e.g. a 2-star with 2 allies on it => 2 x 50% = +100%
         private static float LongShotBonus(IEffectable caster)
         {
             if (!(caster is IAligned aligned)) return 0f;

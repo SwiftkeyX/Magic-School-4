@@ -4,13 +4,14 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // The shot pierces with FalloffPerEnemy% less for each enemy already hit; every enemy hit gives
+    // +AttackSpeedPerHit% base AS, a fresh bundle each so they stack.
     internal class RangerSkill : SkillDefinition
     {
         private static float DamageRatio => Tuned(500f);
-        private static float FalloffPerEnemy => Tuned(33f);     // % less damage for every enemy the shot already went through
+        private static float FalloffPerEnemy => Tuned(33f);
 
-        // buff - one for every enemy the shot hits
-        private static float AttackSpeedPerHit => Tuned(20f);   // +20% base AS
+        private static float AttackSpeedPerHit => Tuned(20f);
         private static float BuffDuration => Tuned(7f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new RangerSkill(registry);
@@ -25,7 +26,6 @@ namespace MagicSchool.Skills
              + $"Gains {AttackSpeedPerHit}% attack speed for "
              + $"{BuffDuration} seconds for each enemy it hits.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart shot = Part(registry,
@@ -41,8 +41,6 @@ namespace MagicSchool.Skills
             return Flow(onStart: shot);
         }
 
-        // the arrow hit an enemy - gain attack speed.
-        // A fresh bundle every time, so the hits stack instead of refreshing
         private void GainAttackSpeed(ICombatant enemy)
         {
             Caster.AddModifier(

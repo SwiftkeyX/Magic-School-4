@@ -22,7 +22,6 @@ namespace MagicSchool.Skills
             => $"Fires a piercing beam down the most crowded enemy lane: {AP(DamageRatio)} to everything "
              + $"in it. He heals for {OmnivampPercent}% of the damage dealt.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart beam = Part(registry,

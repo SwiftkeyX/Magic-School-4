@@ -17,10 +17,8 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Rams the current target for {AD(DamageRatio)} and stuns it for {StunDuration} seconds.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            // the horns - a box on the current target
             SkillPart gore = Part(registry,
                 source: ActionSourceEnum.Current,
                 action: TemplateActionEnum.CircleAOE,

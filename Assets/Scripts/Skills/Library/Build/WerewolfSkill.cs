@@ -4,25 +4,22 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // Transformed, his auto attacks play a combo of three beats in order - box, triangle, circle - each with its own
+    // damage, reset at combat start; he gains no mana meanwhile. The whole transform is one bundle, so it ends on one
+    // tick.
     internal class WerewolfSkill : SkillDefinition
     {
-        // werewolf skill play 3 different attack
-        // box, triangle, circle - in the order 
         private readonly SkillPart[] _beats;
         private int _currentBeat;
 
-        // each beat (attack) have different damage amount
         private static float BoxDamage => Tuned(200f);
         private static float TriangleDamage => Tuned(300f);
         private static float CircleDamage => Tuned(400f);
 
         private static float OmnivampFromAP => Tuned(10f);
-        // FLAGGING: sheet: 80% of bonus AS, converted to AD 
         private static float AttackFromAS => Tuned(500f);
         private static float TransformDuration => Tuned(10f);
 
-
-        // FIXLATER: turn every hero into skilldefinition. and move Build inside the skilldefinition.
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new WerewolfSkill(registry);
 
         private WerewolfSkill(TemplateActionRegistrySO registry) : base(registry)
@@ -46,8 +43,6 @@ namespace MagicSchool.Skills
              + $"then circle - landing for {AD(BoxDamage)} / {AD(TriangleDamage)} / {AD(CircleDamage)} "
              + "in turn.";
 
-        // ============================== init ==============================
-
         public override void Init(ICombatant caster)
         {
             base.Init(caster);
@@ -55,17 +50,14 @@ namespace MagicSchool.Skills
             foreach (SkillPart beat in _beats) beat.Init(caster);
         }
 
-        // ============================== passive ==============================
         public override bool HasAutoAttackPassive => true;
 
-        // at combat start, reset the beat
         public override bool OnCombatStart()
         {
             _currentBeat = 0;
             return base.OnCombatStart();
         }
 
-        // if transform, auto-attack play the current beat
         public override bool OnAutoAttack(ICombatant target)
         {
             if (!Caster.HasStatus(ModifierEnum.Transformed)) return false;
@@ -76,7 +68,6 @@ namespace MagicSchool.Skills
             return true;
         }
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             return Transform(registry);
@@ -84,7 +75,6 @@ namespace MagicSchool.Skills
 
         private static SkillFlow Transform(TemplateActionRegistrySO registry)
         {
-            // one group, one timer - the whole transform ends on the same tick
             ICustomModifier WorldEnderBuff = BundleRefresh(
                 duration: TransformDuration,
 
@@ -98,7 +88,6 @@ namespace MagicSchool.Skills
 
                 Status(ModifierEnum.Transformed),
 
-                // no mana while transformed, and the combo below stands in for the auto attack
                 Status(ModifierEnum.ManaBlocked),
 
                 Status(ModifierEnum.AutoAttackWasReplaced)

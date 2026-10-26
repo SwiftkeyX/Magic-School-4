@@ -9,9 +9,8 @@ namespace MagicSchool.Skills
     {
         public bool isCadence = false;
 
-        // neither is read unless isCadence
-        public float cadenceInterval = 0.5f;    // the interval of time effect is re-apply
-        public float cadenceDuration = 3f;      // total duration of the effect
+        public float cadenceInterval = 0.5f;
+        public float cadenceDuration = 3f;
 
         public Cadence() { }
 

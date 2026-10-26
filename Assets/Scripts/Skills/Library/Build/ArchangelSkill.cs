@@ -23,7 +23,6 @@ namespace MagicSchool.Skills
             => $"Every ally within {AreaHexes} hexes, herself included, takes {DamageReductionPercent}% less damage "
              + $"and gains {AttackSpeedBuff}% attack speed for {BuffDuration} seconds.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             ICustomModifier aegis = BundleRefresh(

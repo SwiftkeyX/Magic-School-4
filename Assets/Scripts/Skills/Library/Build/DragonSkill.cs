@@ -4,14 +4,16 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // BurnTotal is over the whole burn, not per tick. The cone's tip sits on him, pointed at the densest pack; its
+    // length and width are world units.
     internal class DragonSkill : SkillDefinition
     {
         private static float DamageRatio => Tuned(200f);
-        private static float BurnTotal => Tuned(50f);        // over the whole burn, not per tick
+        private static float BurnTotal => Tuned(50f);
         private static float BurnDuration => Tuned(3f);
         private static float BurnInterval => Tuned(1f);
-        private static float ConeLength => Tuned(2.5f);       // world units from his tip outward
-        private static float ConeWidth => Tuned(2.5f);        // world units across the open end
+        private static float ConeLength => Tuned(2.5f);
+        private static float ConeWidth => Tuned(2.5f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new DragonSkill(registry);
 
@@ -23,10 +25,8 @@ namespace MagicSchool.Skills
             => $"Breathes a cone of fire at the densest cluster: {AP(DamageRatio)}, then burns them for "
              + $"{AP(BurnTotal)} over {BurnDuration} seconds.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            // tip on the dragon, pointed at the densest pack
             SkillPart breath = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.TriangleAOE,

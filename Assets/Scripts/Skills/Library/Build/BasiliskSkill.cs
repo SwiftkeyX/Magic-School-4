@@ -6,7 +6,7 @@ namespace MagicSchool.Skills
     internal class BasiliskSkill : SkillDefinition
     {
         private static float BonusDF => Tuned(15f);
-        private static float BonusDuration => Tuned(-1f);    // the rest of the fight
+        private static float BonusDuration => Tuned(-1f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new BasiliskSkill(registry);
 
@@ -17,7 +17,6 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Gains {BonusDF} DF for the rest of the fight. Stacks every cast.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart scales = Part(registry,

@@ -21,7 +21,6 @@ namespace MagicSchool.Skills
              + $"in it, split over {Duration} seconds and ticking every {TickInterval} seconds. "
              + "He keeps walking while the storm follows him.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart spin = Part(

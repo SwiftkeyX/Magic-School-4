@@ -4,8 +4,6 @@ using MagicSchool.Contracts;
 
 namespace MagicSchool.Skills
 {
-    // FLAGGING: This is unreadable. I will clean up the comment later.
-    
     /// <summary>
     /// A question a skill asks before it does something. One predicate, used in two places that do
     /// different things with the answer:
@@ -31,10 +29,8 @@ namespace MagicSchool.Skills
 
         public void Init(IEffectable caster) => _caster = caster;
 
-        // the actual condition - read each child for more detail
         protected abstract bool IsMet(IEffectable recipient);
 
-        // condition look at which hero?
         protected IEffectable Subjected(IEffectable recipient)
         {
             if (_subject == ConditionSubjectEnum.Caster)
@@ -66,7 +62,6 @@ namespace MagicSchool.Skills
             }
         }
 
-        // to tell the caller "Is all the condition met?"
         public static ConditionResultEnum Ask(List<SkillCondition> conditions, IEffectable recipient = null)
         {
             if (conditions == null) return ConditionResultEnum.NoConditionFound;
@@ -75,12 +70,10 @@ namespace MagicSchool.Skills
 
             foreach (SkillCondition condition in conditions)
             {
-                // guard
                 if (condition == null) { Debug.LogError("[SkillCondition] a null condition sits in this list - skipped."); continue; }
 
                 askedAnything = true;
 
-                // if either condition isn't satisfied, return conditionNotMet
                 if (!condition.IsMet(recipient)) return ConditionResultEnum.ConditionIsNotMet;
             }
 

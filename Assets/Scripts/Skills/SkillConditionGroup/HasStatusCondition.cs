@@ -20,13 +20,10 @@ namespace MagicSchool.Skills
 
         protected override bool IsMet(IEffectable recipient)
         {
-            // ask which unit?
             IEffectable subject = Subjected(recipient);
 
-            // guard
             if (subject == null) return false;
 
-            // this unit has/hasn't this staus
             return subject.HasStatus(_status) == _wantPresent;
         }
     }

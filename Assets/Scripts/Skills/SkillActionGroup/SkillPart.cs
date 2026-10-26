@@ -22,10 +22,7 @@ namespace MagicSchool.Skills
         private List<SkillCondition> _conditions;
         private Tuning _tuning;         
 
-        // public Offset _offset;
-        // ...
-
-        private List<SkillEffect> _effects;    // 1 template action = have several effect
+        private List<SkillEffect> _effects;
 
         public SkillPart(ActionSourceEnum source, TemplateAction templateAction, AimTargetEnum target,
                                 List<SkillCondition> conditions = null, List<SkillEffect> effects = null,
@@ -36,18 +33,12 @@ namespace MagicSchool.Skills
             _target = target;
             _tuning = tuning;
 
-            // empty rather than null, matching what the serialiser writes for an unused list
             _conditions = conditions ?? new List<SkillCondition>();
             _effects = effects ?? new List<SkillEffect>();
         }
 
-        // ============================================ OnSkillHit ============================================
-        // Called each time THIS action hits an enemy, return who it hit.
-        // e.g. a projectile that pierce 3 enemies in a row, call OnSkillHit 3 times.
         public Action<ICombatant> OnSkillHit;
 
-        // ============================================ Init ============================================
-        // Inject caster into class that need it.
         public void Init(IEffectable caster)
         {
             foreach (SkillCondition condition in _conditions) condition?.Init(caster);
@@ -55,7 +46,6 @@ namespace MagicSchool.Skills
             foreach (SkillEffect effect in _effects) effect?.Init(caster);
         }
 
-        // ============================================ Getter ============================================
         public ActionSourceEnum Source => _source;
         public TemplateAction TemplateAction => _templateAction;
         public AimTargetEnum Target => _target;

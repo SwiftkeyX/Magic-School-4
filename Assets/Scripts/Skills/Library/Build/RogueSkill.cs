@@ -7,11 +7,9 @@ namespace MagicSchool.Skills
     {
         private static int Shadowsteps => Tuned(3);
 
-        // dash randomly
         private static int DashRange => Tuned(1);
         private static float DashDuration => Tuned(0.15f);
 
-        // charge into cluster
         private static int ChargeRange => Tuned(4);
         private static float ChargeDuration => Tuned(0.3f);
         private static float HitboxHalfWidth => Tuned(1.25f);
@@ -27,7 +25,6 @@ namespace MagicSchool.Skills
             => $"Shadowsteps {Shadowsteps} times. Each step: dashes {DashRange} hex in a random direction, then "
              + $"dashes along the densest line of enemies, dealing {AP(CollideDamage)} to everyone he passes.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
             => Repeat(
                 Flow(

@@ -1,15 +1,8 @@
 namespace MagicSchool.Skills
 {
-    /// <summary>
-    /// Skil use A LOT OF enum. We group all of them here for readability.
-    /// The one that Hero also speaks - ModifierEnum - lives in Contracts/ instead,
-    /// so Hero doesn't have to depend on the whole skill system just to name a buff.
-    /// </summary>
-
-    // These enums are serialized into SkillSO assets as raw ints - always assign explicit values so
-    // inserting a new member later can't silently remap what an existing asset's stored int means.
-
     // ================================================ Recipient ================================================
+    // Assets store these enums as raw ints: values are explicit so a new member never remaps a stored one.
+    // ModifierEnum lives in Contracts instead, so Hero can name a buff without the skill system.
     public enum EffectRecipientEnum
     {
         Self = 0,
@@ -23,8 +16,8 @@ namespace MagicSchool.Skills
     // skill condition can either ask Caster or each Recipients
     public enum ConditionSubjectEnum
     {
-        Caster = 0,     // e.g. Is Caster transformed?
-        Recipient = 1,  // e.g. Is this recipient wounded?
+        Caster = 0,
+        Recipient = 1,
     }
 
     // what skill condition return.

@@ -17,7 +17,6 @@ namespace MagicSchool.Skills
         private ICombatant _owner;
         private SkillPart _act;
 
-        // called by Summon, once, right after it spawned this companion
         public void Begin(ICombatant owner, SkillPart act, float duration, float interval)
         {
             _owner = owner;
@@ -28,13 +27,10 @@ namespace MagicSchool.Skills
             StartCoroutine(ActEvery(interval, duration));
         }
 
-        // ======================================= private ========================================
         private void Update()
         {
-            // companion dies with its owner
             if (!IsOwnerAlive()) { Destroy(gameObject); return; }
 
-            // companion follow owner
             transform.position = _owner.transform.position + Offset;
         }
 
@@ -45,7 +41,6 @@ namespace MagicSchool.Skills
             return _owner != null && _owner.IsAlive;
         }
 
-        // companion plays its act every interval
         private IEnumerator ActEvery(float interval, float duration)
         {
             WaitForSeconds wait = new WaitForSeconds(interval);
@@ -56,10 +51,8 @@ namespace MagicSchool.Skills
                 yield return wait;
                 elapsed += interval;
 
-                // if owner die, break
                 if (!IsOwnerAlive()) break;
 
-                // played as the owner, read the summary of this class
                 TemplateAction.TryPlay(
                     _act,
                     _owner,
@@ -67,7 +60,6 @@ namespace MagicSchool.Skills
                 );
             }
 
-            // it leaves after its last act
             Destroy(gameObject);
         }
     }

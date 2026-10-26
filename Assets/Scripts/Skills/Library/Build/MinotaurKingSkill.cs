@@ -5,11 +5,12 @@ namespace MagicSchool.Skills
 {
     // The first boss (stage 5), kept easy on purpose: one big body and one readable skill.
     // Ground Slam only reaches the heroes right next to him, so the lesson is "don't pile your melee on him".
+    // SlamDiameter 3 is the ring of hexes next to him, not the one after.
     internal class MinotaurKingSkill : SkillDefinition
     {
         private static float DamageRatio => Tuned(150f);
         private static float StunDuration => Tuned(1f);
-        private static float SlamDiameter => Tuned(3f);      // the ring of hexes around him, not the ring after (~2 away)
+        private static float SlamDiameter => Tuned(3f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new MinotaurKingSkill(registry);
 
@@ -20,7 +21,6 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Slams the ground, dealing {AD(DamageRatio)} to every enemy next to him and stunning them for {StunDuration} second.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart slam = Part(registry,

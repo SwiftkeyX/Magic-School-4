@@ -17,15 +17,11 @@ namespace MagicSchool.Skills
         public override string PassiveDescription
             => $"When he dies, he splits into {SplitCount} Small Slimes.";
 
-        // ============================== passive ==============================
-        // when die, spawn small slime
         public override void OnDeath()
         {
             (Caster as ISpawner)?.SpawnUnitsNearby(SplitCount);
         }
 
-        // ============================== active ==============================
-        // no active
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry) => null;
     }
 }

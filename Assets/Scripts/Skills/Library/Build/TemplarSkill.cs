@@ -4,17 +4,17 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // On cast he swipes and takes a base shield; every enemy the swipe hits grows it, a fresh bundle each so they
+    // stack.
     internal class TemplarSkill : SkillDefinition
     {
-        // swipe
         private static float DamageRatio => Tuned(150f);
         private static float ConeLength => Tuned(2.5f);
         private static float ConeWidth => Tuned(3f);
 
-        // shield
         private static float ShieldRatio => Tuned(300f);
         private static float ShieldRatioPerHit => Tuned(50f);
-        private static float ShieldDuration => Tuned(4f);        // FLAGGING: the roster sheet gives no length - 4s is Rock Golem's
+        private static float ShieldDuration => Tuned(4f);
 
         private readonly ICustomModifier _shield = BundleRefresh(ShieldDuration, Shield((StatEnum.DF, ShieldRatio)));
 
@@ -28,8 +28,6 @@ namespace MagicSchool.Skills
             => $"Swipes in a cone in front of him for {AD(DamageRatio)}, and gains a shield worth {DF(ShieldRatio)} "
              + $"for {ShieldDuration} seconds, +{ShieldRatioPerHit}% for each enemy the swipe hit.";
 
-        // ============================== active ==============================
-        // on cast, swipe and take the base shield. The rest of the shield comes in as the swipe lands
         public override bool OnCast()
         {
             if (!base.OnCast()) return false;
@@ -54,8 +52,6 @@ namespace MagicSchool.Skills
             return Flow(onStart: swipe);
         }
 
-        // the swipe hit an enemy - the shield grows.
-        // A fresh bundle every time, so the hits stack on top of the base shield
         private void GrowShield(ICombatant enemy)
         {
             Caster.AddModifier(

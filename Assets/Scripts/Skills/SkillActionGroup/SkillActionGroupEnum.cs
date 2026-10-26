@@ -8,11 +8,10 @@ namespace MagicSchool.Skills
         Self = 0,
         Ally = 1,
         Summon = 2,
-        WhereProjectileHit = 3,     // spawn where the previous step's projectile landed
+        WhereProjectileHit = 3,
         Current = 4,
         ClusteredCircle = 5,
         Furthest = 6,
-        // ...
     }
 
     public enum AimTargetEnum
@@ -28,7 +27,5 @@ namespace MagicSchool.Skills
         NearestAlly = 8,
         LowestHealthAlly = 9,
         FurthestEach = 10,          
-
-        // ...
     }
 }

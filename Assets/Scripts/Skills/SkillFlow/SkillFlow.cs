@@ -28,7 +28,7 @@ namespace MagicSchool.Skills
         public IReadOnlyList<SkillPart> OnStart { get; }
         public IReadOnlyList<SkillPart> OnHit { get; }
         public IReadOnlyList<SkillPart> OnExpired { get; }
-        public int Times => _times();   // how many rounds this flow plays
+        public int Times => _times();
 
         private readonly Func<int> _times;
 
@@ -45,7 +45,6 @@ namespace MagicSchool.Skills
             _times = times;
         }
 
-        // ================================== init ==================================
         public void Init(IEffectable caster)
         {
             foreach (SkillPart part in OnStart) part?.Init(caster);

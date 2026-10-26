@@ -51,6 +51,9 @@ says which phase.
 - **Scoreboard chart column heads are unused but worth keeping** (`UI/Panel/ScoreboardController.cs:137`, `:143`).
 - **`RandomTargetPool.Fill` is hard-coded for Imp** (`Skills/SkillActionGroup/Helper/RandomTargetPool.cs:47`);
   `FireTimingRunnerProjectileTuning` has one user, Imp (`Skills/SkillActionGroup/Tuning.cs:57`).
+- **Harpy's melee stance is disabled**: it read the column counted from the front line, which the board no longer has.
+  Its code and passive text were commented out in `Skills/Library/Build/HarpySkill.cs` until commit `d49a785`; the
+  comment purge removed them, so get them back from git history.
 - **`PiercingProjectile`: a branch that never runs; maybe remove** (`Skills/SkillActionGroup/TemplateActionChild/PiercingProjectile.cs:46`).
 
 ## Numbers the design sheet does not give

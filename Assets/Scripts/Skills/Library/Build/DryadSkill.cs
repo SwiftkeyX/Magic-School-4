@@ -6,9 +6,9 @@ namespace MagicSchool.Skills
 {
     internal class DryadSkill : SkillDefinition
     {
-        private static float DamageRatio => Tuned(170f);   // sheet: 170/255/420% AP
+        private static float DamageRatio => Tuned(170f);
         private static float ASbuff => Tuned(25f);
-        private static float WaveSize => Tuned(2f);        // Dryad's wave is the one projectile bigger than default
+        private static float WaveSize => Tuned(2f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new DryadSkill(registry);
 
@@ -21,7 +21,6 @@ namespace MagicSchool.Skills
              + $"take {AP(DamageRatio)}; allies it passes through are left {ASbuff}% faster for the "
              + "rest of the fight.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
             => Wave(registry);
 
@@ -39,10 +38,9 @@ namespace MagicSchool.Skills
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.PiercingProjectile,
-                target: AimTargetEnum.ClusteredLaser,   // A/B: swap to AimTargetEnum.Clustered for the old, radial pick
+                target: AimTargetEnum.ClusteredLaser,
                 tuning: TuneProjectile(size: WaveSize),
 
-                // deal dmg to enemy & give buff to ally 
                 Damage(
                     recipient: EffectRecipientEnum.EnemiesInPath,
                     ratios: (StatEnum.AP, DamageRatio)),
