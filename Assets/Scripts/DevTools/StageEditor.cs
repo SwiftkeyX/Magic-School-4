@@ -162,46 +162,9 @@ namespace MagicSchool.DevTools
                 if (lying is Item item) ItemDrop.MoveToFreeSpot(item);
             }
 
-            int placed = 0;
-            foreach (HeroPlacement placement in comp.HeroesPlacement)
-            {
-                if (placement.team != PlayerTeam || placement.dataSO == null) continue;
-
-                if (!board.Hexs.TryGetValue(placement.hexPlacement, out Hex hex) || board.WhoReservedThisHex(hex) != null)
-                {
-                    Debug.LogWarning($"[StageEditor] skipped {placement.dataSO.name}: hex {placement.hexPlacement.column},{placement.hexPlacement.row} is missing or taken.");
-                    continue;
-                }
-
-                Hero hero = _spawn(placement.dataSO, PlayerTeam, hex, board);
-                placed++;
-
-                hero.SetAlignMarkPattern(placement.alignPattern);
-
-                hero.UpgradeTo(placement.Star);
-
-                if (placement.item is ItemDataSO itemData)
-                {
-                    Item worn = Item.Spawn(itemData, hex.transform.position);
-                    if (worn != null && !hero.TryWear(worn)) ItemDrop.MoveToFreeSpot(worn);
-                }
-            }
-
-            foreach (ItemPlacement lying in comp.ItemsOnHexes)
-            {
-                if (!(lying.item is ItemDataSO itemData)) continue;
-
-                Item item = Item.Spawn(itemData, Vector3.zero);
-                if (item == null) continue;
-
-                bool isLaid = board.Hexs.TryGetValue(lying.hexPlacement, out Hex hex)
-                              && board.WhoReservedThisHex(hex) == null
-                              && board.Items.Place(item, hex);
-                if (isLaid) continue;
-
-                Debug.LogWarning($"[StageEditor] {itemData.name} could not lie on hex {lying.hexPlacement.column},{lying.hexPlacement.row} - it went to the loose row.");
-                ItemDrop.MoveToFreeSpot(item);
-            }
+            int placed = TeamCompLoader.Load(comp, board,
+                (data, hex) => _spawn(data, PlayerTeam, hex, board),
+                ItemDrop.MoveToFreeSpot).Count;
 
             _game.RefreshAligning();
             return placed;

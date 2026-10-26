@@ -180,13 +180,7 @@ namespace MagicSchool.DevTools.Benchmark
 
         private static void Begin(GameManager game, Lane lane)
         {
-            lane.Board.SetBattleOn(true);
-            if (lane.Fight.Aligning) new AlignBonuses().Refresh(lane.Board, TeamEnum.Blue);
-
-            foreach (Hero hero in lane.Board.HeroesOnBoard.OfType<Hero>().ToList())
-            {
-                if (hero.IsAlive) hero.TriggerOnCombatStart();
-            }
+            FightRules.Begin(lane.Board, lane.Fight.Aligning ? new AlignBonuses() : null, game.TemplateActions);
 
             game.Recorder.BeginRoundFor(lane.Board.HeroesOnBoard.OfType<IEffectable>());
             lane.StartTime = Time.time;
@@ -200,36 +194,9 @@ namespace MagicSchool.DevTools.Benchmark
 
             lane.Seed.SwitchSeed(fight.Stage);
             lane.Seed.SpawnTeamOnBoard(TeamEnum.Red);
-            lane.Seed.SwitchSeed(fight.Comp);
-            lane.Seed.SpawnTeamOnBoard(TeamEnum.Blue);
-
-            foreach (HeroPlacement placement in fight.Comp.HeroesPlacement)
-            {
-                if (placement.team != TeamEnum.Blue || placement.dataSO == null) continue;
-                if (!board.Hexs.TryGetValue(placement.hexPlacement, out Hex hex) || !(board.WhoReservedThisHex(hex) is Hero hero)) continue;
-
-                hero.SetAlignMarkPattern(placement.alignPattern);
-                lane.Team.Add(hero);
-
-                if (placement.item is ItemDataSO itemData)
-                {
-                    Item worn = Item.Spawn(itemData, hex.transform.position);
-                    if (worn != null && !hero.TryWear(worn)) Destroy(worn.gameObject);
-                }
-            }
-
-            foreach (ItemPlacement lying in fight.Comp.ItemsOnHexes)
-            {
-                if (!(lying.item is ItemDataSO itemData)) continue;
-
-                Item item = Item.Spawn(itemData, Vector3.zero);
-                if (item == null) continue;
-
-                bool isLaid = board.Hexs.TryGetValue(lying.hexPlacement, out Hex hex)
-                              && board.WhoReservedThisHex(hex) == null
-                              && board.Items.Place(item, hex);
-                if (!isLaid) Destroy(item.gameObject);
-            }
+            lane.Team.AddRange(TeamCompLoader.Load(fight.Comp, board,
+                (data, hex) => lane.Seed.Spawn(data, TeamEnum.Blue, hex),
+                item => Destroy(item.gameObject)));
 
             bool hasEnemy = board.HeroesOnBoard.Any(h => h != null && h.Team == TeamEnum.Red);
             if (lane.Team.Count == 0) fight.Error = "comp failed to spawn";
@@ -238,9 +205,7 @@ namespace MagicSchool.DevTools.Benchmark
 
         private static void CheckOver(GameManager game, Lane lane, float seconds)
         {
-            var standing = lane.Board.HeroesOnBoard.Where(h => h != null && (h.StateType != HeroStateEnum.Dead || (h is IRevivable r && r.IsReviving))).ToList();
-            bool blueStanding = standing.Any(h => h.Team == TeamEnum.Blue);
-            bool redStanding = standing.Any(h => h.Team == TeamEnum.Red);
+            FightRules.Standing(lane.Board, out bool blueStanding, out bool redStanding);
             bool timeUp = seconds >= TimeLimit;
             if (blueStanding && redStanding && !timeUp) return;
 

@@ -210,6 +210,7 @@ namespace MagicSchool.Core
         }
 
         internal void RefreshAligning() => _alignBonuses.Refresh(_board, TeamEnum.Blue);
+        internal AlignBonuses Aligning => _alignBonuses;
 
         internal void CombineCopies()
         {

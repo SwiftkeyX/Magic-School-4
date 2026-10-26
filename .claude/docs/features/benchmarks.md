@@ -37,7 +37,8 @@ the newest full report; it writes `benchmark-selected-*.csv`.
 
 Fights every team comp in `Data/BattleSetups/Team Comps/` against every stage in `GameManager._stages`, 20 runs aligned
 and 10 not (`RunsAligned` / `RunsNotAligned`); a stage counts as won at 70% (`WinLine`: 14 of 20, 7 of 10), until a side
-is dead or 90s (a timeout is not a win). Real fights as `CombatState` starts them (saved hexes, patterns, worn items,
+is dead or 90s (a timeout is not a win). Real fights, started and ended by the same `Core/FightRules` as `CombatState`,
+loaded by the same `Core/TeamCompLoader` as the Stage Editor (saved hexes, patterns, worn items,
 items on hexes, the stage's deploy zone), 32 at once on hidden board copies stacked 20 units apart
 (`HeroBenchmark.CopyBoard`; skill hits are physics triggers with no board check, so the gap keeps lanes apart). Each lane
 takes the next fight as soon as its own ends; its heroes start a round of their own in the recorder

@@ -94,9 +94,13 @@ Your call: the benchmark gets its own module.
 
 ## Phase 6 - One copy of fight start and team loading (M) (bench)
 
-- [] Extract `TeamCompLoader` and `FightRules` (begin fight, who is still standing). `CombatState`, `StageEditor` and
-  `TeamCompBenchmark` all call them. Today the benchmark has its own copy that already skips a step, so the
-  balance tool can measure a different game than the one played.
+- [x] `Core/FightRules` (Begin: board live, aligning, Skill Tuner rebuilds, combat start; Standing: who is still up,
+  reviving counts) and `Core/TeamCompLoader` (a saved comp's heroes with hex, level, star, pattern, worn item, then the
+  items on hexes; the caller decides what a left-over item does). `CombatState` and `TeamCompBenchmark` share
+  `FightRules`; the Stage Editor and `TeamCompBenchmark` share `TeamCompLoader`. The benchmark's copy had skipped the
+  Skill Tuner rebuild; it now runs the same step.
+- [x] Verified: tests; Stage Editor loads a comp in Play mode (4 heroes, stars and worn item kept); Team Comp Run
+  Selected on two comps (`teamcomp-2026-10-26_08-36-51`) wins the same stages as the baseline.
 
 ## Phase 7 - Interfaces (M)
 

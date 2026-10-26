@@ -28,6 +28,8 @@ namespace MagicSchool.Core
 
         public void SwitchSeed(BattlePlacementSO placementSO) => _placementSO = placementSO;
 
+        internal Hero Spawn(HeroDataSO data, TeamEnum team, IPlacement placement) => _spawn(data, team, placement, _board);
+
         public void SpawnTeamOnBoard(TeamEnum team)
         {
             if (_placementSO == null) { DebugTool.LogError("Can't seed the hero. Hero Placement is null"); return; }
