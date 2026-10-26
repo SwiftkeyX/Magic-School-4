@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using MagicSchool.Core;
 
-namespace MagicSchool.Core.Benchmark
+namespace MagicSchool.DevTools.Benchmark
 {
     /// <summary>
     /// Run a benchmark as fast as the machine allows: fixed steps (so a second of fight is always the same 30 steps),

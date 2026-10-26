@@ -6,8 +6,9 @@ using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Items;
+using MagicSchool.Core;
 
-namespace MagicSchool.Core
+namespace MagicSchool.DevTools
 {
     /// <summary>
     /// Dev tool: during play mode, build a enemy team, add/remove deploy zone. 
@@ -27,7 +28,7 @@ namespace MagicSchool.Core
     // A team comp is a BattlePlacementSO of blue entries plus the board they were placed on: a hex number only means
     // something on its own layout. A quick save holds both teams; on load the player's heroes go first, so none stands
     // on a hex a saved enemy needs.
-    public class StageEditor
+    public class StageEditor : IStageEditing
     {
         private const TeamEnum EnemyTeam = TeamEnum.Red;
         private const TeamEnum PlayerTeam = TeamEnum.Blue;
@@ -39,6 +40,19 @@ namespace MagicSchool.Core
         internal StageEditor(GameManager game)
         {
             _game = game;
+        }
+
+        public static StageEditor Current => GameManager.Instance != null ? GameManager.Instance.StageEditor as StageEditor : null;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void Register()
+        {
+            GameManager game = GameManager.Instance;
+            if (game == null) return;
+
+            var editor = new StageEditor(game);
+            editor.OnSpawnRequested += game.Spawner.SpawnHero;
+            game.RegisterStageEditor(editor);
         }
 
         public BattlePlacementSO CurrentStage => _game.GetStage(_game.StageIndex);

@@ -5,6 +5,7 @@ using UnityEngine;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Core;
+using MagicSchool.DevTools;
 
 namespace MagicSchool.Editor
 {
@@ -324,7 +325,7 @@ namespace MagicSchool.Editor
                 return false;
             }
 
-            editor = GameManager.Instance.StageEditor;
+            editor = StageEditor.Current;
             if (editor == null)
             {
                 Debug.LogWarning("[StageEditor] tick 'Stage Edit Mode' on GameManager first.");

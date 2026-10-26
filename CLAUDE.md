@@ -17,8 +17,8 @@ Read the feature doc before touching a feature; it is not loaded by default.
 | Items, wearing, items on hexes | [items](.claude/docs/features/items.md) | `Items/`, `Combat/Heroes/HeroItems` |
 | Shop, gold, buy/sell drag, UI panels, bench | [shop-and-ui](.claude/docs/features/shop-and-ui.md) | `Economy/`, `UI/`, `Player/Dragging` |
 | Stages, enemies, boss, hero prefabs | [campaign-and-enemies](.claude/docs/features/campaign-and-enemies.md) | `Data/BattleSetups/`, `Data/Heroes/Stats/` |
-| Hero / Team Comp Benchmark, Google Sheet import | [benchmarks](.claude/docs/features/benchmarks.md) | `Core/Benchmark/`, `.claude/scripts/` |
-| Stage Editor, skip stage, add hero, window style | [dev-tools](.claude/docs/features/dev-tools.md) | `Core/StageEditor`, `Core/Editor/` |
+| Hero / Team Comp Benchmark, Google Sheet import | [benchmarks](.claude/docs/features/benchmarks.md) | `DevTools/Benchmark/`, `.claude/scripts/` |
+| Stage Editor, skip stage, add hero, window style | [dev-tools](.claude/docs/features/dev-tools.md) | `DevTools/StageEditor`, `Core/Editor/` |
 
 Also: [ARCHITECTURE.md](ARCHITECTURE.md) (modules for humans, a skill worked through), each module's `*Module.md`
 next to its asmdef, `.claude/docs/planning.md` (the owner's to-do), `.claude/docs/refactor-plan.md`,
@@ -43,7 +43,8 @@ MagicSchool.Economy         -> Contracts, Combat, Items                   wallet
 MagicSchool.UI              -> Contracts, Combat, Items, Input, UnityEngine.UI
 MagicSchool.Core            -> Contracts, Engine, Skills, Combat, CombatRecording, Items, Economy
 MagicSchool.Player          -> Contracts, Combat, Core, Items, Input
-MagicSchool.Editor          -> Core, Combat, Skills      (Core/Editor/, Editor-only)
+MagicSchool.DevTools        -> Core and everything Core references   benchmarks, Stage Editor (not in release builds)
+MagicSchool.Editor          -> Core, Combat, Skills, DevTools        (Core/Editor/, Editor-only)
 ```
 
 Rules no single file shows:
@@ -70,6 +71,10 @@ Rules no single file shows:
   used unqualified.
 - `Core/GameManager` is the composition root: it builds every service in `Awake()`. The `GameManager.Instance`
   singleton is only used from `Player` and the dev tools; lower modules never reach up to it.
+- **`DevTools` is left out of release builds** (`defineConstraints: UNITY_EDITOR || DEVELOPMENT_BUILD`), so nothing
+  that ships may reference it. Core sees the Stage Editor only as `IStageEditing`, which DevTools registers at start
+  (`StageEditor.Register`, `GameManager.RegisterStageEditor`); DevTools reaches Core's internals through
+  `InternalsVisibleTo`.
 
 ## Rules that bite
 

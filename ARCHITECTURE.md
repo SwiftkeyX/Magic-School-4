@@ -26,7 +26,8 @@ MagicSchool.Economy         -> Contracts, Combat, Items
 MagicSchool.UI              -> Contracts, Combat, Items, Input, UnityEngine.UI
 MagicSchool.Core            -> Contracts, Engine, Skills, Combat, CombatRecording, Items, Economy
 MagicSchool.Player          -> Contracts, Combat, Core, Items, Input
-MagicSchool.Editor          -> Core, Combat, Skills                       (Editor-only)
+MagicSchool.DevTools        -> Core and everything Core references       (not in release builds)
+MagicSchool.Editor          -> Core, Combat, Skills, DevTools             (Editor-only)
 MagicSchool.Combat.Tests    -> Combat, Contracts, Skills                  (tests)
 MagicSchool.Core.Tests      -> Contracts, Combat, Skills, Items, Modifiers, StatScaling, Economy  (tests)
 ```
@@ -99,7 +100,10 @@ bar, skill bar).
 
 **CombatRecording** — the damage meter's books; a plugin Combat never references.
 
-**Editor** — inspector tooling for Core.
+**DevTools** — the Hero and Team Comp Benchmarks and the Stage Editor. Left out of release builds; Core only
+knows the Stage Editor through `IStageEditing`.
+
+**Editor** — the Magic School 4 windows (Align Editor, Stage Editor, Skill Tuner, Benchmark).
 
 **Combat.Tests**, **Core.Tests** — EditMode tests: targeting, and the registries, maths and stats.
 

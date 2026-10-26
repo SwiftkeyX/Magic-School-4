@@ -1,4 +1,6 @@
-namespace MagicSchool.Core.Benchmark
+using MagicSchool.Core;
+
+namespace MagicSchool.DevTools.Benchmark
 {
     // speed: fixed steps, no frame cap, nothing drawn to increase render speed (See BenchmarkSpeed)
     public partial class HeroBenchmark

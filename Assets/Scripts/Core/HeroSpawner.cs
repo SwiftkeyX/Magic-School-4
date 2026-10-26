@@ -22,7 +22,7 @@ namespace MagicSchool.Core
         public event System.Action<Hero> OnSpawned;
 
         public HeroSpawner(HeroMover heroMover, TemplateActionRegistrySO templateActions, CombatRecorder recorder,
-                           Bench bench = null, HeroSeed seed = null, StageEditor stageEditor = null)
+                           Bench bench = null, HeroSeed seed = null)
         {
             _heroMover = heroMover;
             _templateActions = templateActions;
@@ -30,10 +30,9 @@ namespace MagicSchool.Core
 
             if (bench != null) bench.OnSpawnRequested += SpawnHero;
             if (seed != null) seed.OnSpawnRequested += SpawnHero;
-            if (stageEditor != null) stageEditor.OnSpawnRequested += SpawnHero;
         }
 
-        private void SpawnHero(HeroDataSO data, TeamEnum team, IPlacement placement, BattleBoard board)
+        public void SpawnHero(HeroDataSO data, TeamEnum team, IPlacement placement, BattleBoard board)
             => Place(Build(data, board, team), placement);
 
         private void SpawnSummon(HeroDataSO data, TeamEnum team, IPlacement placement, BattleBoard board, int level)

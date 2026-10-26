@@ -5,6 +5,7 @@ using UnityEngine;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Core;
+using MagicSchool.DevTools;
 
 namespace MagicSchool.Editor
 {
@@ -473,7 +474,7 @@ namespace MagicSchool.Editor
         }
 
         private static StageEditor Editor()
-            => EditorApplication.isPlaying && GameManager.Instance != null ? GameManager.Instance.StageEditor : null;
+            => EditorApplication.isPlaying ? StageEditor.Current : null;
 
         private static string WhyNot(StageEditor editor)
         {

@@ -17,8 +17,9 @@ balance log.
 
 ## Stage Editor
 
-**Magic School 4 > Stage Editor** (`Core/Editor/StageEditorWindow`). `Core/StageEditor` is the runtime half
-(`GameManager.StageEditor` is null while the mode is off, which is what `Dragging` checks); `Core/Editor/StageEditorMenu`
+**Magic School 4 > Stage Editor** (`Core/Editor/StageEditorWindow`). `DevTools/StageEditor` is the runtime half
+(`GameManager.StageEditor`, an `IStageEditing`, is null while the mode is off, which is what `Dragging` checks;
+`StageEditor.Current` is the concrete one the window uses); `Core/Editor/StageEditorMenu`
 writes the assets.
 
 - **Stage Edit Mode** toggle (`GameManager._stageEditMode`: in Play mode set live for that session; outside it, the

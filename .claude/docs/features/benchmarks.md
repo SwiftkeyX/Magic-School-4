@@ -6,13 +6,13 @@ is the damage event that takes HP to 0), so the `_test` CSV in `BalanceLogs/` ha
 ## Settings and running
 
 Every number the two benchmarks run with is in `Data/Benchmark/BenchmarkSettings.asset`
-(`Core/Benchmark/BenchmarkSettingsSO`, made with the defaults if missing), edited in **Magic School 4 > Benchmark**
+(`DevTools/Benchmark/BenchmarkSettingsSO`, made with the defaults if missing), edited in **Magic School 4 > Benchmark**
 (`Core/Editor/BenchmarkWindow`): a tooltip each, a fight count and time estimate, and Run buttons, one tab per
 benchmark. The window is the only way to run them; its buttons call `HeroBenchmarkMenu` / `TeamCompBenchmarkMenu`, which
 pass the asset to `Run`; the code reads it through `BenchmarkSettingsSO.Current`. From an agent: call the internal static
 `MagicSchool.Editor.HeroBenchmarkMenu.RunAll()` / `TeamCompBenchmarkMenu.RunAll()` by reflection.
 
-## Hero Benchmark (`Core/Benchmark/HeroBenchmark`)
+## Hero Benchmark (`DevTools/Benchmark/HeroBenchmark`)
 
 Every shop hero alone vs `Data/Benchmark/BenchDummy` (2000 HP, DF 30, topped up below half): a 30s damage test (DPS at
 15s and 30s), a 30s AoE test (a tight cluster of 6 dummies around one clear nearest target; `aoe_gain` = AoE DPS /
@@ -33,7 +33,7 @@ stats, so the tank test only separates heroes whose skills defend them.
 **Run Selected** tests only the HeroDataSOs selected in the Project window and borrows every other hero's numbers from
 the newest full report; it writes `benchmark-selected-*.csv`.
 
-## Team Comp Benchmark (`Core/Benchmark/TeamCompBenchmark`)
+## Team Comp Benchmark (`DevTools/Benchmark/TeamCompBenchmark`)
 
 Fights every team comp in `Data/BattleSetups/Team Comps/` against every stage in `GameManager._stages`, 20 runs aligned
 and 10 not (`RunsAligned` / `RunsNotAligned`); a stage counts as won at 70% (`WinLine`: 14 of 20, 7 of 10), until a side

@@ -4,8 +4,9 @@ using System.Linq;
 using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
+using MagicSchool.Core;
 
-namespace MagicSchool.Core.Benchmark
+namespace MagicSchool.DevTools.Benchmark
 {
     // the benchmark was separated into 3 tests. (read HeroBenchmark.cs)
     public partial class HeroBenchmark

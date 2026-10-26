@@ -71,7 +71,7 @@ namespace MagicSchool.Core
         private HeroSeed _seed;
         private HeroSpawner _heroSpawner;
         private HeroUpgrader _upgrader;
-        private StageEditor _stageEditor;
+        private IStageEditing _stageEditor;
         private CombatRecorder _recorder;
         private GameSpeed _speed;
         private CombatCsvLog _balanceLog;
@@ -98,7 +98,9 @@ namespace MagicSchool.Core
         public int HeroLimit => _heroLimit;
         public int SpeedMultiplier => _speed == null ? 1 : _speed.Multiplier;
         public bool IsPaused => _speed != null && _speed.IsPaused;
-        public StageEditor StageEditor => _stageEditMode ? _stageEditor : null;
+        public IStageEditing StageEditor => _stageEditMode ? _stageEditor : null;
+        internal void RegisterStageEditor(IStageEditing editor) => _stageEditor = editor;
+        internal HeroSpawner Spawner => _heroSpawner;
         internal bool IsRunCleared => Winner == TeamEnum.Blue && _stageIndex + 1 >= StageCount;
 
         internal BattlePlacementSO GetStage(int index) => HasStages ? _stages[index] : _currentStage;
@@ -235,8 +237,7 @@ namespace MagicSchool.Core
 
             if (_test) _balanceLog = new CombatCsvLog(Path.Combine(Application.dataPath, "..", "BalanceLogs"));
 
-            _stageEditor = new StageEditor(this);
-            _heroSpawner = new HeroSpawner(_heroMover, _templateActions, _recorder, _bench, _seed, _stageEditor);
+            _heroSpawner = new HeroSpawner(_heroMover, _templateActions, _recorder, _bench, _seed);
             _upgrader = new HeroUpgrader(_board, _bench, _spareBench);
             _heroSpawner.OnSpawned += CombineIfBenched;
             _wallet = new Wallet(_startingGold);

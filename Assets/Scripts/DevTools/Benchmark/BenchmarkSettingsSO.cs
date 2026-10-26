@@ -1,6 +1,7 @@
 using UnityEngine;
+using MagicSchool.Core;
 
-namespace MagicSchool.Core.Benchmark
+namespace MagicSchool.DevTools.Benchmark
 {
     /// <summary>
     /// Every number the two benchmarks run with, in one asset (Data/Benchmark/BenchmarkSettings.asset), edited in

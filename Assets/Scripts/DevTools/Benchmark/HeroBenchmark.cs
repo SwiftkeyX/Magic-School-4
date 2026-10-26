@@ -6,8 +6,9 @@ using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
+using MagicSchool.Core;
 
-namespace MagicSchool.Core.Benchmark
+namespace MagicSchool.DevTools.Benchmark
 {
     /// <summary>
     /// Balancing helper: runs every hero through the same three tests, result into CSV

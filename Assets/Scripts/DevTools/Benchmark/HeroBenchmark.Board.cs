@@ -6,8 +6,9 @@ using MagicSchool.Contracts;
 using MagicSchool.Combat.Align;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
+using MagicSchool.Core;
 
-namespace MagicSchool.Core.Benchmark
+namespace MagicSchool.DevTools.Benchmark
 {
     public partial class HeroBenchmark
     {

@@ -5,8 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using MagicSchool.Core;
 
-namespace MagicSchool.Core.Benchmark
+namespace MagicSchool.DevTools.Benchmark
 {
     // report 
     public partial class HeroBenchmark

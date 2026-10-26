@@ -23,10 +23,10 @@ fewer files, and checking its own work without Play mode. It is not a re-archite
   - Hero: `BalanceLogs/benchmark-2026-10-25_21-09-15.csv`
   - Team comp: `BalanceLogs/teamcomp-2026-10-25_21-41-17.csv` (3,900 fights, 32 min). Stages won aligned / not:
     Elf-Ettin-ShieldKnight-10 10/5, -9 9/4, -5 5/1; Skeleton-Knight-BlackSmith-10 10/5, -5 2/1; the other 8 comps 1/0.
-- [] Bug found during the run (not a refactor item): `Move.Update` (`Skills/.../TemplateActionChild/Move.cs:146`)
+- [x] Bug found during the run (not a refactor item): `Move.Update` (`Skills/.../TemplateActionChild/Move.cs:146`)
   keeps moving its caster after the caster is destroyed - a benchmark lane ending mid-leap floods the console with
-  `MissingReferenceException` every frame. Fixed in code (`Move.Update` stops and destroys itself once its caster
-  is gone); not yet checked live.
+  `MissingReferenceException` every frame. Fixed (`Move.Update` stops and destroys itself once its caster is gone),
+  checked live in phase 4.
 
 ## Phase 1 - Safety net first (S-M)
 
@@ -74,9 +74,14 @@ Your call: delete inline comments; keep a summary above a class only where it is
 
 Your call: the benchmark gets its own module.
 
-- [] New `MagicSchool.DevTools` assembly holding `Core/Benchmark/*` and `Core/StageEditor` (~1,800 lines), referencing Core.
-  Excluded from release builds (`UNITY_EDITOR || DEVELOPMENT_BUILD`). Core goes from ~6,000 lines to ~4,200.
-- [] Verify: both benchmarks and the Stage Editor window still run.
+- [x] New `MagicSchool.DevTools` assembly (`Assets/Scripts/DevTools/`) holding the benchmarks and the Stage Editor,
+  referencing Core, excluded from release builds (`UNITY_EDITOR || DEVELOPMENT_BUILD`). Core and Player know the Stage
+  Editor only as `IStageEditing`, which DevTools registers at start; `HeroSpawner.SpawnHero` is public for it, and
+  DevTools reads Core's internals through `InternalsVisibleTo`.
+- [x] Verified: the Stage Editor registers and adds an enemy in Play mode, and is null with the mode off. Hero Benchmark
+  ran twice (`benchmark-2026-10-26_08-14-27` / `08-15-45`): baseline vs new differs no more than two new runs differ
+  from each other (max 12% vs 8.8%, random crits and targets). Team Comp Run Selected on Skeleton-Knight-BlackSmith-5
+  (`teamcomp-2026-10-26_08-18-45`) wins the same stages as the baseline, and the console stays clean (the leap fix).
 
 ## Phase 5 - Remove pass-through layers (S-M) (bench)
 

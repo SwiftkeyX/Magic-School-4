@@ -5,8 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using MagicSchool.Core;
 
-namespace MagicSchool.Core.Benchmark
+namespace MagicSchool.DevTools.Benchmark
 {
     // report: the runs of one comp x stage x aligning averaged into one team row, and one row for each of its heroes
     public partial class TeamCompBenchmark

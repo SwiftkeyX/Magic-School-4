@@ -21,7 +21,7 @@ namespace MagicSchool.Player
 
         public void Tick()
         {
-            StageEditor editor = GameManager.Instance.StageEditor;
+            IStageEditing editor = GameManager.Instance.StageEditor;
             if (editor == null || !editor.CanEditNow) return;
 
             if (!PlayerInputSystem.DragPressedThisFrame) return;

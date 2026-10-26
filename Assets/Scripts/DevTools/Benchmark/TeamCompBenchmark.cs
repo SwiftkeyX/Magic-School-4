@@ -8,8 +8,9 @@ using MagicSchool.Combat.Align;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Items;
+using MagicSchool.Core;
 
-namespace MagicSchool.Core.Benchmark
+namespace MagicSchool.DevTools.Benchmark
 {
     /// <summary>
     /// Balancing helper for whole teams: every saved team comp fights every campaign stage (GameManager's stages),

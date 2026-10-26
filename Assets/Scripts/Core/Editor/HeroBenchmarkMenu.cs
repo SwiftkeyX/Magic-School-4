@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using MagicSchool.Combat.Heroes;
-using MagicSchool.Core.Benchmark;
+using MagicSchool.DevTools.Benchmark;
 
 namespace MagicSchool.Editor
 {

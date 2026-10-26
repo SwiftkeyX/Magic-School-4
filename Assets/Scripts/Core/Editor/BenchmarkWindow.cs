@@ -4,7 +4,7 @@ using UnityEngine;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Core;
-using MagicSchool.Core.Benchmark;
+using MagicSchool.DevTools.Benchmark;
 
 namespace MagicSchool.Editor
 {

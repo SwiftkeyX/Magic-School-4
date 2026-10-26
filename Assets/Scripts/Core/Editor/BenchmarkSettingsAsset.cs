@@ -1,6 +1,6 @@
 using System.IO;
 using UnityEditor;
-using MagicSchool.Core.Benchmark;
+using MagicSchool.DevTools.Benchmark;
 
 namespace MagicSchool.Editor
 {
