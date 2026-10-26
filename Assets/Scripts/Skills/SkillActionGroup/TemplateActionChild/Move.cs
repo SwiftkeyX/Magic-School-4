@@ -143,6 +143,16 @@ namespace MagicSchool.Skills
         {
             if (!_isJumping) return;
 
+            // the caster was destroyed mid-move (e.g. a benchmark lane cleared). An interface's == null does not
+            // see a destroyed Unity object, so ask the object itself. Destroy without DestroyMe: OnExpired would
+            // play the landing part for a caster that no longer exists.
+            if (_me is Object caster && caster == null)
+            {
+                _isJumping = false;
+                Destroy(gameObject);
+                return;
+            }
+
             _me.transform.position = _jump.Tick(Time.deltaTime);
 
             if (!_jump.IsFinished) return;
