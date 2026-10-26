@@ -8,14 +8,16 @@ namespace MagicSchool.Combat.Placements
     /// Shared by the board's hexes and the gray hexes drawn past its edge (See GhostHexes), so both look the same.
     /// e.g.    an Elf's mark hex => orange outside, green inside: an ally there gets the green bonus and pays her the orange one
     /// </summary>
+    // Rings are lifted RingLift toward the camera: over their hex, still under every hero (order 1). With many colours
+    // the ring step shrinks to fit, never below InnerMost.
     internal class HexPaint
     {
         private readonly SpriteRenderer _sprite;
         private readonly List<SpriteRenderer> _rings = new List<SpriteRenderer>();
 
-        private const float RingStep = 0.3f;        // each ring is this much smaller than the one around it, as in the Align Editor
-        private const float InnerMost = 0.15f;      // the smallest a ring may get: with many colours the step shrinks to fit
-        private const float RingLift = 0.01f;       // toward the camera: a ring draws over its hex, and still under every hero (order 1)
+        private const float RingStep = 0.3f;
+        private const float InnerMost = 0.15f;
+        private const float RingLift = 0.01f;
 
         public HexPaint(SpriteRenderer sprite) => _sprite = sprite;
 
@@ -37,7 +39,6 @@ namespace MagicSchool.Combat.Placements
             for (int i = colours.Count; i <= _rings.Count; i++) _rings[i - 1].enabled = false;
         }
 
-        // the i-th ring inside the hex (1 = the outermost), made the first time one is needed
         private SpriteRenderer RingAt(int i)
         {
             while (_rings.Count < i)

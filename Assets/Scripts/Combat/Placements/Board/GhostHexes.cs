@@ -12,12 +12,11 @@ namespace MagicSchool.Combat.Placements
     internal class GhostHexes
     {
         private readonly Transform _board;
-        private Transform _holder;                                          // made the first time one is drawn
+        private Transform _holder;
         private readonly List<(SpriteRenderer sprite, HexPaint paint)> _pool = new List<(SpriteRenderer, HexPaint)>();
 
         public GhostHexes(Transform board) => _board = board;
 
-        // Draw one gray hex at each spot, in its colours, looking like [template], one of the board's hexes. The rest are hidden.
         public void Show(IReadOnlyList<(Vector3 position, IReadOnlyList<Color> colours)> spots, Hex template)
         {
             if (template == null) { HideAll(); return; }
@@ -42,7 +41,6 @@ namespace MagicSchool.Combat.Placements
             }
         }
 
-        // the i-th gray hex, made the first time one is needed; it copies the board hex's look, so a new layout's size is followed
         private (SpriteRenderer, HexPaint) GhostAt(int i, Hex template)
         {
             if (_holder == null)

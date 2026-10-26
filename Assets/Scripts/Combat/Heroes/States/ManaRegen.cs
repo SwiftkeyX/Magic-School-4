@@ -10,10 +10,12 @@ namespace MagicSchool.Combat.Heroes.States
     /// e.g.    5 mana/s, stunned for 2s    => 10 mana less by the time the stun ends
     /// A fraction is kept for the next frame, so 5 mana/s is 5 a second at any frame rate.
     /// </summary>
+    // Fractions carry over until they make a whole point. A stun that landed this frame stops it before the state
+    // machine has moved to Stunned.
     internal class ManaRegen
     {
         private readonly Hero _me;
-        private float _carry;   // mana earned but not yet a whole point
+        private float _carry;
 
         public ManaRegen(Hero hero)
         {
@@ -36,7 +38,6 @@ namespace MagicSchool.Combat.Heroes.States
         {
             if (state == HeroStateEnum.Stunned || state == HeroStateEnum.Cast || state == HeroStateEnum.Dead) return false;
 
-            // a stun that landed this frame, before the state machine moved to Stunned
             if (_me.IsStunned) return false;
 
             return !_me.HasStatus(ModifierEnum.ManaBlocked);

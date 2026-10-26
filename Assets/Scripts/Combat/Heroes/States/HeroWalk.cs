@@ -17,7 +17,6 @@ namespace MagicSchool.Combat.Heroes.States
             _step = new HexStep(hero, movement);
         }
 
-        // between two hexes: a cast waits for the step to land (See HeroStateMachine.TryResolveInterrupt)
         public bool IsMidStep => _step.IsWalking;
 
         public override void OnEnter()
@@ -25,12 +24,10 @@ namespace MagicSchool.Combat.Heroes.States
             _step.StartTo(_me.ReservedHex);
         }
 
-        // only a stun or death leaves a step halfway (See HexStep.CutOff)
         public override void OnExit() => _step.CutOff();
 
         public override void OnUpdate()
         {
-            // walk according the movement's curve, arriving on the hex once there
             _step.Tick(Time.deltaTime);
 
             CheckSwitchState();
@@ -38,12 +35,10 @@ namespace MagicSchool.Combat.Heroes.States
 
         protected override void CheckSwitchState()
         {
-            // if walk isn't finished, return
             if (_step.IsWalking) return;
 
             ICombatant nearestEnemy = _me.FindNearestEnemy();
 
-            // guard
             if (nearestEnemy == null) { _me.ChangeState(HeroStateEnum.Idle); return; }
 
             if (_transition.CanAttack(nearestEnemy))
@@ -65,8 +60,6 @@ namespace MagicSchool.Combat.Heroes.States
             }
         }
 
-        // FLAGGING: This look completely like OnEnter() BUT later OnEnter() maybe have animation and other logic
-        // so I separate it.
         private void ResumeWalk()
         {
             _step.StartTo(_me.ReservedHex);

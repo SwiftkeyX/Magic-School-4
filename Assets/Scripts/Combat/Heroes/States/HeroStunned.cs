@@ -3,6 +3,7 @@ using MagicSchool.Contracts;
 
 namespace MagicSchool.Combat.Heroes.States
 {
+    // Snaps back to the hex centre: a stun can land mid-attack-dash.
     internal class HeroStunned : HeroState
     {
         public override HeroStateEnum StateType => HeroStateEnum.Stunned;
@@ -11,7 +12,6 @@ namespace MagicSchool.Combat.Heroes.States
 
         public override void OnExit()
         {
-            // Snap back in case a stun landed mid-attack-dash, same reasoning as HeroAttack.OnExit.
             _me.transform.position = _me.CurrentHex.transform.position;
         }
 

@@ -24,13 +24,11 @@ namespace MagicSchool.Combat.Heroes
             _request = request;
         }
 
-        // spawn a unit up to `count` on the free hexes nearest to me.
         public int SpawnNearby(HeroDataSO unit, int count)
         {
             Hex myHex = _me.CurrentHex;
             if (unit == null || myHex == null) return 0;
 
-            // find nearest hex. My own hex is skipped.
             List<Hex> free = HexFinder.FindFreeHexesWithin(myHex, SearchRange, _me.IsHexReservedByOther);
             free.Remove(myHex);
 

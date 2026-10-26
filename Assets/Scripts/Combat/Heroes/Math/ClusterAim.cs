@@ -12,12 +12,13 @@ namespace MagicSchool.Combat.Heroes
     // 1) clustered circle - which spot caught the most enemies with specify radius
     // 2) clustered laser  - which spot caught the most enemies with this laser width (laser are straight line hitbox that hit everything in the path)
     // 3) clustered charge - which spot caught the most enemies when I charge into them (similar to laser but different nuisance)   
+    // On a tie in enemies caught, a hex an enemy stands on beats an empty one: a skill that only takes the spot as a
+    // direction (Dragon's cone, fired from himself) would otherwise point at the floor beside a lone enemy and miss.
+    // Otherwise a preferred hex wins, then the nearer one (the further with preferFurthest). A charge sweeps an enemy
+    // along its path; behind the start is not swept, and past the end counts as at the end, where the caster stops on
+    // top of it.
     internal static class ClusterAim
     {
-        // ========================================= public =========================================
-        // From candidate hex, which one puts the most enemies inside blastRadius?
-        // On a tie, a hex an enemy stands on beats an empty one: a skill that only takes the spot as a direction
-        // (Dragon's cone, fired from himself) would otherwise point at the floor beside a lone enemy and miss it.
         public static Hex BestCircle(Vector3 me, IReadOnlyList<Hex> candidates, IReadOnlyList<ICombatant> enemies, float blastRadius)
         {
             Func<Hex, int> caught = hex => CountWithin(enemies, hex.transform.position, blastRadius);
@@ -26,7 +27,6 @@ namespace MagicSchool.Combat.Heroes
             return BestHex(me, candidates, caught, preferred: hasEnemy);
         }
 
-        // From candidate hex (landings), which one hit the most enemies on the way to landing spot?
         public static Hex BestCharge(Vector3 me, IReadOnlyList<Hex> landings, IReadOnlyList<ICombatant> enemies, float chargeHalfWidth,
                                      bool maxRange = false)
         {
@@ -35,13 +35,11 @@ namespace MagicSchool.Combat.Heroes
             return BestHex(me, landings, caught, preferFurthest: maxRange);
         }
 
-        // From candidate enemies, which one that my beam going to hit the most enemies? 
         public static List<ICombatant> BestLaserAims(Vector3 me, IReadOnlyList<ICombatant> enemies, int reachRange, float beamHalfWidth, out int caught)
         {
             List<ICombatant> best = new List<ICombatant>();
             int bestCount = -1;
 
-            // aim at each enemy, and count how many hero caught in the beam
             foreach (ICombatant candidate in enemies)
             {
                 Vector3 toCandidate = candidate.CurrentHex().transform.position - me;
@@ -53,10 +51,8 @@ namespace MagicSchool.Combat.Heroes
                 Vector3 end = me + direction * reachRange;
                 int count = CountSwept(enemies, me, end, beamHalfWidth, except: candidate);
 
-                // found better candidate
                 if (count > bestCount) { bestCount = count; best.Clear(); }
 
-                // keep every candidate that ties for best
                 if (count == bestCount) best.Add(candidate);
             }
 
@@ -64,10 +60,6 @@ namespace MagicSchool.Combat.Heroes
             return best;
         }
 
-        // ========================================= private =========================================
-        // From candidate hex, pick the one that catches the most heroes
-        // On a tie in enemies caught: a [preferred] hex wins first, then the one with the less distance from me
-        // (or the most distance if preferFurthest)
         private static Hex BestHex(Vector3 me, IReadOnlyList<Hex> candidates, Func<Hex, int> countCaughtFrom,
                                    bool preferFurthest = false, Func<Hex, bool> preferred = null)
         {
@@ -104,19 +96,16 @@ namespace MagicSchool.Combat.Heroes
         private static bool IsBetterDistance(float distance, float bestDistance, bool preferFurthest)
             => preferFurthest ? distance > bestDistance : distance < bestDistance;
 
-        // How many enemy hit with in the radius?
         private static int CountWithin(IReadOnlyList<ICombatant> enemies, Vector3 centre, float radius)
         {
             return enemies.Count(enemy => Vector3.Distance(centre, enemy.CurrentHex().transform.position) <= radius);
         }
 
-        // How many enemy hit by the [x] width laser?
         private static int CountSwept(IReadOnlyList<ICombatant> enemies, Vector3 from, Vector3 to, float halfWidth, ICombatant except = null)
         {
             return enemies.Count(enemy => enemy != except && IsSweptOnTheWay(from, to, enemy, halfWidth));
         }
 
-        // Is this enemy close enough to the path of a laser/charge to be hit by it?
         private static bool IsSweptOnTheWay(Vector3 from, Vector3 to, ICombatant enemy, float halfWidth)
         {
             Hex enemyHex = enemy.CurrentHex();
@@ -129,8 +118,6 @@ namespace MagicSchool.Combat.Heroes
             Vector3 direction = path / pathLength;
             Vector3 toEnemy = enemyHex.transform.position - from;
 
-            // how far along the charge the enemy stands - behind is not swept, past the end counts
-            // as being at the end, which is where the caster comes to a stop on top of them
             float along = Vector3.Dot(toEnemy, direction);
             if (along <= 0f) return false;
 

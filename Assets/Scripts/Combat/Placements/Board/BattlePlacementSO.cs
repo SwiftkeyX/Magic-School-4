@@ -27,8 +27,6 @@ namespace MagicSchool.Combat.Placements
         public IReadOnlyList<HexNumber> DeployZone => _deployZone;
         public GameObject BoardLayout => _boardLayout;
 
-        // option to create BattlePlacementSO in code. Not as asset.
-        // e.g.     use when testing hero benchmark
         public static BattlePlacementSO CreateRuntime(IEnumerable<HeroPlacement> placements)
         {
             BattlePlacementSO setup = CreateInstance<BattlePlacementSO>();
@@ -36,34 +34,24 @@ namespace MagicSchool.Combat.Placements
             return setup;
         }
 
-        // Changing team formation by editing this SO. 
-        // e.g.     stage editor mode, want to override new enemy formation to current SO. 
         public void ReplaceTeam(TeamEnum team, IEnumerable<HeroPlacement> placements)
         {
-            // removing all hero that belong the specify team first
             _heroesPlacement.RemoveAll(placement =>
             {
                 bool sameTeam = placement.team == team;
                 return sameTeam;
             });
 
-            // re-add hero that belong to specify team
             _heroesPlacement.AddRange(placements);
         }
 
-        // Changing the board by editing this SO.
-        // e.g.     stage editor mode, a saved team comp remembers the board its hex numbers belong to.
         public void SetBoardLayout(GameObject layoutPrefab) => _boardLayout = layoutPrefab;
 
-        // Changing the items lying on hexes by editing this SO.
-        // e.g.     stage editor mode, a saved team comp keeps the items placed for its wearing hexes.
         public void ReplaceItemsOnHexes(IEnumerable<ItemPlacement> items)
         {
             _itemsOnHexes = new List<ItemPlacement>(items);
         }
 
-        // Changing the deploy zone by editing this SO.
-        // e.g.     stage editor mode, want to override the painted deploy zone to current SO.
         public void ReplaceDeployZone(IEnumerable<HexNumber> zone)
         {
             _deployZone = new List<HexNumber>(zone);

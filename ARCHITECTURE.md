@@ -67,7 +67,7 @@ Player, and so to Combat, Core and Items along with it.
 - two smaller modules that are deeply coupled, Hero and Placement, Hero need to ask Placement for other Hero whereabout,
 and Placement need to know which Hero standing on it.
 - controls hero behaviour through a state machine.
-- constructs a graph-like hex grid that heroes fight on, using A\* to path across it.
+- constructs a graph-like hex grid that heroes fight on, using a breadth-first search to path across it.
 
 **Skills**
 

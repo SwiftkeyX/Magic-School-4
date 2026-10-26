@@ -11,6 +11,8 @@ namespace MagicSchool.Combat.Heroes
     /// HP and AD are TFT's own numbers. TFT writes a skill's numbers out per star instead of scaling AP;
     /// AP stands in for that here, so a caster's skill grows the way an AD hero's does through AD.
     /// </summary>
+    // Copies(star): how many 1-star copies went into it, what it cost and what selling it refunds (3 stars = 4). A
+    // hero is drawn bigger per star so an upgraded one can be told apart.
     public static class HeroStar
     {
         public const int Min = 1;
@@ -21,7 +23,6 @@ namespace MagicSchool.Combat.Heroes
         private const float AtkPerStar = 1.5f;
         private const float ApPerStar = 1.5f;
 
-        // how much bigger the hero is drawn per star, so an upgraded hero can be told apart on the board
         private const float ScalePerStar = 0.15f;
 
         public static float HpMultiplier(int star) => Mathf.Pow(HpPerStar, star - Min);
@@ -29,8 +30,6 @@ namespace MagicSchool.Combat.Heroes
         public static float ApMultiplier(int star) => Mathf.Pow(ApPerStar, star - Min);
         public static float Scale(int star) => 1f + ScalePerStar * (star - Min);
 
-        // how many 1-star copies went into it: what it cost, and what selling it gives back
-        // e.g.     3 star => 4 copies
         public static int Copies(int star) => (int)Mathf.Pow(CopiesToCombine, star - Min);
     }
 }

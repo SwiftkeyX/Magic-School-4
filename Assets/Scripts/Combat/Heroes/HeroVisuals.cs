@@ -4,6 +4,8 @@ using MagicSchool.Contracts;
 
 namespace MagicSchool.Combat.Heroes
 {
+    // A dead player hero is hidden, not destroyed: it is revived for the next stage and drawn again then. With nobody
+    // watching (a benchmark, Hero.IsDrawn false) the bars are not made at all, as they would still update every frame.
     [RequireComponent(typeof(SpriteRenderer))]
     internal class HeroVisuals : MonoBehaviour
     {
@@ -20,7 +22,6 @@ namespace MagicSchool.Combat.Heroes
             _me = GetComponent<Hero>();
             _sprite = GetComponent<SpriteRenderer>();
 
-            // nobody is watching (a benchmark): the bars would still update every frame, so they go entirely
             if (!Hero.IsDrawn)
             {
                 foreach (Canvas bar in GetComponentsInChildren<Canvas>(true)) bar.gameObject.SetActive(false);
@@ -31,18 +32,13 @@ namespace MagicSchool.Combat.Heroes
         {
             if (_me == null || !_me.IsInitialized || !Hero.IsDrawn) return;
 
-            // if a hero is vanished, don't draw him 
-            // the same goes for a dead hero. The player's dead are not destroyed: they are revived for
-            // the next stage, and drawn again then.
             bool isShown = _me.IsAlive && !_me.HasStatus(ModifierEnum.Untargetable);
             if (_sprite.enabled == isShown) return;
             _sprite.enabled = isShown;
 
-            // don't draw the canvas of him too.
             foreach (Canvas bar in GetComponentsInChildren<Canvas>(true)) bar.enabled = isShown;
         }
 
-        // Floating skill-name text above the hero when its skill actually casts
         public void PlaySkillCastEffect(string skillName)
         {
             if (_skillCastTextPrefab == null || !Hero.IsDrawn) return;

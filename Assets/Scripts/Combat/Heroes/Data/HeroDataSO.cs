@@ -20,6 +20,9 @@ namespace MagicSchool.Combat.Heroes
         public List<ScriptableObject> itemsByTier = new List<ScriptableObject>();
     }
 
+    // ForgedItem: the forge table's item for that role and tier, past the end the row's last (Tank [Iron, Tempered,
+    // Reinforced, Forged]: tier 1 => Tempered, tier 9 => Forged); null when the role has no row. A hero with no
+    // pattern counts as one pattern with no marks: it cannot rotate. _isDummy: a dummy never walks or attacks.
     [CreateAssetMenu(fileName = "HeroStat", menuName = "Magic School 4/Hero Stat")]
     public class HeroDataSO : ScriptableObject
     {
@@ -44,10 +47,8 @@ namespace MagicSchool.Combat.Heroes
         [SerializeField] private List<ForgeRow> _forgeTable = new List<ForgeRow>();
         [Tooltip("Aligning: every way this hero can be turned, each with its own marks. Rotating switches to the next one. Edit in Magic School 4 > Align Editor.")]
         [SerializeField] private List<AlignPattern> _alignPatterns = new List<AlignPattern>();
-        // FLAGGING: a dummy should be its own unit type, not a Hero. Let's see later if it make sense.
-        [SerializeField] private bool _isDummy = false; // A dummy never walks or attacks 
+        [SerializeField] private bool _isDummy = false;
 
-        // ===================== setter & getter =====================
         public GameObject Prefab => _prefab;
         public string Name => _name;
         public HeroTierEnum Tier => _tier;
@@ -65,8 +66,6 @@ namespace MagicSchool.Combat.Heroes
         public SkillIdEnum SkillId => _skillId;
         public HeroDataSO SpawnUnit => _spawnUnit;
 
-        // the item the forge table lists for this role at this tier, or null when the role has no row
-        // e.g.     Tank row [Iron Plate, Tempered, Reinforced, Forged]: tier 1 => Tempered, tier 9 => Forged
         public ScriptableObject ForgedItem(HeroRoleEnum role, int tier)
         {
             ForgeRow row = _forgeTable.Find(r => r.role == role && r.itemsByTier.Count > 0);
@@ -75,11 +74,8 @@ namespace MagicSchool.Combat.Heroes
 
         public bool CanForgeFor(HeroRoleEnum role) => ForgedItem(role, 0) != null;
 
-        // a hero with no pattern still counts as one, with no marks: it cannot rotate
         public int AlignPatternCount => Mathf.Max(1, _alignPatterns.Count);
 
-        // the marks of one pattern; none when there is no such pattern
-        // the special marks this hero's skill reads (See AlignMark), for the Align Editor
         public IReadOnlyList<string> SpecialMarksOf(TemplateActionRegistrySO registry)
             => SkillLibrary.Resolve(_skillId, registry)?.SpecialMarks ?? new string[0];
 

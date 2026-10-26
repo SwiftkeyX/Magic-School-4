@@ -64,9 +64,12 @@ bench, then back to the hex it started on.
 
 ## Pathfinding and walking
 
-- **`Combat/Placements/Hex/HexPathfinder.cs`** is **A\***, not greedy and not BFS. It returns ONE step toward a hex next
-  to the target. A\* so that equally short routes tie-break toward the target instead of by discovery order. The step
-  can look like backward progress when routing round a blocked hex; whether to take it or wait is the caller's call.
+- **`Combat/Placements/Hex/HexPathfinder.cs`** returns ONE step toward a free hex next to the target, not the whole
+  route. It counts steps breadth-first outward from those goal hexes through free hexes, then takes a neighbour one step
+  closer. Equally short first steps (round the top or the bottom of an ally) are told apart on purpose, never by the
+  order a hex lists its neighbours (top first, which once sent every hero over the top): first the step nearer the
+  target, then the mover's lean (`Hero.PathLean`, +1 upper / -1 lower, rolled per fight). The step can look like
+  backward progress when routing round a blocked hex; whether to take it or wait is the caller's call.
 - **`Combat/Heroes/States/`** holds the behaviour: `HeroStateMachine` over Idle / Walk / Attack / Cast / Stunned / Dead,
   with `Transition` holding the conditions.
 - Walking is `Vector3.Lerp` plus an `AnimationCurve` over `1 / moveSpeed` seconds per hex, not `CharacterController`
@@ -108,6 +111,6 @@ bench, then back to the hex it started on.
 - **Shift view** (`PlayerInputSystem.TargetViewHeld`, `AlignHighlight.ShowTargetView`): hovering a hero hides its marks
   and fills the enemy it will go for yellow (`Hero.ExpectedTarget`: the chosen one, or the only nearest; none while a tie
   is automatic), gives tied enemies a yellow band (`BoardColours.ShowTargets`, `_targetColor`), and puts a dot on every
-  hex it would walk through (`Hero.RouteToExpectedTarget`, the walk's own one-step A\* repeated; `RouteDots`). In a fight
+  hex it would walk through (`Hero.RouteToExpectedTarget`, the walk's own one-step search repeated; `RouteDots`). In a fight
   it is a debug view over any living hero of either team (`AlignHighlight.ShowFightTargetView`, `Hero.TargetInFight`,
   `Hero.RouteTo`), repainted live.

@@ -7,6 +7,10 @@ namespace MagicSchool.Combat.Heroes.States
 {
     // One step from the hex a hero stands on to a neighbour it has already reserved, one frame at a time.
     // Shared by HeroWalk and by HeroCast, for a skill that lets its caster walk while casting.
+    // A unit is handed its new hex only when the step ends. A step cut off halfway (a stun, death) puts the hero back
+    // on the hex it left and lets go of the one it was stepping onto: kept, that booking is never used and an enemy
+    // next to it waits forever (two Minotaurs once stood still beside the hex a stunned Skeleton Archer was stepping
+    // onto).
     internal class HexStep
     {
         private readonly Hero _me;
@@ -22,7 +26,6 @@ namespace MagicSchool.Combat.Heroes.States
             _movement = movement;
         }
 
-        // still on the way: the hero is between two hexes
         public bool IsWalking => _isWalking;
 
         public void StartTo(Hex hex)
@@ -36,7 +39,6 @@ namespace MagicSchool.Combat.Heroes.States
             _isWalking = true;
         }
 
-        // walk according the movement's curve; once there, hand the hero over to the hex it stepped onto
         public void Tick(float deltaTime)
         {
             if (!_isWalking) return;
@@ -48,12 +50,8 @@ namespace MagicSchool.Combat.Heroes.States
             _isWalking = false;
         }
 
-        // forget a step that was cut off (e.g. a stun) - the next one starts from wherever the hero is
         public void Cancel() => _isWalking = false;
 
-        // A step cut off halfway (a stun, death): back onto the hex it left, and let go of the hex it was stepping onto.
-        // Kept, that booking would never be used, and an enemy next to it waits for him to arrive there forever.
-        // e.g.     two Minotaurs standing still next to the hex Skeleton Archer was stepping onto when he was stunned
         public void CutOff()
         {
             if (!_isWalking) return;
@@ -64,12 +62,8 @@ namespace MagicSchool.Combat.Heroes.States
             _me.SetReservedHex(_me.CurrentHex);
         }
 
-        // A unit arrive at new hex
-        // un owner to previous hex, set new owner to the new hex.
-        // NOTE: this use same pattern as HeroMover & Move Template action
         private void ArriveAt(Hex hex)
         {
-            // guard
             if (_me.CurrentHex == hex) return;
 
             IPlacement previous = _me.CurrentPlacement;

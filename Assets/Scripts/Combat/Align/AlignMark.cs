@@ -8,9 +8,6 @@ using MagicSchool.StatScaling;
 
 namespace MagicSchool.Combat.Align
 {
-    // FLAGGING: I don't like that the modifier, and the hex was serializable and was edited in the inspector. I prefer it inside code.
-    // But it was fine for now. I need to make it fast first.
-
     /// <summary>
     /// AlignPattern = one way a hero can be turned: every mark it has while turned this way.
     /// A hero has one pattern or more, each authored by hand in the Align Editor - a pattern does not have to be
@@ -48,6 +45,7 @@ namespace MagicSchool.Combat.Align
     /// e.g.    Rock Golem: "Ward"              => the allies on it are shielded with him
     /// e.g.    Skeleton Archer: "Long Shot"    => his long shots deal more for every ally on it
     /// </summary>
+    // AllyAmount with perOwnerAP: the ally amount per 100 of the owner's AP, e.g. 25 per 100 AP at 150 AP => 37.5.
     [Serializable]
     public struct AlignMark
     {
@@ -92,13 +90,11 @@ namespace MagicSchool.Combat.Align
 
         private const float RestOfFight = -1f;
 
-        // =================================== getter ===================================
         public bool HasAllyBonus => amount != 0f;
         public bool HasSelfBonus => selfAmount != 0f;
         public bool HasDamageHeal => healFromAllyDamage > 0f;
         public bool IsSpecial => !string.IsNullOrEmpty(special);
 
-        // Get the hexes that was marked by this hero.
         public List<Hex> GetMarkedHexes(Hex standingOn)
         {
             var marked = new List<Hex>();
@@ -113,7 +109,6 @@ namespace MagicSchool.Combat.Align
             return marked;
         }
 
-        // Get the marked hexes that are wearing hexes: an item lying on one is worn by this hero.
         public List<Hex> GetWearingHexes(Hex standingOn)
         {
             var wearing = new List<Hex>();
@@ -132,14 +127,10 @@ namespace MagicSchool.Combat.Align
 
         public bool HasWearingHex => hexes != null && hexes.Exists(alignHex => alignHex.isWearing);
 
-        // Get bonus modifier for ally. ownerAP: the AP of the hero whose mark this is (See perOwnerAP)
         public ICustomModifier BuildAllyModifier(float ownerAP) => Build(modifier, AllyAmount(ownerAP), percentOf);
 
-        // the ally bonus's amount for an owner with this much AP
-        // e.g.     25 per owner AP, 150 AP => 37.5
         public float AllyAmount(float ownerAP) => perOwnerAP ? amount * ownerAP / 100f : amount;
 
-        // Get bonus modifier for self
         public ICustomModifier BuildSelfModifier() => Build(selfModifier, selfAmount, selfPercentOf);
 
 
@@ -188,10 +179,8 @@ namespace MagicSchool.Combat.Align
 
         public Hex GetHex(Hex standingOn)
         {
-            // if no turn, return
             if (!HasTurn) return standingOn.GetNeighbor(direction, Distance);
 
-            // if turn, walk first
             Hex hex = Walk(standingOn, direction, Distance, thenDirection, thenDistance);
             if (hex != null) return hex;
             return Walk(standingOn, thenDirection, thenDistance, direction, Distance);

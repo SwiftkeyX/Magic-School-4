@@ -6,6 +6,8 @@ using MagicSchool.Combat.Heroes;
 namespace MagicSchool.Combat.Placements
 {
     // for battle setup: which hero? on which team? standing where? wearing what?
+    // item is a plain ScriptableObject because Combat does not reference Items; Core reads it as an ItemDataSO. A
+    // level or star of 0 or out of range reads as the nearest valid one (0 = saved before it existed).
     [Serializable]
     public struct HeroPlacement
     {
@@ -13,7 +15,6 @@ namespace MagicSchool.Combat.Placements
         public TeamEnum team;
         public HexNumber hexPlacement;
 
-        // Combat does not reference Items, so this is a plain ScriptableObject; Core reads it as an ItemDataSO.
         [Tooltip("The item this hero wears (an ItemDataSO). Empty = nothing.")]
         public ScriptableObject item;
 
@@ -27,10 +28,8 @@ namespace MagicSchool.Combat.Placements
         [Tooltip("The hero's star, 1-3 (See HeroStar). 0 (an entry from before stars were saved) is 1 star.")]
         public int star;
 
-        // the level to spawn at - 0 or out of range read as the nearest valid level
         public int Level => HeroLevel.Clamp(level);
 
-        // the star to spawn at - 0 or out of range read as the nearest valid star
         public int Star => Mathf.Clamp(star, HeroStar.Min, HeroStar.Max);
 
         public HeroPlacement(HeroDataSO data, TeamEnum team, HexNumber hexPlacement, ScriptableObject item = null, int alignPattern = 0,
