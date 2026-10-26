@@ -17,24 +17,20 @@ namespace MagicSchool.StatScaling
     {
         public static float Total(IReadOnlyList<StatRatio> ratios, IHeroStats stats)
         {
-            // guard
             if (ratios == null || ratios.Count == 0) return 0f;
 
             float total = 0f;
 
             foreach (StatRatio ratio in ratios)
             {
-                // flat scaling - the number stands on its own
                 if (ratio.IsFlat)
                 {
                     total += ratio.Amount;
                     continue;
                 }
 
-                // percentage scaling
                 else
                 {
-                    // guard
                     if (stats == null)
                     {
                         Debug.LogError($"[Scaling] a ratio scales off {ratio.Stat.Value} but was asked without any stats " +
@@ -49,22 +45,18 @@ namespace MagicSchool.StatScaling
             return total;
         }
 
-        // scaling can be derived from the stat using these 3 type, [Total/Base/Bonus] stat 
         private static float PartOf(StatRatio ratio, IHeroStats stats)
         {
             StatEnum stat = ratio.Stat.Value;
 
             switch (ratio.ScaleFrom)
             {
-                // scale of the base stat
                 case ScaleFromEnum.Base:
                     return stats.GetBaseStat(stat);
 
-                // scale of the bonus stat
                 case ScaleFromEnum.Bonus:
                     return stats.GetStat(stat) - stats.GetBaseStat(stat);
 
-                // scale of the total stat 
                 default:
                     return stats.GetStat(stat);
             }

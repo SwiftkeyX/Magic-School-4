@@ -5,6 +5,7 @@ using UnityEngine;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Core;
+using MagicSchool.DevTools;
 
 namespace MagicSchool.Editor
 {
@@ -20,15 +21,14 @@ namespace MagicSchool.Editor
         private const string ItemFolder = "Assets/Data/Items";
         private const string StageFolder = "Assets/Data/BattleSetups/Campaign";
 
-        // remembered by the window and pushed into StageEditor.EditsDeployZone, which a new Play session starts on
         [SerializeField] private bool _editDeployZone = true;
         [SerializeField] private bool _shopHeroesOpen, _benchEnemiesOpen;
-        [SerializeField] private int _newEnemyLevel = HeroLevel.Min;     // pushed into StageEditor.NewEnemyLevel
+        [SerializeField] private int _newEnemyLevel = HeroLevel.Min;
         [SerializeField] private int _allLevel = HeroLevel.Min;
         [SerializeField] private string _search = "";
-        [SerializeField] private int _tab;      // kept by the window, so it reopens on the same tab
-        [SerializeField] private int _playerTab;  // the Player tab's own part: team comps, bench, items
-        [SerializeField] private int _enemyTab;   // the Enemy tab's own part: load a stage, add enemies, their levels
+        [SerializeField] private int _tab;
+        [SerializeField] private int _playerTab;
+        [SerializeField] private int _enemyTab;
         private Vector2 _scroll;
 
         private static readonly GUIContent[] Tabs =
@@ -52,21 +52,20 @@ namespace MagicSchool.Editor
             new GUIContent("Item", "Put any item on the loose row, for free (Play mode)."),
         };
 
-        // the assets listed, found again whenever the project changes
         private List<(HeroDataSO hero, string label)> _enemies, _shopHeroes;
         private List<BattlePlacementSO> _comps, _stages;
-        private List<(ScriptableObject item, string name, string label)> _items;     // ItemDataSOs, typed by what Editor can name
+        private List<(ScriptableObject item, string name, string label)> _items;
 
         [MenuItem("Magic School 4/Stage Editor")]
         private static void Open() => GetWindow<StageEditorWindow>("Stage Editor");
 
         private void OnEnable()
         {
-            wantsMouseMove = true;      // the list row under the mouse is lit (See WindowStyle.ListRow)
+            wantsMouseMove = true;
             FindAssets();
         }
-        private void OnProjectChange() => FindAssets();     // a hero or comp added, renamed or deleted
-        private void OnInspectorUpdate() => Repaint();      // the status follows the game
+        private void OnProjectChange() => FindAssets();
+        private void OnInspectorUpdate() => Repaint();
 
         private void OnGUI()
         {
@@ -79,7 +78,6 @@ namespace MagicSchool.Editor
                 editor.NewEnemyLevel = _newEnemyLevel;
             }
 
-            // above the tabs: what both need - the mode, what is on the board, the search
             WindowStyle.Intro("Edit the stage being played: add enemies, paint the deploy zone and save it - or load and save " +
                               "the player's team comps. Works in Play mode, in Preparation.");
             DrawStatus(editor);
@@ -104,11 +102,9 @@ namespace MagicSchool.Editor
             else DrawTeamComps(editor);
             EditorGUILayout.EndScrollView();
 
-            // whichever enemy part is open, saving is always at hand
             if (_tab == 0) DrawEnemySave(editor, ready);
         }
 
-        // =================================== status ===================================
         private void DrawStatus(StageEditor editor)
         {
             GameManager game = Application.isPlaying ? GameManager.Instance : Object.FindAnyObjectByType<GameManager>();
@@ -118,7 +114,6 @@ namespace MagicSchool.Editor
                 return;
             }
 
-            // Stage Edit Mode: in Play mode for this session only; outside it, the scene's setting (save the scene to keep it)
             var serialized = new SerializedObject(game);
             SerializedProperty mode = serialized.FindProperty("_stageEditMode");
             serialized.Update();
@@ -148,17 +143,14 @@ namespace MagicSchool.Editor
                                                       (stage != null ? $" (the stage has {editor.EnemyCountIn(stage)} and {editor.DeployZoneCountIn(stage)})" : ""));
         }
 
-        // =================================== enemy team ===================================
         private void DrawAddEnemies(StageEditor editor, bool ready)
         {
-            // every enemy hero, one Add each, at the level picked here
             _newEnemyLevel = EditorGUILayout.IntSlider(new GUIContent("Add at level",
                 "The level an added enemy starts at. Every level past 1 adds 10% to its HP, AD, AP and DF " +
                 "(level 11 = double, 30 = 3.9x). Change one already on the board in Levels."), _newEnemyLevel, HeroLevel.Min, HeroLevel.Max);
             if (editor != null) editor.NewEnemyLevel = _newEnemyLevel;
             DrawHeroList(_enemies, AddButton, ready, AddEnemy);
 
-            // any hero can stand on the enemy side: every other one (Data/Heroes/Stats/Player - the shop's, test units too), folded away
             _shopHeroesOpen = EditorGUILayout.Foldout(_shopHeroesOpen, new GUIContent($"Other heroes ({Filtered(_shopHeroes).Count()})",
                 $"Every hero in {ShopHeroFolder}: the shop's, and test units like the Dummy. Any of them can be an enemy."), true);
             if (_shopHeroesOpen)
@@ -167,8 +159,6 @@ namespace MagicSchool.Editor
             }
         }
 
-        // under every enemy part: whether clicks paint the zone, and the two saves
-        // above both tabs: both teams in one slot, to pick up where the last Play session stopped (See StageEditorMenu.QuickSave)
         private void DrawQuickSave(StageEditor editor)
         {
             bool ready = WhyNot(editor) == null;
@@ -213,7 +203,6 @@ namespace MagicSchool.Editor
             EditorGUILayout.Space(WindowStyle.Gap);
         }
 
-        // every stage, with a Load button that puts its enemies on the board to edit or copy
         private void DrawStages(StageEditor editor, bool ready)
         {
             var stages = (_stages ?? new List<BattlePlacementSO>()).Where(s => s != null && Matches(s.name)).ToList();
@@ -251,7 +240,6 @@ namespace MagicSchool.Editor
                              "it. A stage outside the run only has its enemies put on the board.");
         }
 
-        // every enemy on the board with its level, changed live; saving writes them into the stage
         private void DrawEnemyLevels(StageEditor editor, bool ready)
         {
             if (!ready)
@@ -297,7 +285,6 @@ namespace MagicSchool.Editor
 
         private static void AddEnemy(HeroDataSO hero) => StageEditorMenu.AddEnemies(new[] { hero });
 
-        // one row per hero: its name, role and tier, the tab's button, and Select
         private void DrawHeroList(List<(HeroDataSO hero, string label)> heroes, System.Func<HeroDataSO, GUIContent> button,
                                   bool enabled, System.Action<HeroDataSO> onClick)
         {
@@ -319,7 +306,6 @@ namespace MagicSchool.Editor
             }
         }
 
-        // =================================== player team ===================================
         private void DrawTeamComps(StageEditor editor)
         {
             bool ready = WhyNot(editor) == null;
@@ -353,7 +339,6 @@ namespace MagicSchool.Editor
             }
         }
 
-        // any item onto the loose row for free, where a bought one lands - Play mode only (See AddHeroMenu.AddItem)
         private void DrawItems()
         {
             bool canDrop = AddHeroMenu.CanAdd;
@@ -378,7 +363,6 @@ namespace MagicSchool.Editor
             }
         }
 
-        // any hero onto the bench for free - Play mode only, Stage Edit Mode not needed (See AddHeroMenu)
         private void DrawBench()
         {
             bool canBench = AddHeroMenu.CanAdd;
@@ -394,7 +378,6 @@ namespace MagicSchool.Editor
             }
         }
 
-        // =================================== helpers ===================================
         private void FindAssets()
         {
             _enemies = HeroesIn(EnemyFolder);
@@ -413,7 +396,6 @@ namespace MagicSchool.Editor
             Repaint();
         }
 
-        // each hero with its role and tier, read off the asset - Editor cannot name the enums (they are in Contracts)
         private static List<(HeroDataSO, string)> HeroesIn(string folder)
         {
             if (!AssetDatabase.IsValidFolder(folder)) return new List<(HeroDataSO, string)>();
@@ -426,8 +408,6 @@ namespace MagicSchool.Editor
                 .ToList();
         }
 
-        // how many enemies a stage has and the levels they are at, read off the asset - Editor cannot name TeamEnum (Contracts)
-        // e.g.     (5, "10")    (4, "2/5")
         private static (int, string) Enemies(BattlePlacementSO stage)
         {
             SerializedProperty list = new SerializedObject(stage).FindProperty("_heroesPlacement");
@@ -435,14 +415,13 @@ namespace MagicSchool.Editor
             for (int i = 0; list != null && i < list.arraySize; i++)
             {
                 SerializedProperty entry = list.GetArrayElementAtIndex(i);
-                if (entry.FindPropertyRelative("dataSO").objectReferenceValue == null) continue;
-                if (entry.FindPropertyRelative("team").intValue == 0) continue;     // 0 = the player's team
-                levels.Add(HeroLevel.Clamp(entry.FindPropertyRelative("level").intValue));
+                if (entry.FindPropertyRelative(nameof(HeroPlacement.dataSO)).objectReferenceValue == null) continue;
+                if (entry.FindPropertyRelative(nameof(HeroPlacement.team)).intValue == 0) continue;
+                levels.Add(HeroLevel.Clamp(entry.FindPropertyRelative(nameof(HeroPlacement.level)).intValue));
             }
             return (levels.Count, levels.Count == 0 ? "-" : string.Join("/", levels.Distinct().OrderBy(l => l)));
         }
 
-        // each item with its name, price and what it gives, read off the asset - Editor cannot name ItemDataSO (it is in Items)
         private static List<(ScriptableObject, string, string)> ItemsIn(string folder)
         {
             if (!AssetDatabase.IsValidFolder(folder)) return new List<(ScriptableObject, string, string)>();
@@ -463,8 +442,6 @@ namespace MagicSchool.Editor
                 .ToList();
         }
 
-        // what an item gives: its description up to the flavour text, which starts after the first ". "
-        // e.g.     "+20 AP, +15 Starting Mana. Tapped straight off..." => "+20 AP, +15 Starting Mana"
         private static string StatsOf(string description)
         {
             if (string.IsNullOrEmpty(description)) return "";
@@ -497,9 +474,8 @@ namespace MagicSchool.Editor
         }
 
         private static StageEditor Editor()
-            => EditorApplication.isPlaying && GameManager.Instance != null ? GameManager.Instance.StageEditor : null;
+            => EditorApplication.isPlaying ? StageEditor.Current : null;
 
-        // what stops editing right now, in words - or null when nothing does
         private static string WhyNot(StageEditor editor)
         {
             if (!EditorApplication.isPlaying) return "The stage is edited in Play mode, in Preparation.";

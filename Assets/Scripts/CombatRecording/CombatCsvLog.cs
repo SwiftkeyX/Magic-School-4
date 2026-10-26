@@ -20,27 +20,21 @@ namespace MagicSchool.CombatRecording
 
         public CombatCsvLog(string folder)
         {
-            // create directory
             Directory.CreateDirectory(folder);
 
-            // get filepath
             string stamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture);
             _filePath = Path.Combine(folder, "balance-" + stamp + ".csv");
 
-            // write header
             File.WriteAllText(_filePath, Header + Environment.NewLine, Encoding.UTF8);
         }
 
-        // One call per finished combat round.
         public void AppendRound(int stage, int stageCount, TeamEnum? winner, IReadOnlyList<ScoreRow> rows)
         {
-            // 1 row = 1 hero data
             if (rows == null || rows.Count == 0) return;
 
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
             string won = winner == null ? "draw" : winner.ToString();
 
-            // write each row using each hero data
             var text = new StringBuilder();
             foreach (ScoreRow row in rows)
             {
@@ -75,7 +69,6 @@ namespace MagicSchool.CombatRecording
             File.AppendAllText(_filePath, text.ToString(), Encoding.UTF8);
         }
 
-        // ======================================== helper ========================================
         private static string Num(int value) => value.ToString(CultureInfo.InvariantCulture);
         private static string Num(float value) => value.ToString("0.0", CultureInfo.InvariantCulture);
 

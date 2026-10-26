@@ -5,6 +5,8 @@ using MagicSchool.Contracts;
 namespace MagicSchool.UI
 {
     // World-space health bar - green for the player's side, red for the other one.
+    // A shield shows as a white section after the HP, [HP][shield]; when HP + shield is more than max HP, the bar
+    // rescales to fit both.
     internal class Healthbar : WorldBar
     {
         [SerializeField] private RectTransform _shieldFill;
@@ -13,11 +15,8 @@ namespace MagicSchool.UI
 
         private float Total => Mathf.Max(_hero.MaxHP, _hero.CurrentHP + _hero.Shield);
 
-        // ====================================== override ======================================
-        // fill slider with hero's hp value
         protected override float Fill => Total > 0f ? _hero.CurrentHP / Total : 0f;
 
-        // ====================================== life cycle ======================================
         protected override void Awake()
         {
             base.Awake();
@@ -31,8 +30,6 @@ namespace MagicSchool.UI
             else if (_hero.Team == TeamEnum.Red) _image.color = Color.red;
         }
 
-        // A shield shows as a white section after the HP: [HP][shield].
-        // When HP + shield is more than max HP, the bar rescales to fit them both.
         protected override void LateUpdate()
         {
             base.LateUpdate();

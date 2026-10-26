@@ -9,6 +9,8 @@ namespace MagicSchool.Skills
     /// Apply effect on contact e.g. projectile.
     /// Hitbox immediately trigger once it contact someone, the normal kind of logic for hitbox
     /// </summary>
+    // Only the first contact counts. A dead hero keeps its collider but is not drawn, so flying through it is not a
+    // hit (Skeleton Archer's arrow once vanished on an invisible corpse).
     internal class OnContactHitbox : Hitbox
     {
         private ICombatant _caster;
@@ -21,25 +23,16 @@ namespace MagicSchool.Skills
             _caster = caster;
         }
 
-        /// <summary>
-        /// When heroes who was hit on first contact:
-        /// 1) Apply effect once if not cadence
-        /// 2) Apply effect over time if cadence
-        /// </summary>
         public void OnTriggerEnter2D(Collider2D other)
         {
             if (_caster == null) return;
 
             ICombatant heroHit = other.GetComponent<ICombatant>();
 
-            // guard
             if (heroHit == null) return;
 
-            // a dead hero keeps its collider but is not drawn - flying through it must not count as a hit
-            // e.g.     Skeleton Archer's arrow vanishing on an invisible corpse
             if (!heroHit.IsAlive) return;
 
-            // only the first contact counts - re-entering after walking out doesn't hit again
             if (!_triggeredOnce.Add(heroHit)) return;
 
             OnHit?.Invoke(heroHit);

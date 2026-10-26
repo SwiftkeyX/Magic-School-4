@@ -1,6 +1,7 @@
-# Modifiers Module - it is a module that build considering asmdef boundary
-MagicSchool.Modifiers is a module that:
-1) reference to MagicSchool.Contracts and MagicSchool.StatScaling - a StatModifier holds its own
-   StatRatio list and calls the static Scaling to add them up.
-2) was referenced by MagicSchool.Skills and MagicSchool.Combat
+# MagicSchool.Modifiers
 
+Buffs, debuffs and statuses: `ModifierResolver` counts them down and works out a stat's final value.
+
+References **Contracts, StatScaling** (a `StatModifier` holds its own `StatRatio` list). Referenced by **Skills, Combat,
+Items**. The resolver lives here, not next to `Stat` in Combat, so a trait or item system can resolve "+20 armour"
+without taking Combat along.

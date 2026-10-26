@@ -27,10 +27,11 @@ MonoBehaviour:
   _critChance: 25
   _skillId: 4
   _spawnUnit: {fileID: 0}
-  _forgedItems: []
+  _forgeTable: []
   _alignPatterns:
   - marks:
-    - hexes:
+    - kind: 1
+      hexes:
       - direction: 4
         distance: 1
         thenDirection: 3
@@ -66,7 +67,8 @@ MonoBehaviour:
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
-    - hexes:
+    - kind: 2
+      hexes:
       - direction: 1
         distance: 1
         thenDirection: 0
@@ -88,7 +90,8 @@ MonoBehaviour:
       selfWhenEmpty: 0
       healFromAllyDamage: 0
   - marks:
-    - hexes:
+    - kind: 1
+      hexes:
       - direction: 0
         distance: 1
         thenDirection: 0
@@ -124,7 +127,8 @@ MonoBehaviour:
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
-    - hexes:
+    - kind: 2
+      hexes:
       - direction: 4
         distance: 1
         thenDirection: 3
@@ -146,7 +150,8 @@ MonoBehaviour:
       selfWhenEmpty: 0
       healFromAllyDamage: 0
   - marks:
-    - hexes:
+    - kind: 1
+      hexes:
       - direction: 2
         distance: 1
         thenDirection: 2
@@ -182,7 +187,8 @@ MonoBehaviour:
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
-    - hexes:
+    - kind: 2
+      hexes:
       - direction: 0
         distance: 1
         thenDirection: 0

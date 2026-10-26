@@ -10,6 +10,11 @@ namespace MagicSchool.Skills
     /// Skills are written in C#, which cannot hold a prefab reference, meaning it can't ref to TemplateAction.
     /// So this class pair enum & TemplateAction. So you could reference the TemplateAction via this class.
     /// </summary>
+    // The lookup is built on first use, not in OnEnable: a ScriptableObject's OnEnable runs at a point in load order
+    // we do not control, and a half-built lookup is worse than a late one. A missing action is always reported, since
+    // a skill silently doing nothing is what this registry exists to make loud; a duplicate keeps the first and is
+    // reported, so list order never matters unsaid. The cache is dropped on OnValidate because the list is edited by
+    // hand.
     [CreateAssetMenu(fileName = "TemplateActionRegistry", menuName = "Magic School 4/Template Action Registry")]
     public class TemplateActionRegistrySO : ScriptableObject
     {
@@ -22,14 +27,8 @@ namespace MagicSchool.Skills
 
         [SerializeField] private List<Entry> _entries = new List<Entry>();
 
-        // built on first use rather than in OnEnable - a ScriptableObject's OnEnable runs at a point
-        // in load order we do not control, and a half-built lookup is worse than a late one
         private Dictionary<TemplateActionEnum, TemplateAction> _byAction;
 
-        /// <summary>
-        /// The prefab for this action, or null if it has no usable entry. Null is always reported -
-        /// a skill silently doing nothing is the failure this whole registry exists to make loud.
-        /// </summary>
         public TemplateAction Get(TemplateActionEnum action)
         {
             if (action == TemplateActionEnum.None)
@@ -65,8 +64,6 @@ namespace MagicSchool.Skills
             {
                 if (entry.Action == TemplateActionEnum.None) continue;
 
-                // first one wins, and the duplicate is reported - silently keeping the last would
-                // make the list order matter without anything saying so
                 if (_byAction.ContainsKey(entry.Action))
                 {
                     Debug.LogError($"[{name}] lists {entry.Action} more than once - ignoring the later one.", this);
@@ -77,7 +74,6 @@ namespace MagicSchool.Skills
             }
         }
 
-        // the list is edited by hand, so drop the cache whenever it might have changed
         private void OnValidate() => _byAction = null;
     }
 }

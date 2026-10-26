@@ -3,6 +3,8 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // The fairy (a Companion) plays the sting every second as its owner, so its target is whoever the owner fights and
+    // the lifesteal heals the owner. The sting is played outside the flow, so it is initialized in Init.
     internal class PriestSkill : SkillDefinition
     {
         private static float FairyDuration => Tuned(6f);
@@ -10,7 +12,6 @@ namespace MagicSchool.Skills
         private static float StingDamage => Tuned(60f);
         private static float HealPercent => Tuned(100f);      
 
-        // what the fairy does every second - played by the Companion.cs, not by the flow
         private SkillPart _sting;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new PriestSkill(registry);
@@ -24,20 +25,15 @@ namespace MagicSchool.Skills
              + $"{AP(StingDamage)} every second to the enemy its owner is fighting, and heals the owner for "
              + $"{HealPercent}% of the damage it deals.";
 
-        // ============================== init ==============================
-        // the sting is played on its own rather than inside the flow, so it is initialized here
-        public override void Init(ICombatant caster)
+        public override void Init(ISkillCaster caster)
         {
             base.Init(caster);
 
             _sting.Init(caster);
         }
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            // the sting. The fairy plays it as its owner, so Current is whoever the owner is fighting,
-            // and the lifesteal heals the owner.
             _sting = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,

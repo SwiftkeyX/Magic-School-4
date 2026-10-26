@@ -22,28 +22,23 @@ namespace MagicSchool.Skills
             _caster = caster;
         }
 
-        // Get all the hero who was hit by the skill
         public void OnTriggerEnter2D(Collider2D other)
         {
             if (_caster == null) return;
 
             ICombatant heroHit = other.GetComponent<ICombatant>();
 
-            // guard
             if (heroHit == null || heroHit.StateType == HeroStateEnum.Dead) return;
 
-            // Group all the heroes who was hit by the skill in 1 list
             if (!_heroesWhoWasHit.Contains(heroHit)) _heroesWhoWasHit.Add(heroHit);
         }
 
-        // Remove hero who was not hit by the skill out of the list
         public void OnTriggerExit2D(Collider2D other)
         {
             ICombatant hero = other.GetComponent<ICombatant>();
             if (hero != null) _heroesWhoWasHit.Remove(hero);
         }
 
-        // Called by the owner on its cadence interval - fires OnHit for everyone currently inside
         public void FireTick()
         {
             _heroesWhoWasHit.RemoveAll(hero => hero == null || hero.StateType == HeroStateEnum.Dead);

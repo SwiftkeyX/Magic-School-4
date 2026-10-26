@@ -13,20 +13,14 @@ namespace MagicSchool.Combat.Placements
         [SerializeField] private Camera _cam;
         [SerializeField] private List<BenchSlot> _benchSlots;
 
-        // need to know which board, its heroes will fight on (there maybe several board at once).
         [SerializeField] private BattleBoard _board;
 
         public event Action<HeroDataSO, TeamEnum, IPlacement, BattleBoard> OnSpawnRequested;
 
-        // every hero sitting on this bench, in slot order
         public IEnumerable<Hero> Heroes => _benchSlots.Select(slot => slot.Occupant).OfType<Hero>().Where(hero => hero != null);
 
-        // find the first slot that hasn't been used yet.
         public BenchSlot FindFreeSlot() => _benchSlots.FirstOrDefault(slot => !slot.Reserved);
 
-        /// <summary>
-        /// Spawn hero on the bench. Returns false (and spawns nothing) if the bench is full.
-        /// </summary>
         public bool SpawnHeroOnBench(HeroDataSO data)
         {
             BenchSlot freeSlot = FindFreeSlot();
@@ -43,7 +37,6 @@ namespace MagicSchool.Combat.Placements
                 return false;
             }
 
-            // spawn hero prefab, move it to that slot, reserved the freeslot
             OnSpawnRequested.Invoke(data, TeamEnum.Blue, freeSlot, _board);
             return true;
         }

@@ -8,6 +8,10 @@ namespace MagicSchool.Combat.Heroes.States
     /// HeroStateMachine is state machine that control hero's behaviour.
     /// It's vanilla state machine, nothing special.
     /// </summary>
+    // Global transitions every state would repeat (stun, death, cast) live here. Mana ticks before the cast check, so
+    // a full bar casts the same frame. A full bar waits for a step under way to land: cast halfway, the hero kept the
+    // hex he was stepping onto booked and never arrived, and enemies next to it waited forever. A free cast never
+    // lands on top of a cast in progress or while stunned.
     internal class HeroStateMachine
     {
         private readonly Hero _me;
@@ -62,27 +66,19 @@ namespace MagicSchool.Combat.Heroes.States
         {
             if (Current == null) return;
 
-            // mana every second of the fight, before the cast check below so a full bar casts this frame (See ManaRegen)
             _manaRegen.Tick(Time.deltaTime, CurrentType);
             _hpRegen.Tick(Time.deltaTime, CurrentType);
 
-            // interrupt state e.g. stun, dead
             if (TryResolveInterrupt(out HeroStateEnum forced))
             {
                 ChangeState(forced);
 
-                // return early, so we don't update in the same frame
                 return;
             }
 
-            // update state
             Current.OnUpdate();
         }
 
-        /// <summary>
-        /// Global state transition.  
-        /// Some of the transition are redundant in each state, make it a global transition by move it here.
-        /// </summary>
         private bool TryResolveInterrupt(out HeroStateEnum forced)
         {
             forced = default;
@@ -95,7 +91,6 @@ namespace MagicSchool.Combat.Heroes.States
                 return true;
             }
 
-            // FLAGGING: the stun duration should be addition to previous exist stun running 
             bool notStun = CurrentType != HeroStateEnum.Stunned;
             if (_me.IsStunned && notStun)
             {
@@ -103,12 +98,8 @@ namespace MagicSchool.Combat.Heroes.States
                 return true;
             }
 
-            // a full bar waits for the step under way to land, a fraction of a second. Cast halfway, the hero kept the
-            // hex he was stepping onto booked and never arrived, and enemies next to it waited for him forever.
             if (CurrentType == HeroStateEnum.Walk && _walk.IsMidStep) return false;
 
-            // FLAGGING: Being stun while casting skill is useless for the stun user, since skill effect is already fire.
-            // if mana is full, trigger OnCast skill
             bool success = _me.TriggerActiveSkill(_me.IsManaCapped());
             if (success)
             {
@@ -116,8 +107,6 @@ namespace MagicSchool.Combat.Heroes.States
                 return true;
             }
 
-            // a free cast another unit gave him (See IFreeCaster). Never on top of a cast in progress or while stunned.
-            // Mana is not full here, so HeroCast leaves it alone
             bool canCastFree = _me.HasFreeCast && CurrentType != HeroStateEnum.Cast && CurrentType != HeroStateEnum.Stunned;
             if (canCastFree && _me.TriggerActiveSkill(isManaCapped: true))
             {

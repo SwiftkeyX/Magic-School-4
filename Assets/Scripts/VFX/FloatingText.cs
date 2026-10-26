@@ -27,19 +27,15 @@ namespace MagicSchool.VFX
 
         void Update()
         {
-            // update time
             _elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(_elapsed / _duration);
 
-            // make the text float up
             transform.position = _start + Vector3.up * (_floatDistance * t);
 
-            // fade following the animation curve
             Color c = _baseColor;
             c.a = _baseColor.a * _fadeCurve.Evaluate(t);
             _text.color = c;
 
-            // destroy
             if (t >= 1f) Destroy(gameObject);
         }
     }

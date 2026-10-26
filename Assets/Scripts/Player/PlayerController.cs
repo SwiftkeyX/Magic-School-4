@@ -12,6 +12,8 @@ namespace MagicSchool.Player
     /// But I can't do anything since I don't see the pattern well enough to start using the interface.
     /// So I just let it ref to other module directly.
     /// BUT I think if I start making other game, I would see the pattern more clear, and understand what interface player should use
+    // Starting a battle lives on the player side so it is something input asks for, not something GameManager reaches
+    // into input to discover. The space bar stands in for a Start Battle button.
     internal class PlayerController : MonoBehaviour
     {
         [SerializeField] private Camera _cam;
@@ -32,7 +34,6 @@ namespace MagicSchool.Player
             _team = TeamEnum.Blue;
         }
 
-        // FLAGGING: Use findObjectByType maybe mess up later.
         void Start()
         {
             var behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -61,37 +62,29 @@ namespace MagicSchool.Player
             _teamSize?.RefreshHeroCountPanel();
         }
 
-        // BLOCKED on: a "Start Battle" UI button. => Now use manual space-bar to trigger the game for easy testing.
-        // Lives on the player side so starting a battle is something input asks for, rather than
-        // something GameManager reaches into input to discover.
         private void TryStartCombat()
         {
             if (!PlayerInputSystem.SpacePressedThisFrame) return;
 
-            // if the reward isn't choose yet, choose reward first.
             if (TryReopenReward()) return;
 
-            // if in result state, continue the game, by going to preparation state
             if (GameManager.Instance.Phase == GamePhaseEnum.Result)
             {
-                GameManager.Instance.ContinueFromResult();
+                GameManager.Instance.Requests.ContinueFromResult();
                 return;
             }
 
-            // if in preparation state, start the combat
             else if (GameManager.Instance.Phase == GamePhaseEnum.Preparation)
             {
-                GameManager.Instance.StartCombat();
+                GameManager.Instance.Requests.StartCombat();
             }
 
-            // if in combat, pause it or go on with it
             else if (GameManager.Instance.Phase == GamePhaseEnum.Combat)
             {
                 GameManager.Instance.TogglePause();
             }
         }
 
-        // if the reward available and isn't choose yet, show the reward panel.
         private bool TryReopenReward()
         {
             if (_reward == null || !_reward.IsChoosing) return false;
@@ -100,7 +93,6 @@ namespace MagicSchool.Player
             return true;
         }
 
-        // set the speed of the game
         private void TrySetSpeed()
         {
             int speed = PlayerInputSystem.SpeedPressedThisFrame();
@@ -109,51 +101,41 @@ namespace MagicSchool.Player
             GameManager.Instance.SetSpeed(speed);
         }
 
-        // quick restart
         private void TryRestart()
         {
             if (!PlayerInputSystem.RestartPressedThisFrame) return;
 
-            GameManager.Instance.Restart();
+            GameManager.Instance.Requests.Restart();
         }
 
-        // Dev tool: N wins the stage on the spot (See GameManager.SkipStage)
         private void TrySkipStage()
         {
             if (!PlayerInputSystem.SkipStagePressedThisFrame) return;
 
-            GameManager.Instance.SkipStage();
+            GameManager.Instance.Requests.SkipStage();
         }
 
-        // Right-click while holding a hero turns it to its next align pattern, instead of inspecting.
-        // Only a held hero rotates. The highlight follows on the next tick (See AlignHighlight).
         private bool TryRotateAlign()
         {
             Hero held = _dragging?.HeldHero;
             if (!PlayerInputSystem.InspectPressedThisFrame || held == null) return false;
 
-            GameManager.Instance.RotateAlign(held, 1);
+            GameManager.Instance.Actions.RotateAlign(held, 1);
             return true;
         }
 
-        // Right-click a hero or an item to inspect it.
         private void TryInspect()
         {
             if (!PlayerInputSystem.InspectPressedThisFrame) return;
 
-            // get which IInspectable that the pointer hit on
             Vector3 worldPos = PlayerInputSystem.GetMouseWorldPosition(_cam);
             IInspectable target = Picker.At<IInspectable>(worldPos);
 
-            // the hero already inspected: switch its target instead
             if (TrySwitchTarget(target)) return;
 
-            // inspect the target
             _inspector?.Inspect(target);
         }
 
-        // In Preparation, right-clicking a placed player hero that is already inspected switches which of its tied nearest
-        // enemies it goes for (See FindTarget.SwitchChosenTarget). The board shows them while the hero is hovered (See AlignHighlight).
         private bool TrySwitchTarget(IInspectable target)
         {
             if (GameManager.Instance.Phase != GamePhaseEnum.Preparation) return false;

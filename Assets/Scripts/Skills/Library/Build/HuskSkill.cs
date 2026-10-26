@@ -5,19 +5,19 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // Passive: steals from the allies on his Siphon mark for the rest of the fight (none for a hero not aligned, e.g.
+    // an enemy). Active: from random enemies for a while, one more per ally on Siphon; the cast only plays the
+    // animation, the steal happens in OnCast.
     internal class HuskSkill : SkillDefinition
     {
         private static readonly StatEnum[] StolenStats = { StatEnum.MaxHP, StatEnum.DF };
         private static float StealPercent => Tuned(10f);
 
-        // the allies standing on this mark feed him (See AlignMark)
         private const string SiphonMark = "Siphon";
         public override IReadOnlyList<string> SpecialMarks => new[] { SiphonMark };
 
-        // passive - the allies on his Siphon mark, for the rest of the fight
         private static float RestOfFight => Tuned(-1f);
 
-        // active - random enemies, for a while: this many, plus one for every ally on his Siphon mark
         private static int EnemyCount => Tuned(4);
         private static float StealDuration => Tuned(7f);
 
@@ -35,11 +35,9 @@ namespace MagicSchool.Skills
             => $"When combat starts, every ally on his {SiphonMark} mark gives up {StealPercent}% of their HP and DF "
              + "to him for the rest of the fight.";
 
-        // the allies on his Siphon mark (See IAligned); none for a hero not aligned, e.g. an enemy
         private IReadOnlyList<ICombatant> AlliesOnSiphon()
-            => Caster is IAligned aligned ? aligned.AlliesOnSpecialMark(SiphonMark) : new ICombatant[0];
+            => Caster != null ? Caster.AlliesOnSpecialMark(SiphonMark) : new ICombatant[0];
 
-        // ============================== passive ==============================
         public override bool HasAutoAttackPassive => true;
 
         public override bool OnCombatStart()
@@ -52,7 +50,6 @@ namespace MagicSchool.Skills
             return base.OnCombatStart();
         }
 
-        // ============================== active ==============================
         public override bool OnCast()
         {
             if (!base.OnCast()) return false;
@@ -64,7 +61,6 @@ namespace MagicSchool.Skills
             return true;
         }
 
-        // the cast itself only plays the animation; the steal happens in OnCast
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart cast = Part(

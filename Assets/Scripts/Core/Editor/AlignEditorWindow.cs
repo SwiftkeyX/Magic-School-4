@@ -19,6 +19,12 @@ namespace MagicSchool.Editor
     // The hex maths is in AlignHexOffset.cs.
     //
     // NOTE: The editor also work during Play mode
+    // Looking at a hero with no pattern never writes one into its asset (it shows a Start button). Unity fills a new
+    // list entry with a copy of the last one, so a new mark or pattern is wiped or copied from the wanted one. A field
+    // still focused would carry its typed value to the next pattern, so focus is cleared on switching.
+    // Orange's and green's bonuses are the hero's, the same in every pattern, but stored on each pattern's own mark,
+    // so an edit is written into every pattern. A new hex is a wearing hex when another mark already has it as one.
+    // Hex positions are (a, b): a steps NE and b steps N from the hero (See AlignHexOffset).
     internal partial class AlignEditorWindow : EditorWindow
     {
         private const string HeroFolder = "Assets/Data/Heroes/Stats/Player";
@@ -26,7 +32,7 @@ namespace MagicSchool.Editor
         private List<HeroDataSO> _heroes = new List<HeroDataSO>();
         private HeroDataSO _hero;
         private SerializedObject _serializedHero;
-        private IReadOnlyList<string> _specialMarks = new string[0];   // the special marks the hero's skill reads (See AlignMark)
+        private IReadOnlyList<string> _specialMarks = new string[0];
         private int _selectedPattern;
         private int _selectedMark;
         private string _heroSearch = string.Empty;
@@ -35,7 +41,6 @@ namespace MagicSchool.Editor
         [MenuItem("Magic School 4/Align Editor")]
         private static void Open() => GetWindow<AlignEditorWindow>("Align Editor");
 
-        // ======================================== life cycle ========================================
         private void OnEnable()
         {
             FindHeroes();
@@ -53,7 +58,6 @@ namespace MagicSchool.Editor
             Repaint();
         }
 
-        // picking a hero in the Project window picks it here too
         private void OnSelectionChange()
         {
             if (!(Selection.activeObject is HeroDataSO selected)) return;
@@ -71,7 +75,6 @@ namespace MagicSchool.Editor
                 .ToList();
         }
 
-        // the skill is built to ask it for its special marks, and building one needs the registry
         private static TemplateActionRegistrySO FindRegistry()
         {
             string guid = AssetDatabase.FindAssets("t:TemplateActionRegistrySO").FirstOrDefault();
@@ -89,10 +92,8 @@ namespace MagicSchool.Editor
             _selectedMark = 0;
         }
 
-        // ======================================== draw ========================================
         private void OnGUI()
         {
-            // the asset was deleted while the window was open
             if (_hero == null) _serializedHero = null;
 
             WindowStyle.Intro("Edit a hero's align marks by clicking the hexes around it. Orange pays the hero, green pays the ally " +
@@ -114,7 +115,6 @@ namespace MagicSchool.Editor
             _serializedHero.Update();
             SerializedProperty patterns = _serializedHero.FindProperty("_alignPatterns");
 
-            // no pattern yet: only looking at the hero must not write one into its asset
             if (patterns.arraySize == 0)
             {
                 DrawNoPattern(patterns);
@@ -125,6 +125,7 @@ namespace MagicSchool.Editor
             SerializedProperty marks = MarksOf(patterns, _selectedPattern);
             AddMissingMarks(marks);
             MatchBonusesToFirstPattern(patterns);
+            StampKinds(patterns);
 
             EditorGUILayout.BeginVertical();
             DrawHeader();
@@ -137,13 +138,11 @@ namespace MagicSchool.Editor
             _serializedHero.ApplyModifiedProperties();
         }
 
-        // the hero's name, and a way to try it out
         private void DrawHeader()
         {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(_hero.name, EditorStyles.boldLabel);
 
-            // Play mode only: get this hero onto the bench without rolling the shop for it
             using (new EditorGUI.DisabledScope(!AddHeroMenu.CanAdd))
             {
                 if (WindowStyle.RowButton(new GUIContent("Add to bench", "Play mode: put this hero on the bench for free."), 90f))
@@ -153,12 +152,10 @@ namespace MagicSchool.Editor
             EditorGUILayout.EndHorizontal();
         }
 
-        // ---------------------------------------- left: the heroes ----------------------------------------
         private void DrawHeroList()
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(WindowStyle.Sidebar));
 
-            // type part of a name to narrow the list, in any letter case
             _heroSearch = WindowStyle.Search(_heroSearch);
 
             _heroScroll = EditorGUILayout.BeginScrollView(_heroScroll);

@@ -18,7 +18,6 @@ namespace MagicSchool.Combat.Placements
             _colours = colours;
         }
 
-        // Set each hexes to deploy zone
         public void Set(IReadOnlyList<HexNumber> zone)
         {
             var inZone = new HashSet<HexNumber>(zone);
@@ -29,8 +28,6 @@ namespace MagicSchool.Combat.Placements
             }
         }
 
-        // Toggle on/off a specify hex into a deploy zone
-        // e.g.     stage editor mode, toggle the hex by clicking hexes
         public void Toggle(Hex hex)
         {
             hex.SetInDeployZone(!hex.IsInDeployZone);
@@ -38,7 +35,6 @@ namespace MagicSchool.Combat.Placements
             _colours.ShowDeployZone(hex);
         }
 
-        // Get deploy zone
         public List<HexNumber> GetDeployZone()
         {
             return _hexs

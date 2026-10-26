@@ -4,6 +4,8 @@ using MagicSchool.Contracts;
 
 namespace MagicSchool.Economy
 {
+    // Item chance per slot: 0 = always a hero, 100 = always an item; { 0, 0, 0, 100, 30 } makes slot 5 an item 30% of
+    // the time.
     [CreateAssetMenu(fileName = "ShopOdds", menuName = "Magic School 4/Shop Odds")]
     public class ShopOddsSO : ScriptableObject
     {
@@ -43,9 +45,6 @@ namespace MagicSchool.Economy
             }
         }
 
-        // each slot's roll chance to be a hero or a item
-        // e.g.     { 0, 0, 0, 100, 100 }   =>  slot 1-3 always a hero, slot 4-5 always an item
-        //          { 0, 0, 0, 100, 30 }    =>  slot 5 is an item 30% of the time, else a hero
         [Tooltip("Per shop slot, left to right: chance in percent that the slot rolls an item instead of a hero. A slot with no entry always rolls a hero.")]
         [SerializeField, Range(0, 100)] private int[] _itemChanceBySlot = { 0, 0, 0, 100, 100 };
 
@@ -57,14 +56,11 @@ namespace MagicSchool.Economy
             new TierOdds(7, 30, 45, 25),
         };
 
-        // ===================== getter =====================
         public int SlotCount => _itemChanceBySlot != null ? _itemChanceBySlot.Length : 0;
 
-        // get _itemChanceBySlot of the specify slot
         public int ItemChanceAt(int slot)
             => _itemChanceBySlot != null && slot >= 0 && slot < _itemChanceBySlot.Length ? _itemChanceBySlot[slot] : 0;
 
-        // the row in effect on this stage (1-based, as GameManager.StageNumber)
         public TierOdds OddsFor(int stageNumber)
         {
             if (_tierOdds == null || _tierOdds.Length == 0) return new TierOdds(1, 1, 0, 0);

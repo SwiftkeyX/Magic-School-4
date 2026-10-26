@@ -5,95 +5,72 @@ using MagicSchool.Contracts;
 
 namespace MagicSchool.UI
 {
+    // An item slot is dragged as a UI ghost: released outside the panel buys it, back inside cancels. A hero slot is
+    // not: the shop hands the hero itself to the player, held in the world like a hero off the board (See
+    // IShop.TryPickUp), so it has no ghost. The shop may be bound before the panel is mounted, so mounting draws
+    // whatever is bound.
     internal class ShopPanelController : PanelController, ISellZone, IShopPanel
     {
-        // the shop tints itself while a held hero hovers it (see Shop.uss)
         private const string SellHintClass = "shop-panel--selling";
 
-        // a slot the player can't pay for shows its price in red (see Shop.uss)
         private const string UnaffordableClass = "hero-slot--unaffordable";
 
-        // a slot selling an item rather than a hero looks different (see Shop.uss)
         private const string ItemClass = "hero-slot--item";
 
-        // the Lock box lights up while the shop is locked (see Shop.uss)
         private const string LockedClass = "refresh-slot--locked";
 
-        // ================= SerializeField ======================
         [SerializeField] private VisualTreeAsset _ghostAsset;
 
-        // ================= VisualElement ======================
         private VisualElement _shopPanel;
-        private List<VisualElement> _heroSlots;     // slot i shows the shop's offer i
+        private List<VisualElement> _heroSlots;
         private Label _goldValue;
         private Label _refreshLabel;
         private VisualElement _lock;
         private Label _lockLabel;
 
-        // ================== etc =======================
         private UIDrag _drag;
         private IShop _shop;
         private IInspectorPanel _inspector;    
 
-        // ================= setter & getter ===================
-        // ...
-
         #region Initialize Panel
         protected override void OnMounted(VisualElement panel)
         {
-            // get the reference for later use
             _shopPanel = panel.Q<VisualElement>("ShopPanel");
             _goldValue = panel.Q<Label>("GoldValue");
             _refreshLabel = panel.Q<Label>("RefreshLabel");
             _lock = panel.Q<VisualElement>("Lock");
             _lockLabel = panel.Q<Label>("LockLabel");
 
-            // Make hero slot draggable
             MakeShopUIDraggable();
 
-            // Wire up the "Refresh" button to re-roll all hero slots
             MakeRefreshButtonWork();
 
-            // Wire up the "Lock" button to prevent the shop from rerolling itself after each round
             MakeLockButtonWork();
 
-            // Right-click a slot to see what it sells in the inspector
             MakeSlotsInspectable();
 
-            // the shop may have been bound before the panel was mounted
             ShowShop();
         }
 
         #endregion
 
         #region UI Draggable
-        // Every slot can be dragged out of the shop to buy it. The dragging itself is UIDrag's.
         private void MakeShopUIDraggable()
         {
             _drag = new UIDrag(MainPanel, _ghostAsset);
 
-            // get all slots exist from the shop panel
             _heroSlots = _shopPanel.Query<VisualElement>("HeroSlot").ToList();
 
-            // init draggable
             foreach (var slot in _heroSlots)
             {
                 _drag.MakeDraggable(
                     slot,
-                    // when pick up the slot:
-                    //      all slot can be picked up.
-                    //      only slot that can't be pick up is a empty slot
                     canPickUp: () => CanDragAsGhost(slot),
 
-                    // when drop:
-                    //      released back inside the shop bound = cancel
-                    //      released outside bound = buy
                     onDrop: position => ResolveDrop(slot, position));
             }
         }
 
-        // An item slot is dragged as a ghost here. A hero slot is not: the shop hands the hero itself to the
-        // player, who holds it in the world like a hero off the board (See IShop.TryPickUp) - so no ghost.
         private bool CanDragAsGhost(VisualElement slot)
         {
             ShopOffer offer = OfferOf(slot);
@@ -109,7 +86,6 @@ namespace MagicSchool.UI
         }
 
         #region Inspect
-        // right-click a slot = show what it sells in the inspector
         private void MakeSlotsInspectable()
         {
             foreach (VisualElement slot in _heroSlots)
@@ -133,10 +109,8 @@ namespace MagicSchool.UI
         }
         #endregion
 
-        // =========================== Buy / cancel on release ===============================
         private void ResolveDrop(VisualElement slot, Vector2 releasePosition)
         {
-            // if the drop was done outside the shop's bound, buy that hero
             bool releasedInsideShop = _shopPanel.worldBound.Contains(releasePosition);
             if (releasedInsideShop)
             {
@@ -148,9 +122,7 @@ namespace MagicSchool.UI
         }
         #endregion
 
-        // =========================== Sell ===============================
         #region Sell
-        // if releasing point match shop boundary, return true
         public bool IsInSellBoundary(Vector2 screenPosition)
         {
             if (_shopPanel == null || _shopPanel.panel == null) return false;
@@ -161,7 +133,6 @@ namespace MagicSchool.UI
             return _shopPanel.worldBound.Contains(panelPosition);
         }
 
-        // change the shop UI's color to indicate that it was focus
         public void ShowSellHint(bool isOverZone)
         {
             if (_shopPanel == null) return;
@@ -171,7 +142,6 @@ namespace MagicSchool.UI
         #endregion
 
         #region Refresh
-        // "Refresh" is one of the boxes on the left. It make the shop reroll the products. 
         private void MakeRefreshButtonWork()
         {
             VisualElement refresh = _shopPanel.Q<VisualElement>("Refresh");
@@ -182,7 +152,6 @@ namespace MagicSchool.UI
         #endregion
 
         #region Lock
-        // If a shop is locked, prevent the re-rolled at the start of the next stage.
         private void MakeLockButtonWork()
         {
             if (_lock == null) return;
@@ -191,9 +160,7 @@ namespace MagicSchool.UI
         }
         #endregion
 
-        // =========================== Show the shop ===============================
         #region Show
-        // === IShopPanel ===
         public void BindShop(IShop shop)
         {
             if (_shop != null) _shop.OnChanged -= ShowShop;
@@ -210,7 +177,6 @@ namespace MagicSchool.UI
             if (_shop != null) _shop.OnChanged -= ShowShop;
         }
 
-        // what the shop sells in this slot.
         private ShopOffer OfferOf(VisualElement slot)
         {
             int index = _heroSlots.IndexOf(slot);
@@ -218,8 +184,6 @@ namespace MagicSchool.UI
             return _shop != null && index >= 0 && index < _shop.SlotCount ? _shop.OfferAt(index) : default;
         }
 
-        // draw everything the shop displayed: 
-        // e.g. the player's gold, the refresh cost, and every slot
         private void ShowShop()
         {
             if (_goldValue != null) _goldValue.text = _shop != null ? $"{_shop.Gold} g" : string.Empty;

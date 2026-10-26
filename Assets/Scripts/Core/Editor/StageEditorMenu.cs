@@ -5,6 +5,7 @@ using UnityEngine;
 using MagicSchool.Combat.Heroes;
 using MagicSchool.Combat.Placements;
 using MagicSchool.Core;
+using MagicSchool.DevTools;
 
 namespace MagicSchool.Editor
 {
@@ -22,12 +23,14 @@ namespace MagicSchool.Editor
     //
     // All of them need:
     //      Stage Edit Mode on > Play mode > Preparation state
+    // Saving onto an existing stage or comp keeps the asset, so everything pointing at it still does. Teams are read
+    // as serialized ints, 0 = the player, because Editor cannot name TeamEnum (Contracts). A stage or comp from
+    // another board is refused: its hex numbers would land on the wrong hexes.
     internal static class StageEditorMenu
     {
         private const string DefaultFolder = "Assets/Data/BattleSetups/Campaign";
         private const string TeamCompFolder = "Assets/Data/BattleSetups/Team Comps";
 
-        // put each hero on the first free enemy hex (a hero's Add button)
         internal static void AddEnemies(IEnumerable<HeroDataSO> heroes)
         {
             if (!TryGetEditor(out StageEditor editor)) return;
@@ -75,7 +78,6 @@ namespace MagicSchool.Editor
                                                                "Where to save the enemy team and the deploy zone", DefaultFolder);
             if (string.IsNullOrEmpty(path)) return;
 
-            // picked an existing stage: keep the asset (and everything pointing at it), swap its enemy team and zone
             BattlePlacementSO existing = AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(path);
             if (existing != null)
             {
@@ -83,13 +85,11 @@ namespace MagicSchool.Editor
                 return;
             }
 
-            // a new stage always takes the board's zone: a stage with none leaves the player nowhere to stand
             BattlePlacementSO stage = BattlePlacementSO.CreateRuntime(team);
             AssetDatabase.CreateAsset(stage, path);
             Write(editor, stage, team, writeZone: true);
         }
 
-        // ======================================== team comp ========================================
         internal static void SavePlayerTeam()
         {
             if (!TryGetEditor(out StageEditor editor)) return;
@@ -106,7 +106,6 @@ namespace MagicSchool.Editor
                                                                "Where to save the player's heroes on the board", TeamCompFolder);
             if (string.IsNullOrEmpty(path)) return;
 
-            // picked an existing comp: keep the asset, swap its team
             BattlePlacementSO comp = AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(path);
             if (comp == null)
             {
@@ -125,7 +124,6 @@ namespace MagicSchool.Editor
             Debug.Log($"[StageEditor] saved {team.Count} player heroes ({worn} wearing an item) and {itemsOnHexes.Count} items on hexes to {path}.");
         }
 
-        // swap the player's heroes on the board for this comp's (a comp's Load button)
         internal static void LoadTeamComp(BattlePlacementSO comp)
         {
             if (!TryGetEditor(out StageEditor editor)) return;
@@ -137,7 +135,6 @@ namespace MagicSchool.Editor
                 return;
             }
 
-            // its hex numbers would land on the wrong hexes of another board
             if (!editor.FitsThisBoard(comp))
             {
                 Debug.LogWarning($"[StageEditor] '{comp.name}' was saved on '{comp.BoardLayout.name}' - play a stage on that board to load it.");
@@ -173,7 +170,6 @@ namespace MagicSchool.Editor
             else Debug.LogWarning($"[StageEditor] could not go to '{stage.name}' - it can only be done in Preparation.");
         }
 
-        // a stage that is not one of the run's: only its enemies (and zone) go on the board, and the current stage stays
         private static void LoadEnemyTeam(StageEditor editor, BattlePlacementSO stage)
         {
             int inStage = editor.EnemyCountIn(stage);
@@ -183,7 +179,6 @@ namespace MagicSchool.Editor
                 return;
             }
 
-            // its hex numbers would land on the wrong hexes of another board
             if (!editor.FitsThisBoard(stage))
             {
                 Debug.LogWarning($"[StageEditor] '{stage.name}' is fought on '{stage.BoardLayout.name}' - play a stage on that board to load it.");
@@ -203,16 +198,12 @@ namespace MagicSchool.Editor
             Debug.Log($"[StageEditor] loaded {placed} of {inStage} enemies from '{stage.name}'.");
         }
 
-        // ======================================== quick save ========================================
-        // One slot, overwritten without asking: both teams and the deploy zone in QuickSavePath, the stage being played in EditorPrefs.
-        // It lives outside Campaign/ and Team Comps/, so it is never listed as a stage or a comp, nor fought by the benchmark.
         internal const string QuickSavePath = "Assets/Data/BattleSetups/QuickSave.asset";
         private const string QuickSaveStageKey = "MagicSchool4.QuickSave.Stage";
         private const string QuickSaveWhenKey = "MagicSchool4.QuickSave.When";
 
         internal static bool HasQuickSave => AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(QuickSavePath) != null;
 
-        // e.g.     "09:41, Stage 03: 5 heroes vs 6 enemies"
         internal static string QuickSaveSummary
         {
             get
@@ -220,14 +211,13 @@ namespace MagicSchool.Editor
                 var save = AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(QuickSavePath);
                 if (save == null) return null;
 
-                // read as serialized ints: Editor cannot name TeamEnum (Contracts); 0 = the player's team
                 int heroes = 0, enemies = 0;
                 SerializedProperty list = new SerializedObject(save).FindProperty("_heroesPlacement");
                 for (int i = 0; list != null && i < list.arraySize; i++)
                 {
                     SerializedProperty entry = list.GetArrayElementAtIndex(i);
-                    if (entry.FindPropertyRelative("dataSO").objectReferenceValue == null) continue;
-                    if (entry.FindPropertyRelative("team").intValue == 0) heroes++;
+                    if (entry.FindPropertyRelative(nameof(HeroPlacement.dataSO)).objectReferenceValue == null) continue;
+                    if (entry.FindPropertyRelative(nameof(HeroPlacement.team)).intValue == 0) heroes++;
                     else enemies++;
                 }
                 string stage = System.IO.Path.GetFileNameWithoutExtension(EditorPrefs.GetString(QuickSaveStageKey, ""));
@@ -257,7 +247,6 @@ namespace MagicSchool.Editor
             Debug.Log($"[StageEditor] quick saved - {QuickSaveSummary}.");
         }
 
-        // goes to the saved stage first (its board, number and shop rules), then puts both teams back
         internal static void QuickLoad()
         {
             if (!TryGetEditor(out StageEditor editor)) return;
@@ -272,7 +261,6 @@ namespace MagicSchool.Editor
             var stage = AssetDatabase.LoadAssetAtPath<BattlePlacementSO>(EditorPrefs.GetString(QuickSaveStageKey, ""));
             if (stage != null && stage != editor.CurrentStage && editor.IsInRun(stage)) editor.LoadStage(stage);
 
-            // its hex numbers would land on the wrong hexes of another board
             if (!editor.FitsThisBoard(save))
             {
                 Debug.LogWarning($"[StageEditor] the quick save was made on '{save.BoardLayout.name}' - play a stage on that board to load it.");
@@ -283,7 +271,6 @@ namespace MagicSchool.Editor
             Debug.Log($"[StageEditor] quick loaded {players} heroes and {enemies} enemies{(stage != null ? $" on '{stage.name}'" : "")}.");
         }
 
-        // ======================================== helper ========================================
         private static void EnsureFolder(string folder)
         {
             if (AssetDatabase.IsValidFolder(folder)) return;
@@ -292,7 +279,6 @@ namespace MagicSchool.Editor
             AssetDatabase.CreateFolder(folder.Substring(0, split), folder.Substring(split + 1));
         }
 
-        // writeZone off: the stage keeps the deploy zone it has
         private static void Write(StageEditor editor, BattlePlacementSO stage, List<HeroPlacement> team, bool writeZone)
         {
             var zone = editor.ReadDeployZone();
@@ -320,8 +306,6 @@ namespace MagicSchool.Editor
                 return false;
             }
 
-            // every stage must list its zone - an empty one would leave the player nowhere to stand
-            // (only when the zone is written; off, an existing stage keeps its own)
             if (editor.EditsDeployZone && editor.ReadDeployZone().Count == 0)
             {
                 Debug.LogWarning("[StageEditor] the deploy zone is empty - click at least one player hex to put it in the zone.");
@@ -331,7 +315,6 @@ namespace MagicSchool.Editor
             return true;
         }
 
-        // say why, rather than grey the menu out with no explanation
         private static bool TryGetEditor(out StageEditor editor)
         {
             editor = null;
@@ -342,7 +325,7 @@ namespace MagicSchool.Editor
                 return false;
             }
 
-            editor = GameManager.Instance.StageEditor;
+            editor = StageEditor.Current;
             if (editor == null)
             {
                 Debug.LogWarning("[StageEditor] tick 'Stage Edit Mode' on GameManager first.");

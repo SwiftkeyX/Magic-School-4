@@ -27,9 +27,11 @@ MonoBehaviour:
   _critChance: 25
   _skillId: 19
   _spawnUnit: {fileID: 0}
+  _forgeTable: []
   _alignPatterns:
   - marks:
-    - hexes:
+    - kind: 1
+      hexes:
       - direction: 3
         distance: 2
         thenDirection: 3
@@ -54,12 +56,14 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 8
       selfAmount: 25
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
-    - hexes:
+    - kind: 2
+      hexes:
       - direction: 1
         distance: 1
         thenDirection: 2
@@ -84,13 +88,15 @@ MonoBehaviour:
       modifier: 7
       amount: 25
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
   - marks:
-    - hexes:
+    - kind: 1
+      hexes:
       - direction: 4
         distance: 2
         thenDirection: 3
@@ -115,12 +121,14 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 8
       selfAmount: 25
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
-    - hexes:
+    - kind: 2
+      hexes:
       - direction: 2
         distance: 1
         thenDirection: 3
@@ -145,13 +153,15 @@ MonoBehaviour:
       modifier: 7
       amount: 25
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
   - marks:
-    - hexes:
+    - kind: 1
+      hexes:
       - direction: 5
         distance: 2
         thenDirection: 5
@@ -176,12 +186,14 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 8
       selfAmount: 25
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
-    - hexes:
+    - kind: 2
+      hexes:
       - direction: 4
         distance: 2
         thenDirection: 3
@@ -206,13 +218,15 @@ MonoBehaviour:
       modifier: 7
       amount: 25
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
   - marks:
-    - hexes:
+    - kind: 1
+      hexes:
       - direction: 0
         distance: 2
         thenDirection: 0
@@ -237,12 +251,14 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 8
       selfAmount: 25
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
-    - hexes:
+    - kind: 2
+      hexes:
       - direction: 4
         distance: 1
         thenDirection: 5
@@ -267,13 +283,15 @@ MonoBehaviour:
       modifier: 7
       amount: 25
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
   - marks:
-    - hexes:
+    - kind: 1
+      hexes:
       - direction: 1
         distance: 2
         thenDirection: 0
@@ -298,12 +316,14 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 8
       selfAmount: 25
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
-    - hexes:
+    - kind: 2
+      hexes:
       - direction: 5
         distance: 1
         thenDirection: 0
@@ -328,13 +348,15 @@ MonoBehaviour:
       modifier: 7
       amount: 25
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
   - marks:
-    - hexes:
+    - kind: 1
+      hexes:
       - direction: 2
         distance: 2
         thenDirection: 2
@@ -359,12 +381,14 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 8
       selfAmount: 25
       selfPercentOf: -1
       selfWhenEmpty: 0
       healFromAllyDamage: 0
-    - hexes:
+    - kind: 2
+      hexes:
       - direction: 1
         distance: 2
         thenDirection: 0
@@ -389,6 +413,7 @@ MonoBehaviour:
       modifier: 7
       amount: 25
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1

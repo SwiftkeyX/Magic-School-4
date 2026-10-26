@@ -5,16 +5,17 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // CurseTotal is over the whole curse, not per tick. The bolt only carries the curse; it is played on whoever the
+    // bolt hit, and when the cursed one dies with it still on, it jumps to the enemy closest to where they fell.
+    // Nobody is cursed at combat start. The curse is played outside the flow, so it is initialized in Init.
     internal class WarlockSkill : SkillDefinition
     {
-        private static float CurseTotal => Tuned(450f);      // over the whole curse, not per tick
+        private static float CurseTotal => Tuned(450f);
         private static float CurseDuration => Tuned(4f);
         private static float CurseInterval => Tuned(1f);
 
-        // the curse itself - played on whoever the bolt hit, and again on whoever it jumps to
         private SkillPart _curse;
 
-        // who carries the curse right now, and until when
         private ICombatant _cursed;
         private float _curseEndsAt;
 
@@ -28,17 +29,13 @@ namespace MagicSchool.Skills
             => $"Curses the current target with a homing bolt: {AP(CurseTotal)} over {CurseDuration} seconds. "
              + "If the target dies while cursed, the curse jumps to the next closest enemy.";
 
-        // ============================== init ==============================
-        // the curse is played on its own rather than inside the flow, so it is initialized here
-        public override void Init(ICombatant caster)
+        public override void Init(ISkillCaster caster)
         {
             base.Init(caster);
 
             _curse.Init(caster);
         }
 
-        // ============================== passive ==============================
-        // at combat start, nobody is cursed
         public override bool OnCombatStart()
         {
             _cursed = null;
@@ -46,24 +43,18 @@ namespace MagicSchool.Skills
             return base.OnCombatStart();
         }
 
-        // the cursed one died with the curse still on - it jumps to the enemy closest to where they fell
         public override void OnHeroDied(ICombatant dead)
         {
-            // if a dead heroes not carry curse, return 
             if (!ReferenceEquals(dead, _cursed) || Time.time >= _curseEndsAt) return;
 
-            // reset
             _cursed = null;
 
-            // cursed the closest enemy
             ICombatant next = Caster.FindNearestEnemyTo(dead);
             if (next != null) Curse(next);
         }
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            // the bolt does nothing itself - it only carries the curse to its target
             SkillPart bolt = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
@@ -88,8 +79,6 @@ namespace MagicSchool.Skills
             return Flow(onStart: bolt);
         }
 
-        // ============================== helper ==============================
-        // put a curse on this enemy   
         private void Curse(ICombatant enemy)
         {
             if (!PlayOnePart(_curse, assignedTarget: enemy)) return;

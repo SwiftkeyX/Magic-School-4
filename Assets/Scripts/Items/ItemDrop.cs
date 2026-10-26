@@ -6,16 +6,15 @@ namespace MagicSchool.Items
     // e.g.     buying item at the shop
     //          choosing item at the reward
     // item are placed in the world position using ItemDrop.cs. The item are spawn next to each other.
+    // Past MaxSpots the row would run off screen, so further items stack on the last spot.
     public static class ItemDrop
     {
         private static readonly Vector3 Origin = new Vector3(-5.6f, -2f, 0f);
-        private const float Spacing = 0.6f;        // how far along x each further item lands
-        private const int MaxSpots = 20;           // past this the row runs off screen; stack on the last spot instead
+        private const float Spacing = 0.6f;
+        private const int MaxSpots = 20;
 
         public static Item Spawn(ItemDataSO data) => Item.Spawn(data, FreeSpot());
 
-        // Put an item that is already in the world back on the row.
-        // e.g.     the hex it lay on is gone with the old board
         public static void MoveToFreeSpot(Item item) => item.transform.position = FreeSpot();
 
         private static Vector3 FreeSpot()

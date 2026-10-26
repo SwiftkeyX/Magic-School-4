@@ -5,11 +5,12 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // Steals before the strike; the steal lasts the rest of the fight (-1).
     internal class BanditSkill : SkillDefinition
     {
         private static float DamageRatio => Tuned(160f);
         private static float StealPercent => Tuned(30f);
-        private static float StealDuration => Tuned(-1f);   // until the end of the fight
+        private static float StealDuration => Tuned(-1f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new BanditSkill(registry);
 
@@ -21,8 +22,6 @@ namespace MagicSchool.Skills
             => $"Strikes the current target for {AD(DamageRatio)} and steals {StealPercent}% of its "
              + "attack speed until the end of the fight.";
 
-        // ============================== active ==============================
-        // Steals before the strike
         public override bool OnCast()
         {
             StatSteal.Take(Caster, Caster.FindCurrentTarget(), StealPercent, StealDuration, StatEnum.AS);

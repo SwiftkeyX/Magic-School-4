@@ -10,6 +10,7 @@ namespace MagicSchool.Combat.Heroes
     ///         level 30 => 390%
     /// It stacks with stars (multiplied), though a stage enemy is always 1 star.
     /// </summary>
+    // A level outside 1-30 reads as the nearest one; 0 is an entry saved before levels existed, so level 1.
     public static class HeroLevel
     {
         public const int Min = 1;
@@ -17,7 +18,6 @@ namespace MagicSchool.Combat.Heroes
 
         private const float PerLevel = 0.1f;
 
-        // a level outside 1-30 is read as the nearest one; 0 is an entry saved before levels existed, so level 1
         public static int Clamp(int level) => Mathf.Clamp(level, Min, Max);
 
         public static float Multiplier(int level) => 1f + PerLevel * (Clamp(level) - Min);

@@ -8,7 +8,7 @@ namespace MagicSchool.Skills
         private static float DamagePerShot => Tuned(100f);
         private static int ShotCount => Tuned(3);
         private static float IntervalBetweenShot => Tuned(0.1f);
-        private static int RandomPoolRadius => Tuned(99);       // the whole board - any enemy can be picked
+        private static int RandomPoolRadius => Tuned(99);
         private static float TotalCastTime => IntervalBetweenShot * (ShotCount - 1);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new KoboldSkirmisherSkill(registry);
@@ -21,7 +21,6 @@ namespace MagicSchool.Skills
             => $"Fires {ShotCount} quick shots at random enemies, {AD(DamagePerShot)} each, "
              + "never hitting the same one twice until every enemy has been hit once.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             ProjectileTuning tune = TuneProjectile(castTime: 0f);

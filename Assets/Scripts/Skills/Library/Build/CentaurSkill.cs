@@ -6,9 +6,10 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // The hitbox AOE rides his charge (Move) and must live at least as long as it.
     internal class CentaurSkill : SkillDefinition
     {
-        private static int ChargeRange => Tuned(4);              // hexes he can cross
+        private static int ChargeRange => Tuned(4);
         private static float HitboxHalfWidth => Tuned(1.25f);
         private static float KnockedUpDuration => Tuned(2f);
         private static float CollideDamage => Tuned(140f);
@@ -23,7 +24,6 @@ namespace MagicSchool.Skills
             => $"Charges up to {ChargeRange} hexes straight through the enemy line, dealing "
              + $"{AP(CollideDamage)} to everyone he ploughs into on the way and stunning them.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
             => Flow(onStart: Together(Move(registry), AOE(registry)));
 
@@ -49,7 +49,6 @@ namespace MagicSchool.Skills
                 )
             );
 
-            // Make sure the AOE's lifetime is long enough until Move dies
             SkillPart charge = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,

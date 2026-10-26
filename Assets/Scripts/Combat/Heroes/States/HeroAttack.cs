@@ -4,6 +4,10 @@ using MagicSchool.StatScaling;
 
 namespace MagicSchool.Combat.Heroes.States
 {
+    // When my target died this frame (often to the attack just made), pick the next one before deciding, or I walk
+    // toward the corpse while another enemy stands in range. The skill may pick who an attack lands on (Goblin Archer)
+    // and scale its damage before the crit roll (Skeleton Archer's Long Shot). Leaving Attack mid-dash snaps the hero
+    // back to its hex centre.
     internal class HeroAttack : HeroState
     {
         public override HeroStateEnum StateType => HeroStateEnum.Attack;
@@ -30,37 +34,26 @@ namespace MagicSchool.Combat.Heroes.States
 
         public override void OnExit()
         {
-            // Snap back in case we leave Attack mid-dash, so the hero doesn't get left off-hex-center.
             _me.transform.position = _me.CurrentHex.transform.position;
         }
 
         public override void OnUpdate()
         {
-            // get current target. if current target is not available, return new target
             _currentTarget = _me.FindCurrentTarget();
 
-            // CheckSwitchState may switch the state. Then, attack state shouldn't continue.
             if (_me.StateType != StateType) return;
 
-            // guard - nothing left to hit
             if (_currentTarget == null) { CheckSwitchState(); return; }
 
-            // attack again if aa is reset. The timer is always runs in the background
             if (_me.IsAttackReady)
             {
-                // who this attack lands on. 
-                // default current target, unless the skill picks someone else
-                // e.g. Goblin Archer shoots a random enemy
                 ICombatant attackTarget = _me.PickAutoAttackTarget(_currentTarget);
 
-                // fire OnAutoAttack event
                 _me.TriggerOnAutoAttack(attackTarget);
 
-                // this hero auto attack
                 PerformAutoAttack(attackTarget);
             }
 
-            // update attack animation
             UpdateAttackAnimation();
 
             CheckSwitchState();
@@ -68,14 +61,10 @@ namespace MagicSchool.Combat.Heroes.States
 
         protected override void CheckSwitchState()
         {
-            // my target died this frame - often to the attack just made: pick the next one before deciding,
-            // or I would walk toward the corpse while another enemy stands in range
             if (_currentTarget != null && !_currentTarget.IsAlive) _currentTarget = _me.FindCurrentTarget();
 
-            // guard
             if (_currentTarget == null) { _me.ChangeState(HeroStateEnum.Idle); return; }
 
-            // resume attack
             if (_transition.CanAttack(_currentTarget))
             {
                 return;
@@ -96,37 +85,28 @@ namespace MagicSchool.Combat.Heroes.States
 
         private void PerformAutoAttack(ICombatant target)
         {
-            // other action may replace normal auto attack e.g. Werewolf
             if (!_me.HasStatus(ModifierEnum.AutoAttackWasReplaced))
             {
-                // FLAGGING: attack animation got skip by skill which is not intended
-                // every auto attack can crit; the skill may scale it first (e.g. Skeleton Archer's Long Shot)
                 float damage = Crit.Roll(_me.AttackDamage * _me.AutoAttackDamageMultiplier(target), _me, out _);
 
-                // apply damage to target
                 int landed = target.TakeDamage(
                     damage: Mathf.RoundToInt(damage),
                     source: _me,
                     kind: DamageKindEnum.AutoAttack
                 );
 
-                // if caster have omnivamp, heals off the damage dealt
                 Omnivamp.Apply(_me, landed);
 
-                // attack animation: dash toward the enemy, then back to where we started
                 AttackAnimation(target);
             }
 
-            // aa is now on cooldown
             _me.SpendAttack();
 
-            // after attack gain mana
             if (!_me.HasStatus(ModifierEnum.ManaBlocked)) _me.GainMana(Mathf.RoundToInt(_me.GetStat(StatEnum.ManaPerAttack)));
         }
 
         private void AttackAnimation(ICombatant target)
         {
-            // attack animation: dash toward the enemy, then back to where we started
             _dashStart = _me.transform.position;
             Vector3 toEnemy = target.transform.position - _dashStart;
             Vector3 direction = toEnemy.sqrMagnitude > 0f ? toEnemy.normalized : Vector3.zero;

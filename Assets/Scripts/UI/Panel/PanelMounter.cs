@@ -23,7 +23,6 @@ namespace MagicSchool.UI
         {
             VisualElement panel = CloneTemplateRoot(panelTree);
 
-            // use this panel's name - to find where it should be put inside the "main panel"
             VisualElement slot = mainPanel.Q<VisualElement>(panel.name);
             if (slot == null)
             {

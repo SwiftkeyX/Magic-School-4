@@ -18,11 +18,19 @@ namespace MagicSchool.Combat.Tests
     /// same-column neighbour 1.0 away and a diagonal one 1.118. Hex works those neighbours out by
     /// distance, so getting this wrong would silently give every hex the wrong neighbours.
     /// </summary>
+    // Blue takes the left columns and red the right, one continuous grid as on the real board, so a distance across
+    // the middle means what it does in game. EditMode runs no player loop, so Awake never fires: the fixture calls
+    // BattleBoard.InitializeHex itself once the hexes exist. Heroes are real Heroes rather than a fake ICombatant:
+    // three lines to build once the board exists, where a fake would be forty members of guesswork drifting from the
+    // real one; Init is the whole ceremony.
+    // EnemyScan caches the enemies and their distances for one frame, keyed on Time.frameCount, and EditMode never
+    // runs a frame, so anything that moves a unit clears the caches (ForgetCachedEnemies) the way the next frame
+    // would.
     internal sealed class BoardFixture : IDisposable
     {
         private const float ColumnSpacing = 1.0f;
         private const float RowSpacing = 1.0f;
-        private const float ColumnStagger = 0.5f;   // every other column slides half a row down
+        private const float ColumnStagger = 0.5f;
 
         private readonly List<GameObject> _spawned = new List<GameObject>();
         private readonly List<Hero> _heroes = new List<Hero>();
@@ -31,8 +39,6 @@ namespace MagicSchool.Combat.Tests
 
         public BattleBoard Board { get; }
 
-        // Blue side takes the left columns, red the right, laid out as one continuous grid the way
-        // the real board is - so a distance measured across the middle means what it does in game.
         public BoardFixture(int columnsPerSide = 4, int rows = 7)
         {
             var boardObject = NewObject("BattleBoard");
@@ -41,14 +47,9 @@ namespace MagicSchool.Combat.Tests
             BuildSide(TeamEnum.Blue, "BlueSideHex", boardObject.transform, firstColumn: 0, columnsPerSide, rows);
             BuildSide(TeamEnum.Red, "RedSideHex", boardObject.transform, firstColumn: columnsPerSide, columnsPerSide, rows);
 
-            // EditMode runs no player loop, so Awake never fires - kick off the hex discovery that
-            // BattleBoard would normally do there, now that the hexes exist to be discovered.
-            typeof(BattleBoard)
-                .GetMethod("InitializeHex", BindingFlags.Instance | BindingFlags.NonPublic)
-                .Invoke(Board, null);
+            Board.InitializeHex();
         }
 
-        // ============================== the board ==============================
         public Hex HexAt(TeamEnum side, int column, int row) => _hexes[(side, column, row)];
 
         private void BuildSide(TeamEnum side, string parentName, Transform boardTransform,
@@ -75,12 +76,6 @@ namespace MagicSchool.Combat.Tests
             }
         }
 
-        // ============================== the units ==============================
-        /// <summary>
-        /// A real Hero rather than a fake ICombatant: it is three lines to build once the board
-        /// exists, and a fake would be forty members of guesswork that drifts from the real one.
-        /// Nothing here needs the spawner or a prefab - Init is the whole ceremony.
-        /// </summary>
         public Hero AddHero(TeamEnum team, Hex hex, int range = 1)
         {
             var data = ScriptableObject.CreateInstance<HeroDataSO>();
@@ -90,7 +85,6 @@ namespace MagicSchool.Combat.Tests
             var hero = heroObject.AddComponent<Hero>();
             hero.Init(data, Board, team);
 
-            // the hex hands the hero its placement, its position and its reservation
             hex.OnUnitPlaced(hero);
             hero.TrackOnBoard();
 
@@ -98,13 +92,12 @@ namespace MagicSchool.Combat.Tests
             return hero;
         }
 
-        // A hero that exists but is not on the board - the bench case that targeting must ignore.
         public Hero AddBenchedHero(TeamEnum team)
         {
             var heroObject = NewObject($"{team}BenchedHero");
             var hero = heroObject.AddComponent<Hero>();
             hero.Init(ScriptableObject.CreateInstance<HeroDataSO>(), Board, team);
-            Board.TrackThisHero(hero);      // tracked but placeless: IsInCombat is false
+            Board.TrackThisHero(hero);
 
             _heroes.Add(hero);
             return hero;
@@ -119,40 +112,17 @@ namespace MagicSchool.Combat.Tests
             ForgetCachedEnemies();
         }
 
-        /// <summary>
-        /// EnemyScan caches who the enemies are and how far off they stand for the length of one
-        /// frame, keyed on Time.frameCount. EditMode never runs a frame, so that cache would live
-        /// for the whole test and answer every question with the board as it was at the first one.
-        /// Anything that moves a unit has to clear it, the way the next frame would in a real game.
-        /// </summary>
         private void ForgetCachedEnemies()
         {
-            foreach (Hero hero in _heroes)
-            {
-                object finder = GetPrivateField(hero, "_findEnemy");
-                if (finder == null) continue;
-
-                // the caches live on the scan the finder owns, not on the finder itself
-                object scan = GetPrivateField(finder, "_scan");
-
-                SetPrivateField(scan, "_enemyCacheFrame", -1);
-                SetPrivateField(scan, "_distanceCacheFrame", -1);
-                SetPrivateField(scan, "_stepCacheFrame", -1);
-            }
+            foreach (Hero hero in _heroes) hero.ForgetScanCaches();
         }
 
-        // ============================== plumbing ==============================
         private GameObject NewObject(string name)
         {
             var created = new GameObject(name);
             _spawned.Add(created);
             return created;
         }
-
-        private static object GetPrivateField(object target, string field)
-            => target.GetType()
-                     .GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)
-                     .GetValue(target);
 
         private static void SetPrivateField(object target, string field, object value)
             => target.GetType()

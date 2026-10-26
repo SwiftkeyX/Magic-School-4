@@ -6,14 +6,19 @@ using MagicSchool.StatScaling;
 namespace MagicSchool.Skills
 {
     // effect that apply damage to recipients
+    // WithLifesteal heals whoever played the action, apart from Omnivamp (Priest's fairy heals its owner). WhenLanded
+    // is told what each hit really dealt, after armour and shields (Knight's shield). FullOnlyWhen: a recipient the
+    // condition fails for takes [otherwise] of the damage (Skeleton Archer's close shots, half). AmplifiedBy(caster =>
+    // x) works the amplifier out at the hit; with no conditions it applies to every hit. An amplifier adds to 1x (+30% is
+    // 0.3); Scaled(caster => n) multiplies the damage by n, on top of any amplifier. The crit is rolled once per recipient.
     internal class AttackSkillEffect : SkillEffect
     {
         private readonly IReadOnlyList<StatRatio> _ratios;
         private readonly DamageKindEnum _kind;  
-        private readonly bool _canCrit;     // skill damage does not crit by default, unless the skill was built to
+        private readonly bool _canCrit;
         private float _lifestealPercent;
         private System.Action<int> _onLanded;
-        private SkillCondition _fullWhen;       // a hit that does not meet it deals _otherwise of its damage
+        private SkillCondition _fullWhen;
         private float _otherwise = 1f;
 
         public AttackSkillEffect(EffectRecipientEnum recipient, IReadOnlyList<StatRatio> ratios, Cadence cadence = null,
@@ -26,24 +31,18 @@ namespace MagicSchool.Skills
             _kind = kind;
         }
 
-        // This attack hardcode the lifesteal in. Not related to Omnivamp stat.
-        // e.g.     Damage(...).WithLifesteal(100f)      Priest's fairy heals its owner, not the Priest
         public AttackSkillEffect WithLifesteal(float percent)
         {
             _lifestealPercent = percent;
             return this;
         }
 
-        // Told what every hit of this effect actually dealt, after armour and shields
-        // e.g.     Damage(...).WhenLanded(GainShield)      Knight's shield is the damage his landing deals
         public AttackSkillEffect WhenLanded(System.Action<int> onLanded)
         {
             _onLanded = onLanded;
             return this;
         }
 
-        // Full damage only to a recipient the condition holds for; any other takes [otherwise] of it, after the amplifier.
-        // e.g.     Damage(...).FullOnlyWhen(new FarFromCasterCondition(3), 0.5f)    Skeleton Archer's close shots deal half
         public AttackSkillEffect FullOnlyWhen(SkillCondition condition, float otherwise)
         {
             _fullWhen = condition;
@@ -51,40 +50,36 @@ namespace MagicSchool.Skills
             return this;
         }
 
-        // The amplifier its conditions give, worked out from the caster when the hit lands, in place of a fixed one.
-        // With no conditions, it applies to every hit.
-        // e.g.     .AmplifiedBy(caster => 0.15f * allies on its marks)     Skeleton Archer's long shots
-        //          .AmplifiedBy(_ => size 3 ? 1f : 0f)                     Dwarf's biggest blast deals double
         public AttackSkillEffect AmplifiedBy(System.Func<IEffectable, float> amplifier)
         {
             _amplifierOf = amplifier;
             return this;
         }
 
+        public AttackSkillEffect Scaled(System.Func<IEffectable, float> multiplier)
+        {
+            _scaleOf = multiplier;
+            return this;
+        }
+
         public override void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null)
             => ApplyEffect(recipients, actor, 1f);
 
-        // [scale] multiplies the whole damage, e.g. 0.67 for the second enemy a falling-off piercing shot goes through
         public void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor, float scale)
         {
-            // scale the damage e.g. skill damage = 500% AP
             float damageAmount = Scaling.Total(_ratios, _caster as IHeroStats) * scale;
 
             foreach (IEffectable recipient in recipients)
             {
                 if (recipient == null || !recipient.IsAlive) continue;
 
-                // if the damage was cadence, calculate tick damage instead
                 float dmg;
-                if (_cadence.isCadence) dmg = damageAmount * _cadence.cadenceInterval / _cadence.cadenceDuration;
+                if (_cadence.isCadence) dmg = damageAmount * _cadence.cadenceInterval / _cadence.Duration;
 
-                // if not cadence, apply the whole amount at once
                 else dmg = damageAmount;
 
-                // if pass specify condition, amplify the effect
                 dmg *= AmplifierFor(recipient);
 
-                // a recipient the full-damage condition does not hold for takes part of it
                 if (_fullWhen != null)
                 {
                     _fullWhen.Init(_caster);
@@ -92,20 +87,16 @@ namespace MagicSchool.Skills
                         dmg *= _otherwise;
                 }
 
-                // roll the crit once per recipient
                 if (_canCrit) dmg = Crit.Roll(dmg, _caster as IHeroStats, out _);
 
-                // apply damage
                 int landed = recipient.TakeDamage(
                     damage: Mathf.RoundToInt(dmg),
                     source: _caster,
                     kind: _kind
                 );
 
-                // if caster have omnivamp, heals off the damage dealt
                 Omnivamp.Apply(_caster, landed);
 
-                // if this effect have lifesteal, whoever played the action heals off the damage dealt
                 Omnivamp.HealFromDamage(actor, landed, _lifestealPercent, source: _caster);
 
                 _onLanded?.Invoke(landed);

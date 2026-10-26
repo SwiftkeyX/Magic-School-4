@@ -10,6 +10,9 @@ namespace MagicSchool.Skills
     ///         a volley of 8 arrows at once 
     /// The runner, not its shots, is what expires: a flow waiting on OnExpired (the next part, or the next round of a
     /// Repeat) is told once, after the last shot is fired and PauseAfter has passed - never once per shot.
+    // Has no source or aim of its own: it remembers what it was told, so each shot resolves its own. It raises
+    // OnExpired itself and hands every other callback to each shot. A caster whose object is gone (cleared off a
+    // benchmark board, or sold) stops it; one that only died keeps firing.
     internal abstract class FireTimingRunnerBase<TTuning> : TemplateAction<TTuning>
         where TTuning : FireTimingRunnerTuning
     {
@@ -20,24 +23,18 @@ namespace MagicSchool.Skills
 
         private bool _warnedAboutRandom;
 
-        // ======================================= tune able =======================================
         protected Tuning _innerTuning;
         protected int _count = 1;
         private FireTimingModeEnum _mode = FireTimingModeEnum.AtOnce;
         private float _interval;
         private float _pauseAfter;
 
-        // ======================================= Event =======================================
-        // The runner raises OnExpired itself. Every other callback (OnHit, OnSkillHit) is handed on to every shot it fires.
         protected override void SubscribeTriggers(TemplateActionCallbacks callbacks) => base.SubscribeTriggers(callbacks);
 
-        // the callbacks each shot gets: the runner's, less OnExpired
         private TemplateActionCallbacks _shotCallbacks;
         protected TemplateActionCallbacks ShotCallbacks
             => _shotCallbacks ??= new TemplateActionCallbacks { OnHit = _callbacks.OnHit, OnSkillHit = _callbacks.OnSkillHit };
 
-
-        // ======================================= override =======================================
         protected override void ApplyTypedTuning(TTuning tuning)
         {
             if (tuning.Count.HasValue) _count = tuning.Count.Value;
@@ -49,22 +46,18 @@ namespace MagicSchool.Skills
 
         protected override void Play()
         {
-            // play once
             if (_mode == FireTimingModeEnum.AtOnce)
             {
                 for (int i = 0; i < _count; i++) FireOnce();
                 Finish();
             }
 
-            // repeat [count] time
             else if (_mode == FireTimingModeEnum.Sequence)
             {
                 StartCoroutine(FireSequence());
             }
         }
 
-        // FireTimingRunner has no source/aim of its own - it only remembers what it was told,
-        // so each inner shot can resolve the real thing independently.
         protected override bool ResolveSource(ActionSourceEnum source)
         {
             _innerSource = source;
@@ -79,12 +72,10 @@ namespace MagicSchool.Skills
 
         protected override Vector3 GetSpawnPosition() => _me.transform.position;
 
-        // ======================================= main function =======================================
         protected virtual void FireOnce()
         {
             AimTargetEnum shotAimTarget = _innerAimTarget;
 
-            // copy/paste to create a desired template action
             SkillPart innerGroup = new SkillPart(
                 source: _innerSource,
                 templateAction: _innerPrefab,
@@ -100,8 +91,6 @@ namespace MagicSchool.Skills
         {
             for (int i = 0; i < _count; i++)
             {
-                // the caster's object is gone (cleared off the board between benchmark fights, or sold): no one to fire
-                // from. A caster that only died is still there and keeps firing, as before.
                 if (_me is UnityEngine.Object caster && caster == null)
                 {
                     DestroyMe();
@@ -114,12 +103,9 @@ namespace MagicSchool.Skills
                 if (!isLastShot) yield return new WaitForSeconds(_interval);
             }
 
-            // after fire everything, destroy itself
             Finish();
         }
 
-        // expire now, or after the pause if there is one
-        // e.g.     the gap between Skeleton Archer's two barrages
         private void Finish()
         {
             if (_pauseAfter > 0f) ExpireAfter(_pauseAfter);

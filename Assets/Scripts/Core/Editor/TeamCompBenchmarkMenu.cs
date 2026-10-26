@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using MagicSchool.Combat.Placements;
-using MagicSchool.Core.Benchmark;
+using MagicSchool.DevTools.Benchmark;
 
 namespace MagicSchool.Editor
 {
@@ -15,7 +15,7 @@ namespace MagicSchool.Editor
     internal static class TeamCompBenchmarkMenu
     {
         private const string CompFolder = "Assets/Data/BattleSetups/Team Comps";
-        private const string PendingKey = "MagicSchool.TeamCompBenchmark.Pending";   // asset GUIDs, ';'-separated
+        private const string PendingKey = "MagicSchool.TeamCompBenchmark.Pending";
 
         static TeamCompBenchmarkMenu()
         {
@@ -26,7 +26,6 @@ namespace MagicSchool.Editor
 
         internal static void RunSelected() => Request(SelectedCompGuids());
 
-        // greyed out until at least one comp is selected
         internal static bool CanRunSelected() => SelectedCompGuids().Any();
 
         private static IEnumerable<string> AllCompGuids()
@@ -39,7 +38,7 @@ namespace MagicSchool.Editor
 
         private static void Request(IEnumerable<string> guids)
         {
-            BenchmarkSettingsAsset.LoadOrCreate();    // made now, in Edit mode: Play mode cannot create an asset
+            BenchmarkSettingsAsset.LoadOrCreate();
 
             string list = string.Join(";", guids);
             if (list.Length == 0)
@@ -84,7 +83,7 @@ namespace MagicSchool.Editor
 
             TeamCompBenchmark.Run(comps, settings, path =>
             {
-                HeroBenchmarkMenu.ImportWhenBackInEditMode(path);   // into the Benchmark sheet's Team Runs / Team Latest tabs
+                HeroBenchmarkMenu.ImportWhenBackInEditMode(path);
                 EditorApplication.ExitPlaymode();
                 EditorUtility.RevealInFinder(path);
             });

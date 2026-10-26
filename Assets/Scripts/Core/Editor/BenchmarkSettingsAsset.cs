@@ -1,6 +1,6 @@
 using System.IO;
 using UnityEditor;
-using MagicSchool.Core.Benchmark;
+using MagicSchool.DevTools.Benchmark;
 
 namespace MagicSchool.Editor
 {
@@ -12,7 +12,6 @@ namespace MagicSchool.Editor
             var settings = AssetDatabase.LoadAssetAtPath<BenchmarkSettingsSO>(BenchmarkSettingsSO.AssetPath);
             if (settings != null) return settings;
 
-            // can't create an asset in Play mode; the run then uses the defaults
             if (EditorApplication.isPlayingOrWillChangePlaymode) return null;
 
             Directory.CreateDirectory(Path.GetDirectoryName(BenchmarkSettingsSO.AssetPath));

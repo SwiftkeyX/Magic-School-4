@@ -3,6 +3,8 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // One stone per target, all at once, homing so a stone reaches the back line instead of stopping on the first
+    // enemy in its way.
     internal class GoblinSlingerSkill : SkillDefinition
     {
         private static float DamageRatio => Tuned(300f);
@@ -17,13 +19,10 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Fires at the {TargetCount} furthest enemies for {AD(DamageRatio)} each.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             ProjectileTuning tune = TuneProjectile(castTime: 0f);
 
-            // one stone per target, all at once.
-            // homing, so a stone reaches the back line instead of stopping on the first enemy in its way
             SkillPart shoot = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,

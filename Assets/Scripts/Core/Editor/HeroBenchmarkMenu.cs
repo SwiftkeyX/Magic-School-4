@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using MagicSchool.Combat.Heroes;
-using MagicSchool.Core.Benchmark;
+using MagicSchool.DevTools.Benchmark;
 
 namespace MagicSchool.Editor
 {
@@ -11,11 +11,15 @@ namespace MagicSchool.Editor
     // a menu to test how strong each hero was using HeroBenchMark.cs
     //      Run Hero Benchmark              - test every hero
     //      Run Hero Benchmark (Selected)   - test only a hero which his HeroDataSOs selected in the Project window
+    // The settings asset is made in Edit mode, as Play mode cannot create an asset. A report is imported to the Google
+    // Sheet only once back in Edit mode, because leaving Play mode can reload scripts and drop the callback; the
+    // python process is watched from the editor loop, because Unity's Mono does not raise Process.Exited reliably. A
+    // failed import only logs; the CSV is still there.
     [InitializeOnLoad]
     internal static class HeroBenchmarkMenu
     {
         private const string PendingKey = "MagicSchool.HeroBenchmark.Pending";
-        private const string SelectedKey = "MagicSchool.HeroBenchmark.Selected";   // asset GUIDs, ';'-separated; empty = everyone
+        private const string SelectedKey = "MagicSchool.HeroBenchmark.Selected";
         private const string DummyPath = "Assets/Data/Benchmark/BenchDummy.asset";
 
         static HeroBenchmarkMenu()
@@ -27,7 +31,6 @@ namespace MagicSchool.Editor
 
         internal static void RunSelected() => Request(string.Join(";", SelectedHeroGuids()));
 
-        // greyed out until at least one hero is selected
         internal static bool CanRunSelected() => SelectedHeroGuids().Any();
 
         private static IEnumerable<string> SelectedHeroGuids()
@@ -37,7 +40,7 @@ namespace MagicSchool.Editor
 
         private static void Request(string selectedGuids)
         {
-            BenchmarkSettingsAsset.LoadOrCreate();    // made now, in Edit mode: Play mode cannot create an asset
+            BenchmarkSettingsAsset.LoadOrCreate();
 
             if (EditorApplication.isPlaying)
             {
@@ -71,7 +74,6 @@ namespace MagicSchool.Editor
                 return;
             }
 
-            // null = the whole shop roster
             List<HeroDataSO> only = string.IsNullOrEmpty(selectedGuids)
                 ? null
                 : selectedGuids.Split(';')
@@ -94,14 +96,9 @@ namespace MagicSchool.Editor
             });
         }
 
-        // Every report also goes into the "MagicSchool4 Benchmark" Google Sheet, through .claude/scripts/benchmark_import.py:
-        // a hero report into its Runs and Latest tabs, a team comp report into Team Runs and Team Latest (the script tells
-        // them apart by file name). In the background: a failed upload only logs, the CSV is still there.
         private const string ImportScript = ".claude/scripts/benchmark_import.py";
         private const string ImportKey = "MagicSchool.HeroBenchmark.ImportPath";
 
-        // imported once back in Edit mode: leaving Play mode can reload scripts, which would drop the import's callback.
-        // TeamCompBenchmarkMenu calls this too.
         internal static void ImportWhenBackInEditMode(string csvPath) => SessionState.SetString(ImportKey, csvPath);
 
         private static void ImportPendingReport()
@@ -119,7 +116,7 @@ namespace MagicSchool.Editor
             {
                 StartInfo = new System.Diagnostics.ProcessStartInfo("python", $"\"{ImportScript}\" \"{csvPath}\"")
                 {
-                    WorkingDirectory = System.IO.Directory.GetCurrentDirectory(),   // the project root, where the credential file is
+                    WorkingDirectory = System.IO.Directory.GetCurrentDirectory(),
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
@@ -134,7 +131,6 @@ namespace MagicSchool.Editor
                 return;
             }
 
-            // watched from the editor loop rather than Process.Exited, which Unity's Mono does not raise reliably
             EditorApplication.CallbackFunction watch = null;
             watch = () =>
             {

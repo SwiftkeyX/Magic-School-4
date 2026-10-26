@@ -9,9 +9,8 @@ namespace MagicSchool.Skills
     {
         public bool isCadence = false;
 
-        // neither is read unless isCadence
-        public float cadenceInterval = 0.5f;    // the interval of time effect is re-apply
-        public float cadenceDuration = 3f;      // total duration of the effect
+        public float cadenceInterval = 0.5f;
+        public float cadenceDuration = 3f;
 
         public Cadence() { }
 
@@ -21,5 +20,11 @@ namespace MagicSchool.Skills
             cadenceInterval = interval;
             cadenceDuration = duration;
         }
+
+        private System.Func<float> _durationOf;
+
+        public float Duration => _durationOf != null ? _durationOf() : cadenceDuration;
+
+        public void LastingFor(System.Func<float> seconds) => _durationOf = seconds;
     }
 }

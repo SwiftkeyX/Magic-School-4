@@ -9,7 +9,6 @@ namespace MagicSchool.UI
     // This is the dev tool to have a quick look at scoreboard panel.
     internal class ScoreboardPreview : MonoBehaviour
     {
-        // pre-seeded the record. For fast quick look at the panel.
         [SerializeField]
         private List<Row> _rows = new List<Row>
         {
@@ -25,7 +24,6 @@ namespace MagicSchool.UI
 
         private void Start() => FindScoreboard();
 
-        // find scoreboard 
         private IScoreboardPanel FindScoreboard()
         {
             if (_scoreboard as UnityEngine.Object != null) return _scoreboard;
@@ -37,7 +35,6 @@ namespace MagicSchool.UI
             return _scoreboard;
         }
 
-        // add context menu in inspector. For toggling the scoreboard.
         [ContextMenu("Toggle preview")]
         private void Toggle()
         {
@@ -45,12 +42,10 @@ namespace MagicSchool.UI
 
             _shown = !_shown;
 
-            // ShowScores shows the panel itself, so there is only a hide to do on the way back
             if (_shown) _scoreboard.ShowScores(BuildRows());
             else _scoreboard.SetShown(false);
         }
 
-        // =================================== helper ===================================
         private IReadOnlyList<ScoreRow> BuildRows()
         {
             return _rows
@@ -104,7 +99,6 @@ namespace MagicSchool.UI
             public int HealingReceived => _row.Received;
             public int HealingLostToWound => _row.Wound;
 
-            // stub
             public float FightSeconds => 30f;
             public float SecondsAlive => _row.IsAlive ? 30f : 18f;
         }

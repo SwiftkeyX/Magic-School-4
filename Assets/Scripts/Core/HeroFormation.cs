@@ -6,6 +6,7 @@ using MagicSchool.Combat.Placements;
 
 namespace MagicSchool.Core
 {
+    // When the spare bench is full, a hero goes to the bench, then back to the hex it started on.
     public class HeroFormation
     {
         private readonly HeroMover _heroMover;
@@ -20,7 +21,6 @@ namespace MagicSchool.Core
             _bench = bench;
         }
 
-        // remember the current formation of the consuem team.
         public void Remember(IReadOnlyList<ICombatant> heroesOnBoard, TeamEnum team)
         {
             _formation.Clear();
@@ -33,7 +33,6 @@ namespace MagicSchool.Core
             }
         }
 
-        // After a fight, player's heroes go back to the placement each one started the fight on.
         public void ReturnToStartingPlacement()
         {
             foreach (KeyValuePair<ICombatant, IPlacement> stood in _formation)
@@ -46,7 +45,6 @@ namespace MagicSchool.Core
             _formation.Clear();
         }
 
-        // After a fight, player's heroes on the board goes to the spare bench.
         public void ReturnToSpareBench()
         {
             foreach (KeyValuePair<ICombatant, IPlacement> stood in _formation)
@@ -60,8 +58,6 @@ namespace MagicSchool.Core
             _formation.Clear();
         }
 
-        // Find the placement spare bench slot to put a hero on it.
-        // If spare bench isn't free, this is the fallback: spare bench > bench > hex
         private IPlacement FindPlaceFor(IPlacement startedOn)
         {
             BenchSlot spareSlot = _spareBench != null ? _spareBench.FindFreeSlot() : null;

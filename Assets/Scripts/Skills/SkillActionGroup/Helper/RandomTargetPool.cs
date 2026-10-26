@@ -11,10 +11,11 @@ namespace MagicSchool.Skills
     /// 
     /// README:
     /// Pseudo-random rather than random: everyone in the bag is dealt once before anyone is dealt twice
+    // A shuffled bag: every enemy near the target is dealt once before any repeats, then the bag is shuffled again.
     internal class RandomTargetPool
     {
         private readonly ITargeter _owner;
-        private readonly int _radius;    // how many hexes from the current target the bag reaches
+        private readonly int _radius;
 
         private List<ICombatant> _pool;
         private int _index;
@@ -25,14 +26,12 @@ namespace MagicSchool.Skills
             _radius = radius;
         }
 
-        // the next unit to shoot, or null when there is nobody to shoot at
         public ICombatant Next()
         {
             if (_pool == null) Fill();
 
             if (_pool.Count == 0) return null;
 
-            // the bag is empty - refill it by re-shuffling what it already holds
             if (_index >= _pool.Count)
             {
                 Shuffle(_pool);
@@ -42,15 +41,12 @@ namespace MagicSchool.Skills
             return _pool[_index++];
         }
 
-        // filled the random pool with:
-        // 1) enemy who is near the current target
-        // FLAGGING: this is hardcode for Imp, let leave it for now
         private void Fill()
         {
             ICombatant currentTarget = _owner.FindCurrentTarget();
 
             _pool = new List<ICombatant>(_owner.FindEnemiesNear(currentTarget, _radius));
-            _index = _pool.Count;   // starts empty, so the first Next() shuffles before it deals
+            _index = _pool.Count;
         }
 
         private static void Shuffle(List<ICombatant> list)

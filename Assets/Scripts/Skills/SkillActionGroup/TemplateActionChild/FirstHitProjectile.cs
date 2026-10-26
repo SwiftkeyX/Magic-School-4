@@ -3,25 +3,21 @@ using MagicSchool.Contracts;
 
 namespace MagicSchool.Skills
 {
+    // Never hits its own team (a PiercingProjectile can, to give a buff).
     internal class FirstHitProjectile : Projectile
     {
-        // ======================================== override method ==============================================
         protected override void Play()
         {
             base.Play();
 
-            // initialize hitbox: apply effects once, on first contact
             OnContactHitbox onceHitbox = new OnContactHitbox();
             onceHitbox.OnHit += HandleHit;
             _hitbox = onceHitbox;
             _hitbox.Init(_me);
         }
 
-        // ======================================== private ==============================================
         private void HandleHit(ICombatant hero)
         {
-            // FirstHitProjectile don't hit the same team.
-            // NOTE: mention this because PiercingProjectile can hit the same team (to give buff)
             if (hero == null || hero.Team == _me.Team) return;
 
             ReportSkillHit(hero);
@@ -32,10 +28,8 @@ namespace MagicSchool.Skills
                 ApplyEffectToRecipients(effect, recipients);
             }
 
-            // tell the next step where this landed, before the destroy
             ReportHitPosition();
 
-            // destroy first hit projectile once it hit target
             DestroyMe();
         }
     }

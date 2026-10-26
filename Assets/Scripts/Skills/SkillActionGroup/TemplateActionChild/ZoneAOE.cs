@@ -12,43 +12,36 @@ namespace MagicSchool.Skills
     /// 
     /// NOTE: ZonAOE MUST be pair with (cadence = true) effect. If the effect isn't cadence, the ZoneAOE don't do anything.
     /// </summary>
+    // Ticks on a fixed schedule from spawn, no first collision needed. Its cadence effects must share one interval,
+    // and its lifetime is the cadence duration.
     internal class ZoneAOE : AOE
     {
         private float _interval;
         const float VALUENOTASSIGN = -1f;
 
-        // ======================================== override ==============================================
         protected override void Play()
         {
-            // FLAGGING: This shouldn't be check everytime, it should be initialize somewhere once.
-            // Read cadence BEFORE base.Play()
             ResolveCadence();
 
             base.Play();
 
-            // initialize hitbox
             OnTickHitbox hitbox = new OnTickHitbox();
             hitbox.OnHit += HandleAOEHit;
             hitbox.Init(_me);
             _hitbox = hitbox;
 
-            // start applying effect every interval
             StartCoroutine(CadenceTick(hitbox));
         }
 
-        // ZoneAOE have _lifetime as the same to cadence duration.
         protected override void SetLifeTime()
         {
-            // guard
             if (_duration == VALUENOTASSIGN) { base.SetLifeTime(); return; }
 
             _lifetime = _duration;
         }
 
-        // a hero currently in the zone got ticked - apply every cadence effect to them
         protected override void HandleAOEHit(ICombatant recipient)
         {
-            // report hits on every tick
             ReportSkillHit(recipient);
 
             List<ICombatant> recipients = new List<ICombatant> { recipient };
@@ -58,10 +51,6 @@ namespace MagicSchool.Skills
             }
         }
 
-        // ======================================== private ==============================================
-        // Assign value to cadence interval, and cadence duration.
-        // To guard - cadence effects on this zone must share one interval
-        // FLAGGING: cadenceDuration override the _duration that maybe was tuned. I don't sure if this a problem.
         private void ResolveCadence()
         {
             _interval = VALUENOTASSIGN;
@@ -70,29 +59,25 @@ namespace MagicSchool.Skills
             {
                 if (!effect.Cadence.isCadence) continue;
 
-                // if interval doesn't assign yet, assign it value
                 if (_interval == VALUENOTASSIGN)
                 {
                     _interval = effect.Cadence.cadenceInterval;
-                    _duration = effect.Cadence.cadenceDuration;
+                    _duration = effect.Cadence.Duration;
                 }
 
-                // if interval/duration value is assign already, we don't want 2 value, so log error.
                 else
                 {
                     if (effect.Cadence.cadenceInterval != _interval)
                         Debug.LogError($"{name}: cadence effects on the same zone must share one interval, found {_interval} and {effect.Cadence.cadenceInterval} - only {_interval} will be used", this);
 
-                    if (effect.Cadence.cadenceDuration != _duration)
-                        Debug.LogError($"{name}: cadence effects on the same zone must share one duration, found {_duration} and {effect.Cadence.cadenceDuration} - only {_duration} will be used", this);
+                    if (effect.Cadence.Duration != _duration)
+                        Debug.LogError($"{name}: cadence effects on the same zone must share one duration, found {_duration} and {effect.Cadence.Duration} - only {_duration} will be used", this);
                 }
             }
         }
 
-        // Global cadence tick - on a fixed schedule from spawn, no initial collision needed to start ticking.
         private IEnumerator CadenceTick(OnTickHitbox hitbox)
         {
-            // guard
             if (_interval == VALUENOTASSIGN) yield break;
 
             WaitForSeconds wait = new WaitForSeconds(_interval);

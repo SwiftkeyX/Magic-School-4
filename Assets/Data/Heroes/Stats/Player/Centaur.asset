@@ -27,9 +27,11 @@ MonoBehaviour:
   _critChance: 25
   _skillId: 12
   _spawnUnit: {fileID: 0}
+  _forgeTable: []
   _alignPatterns:
   - marks:
-    - hexes:
+    - kind: 1
+      hexes:
       - direction: 0
         distance: 2
         thenDirection: 0
@@ -94,16 +96,19 @@ MonoBehaviour:
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 100
       selfPercentOf: -1
       selfWhenEmpty: 1
       healFromAllyDamage: 0
-    - hexes: []
+    - kind: 2
+      hexes: []
       special: 
       modifier: 0
       amount: 0
       percentOf: -1
+      perOwnerAP: 0
       selfModifier: 0
       selfAmount: 0
       selfPercentOf: -1

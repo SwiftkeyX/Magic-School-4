@@ -14,11 +14,14 @@ using MagicSchool.Skills;
 
 namespace MagicSchool.Core
 {
+    // The composition root: builds every service in Awake and wires the panels through Contracts interfaces. It holds
+    // the run (stage, winner, team size), speed and pause; what the player does is PlayerActions (Actions), what they
+    // asked to happen next is PhaseRequests (Requests). Only a fight pauses; CombatState unpauses as it ends, so no
+    // other phase is left paused.
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
 
-        // ============================================= dependency =============================================
         [Header("Scene")]
         [SerializeField] private BattleBoard _board;
         [SerializeField] private Bench _bench;
@@ -28,18 +31,18 @@ namespace MagicSchool.Core
 
         [Header("Stages")]
         [SerializeField] private BattlePlacementSO[] _stages;
-        [SerializeField] private int _startingHeroLimit = 3;   // how many heroes the player may field on stage 1
+        [SerializeField] private int _startingHeroLimit = 3;
 
         [Header("Gold")]
-        [SerializeField] private int _startingGold = 10;       // what the player shops with on stage 1
-        [SerializeField] private int _stageIncome = 5;         // gold paid after every fight
+        [SerializeField] private int _startingGold = 10;
+        [SerializeField] private int _stageIncome = 5;
 
         [Header("Shop")]
-        [SerializeField] private int _shopSlots = 5;           // how many things the shop sells at once
-        [SerializeField] private int _refreshCost = 1;         // gold for one re-roll of the whole shop
-        [SerializeField] private List<HeroDataSO> _shopRoster; // every hero the shop can roll
-        [SerializeField] private List<ItemDataSO> _shopItems;  // every item the shop can roll, into the same slots
-        [SerializeField] private ShopOddsSO _shopOdds;         // hero-vs-item chance and tier odds by stage
+        [SerializeField] private int _shopSlots = 5;
+        [SerializeField] private int _refreshCost = 1;
+        [SerializeField] private List<HeroDataSO> _shopRoster;
+        [SerializeField] private List<ItemDataSO> _shopItems;
+        [SerializeField] private ShopOddsSO _shopOdds;
 
         [Header("Reward")]
         [Tooltip("Offer an item card after every win. Now are exclude from the game")]
@@ -62,7 +65,7 @@ namespace MagicSchool.Core
         private HeroSeed _seed;
         private HeroSpawner _heroSpawner;
         private HeroUpgrader _upgrader;
-        private StageEditor _stageEditor;
+        private IStageEditing _stageEditor;
         private CombatRecorder _recorder;
         private GameSpeed _speed;
         private CombatCsvLog _balanceLog;
@@ -73,13 +76,7 @@ namespace MagicSchool.Core
         private IScoreboardPanel _scoreboard;
         private int _stageIndex;
         private int _heroLimit;
-        private bool _startCombatRequested;
-        private bool _continueRequested;
-        private bool _restartRequested;
-        private bool _skipStageRequested;
-        private bool _keepShopOnce;
 
-        // ======================================== getter ========================================
         public GamePhaseEnum Phase => _stateMachine == null ? GamePhaseEnum.Preparation : _stateMachine.CurrentType;
         internal TeamEnum? Winner { get; private set; }
         internal bool IsPlayerSeed => _isPlayerSeed;
@@ -90,10 +87,13 @@ namespace MagicSchool.Core
         public int HeroLimit => _heroLimit;
         public int SpeedMultiplier => _speed == null ? 1 : _speed.Multiplier;
         public bool IsPaused => _speed != null && _speed.IsPaused;
-        public StageEditor StageEditor => _stageEditMode ? _stageEditor : null;
+        public IStageEditing StageEditor => _stageEditMode ? _stageEditor : null;
+        internal void RegisterStageEditor(IStageEditing editor) => _stageEditor = editor;
+        internal HeroSpawner Spawner => _heroSpawner;
+        public PlayerActions Actions { get; private set; }
+        public PhaseRequests Requests { get; private set; }
         internal bool IsRunCleared => Winner == TeamEnum.Blue && _stageIndex + 1 >= StageCount;
 
-        // ======================================== setter ========================================
         internal BattlePlacementSO GetStage(int index) => HasStages ? _stages[index] : _currentStage;
         internal bool IsInRun(BattlePlacementSO stage) => HasStages && stage != null && System.Array.IndexOf(_stages, stage) >= 0;
         internal void SetWinner(TeamEnum? winner) => Winner = winner;
@@ -102,7 +102,6 @@ namespace MagicSchool.Core
         internal void ResetHeroLimit() => _heroLimit = _startingHeroLimit;
         internal void PayStageIncome() => _wallet.Earn(_stageIncome);
 
-        // === forwarding ===
         internal BattleBoard Board => _board;
         internal IReadOnlyList<HeroDataSO> ShopRoster => _shopRoster;
         internal TemplateActionRegistrySO TemplateActions => _templateActions;
@@ -116,133 +115,9 @@ namespace MagicSchool.Core
         internal IRewardPanel Reward => _reward;
         internal IScoreboardPanel Scoreboard => _scoreboard;
         internal void ChangeState(GamePhaseEnum next) => _stateMachine.ChangeState(next);
-        public void MoveHero(ICombatant hero, IPlacement placement)
-        {
-            _heroMover.MoveThisHeroTo(hero, placement);
-            RefreshAligning();
-        }
 
-        public void Sell(ISellable sellable)
-        {
-            if (sellable is ICombatant && Phase != GamePhaseEnum.Preparation) return;
+        internal AlignBonuses Aligning => _alignBonuses;
 
-            _seller.Sell(sellable);
-            RefreshAligning();
-        }
-
-        // Dev tool: put a hero on the bench for free, skipping the shop. False when the bench is full.
-        // (See the Stage Editor window's Player tab)
-        public bool AddHeroToBench(HeroDataSO data) => data != null && _bench.SpawnHeroOnBench(data);
-
-        // Dev tool: drop an item on the loose row for free, where a bought one lands (See ItemDrop).
-        // Typed ScriptableObject because Editor does not reference Items; false when it is not an ItemDataSO.
-        public bool AddItemToLooseRow(ScriptableObject data) => data is ItemDataSO item && ItemDrop.Spawn(item) != null;
-
-        // Lay an item on a hex, or take it off again. A hero may wear an item lying on one of its
-        // wearing hexes, so both are a reason to work the aligning bonuses out again.
-        public bool PutItemOnHex(IEquipment item, Hex hex)
-        {
-            if (!_board.Items.Place(item, hex)) return false;
-
-            RefreshAligning();
-            return true;
-        }
-
-        public void TakeItemOffHex(IEquipment item)
-        {
-            if (_board.Items.Remove(item)) RefreshAligning();
-        }
-
-        // Put an item on a hero, or take it off. A hero standing on an ally's wearing hex
-        // shares what it wears, so both are a reason to work the aligning bonuses out again.
-        public bool WearItem(Hero hero, IEquipment item)
-        {
-            if (!hero.TryWear(item)) return false;
-
-            RefreshAligning();
-            return true;
-        }
-
-        public void TakeItemOffHero(Hero hero, IEquipment item)
-        {
-            if (hero.TryTakeOff(item)) RefreshAligning();
-        }
-
-        // ======================================== shop hero ========================================
-        // A hero slot picked up in the shop is held as the hero itself, before it is bought (See Shop.TryPickUp):
-        // the player sees its align marks while placing it. Putting it down buys it; putting it back removes it.
-        //      Hero    the hero, standing nowhere yet
-        //      int     the shop slot it came from
-        public event System.Action<Hero, int> OnShopHeroPickedUp;
-
-        private void HandOutShopHero(int slot, HeroDataSO data)
-            => OnShopHeroPickedUp?.Invoke(_heroSpawner.SpawnUnboughtHero(data, _board), slot);
-
-        // Buy the held shop hero and put it on the placement - null = the first free bench slot.
-        // False, and the hero is gone, when it could not be bought (re-rolled, no gold) or has nowhere to go.
-        public bool BuyShopHero(Hero hero, int slot, IPlacement placement)
-        {
-            placement ??= _bench.FindFreeSlot();
-            if (placement == null)
-            {
-                Debug.Log("Bench is full - nowhere to put the hero.");
-                ReturnShopHero(hero);
-                return false;
-            }
-
-            if (!_shop.TryBuyPickedUp(slot, hero.Data))
-            {
-                ReturnShopHero(hero);
-                return false;
-            }
-
-            MoveHero(hero, placement);
-
-            // buying is getting a copy, wherever it was put down
-            CombineCopies();
-            return true;
-        }
-
-        // the held shop hero was not bought: it was only ever a preview of the slot
-        public void ReturnShopHero(Hero hero)
-        {
-            if (hero != null) Destroy(hero.gameObject);
-        }
-
-        // ======================================== align ========================================
-        // Turn a player hero to its next align pattern (step -1: the one before). Preparation only:
-        // the bonuses are fixed by where everyone stood, and how they were turned, when the fight started.
-        public bool RotateAlign(Hero hero, int step)
-        {
-            if (Phase != GamePhaseEnum.Preparation || hero == null || hero.Team != TeamEnum.Blue) return false;
-            if (!hero.RotateAlignMark(step)) return false;
-
-            RefreshAligning();
-            return true;
-        }
-
-        // refresh the aligning bonus
-        internal void RefreshAligning() => _alignBonuses.Refresh(_board, TeamEnum.Blue);
-
-        // Upgrading: combine every pair of copies of a hero. Only Preparation touches the board - mid-fight
-        // the benches combine alone, and they meet the board when the next Preparation starts.
-        // An upgraded hero's stats are built again, which drops its aligning bonuses, so they are given again.
-        internal void CombineCopies()
-        {
-            bool isPreparation = Phase == GamePhaseEnum.Preparation;
-
-            if (_upgrader.CombineAll(includeBoard: isPreparation) && isPreparation) RefreshAligning();
-        }
-
-        // a hero that lands on the bench is bought (or added by a dev tool): look for its copy.
-        // A hero spawned on a hex (a stage's seed, a loaded team comp, an enemy) never starts a combine.
-        private void CombineIfBenched(Hero hero)
-        {
-            if (hero.Team == TeamEnum.Blue && hero.CurrentPlacement is BenchSlot) CombineCopies();
-        }
-
-        // ======================================== life cycle ========================================
-        // init dependency
         void Awake()
         {
             Instance = this;
@@ -257,17 +132,16 @@ namespace MagicSchool.Core
 
             if (_test) _balanceLog = new CombatCsvLog(Path.Combine(Application.dataPath, "..", "BalanceLogs"));
 
-            _stageEditor = new StageEditor(this);
-            _heroSpawner = new HeroSpawner(_heroMover, _templateActions, _recorder, _bench, _seed, _stageEditor);
+            _heroSpawner = new HeroSpawner(_heroMover, _templateActions, _recorder, _bench, _seed);
             _upgrader = new HeroUpgrader(_board, _bench, _spareBench);
-            _heroSpawner.OnSpawned += CombineIfBenched;
             _wallet = new Wallet(_startingGold);
             _seller = new Seller(_wallet);
             _shop = new Shop(_wallet, _bench, _shopRoster, _shopItems, _shopOdds, () => StageNumber, _shopSlots, _refreshCost,
                              (data, isStillOffered) => new HeroPreview(data, SkillLibrary.Resolve(data.SkillId, _templateActions), isStillOffered));
-            _shop.OnHeroPickedUp += HandOutShopHero;
             _heroFormation = new HeroFormation(_heroMover, _spareBench, _bench);
             _heroLimit = _startingHeroLimit;
+            Actions = new PlayerActions(() => Phase, _board, _bench, _heroMover, _seller, _shop, _upgrader, _alignBonuses, _heroSpawner);
+            Requests = new PhaseRequests(() => Phase);
             _stateMachine = new GameStateMachine(this);
 
             MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -276,11 +150,9 @@ namespace MagicSchool.Core
             _reward = _useRewardPanel ? behaviours.OfType<IRewardPanel>().FirstOrDefault() : null;
             _scoreboard = behaviours.OfType<IScoreboardPanel>().FirstOrDefault();
 
-            // bind the shop (logic) to shop panel
             behaviours.OfType<IShopPanel>().FirstOrDefault()?.BindShop(_shop);
         }
 
-        // start the game at preparation state
         void Start()
         {
             _stateMachine.Start(GamePhaseEnum.Preparation);
@@ -288,11 +160,8 @@ namespace MagicSchool.Core
 
         void Update() => _stateMachine.Tick();
 
-        // ========================================= request handler =========================================
-        // set game's speed to x1 / x2 / x3.
         public void SetSpeed(int multiplier) => _speed?.Set(multiplier);
 
-        // Pause the fight, or go on with it. Only a fight pauses: Preparation and Result wait for the player anyway.
         public void TogglePause()
         {
             if (Phase != GamePhaseEnum.Combat) return;
@@ -300,7 +169,6 @@ namespace MagicSchool.Core
             SetPaused(!IsPaused);
         }
 
-        // also called by CombatState as the fight ends, so no other phase is ever left paused
         internal void SetPaused(bool isPaused)
         {
             if (_speed == null || _speed.IsPaused == isPaused) return;
@@ -310,75 +178,14 @@ namespace MagicSchool.Core
             else if (Phase == GamePhaseEnum.Combat) _hint?.ShowCombat(StageNumber, StageCount);
         }
 
-        public void StartCombat()
-        {
-            if (Phase != GamePhaseEnum.Preparation) return;
-
-            _startCombatRequested = true;
-        }
-
-        public void ContinueFromResult()
-        {
-            if (Phase != GamePhaseEnum.Result) return;
-
-            _continueRequested = true;
-        }
-
-        public void Restart()
-        {
-            _restartRequested = true;
-        }
-
-        // Dev tool: win this stage on the spot, as if every enemy died - in Preparation or mid-fight.
-        public void SkipStage()
-        {
-            if (Phase != GamePhaseEnum.Preparation && Phase != GamePhaseEnum.Combat) return;
-
-            _skipStageRequested = true;
-        }
-
-        // Dev tool (the Stage Editor's Load): play this stage of the run now, in Preparation.
-        // Preparation opens again as it does for a new stage - the stage's board, enemies, levels and deploy zone, the stage
-        // number - but the team stays where it stands (the spare bench if the board changes) and the shop is kept.
-        // Returns false when the stage is not one of _stages, or it is not Preparation.
         public bool JumpToStage(BattlePlacementSO stage)
         {
             if (Phase != GamePhaseEnum.Preparation || !IsInRun(stage)) return false;
 
             _heroFormation.Remember(_board.HeroesOnBoard, TeamEnum.Blue);
             SetStageIndex(System.Array.IndexOf(_stages, stage));
-            _keepShopOnce = true;
+            Requests.KeepShopOnce();
             _stateMachine.Reenter();
-            return true;
-        }
-
-        // set by JumpToStage only, so it is not one of ClearPendingRequests' requests - Preparation clears those first
-        internal bool ConsumeKeepShop() => Consume(ref _keepShopOnce);
-
-        // consume a request, then clear the flag to false immediately:
-        // 1) start combat => let hero fight between heroes
-        // 2) continue => move to a next stage, or repeat the same stage
-        // 3) restart => repeat this stage
-        internal bool ConsumeStartCombatRequest() => Consume(ref _startCombatRequested);
-        internal bool ConsumeContinueRequest() => Consume(ref _continueRequested);
-        internal bool ConsumeRestartRequest() => Consume(ref _restartRequested);
-        internal bool ConsumeSkipStageRequest() => Consume(ref _skipStageRequested);
-
-        // reset all request
-        internal void ClearPendingRequests()
-        {
-            _startCombatRequested = false;
-            _continueRequested = false;
-            _restartRequested = false;
-            _skipStageRequested = false;
-        }
-
-        // if request exist, consume it, and clear the flag
-        private static bool Consume(ref bool requested)
-        {
-            if (!requested) return false;
-
-            requested = false;
             return true;
         }
     }

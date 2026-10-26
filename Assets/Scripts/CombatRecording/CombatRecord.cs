@@ -12,21 +12,18 @@ namespace MagicSchool.CombatRecording
             _clock = clock;
         }
 
-        // ===================== time =====================
         public float FightSeconds => _clock != null ? _clock.Elapsed : 0f;
         public float SecondsAlive => _diedAt ?? FightSeconds;
 
-        // ===================== as the source: what this unit did to others =====================
-        public int DamageDealt { get; private set; }        // AutoAttackDamage + SkillDamage
+        public int DamageDealt { get; private set; }
         public int AutoAttackDamage { get; private set; }
         public int SkillDamage { get; private set; }
-        public int Overkill { get; private set; }           // landed on a corpse's last hit, past 0 HP
+        public int Overkill { get; private set; }
         public int HealingDone { get; private set; }
-        public int Overhealing { get; private set; }        // healing past the target's MaxHP
+        public int Overhealing { get; private set; }
 
-        // ===================== as the target: what others did to this unit =====================
         public int DamageTaken { get; private set; }
-        public int DamageMitigated { get; private set; }    // what DF and Damage Reduction saved
+        public int DamageMitigated { get; private set; }
         public int HealingReceived { get; private set; }
         public int HealingLostToWound { get; private set; }
 
@@ -36,8 +33,6 @@ namespace MagicSchool.CombatRecording
             Overkill += overkill;
 
             if (kind == DamageKindEnum.AutoAttack) AutoAttackDamage += landed;
-            // a burn is still a skill's damage
-            // FIXLATER: I prefer it have its own section. Burn damage section.
             else if (kind == DamageKindEnum.Skill || kind == DamageKindEnum.Burn) SkillDamage += landed;
         }
 

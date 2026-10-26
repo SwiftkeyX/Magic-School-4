@@ -7,11 +7,10 @@ namespace MagicSchool.UI
     /// </summary>
     internal class SkillBar : WorldBar
     {
-        public const int None = -1;     // bound to no modifier: the bar stays hidden
+        public const int None = -1;
 
         private int _index = None;
 
-        // which of the hero's modifiers this bar counts down (See SkillBarStack)
         public void Bind(int index) => _index = index;
 
         protected override float Fill => _hero.ModifierRemaining(_index);

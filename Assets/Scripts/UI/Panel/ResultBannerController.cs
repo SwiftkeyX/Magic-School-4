@@ -12,7 +12,6 @@ namespace MagicSchool.UI
 
         private Label _resultText;
 
-        // =================================== IBannerPanel interface ===================================
         public void ShowResult(TeamEnum? winner, int stage, int stageCount, bool runCleared)
         {
             if (_resultText == null) return;
@@ -33,7 +32,6 @@ namespace MagicSchool.UI
             }
             else
             {
-                // nobody left standing on either side
                 _resultText.text = "DRAW";
                 _resultText.AddToClassList(DrawClass);
             }
@@ -41,7 +39,6 @@ namespace MagicSchool.UI
             SetShown(true);
         }
 
-        // =================================== Life cycle ===================================
         protected override void OnMounted(VisualElement panel)
         {
             _resultText = panel.Q<Label>("ResultText");

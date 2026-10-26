@@ -4,6 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // The heal is HealPerTick x (allies on his Sanctuary mark + 1)% AP: 2 allies => x3.
     internal class WarClericSkill : SkillDefinition
     {
         private static float BurnPerTick => Tuned(60f);
@@ -11,16 +12,13 @@ namespace MagicSchool.Skills
         private static float TickInterval => Tuned(1f);
         private static float Duration => Tuned(3f);
 
-        // DamageOverTime / HealOverTime 
         private static float Ticks => Duration / TickInterval;
         private static float TotalBurn => BurnPerTick * Ticks;
         private static float TotalHeal => HealPerTick * Ticks;
 
-        // area
         private static int AreaHexes => Tuned(2);
         private static float AreaDiameter => AreaHexes * 2f + 0.5f;
 
-        // the heal is [HealPerTick x (allies on his Sanctuary mark + 1)]% AP
         private const string SanctuaryMark = "Sanctuary";
         public override IReadOnlyList<string> SpecialMarks => new[] { SanctuaryMark };
 
@@ -36,7 +34,6 @@ namespace MagicSchool.Skills
              + $"included, heal for {AP(HealPerTick)}, "
              + $"{HealPerTick}% more for every ally on his {SanctuaryMark} mark.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart ground = Part(
@@ -63,8 +60,7 @@ namespace MagicSchool.Skills
             return Flow(onStart: ground);
         }
 
-        // e.g. 2 allies on his Sanctuary mark => x3 heal
         private static float SanctuaryBonus(IEffectable caster)
-            => caster is IAligned aligned ? aligned.AlliesOnSpecialMark(SanctuaryMark).Count : 0f;
+            => caster is ISkillCaster aligned ? aligned.AlliesOnSpecialMark(SanctuaryMark).Count : 0f;
     }
 }

@@ -4,20 +4,19 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // His AS buff is a self-referential ratio (+200% of his own AS), resolved once as it lands. His stun grows with
+    // every few auto attacks; the count starts over, and his AD is halved, at combat start.
     internal class DireWolfSkill : SkillDefinition
     {
-        // buff
-        private static float AttackSpeedBuff => Tuned(200f);   // +200%
+        private static float AttackSpeedBuff => Tuned(200f);
         private static float BuffDuration => Tuned(5f);
 
-        // stun of DireWolf can grows with every x auto attacks
         private static float StunDuration => Tuned(0.5f);
         private static float StunPerGrowth => Tuned(0.5f);
         private static int AttacksPerGrowth => Tuned(5);
         private int _attackCount;
 
-        // passive
-        private static float AttackCut => Tuned(50f);   // -50% base AD
+        private static float AttackCut => Tuned(50f);
         private static float HealOnAA => Tuned(30f);
         private static float RestOfFight => Tuned(-1f);
 
@@ -37,22 +36,17 @@ namespace MagicSchool.Skills
 
         private float CurrentStun => StunDuration + StunPerGrowth * (_attackCount / AttacksPerGrowth);
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
             => Flow(onStart: Cast(registry), onExpired: OnCastExpired(registry));
 
         private static SkillPart Cast(TemplateActionRegistrySO registry)
         {
-            // +200% of his own attack speed - a self-referential ratio, resolved once when it lands
             ICustomModifier modifiers = BundleRefresh(
                 BuffDuration,
                 Buff(ModifierEnum.AS, (StatEnum.AS, AttackSpeedBuff, ScaleFromEnum.Base)),
-                // FIXLATER: I notice that there's not anything to prevent the Modifier.ManaBlocked to be use with Buff or Debuff. 
-                // Eventhough it should olonly be used by Status().
                 Debuff(ModifierEnum.ManaBlocked)
             );
 
-            // cast buff
             SkillPart cast = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
@@ -64,10 +58,8 @@ namespace MagicSchool.Skills
 
         private SkillPart OnCastExpired(TemplateActionRegistrySO registry)
         {
-            // stun
             ICustomModifier stun = BundleRefresh(() => CurrentStun, Status(ModifierEnum.Stun));
 
-            // aoe on self
             SkillPart AOE = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.CircleAOE,
@@ -77,8 +69,6 @@ namespace MagicSchool.Skills
             return AOE;
         }
 
-        // ============================== passive ==============================
-        // at combat start, the count starts over and his AD is halved
         public override bool OnCombatStart()
         {
             _attackCount = 0;
@@ -96,8 +86,6 @@ namespace MagicSchool.Skills
             return base.OnCombatStart();
         }
 
-        // on attack, increase attackCount
-        // attackCount increase stun duration
         public override bool OnAutoAttack(ICombatant target)
         {
             _attackCount++;
@@ -105,15 +93,12 @@ namespace MagicSchool.Skills
             return base.OnAutoAttack(target);
         }
 
-        // on attack, heal himself
         protected override SkillFlow BuildAutoAttackFlow(TemplateActionRegistrySO registry)
         {
-            // cast
             SkillPart cast = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self,
-                // sheet: 30% AP
                 Heal(EffectRecipientEnum.Self, (StatEnum.AP, HealOnAA)));
 
             return Flow(onStart: cast);

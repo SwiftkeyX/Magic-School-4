@@ -6,23 +6,25 @@ using MagicSchool.Combat.Placements;
 namespace MagicSchool.Combat.Heroes
 {
     // Hero: being hit and healed (IEffectable), the events that report it, and the units it can ask for.
+    // A hero is dead the moment HP is 0, not from its next update when the state machine moves it to Dead: until then
+    // a shot landing the same frame would hit it and vanish (Skeleton Archer's second arrow on the hero his first just
+    // killed). The killing hit records its source. The attacker's armor penetration and lethality lower the DF every
+    // hit meets - autos, skills and burn alike.
+    // OnDamageDealt is raised on the dealer by whoever took the hit (aligning: Shield Knight heals off his generator's
+    // damage). A revive stands the hero up on the hex it died on, with part of its max HP, mana and modifiers kept; it
+    // may have died mid-step or mid-dash, so it stands on its hex again and drops the step it had booked.
     public partial class Hero
     {
-        // ======================================== combat event ========================================
         public event Action<DamageEvent> OnDamaged;
         public event Action<HealEvent> OnHealed;
-        public event Action<DamageEvent> OnDamageDealt;     // this hero hurt someone - raised by the one who took it
+        public event Action<DamageEvent> OnDamageDealt;
         public event Action<HeroDataSO, TeamEnum, IPlacement, BattleBoard> OnSpawnRequested;
 
-        // ======================================== IFallen ========================================
         public IEffectable KilledBy { get; private set; }
         public bool IsSummon { get; private set; }
 
-        // called by whoever builds a unit another unit asked for (See OnSpawnRequested)
         public void MarkAsSummon() => IsSummon = true;
 
-        // ======================================== IRevivable ========================================
-        // a skill that brings this hero back after it dies (e.g. Reaper). Ticked by HeroDead (See Revive)
         private float _reviveIn = -1f;
         private float _reviveHPRatio;
 
@@ -36,7 +38,6 @@ namespace MagicSchool.Combat.Heroes
 
         public void CancelRevive() => _reviveIn = -1f;
 
-        // count down while dead; true once it is time to get back up
         internal bool TickRevive(float deltaTime)
         {
             if (!IsReviving) return false;
@@ -45,7 +46,6 @@ namespace MagicSchool.Combat.Heroes
             return _reviveIn <= 0f;
         }
 
-        // back up on the hex it died on, with part of its max HP. Mana and modifiers are kept.
         internal void Revive()
         {
             float ratio = _reviveHPRatio;
@@ -54,17 +54,12 @@ namespace MagicSchool.Combat.Heroes
 
             Stat.SetCurrentHP(Math.Max(1, (int)Math.Round(Stat.MaxHP * ratio)));
 
-            // it may have died mid-step or mid-dash: stand on its hex again and drop the step it had reserved
             if (CurrentHex != null) transform.position = CurrentHex.transform.position;
             SetReservedHex(null);
 
             ChangeState(HeroStateEnum.Idle);
         }
 
-        // ======================================== IEffectable ========================================
-        // 0 HP is dead at once, not only from the hero's next update, when the state machine moves it to Dead -
-        // until then a shot landing in the same frame would hit it and vanish
-        // e.g.     Skeleton Archer's second arrow landing on the hero his first one just killed
         public bool IsAlive => this != null && IsInitialized && StateType != HeroStateEnum.Dead && CurrentHP > 0;
         public void AddModifier(ICustomModifier modifier, IHeroStats casterStats, float amplifier = 1f) => Stat.AddModifier(modifier, amplifier, casterStats, this);
         public bool RemoveModifier(ICustomModifier modifier) => Stat.RemoveModifier(modifier);
@@ -82,11 +77,8 @@ namespace MagicSchool.Combat.Heroes
 
         public int TakeDamage(int damage, IEffectable source, DamageKindEnum kind)
         {
-            // if target has vanish, the target don't take damage
             if (HasStatus(ModifierEnum.Untargetable)) return 0;
 
-            // calculate damage
-            // the attacker's armor penetration and lethality lower the DF this hit meets - autos, skills and burn alike
             int defense = source is IHeroStats attacker
                 ? CombatMath.DFAfterPenetration(Stat.DF, attacker.GetStat(StatEnum.ArmorPen), attacker.GetStat(StatEnum.Lethality))
                 : Stat.DF;
@@ -95,34 +87,22 @@ namespace MagicSchool.Combat.Heroes
             Stat.ConsumeShield(absorbed);
             Stat.SetCurrentHP(outcome.NewHP);
 
-            // the hit that takes it to 0 HP is the kill: remember whose it was
             if (wasAlive && outcome.NewHP <= 0) KilledBy = source;
 
             var damageEvent = new DamageEvent(source, this, kind, outcome);
             OnDamaged?.Invoke(damageEvent);
 
-            // tell my own skill
-            // e.g.     Shield Knight counts what he takes while bracing
-            _skill?.TriggerOnDamageTaken(damageEvent);
+            _skill?.OnDamageTaken(damageEvent);
 
-            // tell the dealer too
-            // e.g.     aligning: Shield Knight heals off the damage his generator deals
             if (source is Hero dealer) dealer.OnDamageDealt?.Invoke(damageEvent);
 
-            // if take burn, annouce it.
             if (kind == DamageKindEnum.Burn) AnnounceBurn();
 
-            // if (other status) add here;
-            // ...
-
-            // return how much damage was done
             return outcome.Landed;
         }
 
-        // ======================================== ISpawner ========================================
         public int SpawnUnitsNearby(int count) => _spawn.SpawnNearby(_SOData.SpawnUnit, count);
 
-        // tell every other hero on the board this one took a burn tick
         private void AnnounceBurn()
         {
             foreach (ICombatant combatant in new List<ICombatant>(HeroesOnBoard))

@@ -7,7 +7,7 @@ namespace MagicSchool.Contracts
     // to sells it?
     public interface ISellZone
     {
-        bool IsInSellBoundary(Vector2 screenPosition);   // Is the pointer inside the sell boundary?
-        void ShowSellHint(bool isOverZone);                 // turn on tint of the shop to indicate the shop is focus
+        bool IsInSellBoundary(Vector2 screenPosition);
+        void ShowSellHint(bool isOverZone);
     }
 }

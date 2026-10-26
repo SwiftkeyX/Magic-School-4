@@ -7,13 +7,9 @@ namespace MagicSchool.Skills
     // this is where the skill was registered in the game.
     public static class SkillLibrary
     {
-        // a pair of SkillIdEnum & SkillDefinition
-        // TemplateAction is a skill prefab used by hero, but hero don't know how this TemplateAction work.
-        // How the TemplateAction work was put inside SkillDefinition.
         private static readonly Dictionary<SkillIdEnum, Func<TemplateActionRegistrySO, SkillDefinition>> Builders =
             new Dictionary<SkillIdEnum, Func<TemplateActionRegistrySO, SkillDefinition>>
             {
-                // =================== player side ===================
                 { SkillIdEnum.Werewolf      , WerewolfSkill.Build       },
                 { SkillIdEnum.Naga          , NagaSkill.Build           },
                 { SkillIdEnum.ShieldKnight  , ShieldKnightSkill.Build   },
@@ -50,7 +46,6 @@ namespace MagicSchool.Skills
                 { SkillIdEnum.Fencer        , FencerSkill.Build         },
                 { SkillIdEnum.Priest        , PriestSkill.Build         },
 
-                // =================== enemy side ===================
                 { SkillIdEnum.Minotaur      , MinotaurSkill.Build       },
                 { SkillIdEnum.BigSlime      , BigSlimeSkill.Build       },
                 { SkillIdEnum.Basilisk      , BasiliskSkill.Build       },
@@ -59,10 +54,8 @@ namespace MagicSchool.Skills
                 { SkillIdEnum.MinotaurKing  , MinotaurKingSkill.Build   },
             };
 
-        /// Return a skill that match skillID's TemplateAction.
         public static SkillDefinition Resolve(SkillIdEnum skillID, TemplateActionRegistrySO registry)
         {
-            // no skill at all is normal - a dummy has none
             if (skillID == SkillIdEnum.None) return null;
 
             if (!Builders.TryGetValue(skillID, out var build))

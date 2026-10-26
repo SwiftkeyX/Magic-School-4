@@ -11,6 +11,10 @@ namespace MagicSchool.Combat.Placements
     ///         an item is held => the team's wearing hexes purple
     ///         the fight       => the whole board gray
     /// </summary>
+    // A hex in several marks shows every colour as rings: purple outermost, then orange, green, white, the order the
+    // Align Editor draws them. A mark hex that gives nothing (red, or a gray spot off the board) keeps its own colour
+    // outside with the mark's colours as faded rings inside, so it reads as where the mark is and never as a hex that
+    // pays. Anything that repaints the board takes the route dots away.
     [Serializable]
     public class BoardColours
     {
@@ -57,7 +61,6 @@ namespace MagicSchool.Combat.Placements
             _route = new RouteDots(board);
         }
 
-        // Repaint the whole deploy zone
         public void ShowDeployZone(bool isShown)
         {
             _ghosts?.HideAll();
@@ -69,13 +72,8 @@ namespace MagicSchool.Combat.Placements
             }
         }
 
-        // Repaint one of the hex 
-        // e.g.     stage editor mode, the hex was just put in or out of the zone
         internal void ShowDeployZone(Hex hex) => hex.SetColor(ZoneColorOf(hex));
 
-        // Repaint hexes that was marked (override deploy zone)
-        // A hex can be in several - a wearing hex is always a mark's hex too - so it shows every colour it has, as rings:
-        // purple outermost, then orange, green, white, the same order the Align Editor draws them.
         public void ShowAlignMarks(ICollection<Hex> firstBonus, ICollection<Hex> secondBonus, ICollection<Hex> special, ICollection<Hex> wearing)
         {
             var onBoard = new Dictionary<Hex, MarkColours>();
@@ -93,10 +91,6 @@ namespace MagicSchool.Combat.Placements
             ShowAlignMarks(onBoard, new List<(Vector3, MarkColours)>());
         }
 
-        // The whole shape of a hero's marks: the board's hexes in [onBoard], and the spots past its edge as gray hexes.
-        // A hex that gives nothing keeps its own colour outside - red, or the gray of a spot off the board - with the mark's
-        // colours as faded rings inside, so it reads as "this is where the mark is" and never as a hex that pays.
-        // e.g.     a mark hex on a red hex => red outside, a faded green ring inside
         public void ShowAlignMarks(IReadOnlyDictionary<Hex, MarkColours> onBoard, IReadOnlyList<(Vector3 position, MarkColours marks)> offBoard)
         {
             foreach (Hex hex in _hexs.Values)
@@ -114,23 +108,17 @@ namespace MagicSchool.Combat.Placements
             _route?.HideAll();
         }
 
-        // Painted over whatever is shown: a hovered hero's tied nearest enemies get a band of the target colour, and the one chosen for it is filled
-        // (See FindTarget.SwitchChosenTarget)
-        // [onZone] false in a fight, where the board is neutral rather than blue and red
         public void ShowTargets(IEnumerable<Hex> tied, Hex chosen, bool onZone = true)
         {
             foreach (Hex hex in tied)
             {
                 Color own = onZone ? ZoneColorOf(hex) : _neutralColor;
-                hex.SetColors(hex == chosen ? new[] { _targetColor } : new[] { own, _targetColor, own });   // a yellow band, its own colour inside
+                hex.SetColors(hex == chosen ? new[] { _targetColor } : new[] { own, _targetColor, own });
             }
         }
 
-        // A dot on every hex a hovered hero would walk through to its chosen target, drawn over the marks and targets
-        // (See Hero.RouteToExpectedTarget). Anything that repaints the board takes the dots away.
         public void ShowRoute(IReadOnlyList<Hex> route) => _route?.Show(route, _targetColor);
 
-        // purple outermost, then orange, green, white; nothing marked => the hex's own colour
         private List<Color> ColoursOf(MarkColours marks, Color own)
         {
             var colours = new List<Color>();
@@ -164,7 +152,7 @@ namespace MagicSchool.Combat.Placements
         public bool first;
         public bool second;
         public bool special;
-        public bool givesNothing;     // off the board, outside the deploy zone, or past the edge: drawn, but nobody there gets anything
+        public bool givesNothing;
 
         public bool IsMarked => wearing || first || second || special;
     }

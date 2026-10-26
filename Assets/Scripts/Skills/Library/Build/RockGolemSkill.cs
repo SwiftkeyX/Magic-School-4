@@ -4,13 +4,14 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // His wards are the allies on his Ward mark (See ISkillCaster.AlliesOnSpecialMark). The cast only plays the animation; the shields land in
+    // OnCast.
     internal class RockGolemSkill : SkillDefinition
     {
         private static float ShieldAmount => Tuned(500f);
         private static float ShieldDuration => Tuned(4f);
         private readonly ICustomModifier _shield = BundleRefresh(ShieldDuration, Shield(ShieldAmount));
 
-        // the allies standing on this mark are his wards (See AlignMark)
         private const string WardMark = "Ward";
         public override IReadOnlyList<string> SpecialMarks => new[] { WardMark };
 
@@ -27,20 +28,17 @@ namespace MagicSchool.Skills
         public override string PassiveDescription
             => $"The allies on his {WardMark} mark are his wards.";
 
-        // ============================== passive ==============================
         public override bool HasAutoAttackPassive => true;
 
-        // ============================== active ==============================
         public override bool OnCast()
         {
             if (!base.OnCast()) return false;
 
             Caster.AddModifier(_shield, Caster as IHeroStats);
 
-            // his wards: the allies on his Ward mark (See IAligned)
-            if (Caster is IAligned aligned)
+            if (Caster != null)
             {
-                foreach (ICombatant ward in aligned.AlliesOnSpecialMark(WardMark))
+                foreach (ICombatant ward in Caster.AlliesOnSpecialMark(WardMark))
                 {
                     if (ward != null && ward.IsAlive) ward.AddModifier(_shield, Caster as IHeroStats);
                 }
@@ -49,7 +47,6 @@ namespace MagicSchool.Skills
             return true;
         }
 
-        // the cast itself only plays the animation; the shields land in OnCast
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             SkillPart cast = Part(

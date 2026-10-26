@@ -10,16 +10,15 @@ namespace MagicSchool.Combat.Placements
     /// </summary>
     internal class RouteDots
     {
-        private const float DotSize = 0.3f;     // of a hex
-        private const float Lift = 0.1f;        // toward the camera: over the hex and its rings, still under every hero (order 1)
+        private const float DotSize = 0.3f;
+        private const float Lift = 0.1f;
 
         private readonly Transform _board;
-        private Transform _holder;              // made the first time one is drawn
+        private Transform _holder;
         private readonly List<SpriteRenderer> _pool = new List<SpriteRenderer>();
 
         public RouteDots(Transform board) => _board = board;
 
-        // One dot on each hex of [route], in [colour]. The rest are hidden.
         public void Show(IReadOnlyList<Hex> route, Color colour)
         {
             for (int i = 0; i < route.Count; i++)
@@ -45,7 +44,6 @@ namespace MagicSchool.Combat.Placements
             }
         }
 
-        // the i-th dot, made the first time one is needed; it copies the hex's look, so a new layout's size is followed
         private SpriteRenderer DotAt(int i, Hex template)
         {
             if (_holder == null)

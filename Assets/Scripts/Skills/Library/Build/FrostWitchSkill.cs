@@ -4,6 +4,9 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // DamageOverTime splits its ratio across the ticks, so it is handed the total the sheet's per-tick number adds up
+    // to. Her slow is one instance re-applied every tick, so it refreshes instead of stacking, and lasts a tick past
+    // the interval so it never drops between two ticks for someone still inside.
     internal class FrostWitchSkill : SkillDefinition
     {
         private static float DamagePerTick => Tuned(40f);
@@ -11,8 +14,6 @@ namespace MagicSchool.Skills
         private static float Duration => Tuned(3f);
         private static float SlowPercent => Tuned(30f);
         private static float Diameter => Tuned(4.5f);
-        // DamageOverTime splits its ratio across the ticks, so hand it the total the sheet's per-tick
-        // number adds up to
         private static float TotalDamage => DamagePerTick * (Duration / TickInterval);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new FrostWitchSkill(registry);
@@ -26,11 +27,8 @@ namespace MagicSchool.Skills
              + $"{AP(DamagePerTick)} every {TickInterval} seconds, and enemies inside lose "
              + $"{SlowPercent}% attack speed.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            // one instance, re-applied every tick - so it refreshes instead of stacking. Lasts one tick
-            // past the interval so it never drops between two ticks for someone still inside.
             ICustomModifier chill = BundleRefresh(
                 TickInterval * 2f,
                 Debuff(ModifierEnum.AS, ScalingSourceEnum.Recipient, (StatEnum.AS, SlowPercent, ScaleFromEnum.Base

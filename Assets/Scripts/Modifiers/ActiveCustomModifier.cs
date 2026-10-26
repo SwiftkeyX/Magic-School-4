@@ -27,10 +27,9 @@ namespace MagicSchool.Modifiers
         private const float Permanent = -1f;
         private float _remaining;
 
-        // pair of modifier & stat - tell which stat is increase by this modifier
+        internal static IReadOnlyDictionary<ModifierEnum, StatEnum> StatFedBy => _lookup;
         private static readonly Dictionary<ModifierEnum, StatEnum> _lookup = new Dictionary<ModifierEnum, StatEnum>
         {
-            // buff
             { ModifierEnum.BonusHP        , StatEnum.MaxHP }          ,
             { ModifierEnum.ATK            , StatEnum.ATK }            ,
             { ModifierEnum.AS             , StatEnum.AS}              ,
@@ -47,28 +46,22 @@ namespace MagicSchool.Modifiers
             { ModifierEnum.ArmorPen       , StatEnum.ArmorPen }       ,
             { ModifierEnum.Lethality      , StatEnum.Lethality }      ,
             { ModifierEnum.MaxMana        , StatEnum.MaxMana }        ,
-            // ...
 
-            // debuff
             { ModifierEnum.DefendShred    , StatEnum.DF }             ,
-            // ...
         };
 
-        // ============================================ getter ============================================
-        public readonly ICustomModifier CustomModifier;     // the group of modifier - buff, debuff, status, etc...
-        private readonly float[] _bonusStat;                // the amount of total stat that will be added to hero, amplifier included
-        public float Remaining => _remaining;               // remember its remaining duration of the modifier - The group share the same remaining
+        public readonly ICustomModifier CustomModifier;
+        private readonly float[] _bonusStat;
+        public float Remaining => _remaining;
 
         public ActiveCustomModifier(ICustomModifier source, float amplifier, IHeroStats casterStats, IHeroStats recipientStats)
         {
             CustomModifier = source;
 
-            // get bonus stat from each modifier
             IReadOnlyList<IModifier> modifiers = source.GetModifiers();
             _bonusStat = new float[modifiers.Count];
             for (int i = 0; i < modifiers.Count; i++)
             {
-                // the bonus stat could derive from caster itself or others hero that being hit by the skill.
                 IHeroStats from;
                 if (modifiers[i].GetScalingSource() == ScalingSourceEnum.Caster)
                 {
@@ -78,15 +71,11 @@ namespace MagicSchool.Modifiers
                 {
                     from = recipientStats;
                 }
-                // fallback
                 else from = casterStats;
 
-                // get bonus stat, amplified if the effect's conditions is true.
-                // e.g. +30% when the target was wounded.
                 _bonusStat[i] = modifiers[i].GetBonusAmount(from) * amplifier;
             }
 
-            // start the modifier's timer
             _remaining = StartingRemaining(source.GetDuration());
         }
 
@@ -95,7 +84,6 @@ namespace MagicSchool.Modifiers
             _remaining -= deltaTime;
         }
 
-        // Get the specify stat from this ActiveCustomModifer
         public float GetStat(StatEnum stat)
         {
             float total = 0f;
@@ -108,8 +96,6 @@ namespace MagicSchool.Modifiers
             return total;
         }
 
-        // Get the specify modifier amount from this ActiveCustomModifer
-        // e.g. if this group, have Shield(500) and Shield(200)     =    GetAmount(Shield) = 700.
         public float GetAmount(ModifierEnum type)
         {
             float total = 0f;
@@ -119,9 +105,6 @@ namespace MagicSchool.Modifiers
             return total;
         }
 
-        // ======================================== other ========================================
-        // ====== shield ======
-        // when shield absorb damage, the shield amount is taken from the modifer.
         public float ConsumeShield(float amount)
         {
             float taken = 0f;
@@ -138,7 +121,6 @@ namespace MagicSchool.Modifiers
             return taken;
         } 
 
-        // ======================================== private ========================================
         private static float StartingRemaining(float duration)
             => (duration == Permanent) ? float.PositiveInfinity : duration;
     }

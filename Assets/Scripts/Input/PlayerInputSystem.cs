@@ -24,7 +24,6 @@ namespace MagicSchool.Input
         public static bool TargetViewHeld => Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed;
         public static bool FormulaViewHeld => Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed;
 
-        // adjust game's speed using numkey
         public static int SpeedPressedThisFrame()
         {
             if (Keyboard.current.digit1Key.wasPressedThisFrame) return 1;
@@ -37,7 +36,6 @@ namespace MagicSchool.Input
 
         public static Vector2 PointerScreenPosition => Mouse.current.position.ReadValue();
 
-        // Converts the current mouse position to a world point on the plane facing the given camera.
         public static Vector3 GetMouseWorldPosition(Camera cam)
         {
             Vector3 screenPos = Mouse.current.position.ReadValue();

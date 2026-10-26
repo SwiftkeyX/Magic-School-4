@@ -11,30 +11,33 @@ namespace MagicSchool.Combat.Heroes.Stats
     /// This class should only contain data and its getter & setter only.
     /// NO LOGIC.
     /// </summary>
+    // Current HP follows max HP both ways: +1000 max at 500/1000 is 1500/2000, and losing it again is 500/1000. Losing
+    // max HP never kills (nobody landed a killing hit): a living hero keeps at least 1 HP, and what that floor saved
+    // is owed, paid out of the max HP he gets back before any of it returns as HP - 20 HP, lose 80 max, 1 HP, get the
+    // 80 back, 20 HP, not 81. It used to clamp only on a loss, so a hurt hero lost nothing while a steal lasted and
+    // gained HP when it ended.
+    // An expiring keepsHealth modifier (See CustomModifier) changes max HP without current HP following, and a
+    // returned loss that keeps its health does not pay back what was owed either. Current mana follows StartMana the
+    // same way. Mana comes over time (See ManaRegen); an auto attack gives none by default, but ManaPerAttack stays a
+    // stat so an item, mark or skill can give it.
     internal class Stat
     {
         private readonly ModifierResolver _statModifier = new ModifierResolver();
         private readonly Dictionary<StatEnum, float> _base = new Dictionary<StatEnum, float>();
         private int _currentHP;
         private int _currentMana;
-        private int _hpOwed; // HP a max HP loss could not take without killing (See FollowMaxHP)
+        private int _hpOwed;
 
-        // mana comes over time (See ManaRegen). An auto attack gives none by default; ManaPerAttack stays a stat
-        // so an item, mark or skill can still give mana per attack.
         private const float BaseManaPerSecond = 5f;
         private const int BaseManaPerAttack = 0;
 
-        // ========================================== stat getter ==========================================
         public float GetBaseStat(StatEnum type) => _base[type];
         public bool IsManaCapped() => _currentMana >= MaxMana;
 
-        // ========================================== stat setter ==========================================
         public void SetCurrentHP(int value) => _currentHP = Mathf.Clamp(value, 0, MaxHP);
         public void AddMana(int amount) => _currentMana += amount;
         public void SpendMana() => _currentMana = 0;
 
-        // ========================================== modifier getter ==========================================
-        // === final stat after modifier calculation ===
         public float GetFinalStat(StatEnum type) => _statModifier.GetStatModifier(type, _base[type]);
         public int MaxHP => Mathf.RoundToInt(GetFinalStat(StatEnum.MaxHP));
         public int Atk => Mathf.RoundToInt(GetFinalStat(StatEnum.ATK));
@@ -53,20 +56,16 @@ namespace MagicSchool.Combat.Heroes.Stats
         public int CurrentHP => _currentHP;
         public int CurrentMana => _currentMana;
 
-        // === status modifier ===
         public bool HasStatus(ModifierEnum type) => _statModifier.GetStatusModifier(type);
         public bool IsStunned => HasStatus(ModifierEnum.Stun);
         public bool IsWounded => HasStatus(ModifierEnum.Wound);
 
-        // === shield ===
         public int Shield => Mathf.FloorToInt(_statModifier.ShieldTotal);
         public void ConsumeShield(int amount) => _statModifier.AbsorbDamage(amount);
 
-        // === other ===
         public float ModifierRemaining(int index) => _statModifier.GetRemainingDuration(index);
         public int ActiveModifierCount => _statModifier.ActiveCount;
 
-        // ===  modifier setter ===
         public void AddModifier(ICustomModifier modifier, float amplifier, IHeroStats casterStats, IHeroStats recipientStats)
         {
             int previousMaxHP = MaxHP;
@@ -90,8 +89,6 @@ namespace MagicSchool.Combat.Heroes.Stats
         {
             int previousMaxHP = MaxHP;
 
-            // the max HP change from expired modifiers that keep their health (See CustomModifier.KeepsHealth):
-            // a lost bonus (the thief's) or a returned loss (the victim's) that current HP does not follow
             int lastMaxHP = previousMaxHP;
             int keptChange = 0;
             _statModifier.Tick(deltaTime, expired =>
@@ -101,19 +98,11 @@ namespace MagicSchool.Combat.Heroes.Stats
                 lastMaxHP = nowMaxHP;
             });
 
-            // a returned loss that keeps its health does not pay back the HP it was owed either (See FollowMaxHP)
             if (keptChange > 0) _hpOwed -= Mathf.Min(_hpOwed, keptChange);
 
-            // as if the kept part never changed; current HP is still capped at the new max
             FollowMaxHP(previousMaxHP + keptChange);
         }
 
-        // currentHP moves with MaxHP, both ways
-        // e.g. hero have 500/1000 hp, he get modifier resulting in 1500/2000 hp; losing it again takes him back to 500/1000.
-        // Losing max HP never kills: a living hero keeps at least 1 HP, since no one landed a killing hit.
-        // What that floor saved is owed, and paid out of the max HP he gets back before any of it returns as HP,
-        // so 20 HP -> lose 80 max -> 1 HP -> get the 80 back -> 20 HP, not 81.
-        // It used to only clamp on a loss, so a hurt hero lost nothing while a steal lasted and gained HP when it ended.
         private void FollowMaxHP(int previousMaxHP)
         {
             if (_currentHP <= 0) return;
@@ -136,11 +125,8 @@ namespace MagicSchool.Combat.Heroes.Stats
             _currentHP = Mathf.Min(followed, Mathf.Max(1, MaxHP));
         }
 
-        // the same to FollowMaxHP()
         private void FollowStartMana(int previousStartMana) => _currentMana = Mathf.Clamp(_currentMana + StartMana - previousStartMana, 0, MaxMana);
 
-        // star: the hero's star level, which raises its base HP, AD and AP (See HeroStar)
-        // level: an enemy's level, which raises its base HP, AD, AP and DF (See HeroLevel)
         public Stat(HeroDataSO so, int star = HeroStar.Min, int level = HeroLevel.Min)
         {
             float leveled = HeroLevel.Multiplier(level);
@@ -157,14 +143,12 @@ namespace MagicSchool.Combat.Heroes.Stats
             _base[StatEnum.Omnivamp] = 0f;
             _base[StatEnum.ManaPerAttack] = BaseManaPerAttack;
             _base[StatEnum.ManaPerSecond] = BaseManaPerSecond;
-            _base[StatEnum.HPPerSecond] = 0f;      // no one regenerates HP unless given it (See HPRegen)
-            _base[StatEnum.ArmorPen] = 0f;         // nor ignores DF (See CombatMath.DFAfterPenetration)
+            _base[StatEnum.HPPerSecond] = 0f;
+            _base[StatEnum.ArmorPen] = 0f;
             _base[StatEnum.Lethality] = 0f;
 
-            // there's chance MaxHP is modified at the start, so set _currentHP to MaxHP accordingly  
             _currentHP = MaxHP;
 
-            // there's chance StartMana is modified at the start, so set _currentMana to StartMana.
             _currentMana = Mathf.Min(StartMana, MaxMana);
         }
     }

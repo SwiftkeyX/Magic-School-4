@@ -2,9 +2,10 @@ namespace MagicSchool.Contracts
 {
     // Role of the hero are hidden from the player. It was here mainly to help design the system.
     // 1) Hero in the same role have the same stat
+    // None: test units - dummies, minions.
     public enum HeroRoleEnum
     {
-        None = 0,   // test units - dummies, minions
+        None = 0,
         Tank = 1,
         Mage = 2,
         Fighter = 3,

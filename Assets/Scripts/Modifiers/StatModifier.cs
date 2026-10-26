@@ -20,7 +20,6 @@ namespace MagicSchool.Modifiers
             _source = source;
         }
 
-        // === IModifier ===
         public ModifierEnum GetModifierEnum() => _modifier;
         public ScalingSourceEnum GetScalingSource() => _source;
         public float GetBonusAmount(IHeroStats stats) => Scaling.Total(_ratios, stats);

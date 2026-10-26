@@ -21,10 +21,8 @@ namespace MagicSchool.Skills
             => $"Strikes the current target for {AP(DamageRatio)} and stuns it for {StunDuration} "
              + $"seconds, then takes {DamageReductionPercent}% less damage for {GuardDuration} seconds.";
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            // the palm - a box on the current target
             SkillPart palm = Part(registry,
                 source: ActionSourceEnum.Current,
                 action: TemplateActionEnum.BoxAOE,
@@ -33,7 +31,6 @@ namespace MagicSchool.Skills
                 Apply(EffectRecipientEnum.EnemiesInArea, BundleRefresh(StunDuration, Status(ModifierEnum.Stun)))
             );
 
-            // the guard - put up once the palm is gone
             SkillPart guard = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,

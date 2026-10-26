@@ -10,6 +10,8 @@ namespace MagicSchool.Core.States
     /// <summary>
     /// The combat is over, annouce the winner.
     /// </summary>
+    // The first continue only takes the scoreboard down. Clearing the run loops back to stage 1, so the team size
+    // loops back too, or the replay would start oversized.
     internal class ResultState : GameState
     {
         public override GamePhaseEnum StateType => GamePhaseEnum.Result;
@@ -35,27 +37,19 @@ namespace MagicSchool.Core.States
 
         public override void OnExit()
         {
-            // close reward panel
             _game.Reward?.SetShown(false);
             _game.Scoreboard?.SetShown(false);
         }
 
-        // if continue is requested, go to preparation state.
-        // 1) if player won, go to next stage
-        // 2) if player lose, restart this stage
         protected override void CheckSwitchState()
         {
-            // polling for player's continue request
-            if (!_game.ConsumeContinueRequest()) return;
+            if (!_game.Requests.ConsumeContinue()) return;
 
             bool playerWon = _game.Winner == TeamEnum.Blue;
             bool runCleared = _game.IsRunCleared;
 
-            // the scoreboard was shown now.
-            // so the first request, only takes the scoreboard down, then return
             if (TakeScoreboardDown())
             {
-                // once the scoreboard taken down & player won, show reward
                 if (playerWon)
                 {
                     _game.Hint?.ShowResult(_game.Winner, _game.StageNumber, _game.StageCount, _game.IsRunCleared);
@@ -65,33 +59,20 @@ namespace MagicSchool.Core.States
                 return;
             }
 
-            // if player won, give player a reward.
-            // if reward doesn't choosed yet, return
             if (playerWon)
             {
-                // if player won, show the reward  
-                // if still choosing the reward, let player finish choosing first, before continue
                 if (IsStillChoosingReward()) return;
 
-                // set to next stage
                 _game.SetStageIndex(runCleared ? 0 : _game.StageIndex + 1);
 
-                // FLAGGING: temporarily, this is to expand hero limit easily for demo version
-                // clearing the run loops back to stage 1, so the team it is fought with
-                // loops back too - otherwise the replay starts oversized against stage 1.
-
-                // when player clear the game, reset team size
                 if (runCleared) _game.ResetHeroLimit();
-                // when player not clear the game, but won the stage, increase team size 
                 else _game.GrowHeroLimit();
             }
 
             _game.Hint?.ShowResult(_game.Winner, _game.StageNumber, _game.StageCount, runCleared);
 
-            // after fight, pay the player 
             _game.PayStageIncome();
 
-            // go preparation state
             _game.ChangeState(GamePhaseEnum.Preparation);
         }
 
@@ -99,17 +80,12 @@ namespace MagicSchool.Core.States
         {
             CombatRecorder recorder = _game.Recorder;
 
-            // guard
             if (recorder == null) return new List<ScoreRow>();
 
-            // return a list of ScoreRow that was order by who do the most dmg.
             return _game.Board.HeroesOnBoard
                 .Where(hero => hero != null)
-                // get data from this hero
                 .Select(hero => GetHeroScoreData(hero, recorder))
-                // order by who do the most dmg 
                 .OrderByDescending(row => row.Record.DamageDealt)
-                // order again by who do the most healing 
                 .ThenByDescending(row => row.Record.HealingDone)
                 .ToList();
         }

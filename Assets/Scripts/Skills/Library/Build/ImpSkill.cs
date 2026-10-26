@@ -5,18 +5,18 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // Every burn tick on an enemy gives him +AttackSpeedPerBurnTick% base AS, a fresh bundle each so they stack. Shots
+    // go to random enemies within RandomPoolRadius hexes of the current target.
     internal class ImpSkill : SkillDefinition
     {
-        private static float ADDamagePerShot => Tuned(150f);   // sheet: 150/155/160% AD
-        private static float APDamagePerShot => Tuned(15f);    // sheet: 15/20/35% AP
+        private static float ADDamagePerShot => Tuned(150f);
+        private static float APDamagePerShot => Tuned(15f);
         private static int ShotCount => Tuned(5);
         private static float IntervalBetweenShot => Tuned(0.1f);
-        private static int RandomPoolRadius => Tuned(2);        // sheet: "random enemies within 2 hexes of the current target"
+        private static int RandomPoolRadius => Tuned(2);
         private static float TotalCastTime => IntervalBetweenShot * (ShotCount - 1);
 
-        // passive
-        private static float AttackSpeedPerBurnTick => Tuned(2f);   // +2% base AS
-        // FLAGGING: the roster sheet gives no length - the rest of the fight, same as Harpy's growth
+        private static float AttackSpeedPerBurnTick => Tuned(2f);
         private static float RestOfFight => Tuned(-1f);
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new ImpSkill(registry);
@@ -34,11 +34,8 @@ namespace MagicSchool.Skills
         public override string PassiveDescription
             => $"Gains {AttackSpeedPerBurnTick}% attack speed every time an enemy takes a burn tick.";
 
-        // ============================== passive ==============================
         public override bool HasAutoAttackPassive => true;
 
-        // an enemy took a burn tick - gain attack speed.
-        // A fresh bundle every time, so the ticks stack
         public override void OnHeroBurned(ICombatant burned)
         {
             if (burned.Team == Caster.Team) return;
@@ -48,7 +45,6 @@ namespace MagicSchool.Skills
                 Caster as IHeroStats);
         }
 
-        // ============================== active ==============================
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
             => Shoot(registry);
 

@@ -6,23 +6,25 @@ using MagicSchool.Contracts;
 namespace MagicSchool.Combat.Placements
 {
     // FIXLATER: Could you tidy up the battleboard, there's too many public function, and some of it do similar thing.
+    // Hex numbers are measured from the board itself, so a copy of the board elsewhere (a benchmark lane) numbers the
+    // same. A hero must be tracked to be seen by other heroes; leaving for a non-hex placement (the bench) untracks
+    // it.
+    // Reservations change only through Hero.SetReservedHex. The old entry is cleared only if this hero still owns it:
+    // a stale `previous` would otherwise evict whoever holds it now. Whoever changes the layout takes the items off
+    // first (See PreparationState); SetLayout only forgets the hexes.
     public class BattleBoard : MonoBehaviour
     {
         [Header("Hex colours")]
         [SerializeField] private BoardColours _colours = new BoardColours();
 
-        // track every hex
         private readonly Dictionary<HexNumber, Hex> _hexs = new Dictionary<HexNumber, Hex>();
 
-        // track every hero on the battle board
         private List<ICombatant> _heroesOnBoard = new List<ICombatant>();
         private Dictionary<Hex, ICombatant> _reservedBy = new Dictionary<Hex, ICombatant>();
 
-        // other
         private DeployZone _deployZone;
-        private readonly HexItems _items = new HexItems();      // the items lying on hexes
+        private readonly HexItems _items = new HexItems();
 
-        // ======================== Setter & Getter ========================
         public IReadOnlyDictionary<HexNumber, Hex> Hexs => _hexs;
         public IReadOnlyList<ICombatant> HeroesOnBoard => _heroesOnBoard;
 
@@ -42,14 +44,10 @@ namespace MagicSchool.Combat.Placements
             _colours.ShowDeployZone(false);
         }
 
-        // =================================== initialzie ===================================
-        // BattleBoard find reference to each hex
-        void InitializeHex()
+        internal void InitializeHex()
         {
             var allHexes = new List<Hex>(GetComponentsInChildren<Hex>(true));
 
-            // one grid for the whole board: columns numbered left to right, rows top to bottom.
-            // measured from the board itself, so a copy of the board somewhere else numbers the same
             var columns = allHexes
                 .GroupBy(h => Mathf.RoundToInt(PositionOnBoard(h).x * 10f))
                 .OrderBy(g => g.Key)
@@ -74,33 +72,18 @@ namespace MagicSchool.Combat.Placements
 
         private Vector3 PositionOnBoard(Hex hex) => transform.InverseTransformPoint(hex.transform.position);
 
-        // =================================== Layout ===================================
-        /// <summary>
-        /// We have different board layout.
-        /// e.g.    Square shape
-        ///         ...
-        ///
-        /// These method are to initialize different board layout.
-        /// </summary>
-
-        // a board prefab
         private GameObject _layoutPrefab;
 
-        // the layout the board is built from right now: null until the first stage sets one
         public GameObject Layout => _layoutPrefab;
 
-        // Is the board built from this layout right now?
         public bool HasLayout(GameObject layoutPrefab) => layoutPrefab != null && layoutPrefab == _layoutPrefab;
 
         public void SetLayout(GameObject layoutPrefab)
         {
-            // if it was the same board layout, return
             if (layoutPrefab == null || layoutPrefab == _layoutPrefab) return;
 
-            // remove old hex from previous board
             RemoveHexes();
 
-            // init the new board layout
             Instantiate(layoutPrefab, transform);
             _layoutPrefab = layoutPrefab;
             InitializeHex();
@@ -112,7 +95,6 @@ namespace MagicSchool.Combat.Placements
             _hexs.Clear();
             _reservedBy.Clear();
 
-            // whoever changes the layout takes the items off first (See PreparationState), this only forgets the hexes
             _items.TakeAll();
 
             foreach (Transform child in transform.Cast<Transform>().ToList())
@@ -125,27 +107,18 @@ namespace MagicSchool.Combat.Placements
             }
         }
 
-        // =================================== hero tracking ===================================
-        // when initialize, every hero need to be tracked on the board.
-        // If they didn't get tracked, those heroes will be invisible to other hero.
         public void TrackThisHero(ICombatant hero)
         {
             if (!_heroesOnBoard.Contains(hero)) _heroesOnBoard.Add(hero);
         }
 
-        // Counterpart to TrackThisHero - a hero leaving its hex for a non-hex placement
-        // (e.g. back to the bench) is no longer on the battlefield.
         public void UntrackThisHero(ICombatant hero)
         {
             _heroesOnBoard.Remove(hero);
         }
 
-        // =================================== Hex reservation ===================================
-        // Called by Hero.SetReservedHex, which is the only place a hex reservation changes.
         public void UpdateReservation(ICombatant hero, Hex previous, Hex next)
         {
-            // Only clear the old entry if this hero still owns it. Two heroes can't hold the same
-            // hex, but a stale `previous` would otherwise evict whoever legitimately holds it now.
             if (previous != null && _reservedBy.TryGetValue(previous, out ICombatant owner) && owner == hero)
             {
                 _reservedBy.Remove(previous);
@@ -154,7 +127,6 @@ namespace MagicSchool.Combat.Placements
             if (next != null) _reservedBy[next] = hero;
         }
 
-        // Who currently holds this hex, or null if it's free.
         public ICombatant WhoReservedThisHex(Hex hex)
         {
             if (hex == null || !_reservedBy.TryGetValue(hex, out ICombatant hero)) return null;
@@ -162,16 +134,12 @@ namespace MagicSchool.Combat.Placements
             return hero.IsAlive ? hero : null;
         }
 
-        // "Is this hex taken by someone other than me?"
         public bool IsReservedByOther(Hex hex, ICombatant asker)
         {
             ICombatant reserver = WhoReservedThisHex(hex);
             return reserver != null && reserver != asker;
         }
 
-        // =================================== Between stages ===================================
-        // Wipe one team off the board
-        // e.g. after player is winning, clear enemy team
         public void ClearTeam(TeamEnum team)
         {
             List<ICombatant> leaving = _heroesOnBoard.Where(h => h != null && h.Team == team).ToList();
@@ -179,11 +147,9 @@ namespace MagicSchool.Combat.Placements
             foreach (ICombatant hero in leaving) Remove(hero);
         }
 
-        // Take one unit off the board for good: its hexes are free at once, and it is destroyed
-        // e.g. the hero benchmark's stand-in allies, once they have filled a hero's marks
         public void Remove(ICombatant hero)
         {
-            ReleaseReservationsOf(hero);    // FLAGGING: this is O(n), it don't have to.
+            ReleaseReservationsOf(hero);
             _heroesOnBoard.Remove(hero);
 
             if (hero.transform != null) Destroy(hero.transform.gameObject);
@@ -196,7 +162,6 @@ namespace MagicSchool.Combat.Placements
             foreach (Hex hex in held) _reservedBy.Remove(hex);
         }
 
-        // How many of consuming team are standing on the board right now.
         public int CountTeamOnBoard(TeamEnum team)
         {
             int count = 0;

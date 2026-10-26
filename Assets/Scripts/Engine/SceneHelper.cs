@@ -8,7 +8,6 @@ namespace MagicSchool.Engine
     /// </summary>
     public static class SceneHelper
     {
-        // instantiate the new object, return it
         public static GameObject Instantiate(GameObject prefab) => Object.Instantiate(prefab);
     }
 }

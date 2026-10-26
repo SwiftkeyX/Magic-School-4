@@ -16,8 +16,6 @@ namespace MagicSchool.Skills
         private readonly TemplateAction _me;
         private readonly TemplateAction _host;
 
-        // a factory for Rider.
-        // no host means this template action is the lead one, or was played alone.
         internal static Rider RideOn(TemplateAction me, TemplateAction host)
         {
             if (me == null || host == null) return null;
@@ -35,7 +33,6 @@ namespace MagicSchool.Skills
             _host.OnExpired += HostIsDead;
         }
 
-        // Host is dead, now I dies too.
         private void HostIsDead(Vector3 position)
         {
             _host.OnExpired -= HostIsDead;

@@ -4,14 +4,15 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // 3 strikes plus 1 for every 10% crit chance he has right now (25% => 5); one strike is one round. He is gone from
+    // the board while the strikes last, and gains no mana from them.
     internal class FencerSkill : SkillDefinition
     {
         private static int BaseStrikes => Tuned(3);
-        private static float CritChancePerStrike => Tuned(10f);      // every 10% crit chance adds 1 more strike
+        private static float CritChancePerStrike => Tuned(10f);
         private static float StrikeDamage => Tuned(100f);
-        private static float StrikeInterval => Tuned(0.25f);         // time between two strikes
+        private static float StrikeInterval => Tuned(0.25f);
 
-        // he is gone from the board for as long as the strikes take
         private ICustomModifier _vanish;
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new FencerSkill(registry);
@@ -25,10 +26,8 @@ namespace MagicSchool.Skills
              + $"succession for {AD(StrikeDamage)} each. The strikes can crit, and every {CritChancePerStrike}% "
              + "crit chance adds 1 more strike.";
 
-        // ============================== active ==============================
         public override bool OnCast()
         {
-            // nobody to strike, return
             if (Caster.FindCurrentTarget() == null) return false;
 
             if (!base.OnCast()) return false;
@@ -38,14 +37,12 @@ namespace MagicSchool.Skills
             return true;
         }
 
-        // one strike is one round, played as many times as he has strikes.
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
             _vanish = BundleRefresh(
                 duration: () => StrikeCount() * StrikeInterval,
                 modifiers: Status(ModifierEnum.Untargetable));
 
-            // the tempo. prevent the strike to gain mana.
             SkillPart tempo = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
@@ -59,7 +56,6 @@ namespace MagicSchool.Skills
                 ))
             );
 
-            // the strike. 
             SkillPart strike = Part(registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
@@ -70,8 +66,6 @@ namespace MagicSchool.Skills
             return Repeat(Flow(onStart: Together(tempo, strike)), times: StrikeCount);
         }
 
-        // ============================== helper ==============================
-        // 3 strikes, and 1 more for every 10% crit chance he has right now. 25% crit chance => 5 strikes
         private int StrikeCount()
         {
             float critChance = Caster is IHeroStats stats ? stats.GetStat(StatEnum.CritChance) : 0f;

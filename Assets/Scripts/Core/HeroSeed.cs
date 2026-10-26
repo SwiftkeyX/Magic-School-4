@@ -9,13 +9,16 @@ namespace MagicSchool.Core
     // seed the hero onto the board
     // e.g. enemy side always got seed, player side don't use seed since player drag hero onto the board themself. 
     // p.s. but player can also be seeded too for fast testing.
+    // HeroSpawner hands it its spawn (SpawnWith); each hero gets the stage's level and the saved star once it stands on
+    // its hex (See HeroLevel, HeroStar).
     public class HeroSeed
     {
         private BattlePlacementSO _placementSO;
-        private readonly BattleBoard _board;     // need to know which board, it'll seed on (there maybe several board at once)
+        private readonly BattleBoard _board;
 
-        // Raised to ask for a hero. Fires BEFORE anything is spawned - HeroSpawner does the work.
-        public event Action<HeroDataSO, TeamEnum, IPlacement, BattleBoard> OnSpawnRequested;
+        private Func<HeroDataSO, TeamEnum, IPlacement, BattleBoard, Hero> _spawn;
+
+        public void SpawnWith(Func<HeroDataSO, TeamEnum, IPlacement, BattleBoard, Hero> spawn) => _spawn = spawn;
 
         public HeroSeed(BattlePlacementSO placementSO, BattleBoard board)
         {
@@ -23,15 +26,14 @@ namespace MagicSchool.Core
             _board = board;
         }
 
-        // Switch the existing seed to another.
-        // e.g. when player go to the next stage, seed new one for enemy team
         public void SwitchSeed(BattlePlacementSO placementSO) => _placementSO = placementSO;
 
-        // spawn hero on the board according to the set seed
+        internal Hero Spawn(HeroDataSO data, TeamEnum team, IPlacement placement) => _spawn(data, team, placement, _board);
+
         public void SpawnTeamOnBoard(TeamEnum team)
         {
             if (_placementSO == null) { DebugTool.LogError("Can't seed the hero. Hero Placement is null"); return; }
-            if (OnSpawnRequested == null) { DebugTool.LogError("Can't seed the hero. Nothing is listening for spawn requests."); return; }
+            if (_spawn == null) { DebugTool.LogError("Can't seed the hero. No spawner was handed to the seed."); return; }
 
             foreach (var heroPlacement in _placementSO.HeroesPlacement)
             {
@@ -40,20 +42,17 @@ namespace MagicSchool.Core
 
                 if (heroPlacement.team != team) continue;
 
-                // guard
                 if (!_board.Hexs.TryGetValue(placement, out Hex hex))
                 {
                     DebugTool.LogError($"Can't seed {data.name}. {_placementSO.name} puts it on hex {placement.column},{placement.row}, which this board doesn't have.");
                     continue;
                 }
 
-                OnSpawnRequested.Invoke(data, heroPlacement.team, hex, _board);
+                Hero hero = _spawn(data, heroPlacement.team, hex, _board);
 
-                // the spawn is immediate, so the hero is on the hex now: give it the stage's level (See HeroLevel)
-                if (heroPlacement.Level > HeroLevel.Min && _board.WhoReservedThisHex(hex) is Hero hero) hero.SetLevel(heroPlacement.Level);
+                if (heroPlacement.Level > HeroLevel.Min) hero.SetLevel(heroPlacement.Level);
 
-                // and its star, so a team comp saved with upgraded heroes fights upgraded (See HeroStar)
-                if (heroPlacement.Star > HeroStar.Min && _board.WhoReservedThisHex(hex) is Hero upgraded) upgraded.UpgradeTo(heroPlacement.Star);
+                if (heroPlacement.Star > HeroStar.Min) hero.UpgradeTo(heroPlacement.Star);
             }
         }
     }

@@ -22,17 +22,26 @@ namespace MagicSchool.Skills
             _duration = duration;
         }
 
-        // The amplifier worked out from the caster when the heal lands, in place of a fixed one.
-        // With no conditions, it applies to every heal.
-        // e.g.     .AmplifiedBy(caster => allies on its mark)     War Cleric heals once more for every ally on his Sanctuary mark
         public HealSkillEffect AmplifiedBy(System.Func<IEffectable, float> amplifier)
         {
             _amplifierOf = amplifier;
             return this;
         }
 
-        // heal the reciepient
-        // if the heal was cadence, it only heal the divided amount each time.
+        public HealSkillEffect Scaled(System.Func<IEffectable, float> multiplier)
+        {
+            _scaleOf = multiplier;
+            return this;
+        }
+
+        // the heal over time lasts as long as this says when it is played, rather than the duration it was built with;
+        // the ticks are still counted from that one, so scale them if the whole heal must stay the same
+        public HealSkillEffect LastingFor(System.Func<float> seconds)
+        {
+            Cadence.LastingFor(seconds);
+            return this;
+        }
+
         public override void ApplyEffect(IReadOnlyList<IEffectable> recipients, IEffectable actor = null)
         {
             int totalTicks = Mathf.Max(1, Mathf.RoundToInt(_duration / Cadence.cadenceInterval));

@@ -5,17 +5,14 @@ namespace MagicSchool.Combat.Heroes
     // Hero: its numbers - IHeroStats, mana and the attack cooldown, all read from Stat.
     public partial class Hero
     {
-        // ======================================== attack ========================================
         public bool IsAttackReady => _attackCooldown.IsReady(AttackSpeed);
         public void SpendAttack() => _attackCooldown.Spend();
 
-        // ======================================== stat ========================================
-        public void GainMana(int amount) => Stat.AddMana(amount);      // return true if mana if capped
+        public void GainMana(int amount) => Stat.AddMana(amount);
         public bool IsManaCapped() => Stat.IsManaCapped();
-        public void SpendMana() => Stat.SpendMana();                   // called once a cast actually happened
+        public void SpendMana() => Stat.SpendMana();
         public void TickModifiers(float deltaTime) => Stat.TickModifiers(deltaTime);
 
-        // ======================================== IHeroStats ========================================
         public int CurrentHP => Stat.CurrentHP;
         public int MaxHP => Stat.MaxHP;
         public int Shield => Stat.Shield;

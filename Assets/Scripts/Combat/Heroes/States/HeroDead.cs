@@ -24,7 +24,6 @@ namespace MagicSchool.Combat.Heroes.States
             }
         }
 
-        // a revive (See IRevivable) gets the hero back up here
         public override void OnUpdate()
         {
             if (_me.TickRevive(UnityEngine.Time.deltaTime)) _me.Revive();

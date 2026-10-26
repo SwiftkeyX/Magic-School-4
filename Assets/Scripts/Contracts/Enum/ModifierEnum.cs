@@ -2,9 +2,9 @@ namespace MagicSchool.Contracts
 {
     // Serialized into SkillSO assets as a raw int - always assign explicit values so inserting a
     // new member later can't silently remap what an existing asset's stored int means.
+    // 16 was MR (magic resist), removed. Do not reuse 16.
     public enum ModifierEnum
     {
-        // ======================================= Buff =======================================
         BonusHP = 0,
         DamageReduction = 2,
         AS = 5,
@@ -14,7 +14,6 @@ namespace MagicSchool.Contracts
         Omnivamp = 9,
         Range = 14,
         StartMana = 15,
-        // 16 was MR (magic resist), removed. Do not reuse 16.
         Shield = 17,
         CritChance = 18,
         ManaPerAttack = 20,
@@ -24,10 +23,8 @@ namespace MagicSchool.Contracts
         ArmorPen = 24,
         Lethality = 25,
 
-        // ======================================= Debuff =======================================
         DefendShred = 13,
 
-        // ======================================= Status =======================================
         Stun = 3,
         Wound = 4,
         Transformed = 10,

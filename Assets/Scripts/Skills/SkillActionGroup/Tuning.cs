@@ -3,54 +3,62 @@ namespace MagicSchool.Skills
     // Tune the template action.
     // use by each hero skill builder, 
     // they can tune those variable to get different behaviour of the template action. 
+    // Every field is optional: unset keeps the prefab's value. CastTime: how long the caster cannot auto attack;
+    // WalkWhileCasting: it still walks toward its target meanwhile. AOE Range / Move Range / Projectile Range are
+    // reach in hexes, not size; Spread is ClusteredCircle's radius or ClusteredLaser's half-width. Move MaxRange: keep
+    // charging as far as possible instead of stopping behind the last enemy hit. Projectile Speed is world units per
+    // second (8 when unset); Falloff is a piercing shot's damage less per enemy already hit (0.33 => 100%, 67%, 45%).
+    // A runner's Interval is only read in Sequence mode, and PauseAfter is the wait after the last shot that a flow
+    // waits on.
     public class Tuning
     {
-        public float? CastTime;          // how long the caster is locked out of auto attacking
-        public bool? WalkWhileCasting;   // the caster still walks toward its target during the cast time e.g. Orc Blademaster's storm
+        public float? CastTime;
+        public System.Func<float> CastTimeOf;     // read when the part is played, in place of CastTime
+        public float? CastTimeNow => CastTimeOf != null ? CastTimeOf() : CastTime;
+        public bool? WalkWhileCasting;
     }
 
     public class AOETuning : Tuning
     {
-        public float? Duration;          // how long the blast stays before it expires
-        public float? Length;            // the length of the AOE
-        public float? Width;             // the width of the AOE
-        public bool? Sticky;             // does AOE follow something e.g. roland's skill
-        public AOEOffsetEnum? Offset;    // the offset this AOE will be placing
-        public int? Range;               // how far a AOE can reach (not a size)
+        public float? Duration;
+        public float? Length;
+        public float? Width;
+        public bool? Sticky;
+        public AOEOffsetEnum? Offset;
+        public int? Range;
     }
 
     public class MoveTuning : Tuning
     {
-        public int? Range;               // how far a jump can reach
-        public float? Duration;          // duration of the move
-        public float? Spread;            // ClusteredCircle's landing radius, or ClusteredLaser's lane half-width
-        public bool? MaxRange;           // ClusteredLaser only: keep running as far as possible, instead of stopping behind the last enemy hit
+        public int? Range;
+        public float? Duration;
+        public float? Spread;
+        public bool? MaxRange;
     }
 
     public class SummonTuning : Tuning
     {
-        public float? Duration;          // how long the companion stays
-        public float? Interval;          // act cooldown of companion
-        public SkillPart Act;            // what the companion do on every interval
+        public float? Duration;
+        public float? Interval;
+        public SkillPart Act;
     }
 
     public class ProjectileTuning : Tuning
     {
-        public int? Range;               // how far a projectile can reach
-        public float? Spread;            // ClusteredCircle's blast radius, or ClusteredLaser's beam half-width
-        public float? Size;              // how big projectile is
-        public float? Speed;             // how fast it flies, in world units per second - the prefab's own (8) when unset
-        public float? Falloff;           // a piercing shot's damage, less this much for every enemy it already went through
-                                         // e.g. 0.33 => 100%, 67%, 45%, 30%, ...   none by default
+        public int? Range;
+        public float? Spread;
+        public float? Size;
+        public float? Speed;
+        public float? Falloff;
     }
 
     public class FireTimingRunnerTuning : Tuning
     {
-        public int? Count;                  // number of repeat time
-        public FireTimingModeEnum? Mode;    // fire once or in sequence
-        public float? Interval;             // delay between shots - only read when Mode is Sequence
-        public float? PauseAfter;           // delay after the last shot before the runner expires (what a flow waits on)
-        public Tuning InnerTuning;          // tune for the template action that'll be fired
+        public int? Count;
+        public FireTimingModeEnum? Mode;
+        public float? Interval;
+        public float? PauseAfter;
+        public Tuning InnerTuning;
     }
 
     // FireTimingRunner with Projectile

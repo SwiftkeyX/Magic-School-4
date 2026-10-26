@@ -7,8 +7,8 @@ namespace MagicSchool.Contracts
     // e.g. Werewolf's "WorldEnder" contain like 5 modifiers, but all of them have the same duration.
     public interface ICustomModifier
     {
-        float GetDuration();                        // All modifier in the list shared a same duration.
-        IReadOnlyList<IModifier> GetModifiers();    // Get all modifier inside
-        bool IsStack();                             // Could this buff stack?
+        float GetDuration();
+        IReadOnlyList<IModifier> GetModifiers();
+        bool IsStack();
     }
 }

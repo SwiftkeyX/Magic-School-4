@@ -12,7 +12,7 @@ namespace MagicSchool.Combat.Heroes
     {
         private readonly HeroDataSO _data;
         private readonly Stat _stat;
-        private readonly HeroSkill _skill;
+        private readonly SkillDefinition _skill;
         private readonly Func<bool> _isStillOffered;
 
         public HeroPreview(HeroDataSO data, SkillDefinition skill, Func<bool> isStillOffered)
@@ -20,27 +20,25 @@ namespace MagicSchool.Combat.Heroes
             _data = data;
             _stat = new Stat(data);
             _isStillOffered = isStillOffered;
-            _skill = new HeroSkill(null, skill);    
+            _skill = skill ?? new NoSkill();
+            _skill.Init(null);
         }
 
-        // === IInspectable ===
         public string DisplayName => _data.Name;
-        public int Star => HeroStar.Min;     // a shop slot sells a 1-star
+        public int Star => HeroStar.Min;
         public bool IsAlive => _isStillOffered == null || _isStillOffered();
 
-        // === IInspectableHero ===
-        public TeamEnum Team => TeamEnum.Blue;      // when bought, default to player's team
-        public bool HasSkill => _skill.HasSkill;
+        public TeamEnum Team => TeamEnum.Blue;
+        public bool HasSkill => _skill.HasActive;
         public string SkillName => _skill.SkillName;
         public string SkillDescription => _skill.Description;
         public bool HasAutoAttackPassive => _skill.HasAutoAttackPassive;
         public string PassiveDescription => _skill.PassiveDescription;
-        public string SkillDescriptionFor(bool formula) => _skill.DescriptionFor(this, formula);        // its 1-star stats
-        public string PassiveDescriptionFor(bool formula) => _skill.PassiveDescriptionFor(this, formula);
+        public string SkillDescriptionFor(bool formula) => _skill.DescribeActive(this, formula);
+        public string PassiveDescriptionFor(bool formula) => _skill.DescribePassive(this, formula);
         public string AlignDescriptionFor(bool formula)
-            => AlignText.Describe(_data.AlignMarksOf(0), 0, _data.AlignPatternCount, formula ? (float?)null : Magic);   // a bought hero starts on its first pattern
+            => AlignText.Describe(_data.AlignMarksOf(0), 0, _data.AlignPatternCount, formula ? (float?)null : Magic);
 
-        // === IHeroStats ===
         public float GetStat(StatEnum type) => _stat.GetFinalStat(type);
         public float GetBaseStat(StatEnum type) => _stat.GetBaseStat(type);
         public int CurrentHP => _stat.CurrentHP;

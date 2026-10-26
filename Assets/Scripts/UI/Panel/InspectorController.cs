@@ -6,6 +6,8 @@ namespace MagicSchool.UI
 {
     /// The inspect panel on the right. Opens when the player right-clicks a inspectable
     /// e.g. hero, item.
+    // A hero's bars, stats and skill texts are refreshed every frame (they follow buffs, items, aligning and the Alt
+    // key), but a text is only written when it changed.
     internal class InspectorController : PanelController, IInspectorPanel
     {
         private Label _heroName, _heroTeam;
@@ -17,17 +19,12 @@ namespace MagicSchool.UI
         private Label _activeName, _activeBody, _passiveBody, _alignBody, _itemBody;
         private IInspectable _shown;
 
-        // Some part of the inspector are always change dynamically 
-        // e.g. update HP and Mana every frame
         private void Update()
         {
             if (_shown == null) return;
 
-            // if the current inspectable dies, guard it 
             if (!_shown.IsAlive) { Inspect(null); return; }
 
-            // If it was hero, the inspector update its hp and mana every frame - and its skill text, whose numbers follow
-            // its stats and the Alt key (held: the formulas)
             if (_shown is IInspectableHero hero)
             {
                 Refresh();
@@ -35,14 +32,10 @@ namespace MagicSchool.UI
             }
         }
 
-
-        // ============================== IInspectorPanel interface ==============================
         public IInspectable Shown => _shown;
 
-        // update the panel according to whatever was just inspected
         public void Inspect(IInspectable unit)
         {
-            // if the thing selected is already the inspected one, return.
             if (Panel != null && _shown != null && ReferenceEquals(_shown, unit)) return;
 
             _shown = unit;
@@ -53,24 +46,19 @@ namespace MagicSchool.UI
             Panel.EnableInClassList("hero-panel--empty", !hasSomething);
             if (!hasSomething) return;
 
-            // the one line both kinds share
             _heroName.text = unit.DisplayName;
 
             if (unit is IInspectableHero hero) ShowHero(hero);
             else if (unit is IInspectableItem item) ShowItem(item);
         }
 
-        // =================================== override ===================================
-        // OnMounted, get all element, and hide the inspector panel
         protected override void OnMounted(VisualElement panel)
         {
             CacheElements();
 
-            // nothing is selected until the player right-clicks something
             Inspect(null);
         }
 
-        // get reference to every text in this hero panel
         private void CacheElements()
         {
             _heroName = Panel.Q<Label>("HeroName");
@@ -102,9 +90,6 @@ namespace MagicSchool.UI
             _itemBody = Panel.Q<Label>("ItemBody");
         }
 
-
-        // ============================================= hero =============================================
-        // the hero inspector: team, bars, stat grid, ability text
         private void ShowHero(IInspectableHero hero)
         {
             UnShowItem();
@@ -120,25 +105,20 @@ namespace MagicSchool.UI
             Refresh();
         }
 
-        // resolve ability text
         private void ShowAbility(IInspectableHero unit)
         {
-            // show active ability
             bool hasActive = unit.HasSkill;
             SetShown(_activeSection, hasActive);
             if (hasActive) _activeName.text = unit.SkillName;
 
-            // show passive ability
             bool hasPassive = unit.HasAutoAttackPassive;
             SetShown(_passiveSection, hasPassive);
 
             WriteAbilityText(unit);
 
-            // show align ability
             SetShown(_alignSection, !string.IsNullOrEmpty(unit.AlignDescriptionFor(false)));
         }
 
-        // the active, passive and aligning texts, as numbers or (Alt held) as formulas; written only when they change
         private void WriteAbilityText(IInspectableHero unit)
         {
             bool formula = MagicSchool.Input.PlayerInputSystem.FormulaViewHeld;
@@ -164,8 +144,6 @@ namespace MagicSchool.UI
             SetShown(_alignSection, false);
         }
 
-        // ============================================= item =============================================
-        // the item half: a name and what it does, with every hero-shaped row hidden
         private void ShowItem(IInspectableItem item)
         {
             UnShowHero();
@@ -181,10 +159,6 @@ namespace MagicSchool.UI
             SetShown(_itemSection, false);
         }
 
-
-        // FLAGGING: those helper look so generic that it don't have to be in this class. Let leave it here for now.
-        // ============================================= helper =============================================
-        // update hp bar, mana bar, and stat numbers
         private void Refresh()
         {
             if (!(_shown is IInspectableHero hero)) return;
@@ -206,7 +180,6 @@ namespace MagicSchool.UI
             label.text = $"{current} / {max}";
         }
 
-        // show/hide the text element
         private static void SetShown(VisualElement element, bool shown)
         {
             element.style.display = shown ? DisplayStyle.Flex : DisplayStyle.None;

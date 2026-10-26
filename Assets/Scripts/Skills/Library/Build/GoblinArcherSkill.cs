@@ -5,6 +5,9 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
+    // Every arrow goes to a random enemy he has not shot yet; once all have been, he starts over with whoever is
+    // standing (reset at combat start). The cast only plays the animation; while the venom lasts the arrow poisons
+    // whoever it lands on. The poison is played outside the flow, so it is initialized in Init.
     internal class GoblinArcherSkill : SkillDefinition
     {
         private static float VenomDuration => Tuned(5f);
@@ -15,7 +18,6 @@ namespace MagicSchool.Skills
         private SkillPart _poison;
         private float _venomEndsAt;
 
-        // the enemies he hasn't shot yet. He want to shot everyone before hitting the same target again.
         private readonly List<ICombatant> _notShotYet = new List<ICombatant>();
 
         public static SkillDefinition Build(TemplateActionRegistrySO registry) => new GoblinArcherSkill(registry);
@@ -32,19 +34,15 @@ namespace MagicSchool.Skills
             => "Infinite range. Every auto attack picks a new random enemy, "
              + "with no repeats until every enemy has been hit.";
 
-        // ============================== init ==============================
-        public override void Init(ICombatant caster)
+        public override void Init(ISkillCaster caster)
         {
             base.Init(caster);
 
-            // the poison is played on, not inside the flow, so it is initialized here
             _poison.Init(caster);
         }
 
-        // ============================== passive ==============================
         public override bool HasAutoAttackPassive => true;
 
-        // at combat start, nobody has been shot and his arrows are clean
         public override bool OnCombatStart()
         {
             _notShotYet.Clear();
@@ -53,12 +51,10 @@ namespace MagicSchool.Skills
             return base.OnCombatStart();
         }
 
-        // every arrow goes to a random enemy he has not shot yet
         public override ICombatant OnPickAutoAttackTarget(ICombatant target)
         {
             _notShotYet.RemoveAll(enemy => !enemy.IsAlive);
 
-            // everyone has been shot once - start over with whoever is still standing
             if (_notShotYet.Count == 0) _notShotYet.AddRange(Caster.FindAllEnemies());
 
             if (_notShotYet.Count == 0) return target;
@@ -70,7 +66,6 @@ namespace MagicSchool.Skills
             return picked;
         }
 
-        // while the venom lasts, the arrow poisons whoever it landed on
         public override bool OnAutoAttack(ICombatant target)
         {
             if (Time.time >= _venomEndsAt) return false;
@@ -78,7 +73,6 @@ namespace MagicSchool.Skills
             return PlayOnePart(_poison, assignedTarget: target);
         }
 
-        // ============================== active ==============================
         public override bool OnCast()
         {
             if (!base.OnCast()) return false;
@@ -90,14 +84,12 @@ namespace MagicSchool.Skills
 
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
         {
-            // the cast itself only plays the animation
             SkillPart cast = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,
                 action: TemplateActionEnum.Cast,
                 target: AimTargetEnum.Self);
 
-            // the poison here do the actual work
             _poison = Part(
                 registry: registry,
                 source: ActionSourceEnum.Self,

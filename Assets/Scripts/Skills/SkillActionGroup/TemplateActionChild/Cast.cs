@@ -10,44 +10,37 @@ namespace MagicSchool.Skills
     /// No hitbox, no physical footprint - it applies its effects to the caster and is done.
     /// e.g. Shield Knight's Guardian's Roar step 1.
     /// </summary>
+    // A Cast lives as long as its longest effect: a cadence effect ticks on the Cast itself, so destroying it early
+    // would cut the effect off. That is also why a Cast holding a ManaBlocked modifier keeps its caster from gaining
+    // mana for that long (Swordsman's charge).
     public class Cast : TemplateAction
     {
         private ICombatant _target;
-        private int _cadencesRunning;       // how many effects are still ticking
+        private int _cadencesRunning;
 
-        // ======================================= override =======================================
         protected override void Play()
         {
-            // how long each effect keeps this cast relevant
             List<float> durations = new List<float>();
 
             foreach (SkillEffect effect in _effects)
             {
-                // if cadence, apply effect over time.
-                // e.g. bulwark heal
                 if (effect.Cadence.isCadence)
                 {
-                    // apply effect overtime
                     _cadencesRunning++;
                     StartCoroutine(PerHeroCadenceTick(effect, _target));
                 }
 
-                // if not cadence, apply effect once.
                 else
                 {
-                    // apply effect once
                     effect.ApplyEffect(new List<IEffectable> { _target }, _me);
                 }
 
                 durations.Add(GetDuration(effect));
             }
 
-            // After a longest effect duration die, this template action also dies
-            // this is to make sure, this template action'll last until the effect really truly dies.
             StartCoroutine(ExpireWhenEffectsEnd(Longest(durations)));
         }
 
-        // source mean nothing to Cast.
         protected override bool ResolveSource(ActionSourceEnum source)
         {
             if (source == ActionSourceEnum.Self)
@@ -55,7 +48,6 @@ namespace MagicSchool.Skills
                 _source = _me.transform.position;
             }
 
-            // spawn on current target
             else if (source == ActionSourceEnum.Current)
             {
                 ICombatant target = _me.FindCurrentTarget();
@@ -63,48 +55,36 @@ namespace MagicSchool.Skills
                 _source = target.transform.position;
             }
 
-            // else if () ...
-
-            // fallback
             else _source = _me.transform.position;
 
             return true;
         }
 
-        // aim = which unit the cast was targeting
         protected override bool ResolveAimTarget(AimTargetEnum aimTarget)
         {
-            // aim skill at self
             if (aimTarget == AimTargetEnum.Self)
             {
                 _target = _me;
             }
 
-            // aim skill at current target
             else if (aimTarget == AimTargetEnum.Current)
             {
                 _target = _me.FindCurrentTarget();
                 if (_target == null) return false;
             }
 
-            // aim skill at furthest target
             else if (aimTarget == AimTargetEnum.Furthest)
             {
                 _target = _me.FindFurthestEnemy(int.MaxValue);
                 if (_target == null) return false;
             }
 
-            // this cast's target was already chosen for it
-            // e.g. Warlock's curse lands on whoever his bolt hit
             else if (aimTarget == AimTargetEnum.Assigned)
             {
                 _target = _assignedTarget;
                 if (_target == null) return false;
             }
 
-            // else if () ...
-
-            // fallback
             else _target = _me;
 
             return true;
@@ -113,15 +93,10 @@ namespace MagicSchool.Skills
         protected override Vector3 GetSpawnPosition() => _source;
 
 
-
-        // ======================================= private ========================================
-        // find the longest lifetime of the thing that live on this cast. 
         private float GetDuration(SkillEffect effect)
         {
-            // if the effect was cadence, return the cadence duration
-            if (effect.Cadence.isCadence) return effect.Cadence.cadenceDuration;
+            if (effect.Cadence.isCadence) return effect.Cadence.Duration;
 
-            // if the effect was modifier, return modifier duration
             if (effect is ModifierSkillEffect modifierEffect) return modifierEffect.Modifier.GetDuration();
 
             return 0f;
@@ -138,14 +113,13 @@ namespace MagicSchool.Skills
             return longest;
         }
 
-        // FLAGGING: But it should be move later since not all template action need it. maybe to interface?
         private IEnumerator PerHeroCadenceTick(SkillEffect effect, ICombatant hero)
         {
             WaitForSeconds wait = new WaitForSeconds(effect.Cadence.cadenceInterval);
             List<ICombatant> recipients = new List<ICombatant> { hero };
             float elapsed = 0f;
 
-            while (elapsed < effect.Cadence.cadenceDuration)
+            while (elapsed < effect.Cadence.Duration)
             {
                 yield return wait;
                 elapsed += effect.Cadence.cadenceInterval;
@@ -157,9 +131,6 @@ namespace MagicSchool.Skills
             _cadencesRunning--;
         }
 
-        // If cadence effect was applied by Cast, the effect will live on the Cast itself.
-        // So if the Cast is destroyed, all effect on this Cast are gone.
-        // So Cast need to track every cadence to know when to destroy itself correctly. 
         private IEnumerator ExpireWhenEffectsEnd(float longest)
         {
             yield return new WaitForSeconds(longest);

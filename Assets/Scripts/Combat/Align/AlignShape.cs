@@ -12,23 +12,25 @@ namespace MagicSchool.Combat.Align
     /// e.g.    Shield Knight on the top row, a mark N 2    => a spot above the board, drawn as a gray hex
     /// e.g.    a mark N 3 whose N 2 is off the board but N 3 is back on it => that hex is drawn, but gives nothing (IsPastEdge)
     /// </summary>
+    // Positions are walked on the grid, not across the board's hexes, so a mark past the board's edge still has a spot
+    // to draw. A turn is walked first-direction-first, the way AlignHex.GetHex tries it first. One step up or down a
+    // column is the nearest-neighbour distance; a diagonal is a column across and half a step up or down (atan(0.5) =
+    // 26.57 degrees, See Hex.AngleOf). A hex in two marks comes twice, once per colour.
     public static class AlignShape
     {
         public struct ShownHex
         {
-            public Vector3 position;    // where the hex is, or would be
-            public Hex hex;             // the board's hex there; null = off the board
-            public bool isPastEdge;     // on the board, but its line went off the board on the way: it gives nothing
-            public int colour;          // AligningHex.Orange / Green / Special
+            public Vector3 position;
+            public Hex hex;
+            public bool isPastEdge;
+            public int colour;
             public bool isWearing;
 
             public bool IsOffBoard => hex == null;
         }
 
-        // A board hex counts as "there" when it is this close to a spot, in steps (same-column hexes are 1 step apart)
         private const float SameSpot = 0.3f;
 
-        // Every hex of every mark the hero has, standing on [standingOn]. A hex in two marks comes twice, once per colour.
         public static List<ShownHex> ShownHexes(Hero giver, Hex standingOn, IEnumerable<Hex> boardHexes)
         {
             var shown = new List<ShownHex>();
@@ -43,7 +45,6 @@ namespace MagicSchool.Combat.Align
 
                 foreach (AlignHex alignHex in marks[i].hexes)
                 {
-                    // the bonus's own answer wins: a hex it reaches is that hex, nothing to work out
                     Hex reached = alignHex.GetHex(standingOn);
                     Vector3 position = reached != null ? reached.transform.position : SpotOf(alignHex, standingOn, step);
                     Hex there = reached != null ? reached : HexAt(board, position, step);
@@ -62,8 +63,6 @@ namespace MagicSchool.Combat.Align
             return shown;
         }
 
-        // Where an AlignHex lands from [from], walked on the grid rather than across the board's hexes, so it never stops at an edge.
-        // A turn is walked first-direction-first, the way AlignHex.GetHex tries it first.
         private static Vector3 SpotOf(AlignHex alignHex, Hex from, float step)
         {
             Vector3 spot = from.transform.position + OffsetOf(alignHex.direction, step) * alignHex.Distance;
@@ -72,8 +71,6 @@ namespace MagicSchool.Combat.Align
             return spot;
         }
 
-        // One step in a direction on the flat-top grid: up and down a column is [step], a diagonal is a column across and half a step up or down
-        // (See Hex.AngleOf: 26.57 degrees is atan(0.5))
         private static Vector3 OffsetOf(HexDirectionEnum direction, float step)
         {
             switch (direction)
@@ -83,11 +80,10 @@ namespace MagicSchool.Combat.Align
                 case HexDirectionEnum.SE: return new Vector3(step, -step / 2f);
                 case HexDirectionEnum.S: return new Vector3(0f, -step);
                 case HexDirectionEnum.SW: return new Vector3(-step, -step / 2f);
-                default: return new Vector3(-step, step / 2f);     // NW
+                default: return new Vector3(-step, step / 2f);
             }
         }
 
-        // How far apart two hexes in one column are: the nearest neighbour's distance (a diagonal one is ~1.118 of it)
         private static float StepOf(Hex hex)
         {
             float nearest = float.MaxValue;
