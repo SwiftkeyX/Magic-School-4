@@ -4,7 +4,7 @@ using MagicSchool.Skills;
 
 namespace MagicSchool.Combat.Heroes.States
 {
-    // A free cast starts with mana not full and leaves it alone (See IFreeCaster). Cast holds while a step taken
+    // A free cast starts with mana not full and leaves it alone (See ISkillCaster.GrantFreeCast). Cast holds while a step taken
     // during it is still landing, and while a skill's Move (a jump or dash) is still moving the caster: walking off
     // mid-air, the step would carry him back once he landed (Knight's leap outlasts his cast time). It also holds
     // while the skill repeats (Rogue's third shadowstep).

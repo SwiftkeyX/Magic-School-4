@@ -9,7 +9,7 @@ namespace MagicSchool.Core.States
     /// The fight. Heroes act on their own from here; this only watches for it being over.
     /// </summary>
     // A skill reads its numbers when built, so any skill changed in the Skill Tuner since is rebuilt before the fight.
-    // A hero waiting to get back up (IRevivable) still counts as standing. Won, lost or restarted while paused: the
+    // A hero waiting to get back up (ISkillCaster.IsReviving) still counts as standing. Won, lost or restarted while paused: the
     // next phase runs at the chosen speed.
     internal class CombatState : GameState
     {

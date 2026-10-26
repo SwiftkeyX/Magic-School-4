@@ -9,7 +9,7 @@ using MagicSchool.Skills;
 namespace MagicSchool.Core
 {
     // How a fight starts and when it is over, the one copy the game (CombatState) and the Team Comp Benchmark both use,
-    // so the benchmark measures the game that is played. A hero waiting to get back up (IRevivable) still counts as
+    // so the benchmark measures the game that is played. A hero waiting to get back up (ISkillCaster.IsReviving) still counts as
     // standing, so a fight never ends while Reaper is down.
     public static class FightRules
     {
@@ -32,7 +32,7 @@ namespace MagicSchool.Core
         }
 
         public static bool IsStanding(ICombatant unit)
-            => unit != null && (unit.StateType != HeroStateEnum.Dead || (unit is IRevivable revivable && revivable.IsReviving));
+            => unit != null && (unit.StateType != HeroStateEnum.Dead || (unit is ISkillCaster reviving && reviving.IsReviving));
 
         public static void Standing(BattleBoard board, out bool blue, out bool red)
         {

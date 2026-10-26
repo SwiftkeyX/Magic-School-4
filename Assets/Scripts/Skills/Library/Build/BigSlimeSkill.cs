@@ -19,7 +19,7 @@ namespace MagicSchool.Skills
 
         public override void OnDeath()
         {
-            (Caster as ISpawner)?.SpawnUnitsNearby(SplitCount);
+            Caster?.SpawnUnitsNearby(SplitCount);
         }
 
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry) => null;

@@ -52,26 +52,26 @@ namespace MagicSchool.Skills
         public override void OnHeroDied(ICombatant dead)
         {
             if (dead.Team == Caster.Team) return;
-            if (!(dead is IFallen fallen) || fallen.IsSummon) return;
+            if (!(dead is ISkillCaster fallen) || fallen.IsSummon) return;
             if (!ReferenceEquals(fallen.KilledBy, Caster)) return;
 
             _kills++;
             if (_kills % System.Math.Max(1, KillsPerFreeCast) != 0) return;
 
-            if (!(Caster is IAligned aligned)) return;
+            if (Caster == null) return;
 
-            foreach (ICombatant ally in aligned.AlliesOnSpecialMark(ReapMark))
+            foreach (ICombatant ally in Caster.AlliesOnSpecialMark(ReapMark))
             {
-                if (ally.IsAlive && ally is IFreeCaster caster) caster.GrantFreeCast();
+                if (ally.IsAlive && ally is ISkillCaster caster) caster.GrantFreeCast();
             }
         }
 
         public override void OnDeath()
         {
-            if (_hasRevived || !(Caster is IRevivable revivable)) return;
+            if (_hasRevived || Caster == null) return;
 
             _hasRevived = true;
-            revivable.ReviveAfter(ReviveDelay, ReviveHPPercent / 100f);
+            Caster.ReviveAfter(ReviveDelay, ReviveHPPercent / 100f);
         }
 
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

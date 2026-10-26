@@ -36,7 +36,7 @@ namespace MagicSchool.Skills
              + "to him for the rest of the fight.";
 
         private IReadOnlyList<ICombatant> AlliesOnSiphon()
-            => Caster is IAligned aligned ? aligned.AlliesOnSpecialMark(SiphonMark) : new ICombatant[0];
+            => Caster != null ? Caster.AlliesOnSpecialMark(SiphonMark) : new ICombatant[0];
 
         public override bool HasAutoAttackPassive => true;
 

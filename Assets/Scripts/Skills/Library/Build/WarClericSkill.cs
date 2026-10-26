@@ -61,6 +61,6 @@ namespace MagicSchool.Skills
         }
 
         private static float SanctuaryBonus(IEffectable caster)
-            => caster is IAligned aligned ? aligned.AlliesOnSpecialMark(SanctuaryMark).Count : 0f;
+            => caster is ISkillCaster aligned ? aligned.AlliesOnSpecialMark(SanctuaryMark).Count : 0f;
     }
 }

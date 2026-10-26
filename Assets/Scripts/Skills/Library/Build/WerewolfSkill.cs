@@ -43,7 +43,7 @@ namespace MagicSchool.Skills
              + $"then circle - landing for {AD(BoxDamage)} / {AD(TriangleDamage)} / {AD(CircleDamage)} "
              + "in turn.";
 
-        public override void Init(ICombatant caster)
+        public override void Init(ISkillCaster caster)
         {
             base.Init(caster);
 

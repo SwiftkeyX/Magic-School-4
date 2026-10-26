@@ -101,15 +101,22 @@ Your call: the benchmark gets its own module.
   Skill Tuner rebuild; it now runs the same step.
 - [x] Verified: tests; Stage Editor loads a comp in Play mode (4 heroes, stars and worn item kept); Team Comp Run
   Selected on two comps (`teamcomp-2026-10-26_08-36-51`) wins the same stages as the baseline.
+- [x] Full Team Comp Benchmark after phases 5-6 (`teamcomp-2026-10-26_09-07-47`): 246 of 260 win rates identical to
+  the baseline, mean change 0.67 points, no errors. Two verdicts flipped, both on the 70% line and in opposite
+  directions (Elf-9 stage 4 off 60 -> 80%, Skeleton-10 stage 10 on 70 -> 50%): noise.
 
 ## Phase 7 - Interfaces (M)
 
 Your review: `Hero` has 15 interfaces.
 
-- [] Add one `ISkillCaster` that skills type their caster as, replacing ~25 runtime `is IAligned` / `is IHexMeasurable` checks.
-- [] Audit the 15: for each, who calls it. Merge the ones with a single caller and one method (`IForger`, `IFreeCaster`,
-  `IRevivable`, `IFallen`, `ISpawner` are candidates) into fewer, larger ones. The ones that exist because a module
-  boundary needs them stay. Target: well under 10.
+- [x] `Contracts/ISkillCaster : ICombatant, IHeroStats` holds everything a skill asks of a unit. `SkillDefinition.Caster`
+  is typed as it, so `Caster is IAligned aligned ? ... : 0` became `Caster?.AlliesOnSpecialMark(...)`; a missing answer
+  is now a compile error instead of a bonus of 0.
+- [x] Audit: `ISpawner`, `IAligned`, `IItemWearer`, `IForger`, `IHexMeasurable`, `IFallen`, `IFreeCaster`, `IRevivable` were
+  only used by Skills (and one `IRevivable` check in FightRules): merged into `ISkillCaster` and deleted. `Hero` now
+  implements 7: `ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISkillCaster`.
+- [x] Verified: tests; Hero Benchmark within noise (`benchmark-2026-10-26_09-11-10`); full Team Comp Benchmark
+  (`teamcomp-2026-10-26_09-38-59`) vs the run before this phase: 0 verdicts flipped, mean change 0.69 points.
 
 ## Phase 8 - GameManager (M)
 

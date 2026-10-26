@@ -58,7 +58,7 @@ namespace MagicSchool.Skills
 
         private float RegenThisCast()
         {
-            int onAnvil = Caster is IAligned aligned ? aligned.AlliesOnSpecialMark(AnvilMark).Count : 0;
+            int onAnvil = Caster?.AlliesOnSpecialMark(AnvilMark).Count ?? 0;
             return HPPerSecondPerCast + HPPerSecondPerAnvilAlly * onAnvil;
         }
 
@@ -70,21 +70,21 @@ namespace MagicSchool.Skills
 
         private void Forge()
         {
-            if (!(Caster is ICombatant me) || !(Caster is IForger forger)) return;
+            if (Caster == null) return;
 
-            int tier = Caster is IAligned aligned ? aligned.AlliesOnSpecialMark(AnvilMark).Count / Mathf.Max(1, MarksPerTier) : 0;
+            int tier = Caster.AlliesOnSpecialMark(AnvilMark).Count / Mathf.Max(1, MarksPerTier);
 
-            Vector3 at = me.transform.position;
-            IItemWearer bare = (Caster is ITargeter targeter ? targeter.FindAllAllies() : new List<ICombatant>())
-                .Where(ally => ally != null && ally.IsAlive && ally is IItemWearer wearer && wearer.WornItemCount == 0
-                               && forger.CanForgeFor(wearer.Role))
+            Vector3 at = Caster.transform.position;
+            ISkillCaster bare = Caster.FindAllAllies()
+                .Where(ally => ally != null && ally.IsAlive && ally is ISkillCaster wearer && wearer.WornItemCount == 0
+                               && Caster.CanForgeFor(wearer.Role))
                 .OrderBy(ally => (ally.transform.position - at).sqrMagnitude)
-                .Cast<IItemWearer>()
+                .Cast<ISkillCaster>()
                 .FirstOrDefault();
 
-            if (bare != null) bare.ReceiveForgedItem(bare.Role, tier, me);
-            else if (Caster is IItemWearer self && self.WornItemCount < MaxWornOnSelf && forger.CanForgeFor(HeroRoleEnum.Tank))
-                self.ReceiveForgedItem(HeroRoleEnum.Tank, tier, me);
+            if (bare != null) bare.ReceiveForgedItem(bare.Role, tier, Caster);
+            else if (Caster.WornItemCount < MaxWornOnSelf && Caster.CanForgeFor(HeroRoleEnum.Tank))
+                Caster.ReceiveForgedItem(HeroRoleEnum.Tank, tier, Caster);
         }
 
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)

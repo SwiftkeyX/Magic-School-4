@@ -40,7 +40,7 @@ it. The name is `Tuned`, not `Tune`, because `SkillFactory.Tune(castTime: ...)` 
 
 ## Units spawned mid-fight
 
-A skill calls `ISpawner.SpawnUnitsNearby` (Contracts) on its caster, `Hero` picks the nearest free hexes
+A skill calls `ISkillCaster.SpawnUnitsNearby` (Contracts) on its caster, `Hero` picks the nearest free hexes
 (`Combat/Heroes/HeroSpawn`) and raises `OnSpawnRequested`, and `HeroSpawner`, which subscribes to every hero it builds,
 spawns them. The unit comes from `HeroDataSO._spawnUnit`, because `Skills` cannot name a hero.
 
@@ -58,18 +58,18 @@ A skill can name marks it reads (`SkillDefinition.SpecialMarks`), see [aligning.
   role with no row gets nothing. The tier is allies on her Anvil mark / `MarksPerTier` (1). Default rows: Tank: Iron
   Plate +20 DF, Tempered +30, Reinforced +40, Forged +50; Mage: Archmage Tome; Fighter / Marksman / Assassin: Whetstone.
   With every ally wearing something she takes the tank row's item herself, while she wears fewer than 3. The skill calls
-  `IItemWearer.ReceiveForgedItem(role, tier, forger)` (`IForger.CanForgeFor` asks the table first), `Hero` raises
+  `ISkillCaster.ReceiveForgedItem(role, tier, forger)` (`ISkillCaster.CanForgeFor` asks the table first), `Hero` raises
   `OnForgedItemRequested`, and `HeroSpawner` spawns `HeroDataSO.ForgedItem(role, tier)` and calls `Hero.WearForged`:
   worn past `HeroItems.Capacity`, destroyed by `HeroItems.ClearForged` in `Hero.ResetForNewStage`. The forged plates
   (`ForgedIronPlate` 21, `MasterworkIronPlate` 22, `TemperedIronPlate` 29, `ReinforcedIronPlate` 30) are not in the shop.
   She also gains 2% of her max HP as HP/s, plus 0.3% per ally on her Anvil mark, every cast, stacking for 3 casts
   (`MaxRegenStacks`, reset in `OnCombatStart`).
 - **Troll**: grows only from kills by the allies on his Feed mark. A dying unit records who landed the killing hit
-  (`IFallen.KilledBy`), and a unit a hero spawned mid-fight is a summon (`IFallen.IsSummon`, set by `HeroSpawner`),
+  (`ISkillCaster.KilledBy`), and a unit a hero spawned mid-fight is a summon (`ISkillCaster.IsSummon`, set by `HeroSpawner`),
   whose death never feeds him.
 - **Reaper**: every 3 enemies she kills herself (summons excluded), each ally on her Reap mark casts its skill once for
-  free: `IFreeCaster.GrantFreeCast` queues the cast, `HeroStateMachine` plays it when the hero is not casting or
+  free: `ISkillCaster.GrantFreeCast` queues the cast, `HeroStateMachine` plays it when the hero is not casting or
   stunned and its mana is not full, and `HeroCast` then leaves the mana alone. Grants reset at fight start. She also
-  revives once a fight: her `OnDeath` calls `IRevivable.ReviveAfter(3s, 30%)`; meanwhile she is an ordinary death
+  revives once a fight: her `OnDeath` calls `ISkillCaster.ReviveAfter(3s, 30%)`; meanwhile she is an ordinary death
   (untargetable, death hooks fire, keeps her hex), `HeroDead.OnUpdate` counts down and `Hero.Revive` stands her up.
   A hero that `IsReviving` still counts as standing in `CombatState` and `TeamCompBenchmark`.

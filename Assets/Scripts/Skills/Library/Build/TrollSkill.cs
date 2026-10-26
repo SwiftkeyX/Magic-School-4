@@ -47,7 +47,7 @@ namespace MagicSchool.Skills
         public override void OnHeroDied(ICombatant dead)
         {
             if (dead.Team == Caster.Team) return;
-            if (!(dead is IFallen fallen) || fallen.IsSummon) return;
+            if (!(dead is ISkillCaster fallen) || fallen.IsSummon) return;
             if (!IsKilledFromFeedMark(fallen)) return;
 
             Caster.AddModifier(
@@ -57,11 +57,11 @@ namespace MagicSchool.Skills
             Caster.Heal(BonusHPPerDeath, Caster);
         }
 
-        private bool IsKilledFromFeedMark(IFallen fallen)
+        private bool IsKilledFromFeedMark(ISkillCaster fallen)
         {
-            if (fallen.KilledBy == null || !(Caster is IAligned aligned)) return false;
+            if (fallen.KilledBy == null || Caster == null) return false;
 
-            foreach (ICombatant ally in aligned.AlliesOnSpecialMark(FeedMark))
+            foreach (ICombatant ally in Caster.AlliesOnSpecialMark(FeedMark))
             {
                 if (ReferenceEquals(ally, fallen.KilledBy)) return true;
             }

@@ -48,7 +48,7 @@ A skill can name marks it reads (`SkillDefinition.SpecialMarks`, e.g. Rock Golem
 `"Long Shot"`). A special mark is an `AlignMark` with `special` set to that name. The Align Editor puts it in every
 pattern by itself, after orange and green (it asks `HeroDataSO.SpecialMarksOf`, which builds the skill), and will not
 remove it; its hexes are painted separately in each pattern. `AlignBonuses.Refresh` records who stands on each one and the
-skill reads them through `IAligned.AlliesOnSpecialMark(name)`. The board paints them white (`BoardColours._specialColor`).
+skill reads them through `ISkillCaster.AlliesOnSpecialMark(name)`. The board paints them white (`BoardColours._specialColor`).
 What each skill does with its mark is in [skills.md](skills.md).
 
 ## Working it out

@@ -29,7 +29,7 @@ namespace MagicSchool.Skills
             => $"Curses the current target with a homing bolt: {AP(CurseTotal)} over {CurseDuration} seconds. "
              + "If the target dies while cursed, the curse jumps to the next closest enemy.";
 
-        public override void Init(ICombatant caster)
+        public override void Init(ISkillCaster caster)
         {
             base.Init(caster);
 

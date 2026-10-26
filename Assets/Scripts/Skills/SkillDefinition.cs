@@ -32,7 +32,7 @@ namespace MagicSchool.Skills
         private SkillFlow _active;
         private SkillFlow _onAutoAttack;
 
-        protected ICombatant Caster { get; private set; }
+        protected ISkillCaster Caster { get; private set; }
         public float CastTime { get; private set; }
         public bool CanWalkWhileCasting { get; private set; }
 
@@ -48,7 +48,7 @@ namespace MagicSchool.Skills
         protected abstract SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry);
         protected virtual SkillFlow BuildAutoAttackFlow(TemplateActionRegistrySO registry) => null;
 
-        public virtual void Init(ICombatant caster)
+        public virtual void Init(ISkillCaster caster)
         {
             Caster = caster;
 
@@ -93,12 +93,12 @@ namespace MagicSchool.Skills
         protected string DF(float percent) => Scaled(percent, "DF", stats => stats.Defence);
         protected string MaxHP(float percent) => Scaled(percent, "max HP", stats => stats.MaxHP);
 
-        protected IHeroStats TextStats => _textStats ?? Caster as IHeroStats;
+        protected IHeroStats TextStats => _textStats ?? Caster;
         protected bool TextFormula => _textFormula;
 
         private string Scaled(float percent, string stat, Func<IHeroStats, int> read)
         {
-            IHeroStats stats = _textStats ?? Caster as IHeroStats;
+            IHeroStats stats = _textStats ?? Caster;
             if (_textFormula || stats == null) return $"[{percent:0.##}% {stat}]";
 
             return Mathf.RoundToInt(read(stats) * percent / 100f).ToString();

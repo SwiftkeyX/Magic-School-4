@@ -25,7 +25,7 @@ namespace MagicSchool.Skills
              + $"{AP(StingDamage)} every second to the enemy its owner is fighting, and heals the owner for "
              + $"{HealPercent}% of the damage it deals.";
 
-        public override void Init(ICombatant caster)
+        public override void Init(ISkillCaster caster)
         {
             base.Init(caster);
 

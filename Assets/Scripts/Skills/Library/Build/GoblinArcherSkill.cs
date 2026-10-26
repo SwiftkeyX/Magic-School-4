@@ -34,7 +34,7 @@ namespace MagicSchool.Skills
             => "Infinite range. Every auto attack picks a new random enemy, "
              + "with no repeats until every enemy has been hit.";
 
-        public override void Init(ICombatant caster)
+        public override void Init(ISkillCaster caster)
         {
             base.Init(caster);
 

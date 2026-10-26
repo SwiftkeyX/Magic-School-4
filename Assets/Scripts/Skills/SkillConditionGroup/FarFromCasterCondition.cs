@@ -20,7 +20,7 @@ namespace MagicSchool.Skills
         {
             if (!(Subjected(recipient) is IPlaceable target)) return false;
 
-            return _caster is IHexMeasurable caster && caster.IsAtLeastHexesAway(target, _minHexes);
+            return _caster is ISkillCaster caster && caster.IsAtLeastHexesAway(target, _minHexes);
         }
     }
 }

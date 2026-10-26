@@ -83,7 +83,7 @@ namespace MagicSchool.Skills
 
         private static float ValorBonus(IEffectable caster)
         {
-            if (!(caster is IAligned aligned) || LandingDamage <= 0f) return 0f;
+            if (!(caster is ISkillCaster aligned) || LandingDamage <= 0f) return 0f;
             return aligned.AlliesOnSpecialMark(ValorMark).Count * LandingDamagePerAlly / LandingDamage;
         }
 

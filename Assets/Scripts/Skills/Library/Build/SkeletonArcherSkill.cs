@@ -43,7 +43,7 @@ namespace MagicSchool.Skills
 
         public override float AutoAttackDamageMultiplier(ICombatant target)
         {
-            bool far = Caster is IHexMeasurable me && target != null && me.IsAtLeastHexesAway(target, LongShotHexes);
+            bool far = Caster != null && target != null && Caster.IsAtLeastHexesAway(target, LongShotHexes);
             return (1f + LongShotBonus(Caster)) * (far ? 1f : CloseShotDamage / 100f);
         }
 
@@ -81,7 +81,7 @@ namespace MagicSchool.Skills
 
         private static float LongShotBonus(IEffectable caster)
         {
-            if (!(caster is IAligned aligned)) return 0f;
+            if (!(caster is ISkillCaster aligned)) return 0f;
             int star = caster is IHeroStats stats ? stats.Star : 1;
             return aligned.AlliesOnSpecialMark(LongShotMark).Count * PerAlly(star) / 100f;
         }

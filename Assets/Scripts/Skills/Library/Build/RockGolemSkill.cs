@@ -4,7 +4,7 @@ using static MagicSchool.Skills.SkillFactory;
 
 namespace MagicSchool.Skills
 {
-    // His wards are the allies on his Ward mark (See IAligned). The cast only plays the animation; the shields land in
+    // His wards are the allies on his Ward mark (See ISkillCaster.AlliesOnSpecialMark). The cast only plays the animation; the shields land in
     // OnCast.
     internal class RockGolemSkill : SkillDefinition
     {
@@ -36,9 +36,9 @@ namespace MagicSchool.Skills
 
             Caster.AddModifier(_shield, Caster as IHeroStats);
 
-            if (Caster is IAligned aligned)
+            if (Caster != null)
             {
-                foreach (ICombatant ward in aligned.AlliesOnSpecialMark(WardMark))
+                foreach (ICombatant ward in Caster.AlliesOnSpecialMark(WardMark))
                 {
                     if (ward != null && ward.IsAlive) ward.AddModifier(_shield, Caster as IHeroStats);
                 }

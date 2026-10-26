@@ -52,7 +52,7 @@ namespace MagicSchool.Skills
 
         public override bool OnCast()
         {
-            _guards = Caster is IAligned aligned ? aligned.AlliesOnSpecialMark(GuardMark).Count : 0;
+            _guards = Caster?.AlliesOnSpecialMark(GuardMark).Count ?? 0;
             _braceSeconds = BraceDuration + GuardSeconds * _guards;
             _braceTuning.CastTime = _braceSeconds;
             _braceHeal.Cadence.cadenceDuration = _braceSeconds;

@@ -25,7 +25,7 @@ namespace MagicSchool.Combat.Heroes
     // skill name, none of which changes a fight. ResetForNewStage changes state rather than starting it: the Dead
     // state has to be left properly, and a survivor is mid-state, not un-started. SetLevel and UpgradeTo rebuild the
     // stats, so they are for before a fight; current HP and mana start over and items are granted again.
-    public partial class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISpawner, IAligned, IItemWearer, IForger, IHexMeasurable, IFallen, IFreeCaster, IRevivable
+    public partial class Hero : MonoBehaviour, ICombatant, IHexPlaceable, IHeroStats, IInspectableHero, IDraggable, ISellable, ISkillCaster
     {
         private HeroDataSO _SOData;
         private HeroStateMachine _stateMachine;
