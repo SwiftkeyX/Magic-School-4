@@ -94,7 +94,7 @@ Rules no single file shows:
   nobody). The Align Editor stamps it from position - orange first, green second, special after - so keep that order
   when editing marks by hand. An unset kind reads by position.
 - Combat is started by the space bar (`PlayerController.TryStartCombat`); a diagnostic calls
-  `GameManager.Instance.StartCombat()` itself.
+  `GameManager.Instance.Requests.StartCombat()` itself.
 
 ## Tests
 
