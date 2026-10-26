@@ -5,13 +5,13 @@ namespace MagicSchool.CombatRecording
 {
     // CombatRecorder tell damage dealt, damage taken, heal, etc... for each hero.
     // This data will be shown in a UI panel.
+    // BeginRoundFor starts a round for some units alone, on a clock of their own, leaving everyone else's record
+    // alone: TeamCompBenchmark's lanes start and end their fights at different times side by side.
     public class CombatRecorder
     {
         private readonly Dictionary<IEffectable, CombatRecord> _round = new Dictionary<IEffectable, CombatRecord>();
         private RoundClock _clock = new RoundClock();       
 
-        // ======================================== public ========================================
-        // get combat record from the specify unit
         public CombatRecord RoundOf(IEffectable unit) => RecordFor(unit);
 
         public void BeginRound()
@@ -22,8 +22,6 @@ namespace MagicSchool.CombatRecording
 
         public void EndRound() => _clock.Stop();
 
-        // a round for these units alone, on a clock of their own; every other unit's record is left as it is.
-        // For fights that start and end at different times side by side (TeamCompBenchmark's lanes).
         public void BeginRoundFor(IEnumerable<IEffectable> units)
         {
             var clock = new RoundClock();
@@ -33,8 +31,6 @@ namespace MagicSchool.CombatRecording
             }
         }
 
-        // ======================================== listener ========================================
-        // Subscribed to a hero's OnDamaged/OnHealed
         public void Record(DamageEvent e)
         {
             if (e.Source != null) RecordFor(e.Source).AddDealt(e.Kind, e.Outcome.Landed, e.Outcome.Overkill);
@@ -51,9 +47,6 @@ namespace MagicSchool.CombatRecording
             if (e.Target != null) RecordFor(e.Target).AddHealingReceived(e.Outcome.Healed, e.Outcome.LostToWound);
         }
 
-        // ======================================== helper ========================================
-        // context: combat record keep data for damage dealt, damage taken, heal
-        // to read/write the combat record
         private CombatRecord RecordFor(IEffectable unit)
         {
             if (unit == null) return new CombatRecord(_clock);

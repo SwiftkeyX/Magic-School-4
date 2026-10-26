@@ -4,6 +4,13 @@ The owner's `// FLAGGING:` comments in code, collected 2026-10-26 so they surviv
 phase 3). Paths are under `Assets/Scripts/`; line numbers are from that date. A note the refactor plan already handles
 says which phase.
 
+## FIXLATER notes
+
+- **Burn damage counts as skill damage; it should have its own section in the record** (`CombatRecording/CombatRecord.cs:40`).
+- **An item cannot grant a timed buff yet, e.g. "on kill, +50% damage amp for 3s"** (`Items/Library/ItemFactory.cs:11`).
+- **Nothing stops `ModifierEnum.ManaBlocked` from being used as a Buff or Debuff** (`Skills/Library/Build/DireWolfSkill.cs:50`).
+- **Turn every hero into a `SkillDefinition` and move `Build` inside it** (`Skills/Library/Build/WerewolfSkill.cs:25`).
+
 ## Design doubts
 
 - **`ICombatant` is a god interface** (`Contracts/Interface/ICombatant.cs:8`). Phase 7.

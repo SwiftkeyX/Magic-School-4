@@ -12,10 +12,20 @@ public static class RunEditModeTests
 
     public static string Execute()
     {
-        // a dirty scene makes the Test Runner open a modal "save?" dialog, which freezes the Editor for Coplay
+        // a dirty scene makes the Test Runner open a modal "save?" dialog, which freezes the Editor for Coplay.
+        // The flag is often set with nothing changed; then saving writes the same bytes and is harmless.
+        // A scene that really differs from disk is the user's work: refuse instead.
         for (int i = 0; i < UnityEditor.SceneManagement.EditorSceneManager.sceneCount; i++)
-            if (UnityEditor.SceneManagement.EditorSceneManager.GetSceneAt(i).isDirty)
-                return "refused: scene has unsaved changes, the Test Runner would block on a save dialog";
+        {
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneAt(i);
+            if (!scene.isDirty) continue;
+            const string copy = "Temp/SceneInMemory.unity";
+            UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene, copy, saveAsCopy: true);
+            bool same = File.Exists(scene.path) && File.ReadAllText(copy) == File.ReadAllText(scene.path);
+            File.Delete(copy);
+            if (!same) return $"refused: {scene.path} has unsaved changes, the Test Runner would block on a save dialog";
+            UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
+        }
         if (File.Exists(Out)) File.Delete(Out);
         var api = ScriptableObject.CreateInstance<TestRunnerApi>();
         api.RegisterCallbacks(new Collector());

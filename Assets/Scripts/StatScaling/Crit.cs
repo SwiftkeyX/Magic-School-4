@@ -16,16 +16,18 @@ namespace MagicSchool.StatScaling
     // many hits, the crit rate is still exactly the crit chance: average damage is unchanged, only the
     // streaks are gone.
     // e.g.     25% crit chance => C = 8.5%: 8.5%, 17%, 25.5%, 34%... until it crits
+    // The count restarts at fight start, so no fight opens on a crit owed from the last. The chance can change
+    // mid-fight (aligning, items): C follows it and the count is kept. C has no closed form, so it is found by
+    // binary search.
     public static class Crit
     {
-        public const float Multiplier = 1.5f;     // a crit deals 150% damage
+        public const float Multiplier = 1.5f;
 
         // hits since each attacker's last crit, auto attacks and crit-able skills together.
         // Keyed weakly, so a destroyed hero takes its count with it.
         private class Streak { public int hits; }
         private static readonly ConditionalWeakTable<IHeroStats, Streak> _streaks = new ConditionalWeakTable<IHeroStats, Streak>();
 
-        // C for each crit chance, keyed by the chance in hundredths of a percent
         private static readonly Dictionary<int, float> _constants = new Dictionary<int, float>();
 
         public static float Roll(float damage, IHeroStats attacker, out bool isCrit)
@@ -37,7 +39,6 @@ namespace MagicSchool.StatScaling
             return isCrit ? damage * Multiplier : damage;
         }
 
-        // start the attacker's count again, so a fight does not open on a crit owed from the last one
         public static void ResetStreak(IHeroStats attacker)
         {
             if (attacker != null) _streaks.Remove(attacker);
@@ -48,7 +49,6 @@ namespace MagicSchool.StatScaling
             if (chance <= 0f) return false;
             if (chance >= 1f) return true;
 
-            // chance can change mid-fight (aligning, items): C follows it, the count is kept
             Streak streak = _streaks.GetOrCreateValue(attacker);
             streak.hits++;
 
@@ -68,7 +68,6 @@ namespace MagicSchool.StatScaling
             return c;
         }
 
-        // C has no closed form: binary search for the C whose average crit rate is [chance]
         private static float SolveConstant(float chance)
         {
             double low = 0d, high = chance;
@@ -81,7 +80,6 @@ namespace MagicSchool.StatScaling
             return (float)((low + high) / 2d);
         }
 
-        // the crit rate C gives over many hits: 1 / the average number of hits it takes to crit
         private static double AverageRate(double c)
         {
             double critBefore = 0d, averageHits = 0d;
