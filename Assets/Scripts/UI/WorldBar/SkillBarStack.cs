@@ -10,13 +10,13 @@ namespace MagicSchool.UI
     /// </summary>
     internal class SkillBarStack : MonoBehaviour
     {
-        [SerializeField] private SkillBar _first;                                   // the bar already on the prefab
-        [SerializeField] private Vector3 _offset = new Vector3(0f, 0.8f, 0f);       // where the lowest bar sits
-        [SerializeField] private float _spacing = 0.1f;                             // gap to the next one up
+        [SerializeField] private SkillBar _first;
+        [SerializeField] private Vector3 _offset = new Vector3(0f, 0.8f, 0f);
+        [SerializeField] private float _spacing = 0.1f;
         [SerializeField] private int _maxBars = 4;
 
         private readonly List<SkillBar> _bars = new List<SkillBar>();
-        private readonly List<int> _timed = new List<int>();     // which of the hero's modifiers count down
+        private readonly List<int> _timed = new List<int>();
         private Hero _hero;
 
         void Awake()
@@ -31,7 +31,6 @@ namespace MagicSchool.UI
             if (_hero == null) _hero = GetComponentInParent<Hero>();
             if (_first == null || !_hero.IsInitialized) return;
 
-            // only the modifiers with a timer left get a bar
             _timed.Clear();
             for (int i = 0; i < _hero.ActiveModifierCount; i++)
             {
@@ -47,7 +46,6 @@ namespace MagicSchool.UI
                 _bars.Add(bar);
             }
 
-            // every bar is told which modifier it shows and where it sits; the ones past the end hide themselves
             for (int i = 0; i < _bars.Count; i++)
             {
                 _bars[i].Bind(i < _timed.Count ? _timed[i] : SkillBar.None);
