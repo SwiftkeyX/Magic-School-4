@@ -11,7 +11,6 @@ namespace MagicSchool.Items
         [SerializeField] private ItemIdEnum _itemId = ItemIdEnum.None;
         [SerializeField] private int _price = 3;            
 
-        // ===================== setter & getter =====================
         public GameObject Prefab => _prefab;
         public string Name => _name;
         public string Description => _description;

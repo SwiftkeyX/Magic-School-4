@@ -8,20 +8,16 @@ namespace MagicSchool.Items
     public class Item : MonoBehaviour, IInspectableItem, IDraggable, IEquipment, ISellable
     {
         [SerializeField] private ItemDataSO _data;
-        [SerializeField] private TextMeshPro _nameLabel;    // FLAGGING: name on the item, this is for prototype
+        [SerializeField] private TextMeshPro _nameLabel;
         private ICustomModifier _modifier;
 
-        // ================================= getter =================================
         public ItemDataSO Data => _data;
         public ICustomModifier Modifier => _modifier;
         public int Price => _data != null ? _data.Price : 0;   
-        // === IInspectableItem ===
         public string DisplayName => _data != null ? _data.Name : name;
         public string Description => _data != null ? _data.Description : string.Empty;
         public bool IsAlive => this != null;
 
-        // ================================= life cycle =================================
-        // show a name of the item's prefab even in editor mode.
 #if UNITY_EDITOR
         private void OnValidate() => ShowName();
 #endif
@@ -31,7 +27,6 @@ namespace MagicSchool.Items
             Init(_data);
         }
 
-        // init item
         private void Init(ItemDataSO data)
         {
             if (data == null) return;
@@ -41,8 +36,6 @@ namespace MagicSchool.Items
             ShowName();
         }
 
-        // ================================= public =================================
-        // this is factory, to spawn item into the scene
         public static Item Spawn(ItemDataSO data, Vector3 position)
         {
             if (data == null)
@@ -68,13 +61,11 @@ namespace MagicSchool.Items
 
             item.Init(data);
 
-            // BaseItem(Clone) tells nobody anything, and every item shares that prefab
             spawned.name = data.Name;
 
             return item;
         }
 
-        // ================================= private =================================
         private void ShowName()
         {
             if (_nameLabel == null) return;
