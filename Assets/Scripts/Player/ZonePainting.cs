@@ -7,6 +7,7 @@ namespace MagicSchool.Player
 {
     // Use with Stage editor (dev tool): painting the deploy zone with the pointer.
     // Click on an empty hex to toggle it to deploy zone.
+    // Ticked after Dragging: a press that picked something up, or put a click-held one down, never paints.
     internal class ZonePainting
     {
         private readonly Camera _cam;
@@ -25,8 +26,6 @@ namespace MagicSchool.Player
 
             if (!PlayerInputSystem.DragPressedThisFrame) return;
 
-            // if player is dragging, the painting shouldn't work, return
-            // nor when this press just put a click-held hero or item down
             if (_dragging.IsHolding || _dragging.UsedPressThisFrame) return;
 
             Vector3 worldPos = PlayerInputSystem.GetMouseWorldPosition(_cam);

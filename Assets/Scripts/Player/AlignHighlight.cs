@@ -11,6 +11,11 @@ using MagicSchool.Input;
 namespace MagicSchool.Player
 {
     // Aligning, while the player holds one of his heroes, hightlight the marked hex
+    // A mark hex pays only inside the deploy zone, and only when its line did not leave the board on the way; one that
+    // gives nothing is still drawn, faded, so the player sees where the mark is. The Shift view hides the marks: they
+    // sit on the hexes round the hero and would read as part of the route. In a fight the same view is a debug tool
+    // over any hero, repainted live (e.g. why did Reaper turn back? the hexes next to her target were taken by her
+    // allies).
     internal class AlignHighlight
     {
         private readonly Camera _cam;
@@ -23,9 +28,9 @@ namespace MagicSchool.Player
         private HashSet<Hex> _special = new HashSet<Hex>();
         private HashSet<Hex> _wearing = new HashSet<Hex>();
         private bool _isShown;
-        private (Hero hero, Hex standingOn, int pattern) _shownShape;     // the marks drawn now, when ShowMarks drew them
-        private (Hero hero, Hex standingOn, ICombatant chosen, int tied) _shownTargetView;   // when ShowTargetView drew it
-        private List<Hex> _shownFightView;     // when ShowFightTargetView drew it: the hexes it painted, in order
+        private (Hero hero, Hex standingOn, int pattern) _shownShape;
+        private (Hero hero, Hex standingOn, ICombatant chosen, int tied) _shownTargetView;
+        private List<Hex> _shownFightView;
 
         public AlignHighlight(Camera cam, Dragging dragging, BattleBoard board, TeamEnum team)
         {
@@ -40,7 +45,6 @@ namespace MagicSchool.Player
             bool isPreparation = GameManager.Instance.Phase == GamePhaseEnum.Preparation;
             Hero held = _dragging.HeldHero;
 
-            // holding an item: light up the hexes where a placed hero would wear it
             if (isPreparation && _dragging.HeldItem != null)
             {
                 Show(new HashSet<Hex>(), new HashSet<Hex>(), new HashSet<Hex>(), InDeployZone(AligningHex.WearingHexes(_board, _team)));
@@ -49,14 +53,12 @@ namespace MagicSchool.Player
 
             if (!isPreparation)
             {
-                // a debug tool: Shift held over any hero in a fight shows who it goes for and the way it plans to walk
                 Hero inFight = GameManager.Instance.Phase == GamePhaseEnum.Combat && PlayerInputSystem.TargetViewHeld ? HoveredHeroInFight() : null;
                 if (inFight != null) ShowFightTargetView(inFight);
                 else Hide(isPreparation);
                 return;
             }
 
-            // holding nothing: a placed hero under the pointer shows the hexes it marks from where it stands
             if (held == null)
             {
                 Hero hovered = HoveredPlacedHero();
@@ -66,14 +68,12 @@ namespace MagicSchool.Player
                 return;
             }
 
-            // an enemy held in the stage editor shows nothing: an enemy's marks do nothing
             if (held.Team != _team)
             {
                 Hide(isPreparation);
                 return;
             }
 
-            // if holded hero was on top of the hex, get hexes that was going to be marked
             Hex pointed = PointedZoneHex();
             if (pointed == null)
             {
@@ -84,21 +84,15 @@ namespace MagicSchool.Player
             ShowMarks(held, pointed);
         }
 
-        // Shift held over a placed hero: instead of its marks, the enemy it will go for, filled yellow, and a dot on every hex
-        // it would walk through to reach it. When its nearest is a tie, the tied ones get a yellow band, and the fill and the
-        // route only show once the player has chosen one (See Hero.ExpectedTarget). Shown apart from the
-        // marks, which sit on the same hexes round the hero and would read as part of the route.
-        // Right-clicking it again while inspected switches the target (See PlayerController.TrySwitchTarget).
         private void ShowTargetView(Hero hero)
         {
             IReadOnlyList<ICombatant> tied = hero.TiedNearestEnemies();
             ICombatant expected = hero.ExpectedTarget;
 
-            // repaint only when something changed
             (Hero, Hex, ICombatant, int) view = (hero, hero.CurrentHex, expected, tied.Count);
             if (_isShown && _shownTargetView == view) return;
 
-            _board.Colours.ShowDeployZone(true);       // no marks
+            _board.Colours.ShowDeployZone(true);
             _shownFightView = null;
 
             if (tied.Count >= 1)
@@ -118,9 +112,6 @@ namespace MagicSchool.Player
             _shownTargetView = view;
         }
 
-        // The Shift view in a fight, as a debug tool: the enemy the hero is going for right now filled yellow, the enemies tied
-        // for its nearest with a yellow band, and a dot on every hex it plans to walk through. Live: it repaints as anyone moves.
-        // e.g.     why did Reaper turn back? - the hexes next to her target were taken by her allies
         private void ShowFightTargetView(Hero hero)
         {
             Hex target = hero.TargetInFight?.CurrentPlacement as Hex;
@@ -134,12 +125,11 @@ namespace MagicSchool.Player
 
             IReadOnlyList<Hex> route = hero.RouteTo(hero.TargetInFight);
 
-            // repaint only when something changed
             var view = new List<Hex>(tied) { target, null };
             view.AddRange(route);
             if (_isShown && _shownFightView != null && _shownFightView.SequenceEqual(view)) return;
 
-            _board.Colours.ShowDeployZone(false);      // neutral, as a fight shows it
+            _board.Colours.ShowDeployZone(false);
             _board.Colours.ShowTargets(tied, target, onZone: false);
             _board.Colours.ShowRoute(route);
 
@@ -149,12 +139,8 @@ namespace MagicSchool.Player
             _shownFightView = view;
         }
 
-        // the hexes the hero marks while standing on [standingOn], each bonus in its colour.
-        // The whole shape is drawn: a mark hex that gives nothing - on a red hex, past the board's edge, or off the board as a
-        // gray hex - is still shown, faded, so the player sees where the mark is (See AlignShape, BoardColours.ShowAlignMarks).
         private void ShowMarks(Hero hero, Hex standingOn)
         {
-            // repaint only when something moved
             (Hero, Hex, int) shape = (hero, standingOn, hero.AlignPattern);
             if (_isShown && _shownShape == shape) return;
 
@@ -166,7 +152,6 @@ namespace MagicSchool.Player
             {
                 if (shown.IsOffBoard)
                 {
-                    // one gray hex per spot, however many marks land there
                     var spot = new Vector2Int(Mathf.RoundToInt(shown.position.x * 4f), Mathf.RoundToInt(shown.position.y * 4f));
                     offBoard.TryGetValue(spot, out var ghost);
                     offBoard[spot] = (shown.position, With(ghost.marks, shown, givesNothing: true));
@@ -176,7 +161,6 @@ namespace MagicSchool.Player
                 onBoard.TryGetValue(shown.hex, out MarkColours marks);
                 onBoard[shown.hex] = With(marks, shown, givesNothing: false);
 
-                // a mark hex only pays inside the deploy zone, and only when its line did not leave the board on the way
                 if (shown.hex.IsInDeployZone && !shown.isPastEdge) paying.Add(shown.hex);
             }
 
@@ -194,7 +178,6 @@ namespace MagicSchool.Player
             _shownFightView = null;
         }
 
-        // [marks] with the colour of [shown] added
         private static MarkColours With(MarkColours marks, AlignShape.ShownHex shown, bool givesNothing)
         {
             if (shown.colour == AligningHex.Orange) marks.first = true;
@@ -205,7 +188,6 @@ namespace MagicSchool.Player
             return marks;
         }
 
-        // a player hero standing on a hex under the pointer - not one on a bench, and not an enemy: an enemy's marks do nothing
         private Hero HoveredPlacedHero()
         {
             Hero hovered = Picker.At<Hero>(PlayerInputSystem.GetMouseWorldPosition(_cam));
@@ -213,7 +195,6 @@ namespace MagicSchool.Player
             return hovered != null && hovered.Team == _team && hovered.CurrentHex != null ? hovered : null;
         }
 
-        // a hero standing on a hex under the pointer, of either team, alive
         private Hero HoveredHeroInFight()
         {
             Hero hovered = Picker.At<Hero>(PlayerInputSystem.GetMouseWorldPosition(_cam));
@@ -221,10 +202,8 @@ namespace MagicSchool.Player
             return hovered != null && hovered.IsAlive && hovered.CurrentHex != null ? hovered : null;
         }
 
-        // mark those hexes with different colour
         private void Show(HashSet<Hex> firstBonus, HashSet<Hex> secondBonus, HashSet<Hex> special, HashSet<Hex> wearing)
         {
-            // repaint only when something moved
             if (_isShown && _shownShape.hero == null && _shownTargetView.hero == null && firstBonus.SetEquals(_firstBonus) && secondBonus.SetEquals(_secondBonus)
                 && special.SetEquals(_special) && wearing.SetEquals(_wearing)) return;
 
@@ -239,7 +218,6 @@ namespace MagicSchool.Player
             _board.Colours.ShowAlignMarks(_firstBonus, _secondBonus, _special, _wearing);
         }
 
-        // the deploy-zone hex under the pointer: where the held hero would stand
         private Hex PointedZoneHex()
         {
             Vector3 worldPos = PlayerInputSystem.GetMouseWorldPosition(_cam);
@@ -248,8 +226,6 @@ namespace MagicSchool.Player
             return pointed != null && pointed.IsInDeployZone ? pointed : null;
         }
 
-        // the marked hexes can only be in deploy zone.
-        // (See DeployZone.cs)
         private static HashSet<Hex> InDeployZone(IEnumerable<Hex> hexes)
         {
             var inZone = new HashSet<Hex>();
@@ -261,7 +237,6 @@ namespace MagicSchool.Player
             return inZone;
         }
 
-        // Hide the highlight of the marked hex
         private void Hide(bool isPreparation)
         {
             if (!_isShown) return;
@@ -270,7 +245,6 @@ namespace MagicSchool.Player
             _shownShape = default;
             _shownFightView = null;
 
-            // Preparation shows the zone; a fight's board is neutral, and the Shift view may have painted it
             _board.Colours.ShowDeployZone(isPreparation);
         }
     }
