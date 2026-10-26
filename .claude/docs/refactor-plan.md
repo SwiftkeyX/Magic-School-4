@@ -62,11 +62,13 @@ Tests before touching code, so later phases fail loudly instead of silently.
 
 Your call: delete inline comments; keep a summary above a class only where it is needed.
 
-- [] One module per pass. Before deleting, move any comment that records **why** (a bug it prevents, e.g. "reserve on
-  commit, not arrival") into the class summary or the `*Module.md` - with CLAUDE.md slimmed, that is the last place
-  that knowledge lives.
-- [] Keep summaries short and readable; most small classes get none.
-- [] Leave `.uss`/`.uxml` comments alone (they are the warning about UI Builder).
+- [x] One module per pass, one commit each. The "why" comments (bugs they prevent, Unity quirks, the skill DSL's rules)
+  were moved into class summaries first. About 2,950 comments removed; the comment block directly above each type is
+  kept. A Roslyn tool did the removal and checked every file's code tokens and `#if`s came out identical.
+- [x] Summaries: only where a class needed one.
+- [x] `.uss`/`.uxml` untouched. Exception: test files keep their inline comments - they explain the board geometry
+  behind each expected answer.
+- [x] Owner notes (`FIXLATER`, the commented-out Harpy stance) added to [flagging.md](flagging.md).
 
 ## Phase 4 - DevTools module (M)
 
