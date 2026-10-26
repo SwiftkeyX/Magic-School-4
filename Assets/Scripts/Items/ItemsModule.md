@@ -1,21 +1,14 @@
 # MagicSchool.Items
 
-An item the player can pick up, look at, and (later) give to a hero.
+An item the player can buy, wear, lay on a hex and sell.
 
-References **Contracts** only.
+References **Contracts, Modifiers, StatScaling**, Unity.TextMeshPro. Referenced by **UI, Economy, Core, Player**.
 
-That is the whole point of the module. An item's effect is a modifier - "+20 armour" - and
-`Modifiers` is deliberately separate from `Skills` so that items, traits and augments can grant
-one without dragging `TemplateAction`, `SkillDefinition` and every hero builder along with them.
-When items start granting their effects this module takes a reference to `Modifiers`, and nothing
-else.
+An item's effect is a modifier, which is why `Modifiers` is separate from `Skills`: an item grants "+20 armour" without
+dragging every skill builder along. It does **not** reference `Combat`: an item does not know what a hero is. Wearing is
+done *to* an item by something that knows both (`GameManager`, `HeroItems` through `IEquipment`).
 
-It does **not** reference `Combat`. An item does not know what a hero is. Equipping, when it
-exists, is a thing done *to* an item by something that already knows both - the same way
-`HeroMover` moves heroes without `Hero` knowing about the mover.
-
-- `ItemDataSO` - the authored data: name, description, sprite, price. What `HeroDataSO` is to a hero.
-- `Item` - the MonoBehaviour standing in the world. Glue, like `Hero`: it holds its data and
-  answers `IInspectableItem`, and has no logic of its own.
-- `ItemDrop` - where a new item lands in the world. The shop (`Economy`) and the reward card (`UI`)
-  both drop through it, which is why it lives here: it is the one module both of them reference.
+- `ItemDataSO` - the authored data: id, name, description, sprite, price.
+- `Item` - the MonoBehaviour in the world. Glue: holds its data, answers `IInspectableItem`.
+- `ItemDrop` - where a new item lands. The shop (`Economy`) and the reward card (`UI`) both drop through it.
+- `Library/` - `ItemLibrary` maps `ItemIdEnum` to a builder in `Library/Build/`, one small file per item.

@@ -12,26 +12,30 @@ Namespaces subdivide further inside a module, but they are naming, not boundarie
 Arrows point at what a module is allowed to reference.
 
 ```
-MagicSchool.Contracts    -> (nothing)
-MagicSchool.Engine       -> (nothing)
-MagicSchool.Input        -> Unity.InputSystem
-MagicSchool.VFX          -> Unity.TextMeshPro
-MagicSchool.StatScaling  -> Contracts
-MagicSchool.Modifiers    -> Contracts
-MagicSchool.Skills       -> Contracts, Engine, StatScaling, Modifiers
-MagicSchool.Combat       -> Contracts, Engine, Skills, VFX, Modifiers
-MagicSchool.UI           -> Contracts, Combat, Items, Input, UnityEngine.UI
-MagicSchool.Core         -> Contracts, Engine, Skills, Combat
-MagicSchool.Player       -> Contracts, Combat, Core, Items, Input
-MagicSchool.Editor       -> Core
-MagicSchool.Combat.Tests -> Combat, Contracts, Skills
+MagicSchool.Contracts       -> (nothing)
+MagicSchool.Engine          -> (nothing)
+MagicSchool.Input           -> Unity.InputSystem
+MagicSchool.VFX             -> Unity.TextMeshPro
+MagicSchool.StatScaling     -> Contracts
+MagicSchool.CombatRecording -> Contracts
+MagicSchool.Modifiers       -> Contracts, StatScaling
+MagicSchool.Skills          -> Contracts, Engine, StatScaling, Modifiers
+MagicSchool.Items           -> Contracts, Modifiers, StatScaling, Unity.TextMeshPro
+MagicSchool.Combat          -> Contracts, Engine, Skills, VFX, Modifiers, StatScaling
+MagicSchool.Economy         -> Contracts, Combat, Items
+MagicSchool.UI              -> Contracts, Combat, Items, Input, UnityEngine.UI
+MagicSchool.Core            -> Contracts, Engine, Skills, Combat, CombatRecording, Items, Economy
+MagicSchool.Player          -> Contracts, Combat, Core, Items, Input
+MagicSchool.Editor          -> Core, Combat, Skills                       (Editor-only)
+MagicSchool.Combat.Tests    -> Combat, Contracts, Skills                  (tests)
+MagicSchool.Core.Tests      -> Contracts, Combat, Skills, Items, Modifiers, StatScaling, Economy  (tests)
 ```
 
 Each module also carries a `*Module.md` next to its `.asmdef` stating its own boundary.
 
-Most of modules are top-level folder. But two of them do not get a top-level folder of their own: `MagicSchool.Editor` is Editor-only and
-lives in `Core/Editor/`, and `MagicSchool.Combat.Tests` holds the EditMode tests and lives in
-`Assets/Tests/`.
+Most of modules are top-level folder. But three of them do not get a top-level folder of their own: `MagicSchool.Editor` is Editor-only and
+lives in `Core/Editor/`, and the two test assemblies hold the EditMode tests and live in
+`Assets/Tests/EditMode/` and `Assets/Tests/Core/`.
 
 ## The modules
 
@@ -87,39 +91,45 @@ and Placement need to know which Hero standing on it.
 **UI** — overlay panels (inspector, shop), and world-space UI (health bar, mana
 bar, skill bar).
 
-**Engine** — services that decouple some of the game from the Unity engine.
+**Engine** — small engine helpers (`CurveMotion`, `DebugTool`, `SceneHelper`).
+
+**Items** — items the player buys, wears, lays on hexes and sells.
+
+**Economy** — gold in and gold out: wallet, shop, seller.
+
+**CombatRecording** — the damage meter's books; a plugin Combat never references.
 
 **Editor** — inspector tooling for Core.
 
-**Combat.Tests** — EditMode tests for Combat, Contracts and Skills.
+**Combat.Tests**, **Core.Tests** — EditMode tests: targeting, and the registries, maths and stats.
 
 ## A skill, step by step
 
-Every skill decomposes into the same shape. Bulwark's *Guardian's Roar* is a
+Every skill decomposes into the same shape. Shield Knight's *Guardian's Roar* is a
 useful one to read because its two steps are triggered differently: the first by the cast, the
 second by the first one **expiring**.
 
 > Braces for 2 seconds, healing steadily and taking 25% less damage. The moment the brace ends
 > he slams the ground for 120% AP to every enemy around him.
 
-![Bulwark casting Guardian's Roar](docs/Bulwark%20Skill%20Demonstration.gif)
+![Shield Knight casting Guardian's Roar](docs/Bulwark%20Skill%20Demonstration.gif)
 
 | Step | Trigger | Action | Aim | Recipient | Effect | Amount | Cadence | Duration |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `OnCast` | `Cast` | `Self` | `Self` | Heal | 200% MG | every 0.5s | 2s |
-| 1 | `OnCast` | `Cast` | `Self` | `Self` | Damage Reduction | 25% | once | 2s |
-| 2 | `OnExpired` | `CircleAOE` | `Self` | `EnemiesInArea` | Damage | 120% MG | once | — |
+| 1 | `onStart` | `Cast` | `Self` | `Self` | Heal | 200% MG | every 0.5s | 2s |
+| 1 | `onStart` | `Cast` | `Self` | `Self` | Damage Reduction | 25% | once | 2s |
+| 2 | `onExpired` | `CircleAOE` | `Self` | `EnemiesInArea` | Damage | 120% MG | once | — |
 
 Reading across a row: **when** does this fire, **what** does it spawn, **where** is it aimed,
 **who** does it land on, and **what happens** to them. Reading down: a skill is just a list of
 those rows.
 
-That is the whole model that was built to make human readable and codable. A `SkillDefinition` holds `SkillStep`s;
-each step holds `SkillActionGroup`s that pick a `TemplateAction` (e.g. projectile, AoE, Cast) based on `SkillCondition`;
-each `TemplateAction` carries the effects it applies.
+That is the whole model, built to be readable and codable. A `SkillDefinition` holds a `SkillFlow`,
+`Flow(onStart, onHit, onExpired)`; each slot holds `SkillPart`s, each picking a `TemplateAction` (e.g. projectile,
+AoE, Cast) that carries the effects it applies. (The folder is still named `SkillActionGroup/`.)
 
-Read Bulwark's skill code at:
-[`BulwarkSkill.cs`](Assets/Scripts/Skills/Library/Build/BulwarkSkill.cs): `Brace()`
+Read Shield Knight's skill code at:
+[`ShieldKnightSkill.cs`](Assets/Scripts/Skills/Library/Build/ShieldKnightSkill.cs): `Brace()`
 
 ### Where the schema came from
 
@@ -128,12 +138,12 @@ This schema is derived from TFT Set 9 & 10. Those were written out before this s
 consistent set of columns covered all of them.
 
 The result: 135 kits break down into **284 steps**. That is why the model looks the way it does.
-`SkillDefinition` / `SkillStep` / `SkillActionGroup` / `TemplateAction` are the spreadsheet's
+`SkillDefinition` / `SkillFlow` / `SkillPart` / `TemplateAction` are the spreadsheet's
 shape, in C#. The sheet is not documentation written afterwards; the sheet is the source the
 system was derived from.
 
 Read it here: [the design sheet](https://docs.google.com/spreadsheets/d/1PSSGZAq2gkkOxTENDWpChI_2OpXvTmQIfPxZebuuDsc/edit?usp=sharing).
 
 Those 135 kits are a design corpus, not a feature list — encoding one in these columns is not
-the same as the game running it. The skills built in C# are this project's own 17 heroes,
+the same as the game running it. The skills built in C# are this project's own 41,
 written in the shape the corpus produced.

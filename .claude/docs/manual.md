@@ -23,3 +23,15 @@ These doc may look confusing, so this is the all in one explain what each one do
 ## [Working Space Record](working-space-record)
 
 ...
+
+## [Features](features)
+
+How each feature works, one file per area. Moved out of CLAUDE.md, which now only points here.
+
+## [Flagging](flagging.md)
+
+Every `// FLAGGING:` note from the code, grouped, so they survive the comment purge.
+
+## [Architecture Review](architecture-review.md) / [Refactor Plan](refactor-plan.md)
+
+The Opus review of the codebase and the phased plan built from it.

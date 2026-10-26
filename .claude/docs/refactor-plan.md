@@ -51,11 +51,12 @@ Tests before touching code, so later phases fail loudly instead of silently.
 
 ## Phase 2 - Docs diet (S, no code risk)
 
-- [] Cut CLAUDE.md from ~550 lines to ~150: module graph (corrected), the non-obvious rules, a where-to-look index,
-  the test command. Feature history moves to each module's `*Module.md` (add the 6 missing ones) or
-  `.claude/docs/features/`.
-- [] Fix the 17 wrong claims listed in the review. Fix or delete `ARCHITECTURE.md`'s graph.
-- [] Turn the ~45 `FLAGGING` notes in code into a list here.
+- [x] Cut CLAUDE.md from 547 lines / 62.6 KB to 137 lines / 10.8 KB: module graph (from the asmdefs), the non-obvious
+  rules, a where-to-look table, the test command. The feature mechanics moved to `.claude/docs/features/` (9 files);
+  the 6 missing `*Module.md` were added and the wrong ones rewritten, so all 15 modules have one.
+- [x] Fixed the 17 wrong claims from the review while moving the text. Fixed `ARCHITECTURE.md`'s graph and its skill
+  example (Bulwark -> Shield Knight, `SkillStep` -> `SkillFlow` / `SkillPart`, 17 heroes -> 41 skills).
+- [x] The 51 `FLAGGING` notes are listed, grouped, in [flagging.md](flagging.md).
 
 ## Phase 3 - Comment purge (M, no logic change)
 
