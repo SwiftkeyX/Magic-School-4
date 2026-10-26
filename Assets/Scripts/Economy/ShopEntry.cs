@@ -13,10 +13,8 @@ namespace MagicSchool.Economy
         int Price { get; }
         ShopOfferKindEnum Kind { get; }
 
-        // hand the bought thing to the player. 
         bool TryDeliver();
 
-        // return inspectable of this slot
         IInspectable Preview(Func<bool> isStillOffered);
     }
 
