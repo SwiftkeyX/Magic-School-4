@@ -40,5 +40,11 @@
     "role": "canonical",
     "writable": true,
     "description": "MagicSchool4 Benchmark - every Hero Benchmark CSV (BalanceLogs/benchmark-*.csv) is imported here, so runs can be compared over time."
+  },
+  "magicschool4-prog": {
+    "key": "1Q3M94zgw1iJhUK5AkiXB2MjDOY6tTZXIe-VeBR7UZ_A",
+    "role": "canonical",
+    "writable": true,
+    "description": "MagicSchool4 Prog: each prog's milestone win rate per team (colour grid), what is off, team and hero tables. Rebuilt by prog_sheet.py after every Team Comp Benchmark run; read it, do not write it by hand."
   }
 }

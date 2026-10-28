@@ -423,6 +423,23 @@ def main():
     drop_empty_default_tab(sh)
     print(f"Imported {len(rows)} {report.name} rows from {Path(path).name} ({stamp[0]}) into '{sh.title}'.")
 
+    # a team comp run also rebuilds the MagicSchool4 Prog sheet (each prog's milestone win rate per team, in colour)
+    if report.runs_tab == "Team Runs":
+        try:
+            import prog_sheet
+            ws, when, added = prog_sheet.publish(path)
+            print(f"Prog sheet: run {when}, {added} rows added. {ws.url}")
+            # and a picture of every prog comp in the run, as it stands at the start of combat
+            import team_picture
+            folder = Path("Assets/Data/BattleSetups/Team Comps")
+            comps = {row[header.index("comp")] for row in rows if row[header.index("row")] == "team"}
+            for comp in sorted(comps):
+                if prog_sheet.prog_report.team_and_prog(comp)[0] and (folder / f"{comp}.asset").exists():
+                    team_picture.draw(folder / f"{comp}.asset", "BalanceLogs/teams")
+            print("Drew the prog teams into BalanceLogs/teams/.")
+        except Exception as e:  # the import itself is done; a Prog sheet problem must not hide that
+            print(f"Prog sheet not rebuilt: {e}")
+
 
 if __name__ == "__main__":
     main()
