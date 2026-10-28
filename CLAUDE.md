@@ -21,8 +21,8 @@ Read the feature doc before touching a feature; it is not loaded by default.
 | Stage Editor, skip stage, add hero, window style | [dev-tools](.claude/docs/features/dev-tools.md) | `DevTools/StageEditor`, `Core/Editor/` |
 
 Also: [ARCHITECTURE.md](ARCHITECTURE.md) (modules for humans, a skill worked through), each module's `*Module.md`
-next to its asmdef, `.claude/docs/planning.md` (the owner's to-do), `.claude/docs/refactor-plan.md`,
-`.claude/docs/flagging.md` (the owner's design doubts), `.claude/docs/design/` (hero and team design).
+next to its asmdef, `.claude/docs/design/` (hero and team design). The owner's tasks, plans and design notes live in
+Notion (the `notion-docs` skill), including the old `// FLAGGING` notes (page "Code notes (old flagging)").
 
 ## Modules (`Assets/Scripts/`)
 

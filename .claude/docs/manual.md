@@ -1,37 +1,24 @@
 # Manual
 
-These doc may look confusing, so this is the all in one explain what each one does.
-
-## [Planning](planning.md)
-
-...
-
-## [Design](design)
-
-1. benchmark
-
-2. hero patchnote
-
-3. hero design
-
-4. team comp
-
-## [Working Space](planning.md)
-
-...
-
-## [Working Space Record](working-space-record)
-
-...
+What each doc here is for. Tasks, planning, working notes and most design notes live in **Notion** (page
+"Magic School 4"); this folder keeps what the code and the AI need next to the project.
 
 ## [Features](features)
 
-How each feature works, one file per area. Moved out of CLAUDE.md, which now only points here.
+How each feature works, one file per area. `CLAUDE.md` points here; read the one you need before touching a feature.
 
-## [Flagging](flagging.md)
+## [Design](design)
 
-Every `// FLAGGING:` note from the code, grouped, so they survive the comment purge.
+Hero design, hero patch notes, defensive options. Team comps, mark layout and power level moved to Notion.
 
-## [Architecture Review](architecture-review.md) / [Refactor Plan](refactor-plan.md)
+## [Notion snapshot](notion-snapshot)
 
-The Opus review of the codebase and the phased plan built from it.
+A backup copy of the Notion pages. Read-only: write in Notion, and ask the AI for a new snapshot now and then.
+
+## [Working Space Record](working-space-record)
+
+Old daily working-space notes, kept as history.
+
+## [Archive](archive)
+
+Old docs no longer in use.

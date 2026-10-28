@@ -1,6 +1,8 @@
-# Team comp Design
+# Real team usage in patch 1-0-0 (Expired)
 
-## Orc Blademaster + Ranger
+(Sub-page of Team comp design.)
+
+### Orc Blademaster + Ranger
 
 1. Offensive option: Orc Blademaster + Ranger
 
@@ -14,7 +16,7 @@
 
 3. Problem:
 
-[x] Shield Knight is not fit with the team. 2 carry hero do a lot of damage, but the tank doesn't compliment that.
+- [x] Shield Knight is not fit with the team. 2 carry hero do a lot of damage, but the tank doesn't compliment that.
 
 What tank compliment 2 carry archetype team?
 
@@ -26,19 +28,16 @@ Actually Shield Knight already heal from his ally, but the healed wasn't enough,
 - Buff heal from the ally: 10% heal => 20% heal
 - Make this archetype fast at killing, then tank heal on killed.
 
-No matter what this team have to change tank, there's already 2 other team that also use shield knight. So I decide this team should be the one changing the tank.
-Yeah, let change the tank to Troll, he gain health on killed which should fite well with the team.
+No matter what this team have to change tank, there's already 2 other team that also use shield knight. So I decide this team should be the one changing the tank.<br />Yeah, let change the tank to Troll, he gain health on killed which should fite well with the team.
 
-[] This team tankiness come from Troll On kill trigger which make it a lot harder to balance.
+This team tankiness come from Troll On kill trigger which make it a lot harder to balance.
 
-## FrostWitch + Husk + ShieldKnight
+### FrostWitch + Husk + ShieldKnight
 
-[] Frost Witch do massive AoE range.
+Frost Witch do massive AoE range.
 
-- Before stage 5:
-  She now kill enemy backliner in second cast, if she didn't do it, she would be too weak.
-- After stage 5:
-  She feel too op now. Because when we have another assassin, she need only her first cast to kill all enemy backliner.
+- Before stage 5:<br />She now kill enemy backliner in second cast, if she didn't do it, she would be too weak.
+- After stage 5:<br />She feel too op now. Because when we have another assassin, she need only her first cast to kill all enemy backliner.
 
 She does way too much damage for a AOE, just 1 cast, all backliner only have 20% HP left.
 
@@ -46,14 +45,12 @@ Fix:
 
 - Either reduce AoE size, or reduce damage.
 
-## Lich + WarCleric + Ettin
+### Lich + WarCleric + Ettin
 
-[] Lich do massive AoE range (like Frost Witch)
+Lich do massive AoE range (like Frost Witch)
 
 She have the exact same problem to FrostWitch, they both do too much damage.
 
 Fix:
 
 - Either reduce AoE size, or reduce damage.
-
-## ...
