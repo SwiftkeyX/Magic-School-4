@@ -52,12 +52,13 @@ A skill can name marks it reads (`SkillDefinition.SpecialMarks`), see [aligning.
 - **Skeleton Archer**: the `"Long Shot"` bonus and his close-shot nerf (50% under 3 hexes) apply to his auto attacks too,
   through `AutoAttackDamageMultiplier`.
 - **Knight**: his landing deals 100% AD plus 50% AD per ally on his Valor mark (`AmplifiedBy`, as a share of the base).
-- **Blacksmith**: forges one item every cast for the nearest ally wearing nothing (anywhere, not only on the mark) whose
+- **Blacksmith**: forges one item every cast: first the tank row's item for herself, while she wears fewer than 3 items
+  (a bought item counts); once full, for the nearest ally wearing nothing (anywhere, not only on the mark) whose
   role her forge table has a row for. The table is `HeroDataSO._forgeTable`, one `ForgeRow` per role, items from tier 0
   up (typed `ScriptableObject`, as Combat cannot name `ItemDataSO`); past the end a row stays on its last item, and a
   role with no row gets nothing. The tier is allies on her Anvil mark / `MarksPerTier` (1). Default rows: Tank: Iron
   Plate +20 DF, Tempered +30, Reinforced +40, Forged +50; Mage: Archmage Tome; Fighter / Marksman / Assassin: Whetstone.
-  With every ally wearing something she takes the tank row's item herself, while she wears fewer than 3. The skill calls
+  The skill calls
   `ISkillCaster.ReceiveForgedItem(role, tier, forger)` (`ISkillCaster.CanForgeFor` asks the table first), `Hero` raises
   `OnForgedItemRequested`, and `HeroSpawner` spawns `HeroDataSO.ForgedItem(role, tier)` and calls `Hero.WearForged`:
   worn past `HeroItems.Capacity`, destroyed by `HeroItems.ClearForged` in `Hero.ResetForNewStage`. The forged plates

@@ -8,10 +8,10 @@ namespace MagicSchool.Skills
 {
     // Every cast she gains HP regen of HPPerSecondPerCast% of her max HP, plus HPPerSecondPerAnvilAlly% per ally on
     // her Anvil mark (counted at each cast), stacking for MaxRegenStacks casts: 1400 max HP, 2 allies => 36.4 HP/s a
-    // cast, 109.2 after 3. Every cast also forges one item for the nearest ally wearing nothing whose role her forge
-    // table has a row for (anywhere, not only on the mark), a tier better per MarksPerTier allies on Anvil; nobody
-    // left, she takes the tank row's item herself while she wears fewer than MaxWornOnSelf items of any kind. The cast
-    // is the whole active.
+    // cast, 109.2 after 3. Every cast also forges one item, a tier better per MarksPerTier allies on Anvil: first the
+    // tank row's item for herself, while she wears fewer than MaxWornOnSelf items of any kind (a bought item counts);
+    // once she is full, for the nearest ally wearing nothing whose role her forge table has a row for (anywhere, not
+    // only on the mark). The cast is the whole active.
     internal class BlacksmithSkill : SkillDefinition
     {
         private static float HPPerSecondPerCast => Tuned(2f);
@@ -35,10 +35,10 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Every cast, she gains {MaxHP(HPPerSecondPerCast)} HP a second, plus {MaxHP(HPPerSecondPerAnvilAlly)} for every ally on her "
              + $"{AnvilMark} mark, for the rest of the fight (stacks {MaxRegenStacks} times), "
-             + "and forges an item for the nearest ally wearing nothing: a Whetstone for a fighter, marksman or assassin, "
-             + "an Archmage Tome for a mage, an Iron Plate for a tank - "
+             + $"and forges an Iron Plate for herself until she wears {MaxWornOnSelf} items - "
              + $"a better plate for every {(MarksPerTier == 1 ? "ally" : $"{MarksPerTier} allies")} on her {AnvilMark} mark. "
-             + $"When every ally wears something, she wears the plate herself, while she wears fewer than {MaxWornOnSelf} items. "
+             + "Once she is full, she forges for the nearest ally wearing nothing instead: a Whetstone for a fighter, "
+             + "marksman or assassin, an Archmage Tome for a mage, an Iron Plate for a tank. "
              + "Forged items last the fight.";
 
         public override bool OnCast()
@@ -74,6 +74,13 @@ namespace MagicSchool.Skills
 
             int tier = Caster.AlliesOnSpecialMark(AnvilMark).Count / Mathf.Max(1, MarksPerTier);
 
+            // herself first, until she is full
+            if (Caster.WornItemCount < MaxWornOnSelf && Caster.CanForgeFor(HeroRoleEnum.Tank))
+            {
+                Caster.ReceiveForgedItem(HeroRoleEnum.Tank, tier, Caster);
+                return;
+            }
+
             Vector3 at = Caster.transform.position;
             ISkillCaster bare = Caster.FindAllAllies()
                 .Where(ally => ally != null && ally.IsAlive && ally is ISkillCaster wearer && wearer.WornItemCount == 0
@@ -83,8 +90,6 @@ namespace MagicSchool.Skills
                 .FirstOrDefault();
 
             if (bare != null) bare.ReceiveForgedItem(bare.Role, tier, Caster);
-            else if (Caster.WornItemCount < MaxWornOnSelf && Caster.CanForgeFor(HeroRoleEnum.Tank))
-                Caster.ReceiveForgedItem(HeroRoleEnum.Tank, tier, Caster);
         }
 
         protected override SkillFlow BuildActiveFlow(TemplateActionRegistrySO registry)
