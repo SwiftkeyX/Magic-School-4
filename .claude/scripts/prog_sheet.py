@@ -3,8 +3,8 @@
 
     Runs       - every Team Comp Benchmark run, appended: per prog x team a "team" row (win rate at the milestone stage
                  and after, fight length, ...) and per hero a "hero" row
-    Dashboard  - pick a run (and one to compare with): each prog's win rate per team in colour, the change since the
-                 compared run, what is off, then the team and hero tables. Formulas only, read from Runs
+    Dashboard  - pick a run, one to compare with, and a prog: each prog's win rate per team in colour, the change since
+                 the compared run, then that prog's rows from Runs. Formulas only, read from Runs
     Flags      - hidden: each run's problems ("What is off"), one line each
     Lists      - hidden: the dropdowns' choices
 
@@ -176,13 +176,14 @@ def style_runs(sh, ws):
 # ======================================== Dashboard ========================================
 GRID_TITLE, GRID_HEAD, GRID_FIRST, GRID_LAST = 8, 9, 10, 15      # 6 progs
 CHANGE_COL = "I"                                                  # the change grid starts here
-FLAG_TITLE, FLAG_HEAD, FLAG_FIRST, FLAG_LAST = 18, 19, 20, 49     # 30 lines
-TEAM_TITLE, TEAM_HEAD, TEAM_FIRST, TEAM_LAST = 52, 53, 54, 83     # 30 rows
-HERO_TITLE, HERO_HEAD, HERO_FIRST, HERO_LAST = 86, 87, 88, 207    # 120 rows
+TABLE_TITLE, TABLE_HEAD, TABLE_FIRST, TABLE_LAST = 18, 19, 20, 79 # the picked prog's Runs rows (60)
 
 R = f"'{RUNS}'!"
-SEL = f"IF($B$3=\"Latest\",'{LISTS}'!$B$2,$B$3)"
-CMP = "IF($D$3=\"None\",\"\",$D$3)"
+# The dropdowns show "yyyy-mm-dd hh:mm · N progs", not a bare time: Sheets reads a bare time picked from a list as a
+# date number, which then matches neither the list nor Runs. The formulas take its first 16 characters.
+SEL = f"IF($B$3=\"Latest\",'{LISTS}'!$B$2,LEFT($B$3,16))"
+CMP = "IF($D$3=\"None\",\"\",LEFT($D$3,16))"
+PROG = "VALUE(SUBSTITUTE($F$3,\"prog-\",\"\"))"
 
 
 def col(name): return f"{R}${COL[name]}$2:${COL[name]}"
@@ -198,13 +199,19 @@ def cell_of(m):
     return (f"LAMBDA(p,t,IFERROR(INDEX(FILTER(INDEX({m},0,6),INDEX({m},0,3)=p,INDEX({m},0,4)=t),1),\"\"))")
 
 
+GRID = f"B{GRID_FIRST}:G{GRID_LAST}"
 FORMULAS = {
     "A1": "Prog Dashboard",
     "A2": "Each prog's win rate at its milestone stage, marks on - the target is 50-70% (green); red is below, yellow "
-          "above. Pick a run by date (newest first); 'Compare with' adds how much each cell moved since that run.",
-    "A3": "Run", "C3": "Compare with",
+          "above. Pick a run by date (newest first), a run to compare with, and the prog whose rows you want below.",
+    "A3": "Run", "C3": "Compare with", "E3": "Prog",
     # tiles: a grey label over a big value
     "A5": "In the band (50-70%)", "C5": "Below 50%", "E5": "Above 70%", "G5": "Run", "J5": "Compared with",
+    "A6": f"=IF(COUNT({GRID})=0,\"\",COUNTIFS({GRID},\">=0.5\",{GRID},\"<=0.7\")&\" of \"&COUNT({GRID}))",
+    "C6": f"=IF(COUNT({GRID})=0,\"\",COUNTIF({GRID},\"<0.5\"))",
+    "E6": f"=IF(COUNT({GRID})=0,\"\",COUNTIF({GRID},\">0.7\"))",
+    "G6": f"={SEL}",
+    "J6": f"=IF({CMP}=\"\",\"-\",{CMP})",
     f"A{GRID_TITLE}": "Win rate at the milestone stage",
     f"{CHANGE_COL}{GRID_TITLE}": "Change since the compared run",
     f"A{GRID_HEAD}": f"=IFERROR(LET(sel,{SEL},{team_rows('sel')}HSTACK(\"Prog\",teams)),\"No run yet\")",
@@ -217,27 +224,26 @@ FORMULAS = {
         f"now,{cell_of('m')},was,{cell_of('w')},"
         "HSTACK(progs,MAKEARRAY(ROWS(progs),COLUMNS(teams),LAMBDA(i,j,LET(a,now(INDEX(progs,i),INDEX(teams,1,j)),"
         "b,was(INDEX(progs,i),INDEX(teams,1,j)),IF(OR(cmp=\"\",a=\"\",b=\"\"),\"\",a-b)))))),\"\")"),
-    "A6": f"=IF(COUNT(B{GRID_FIRST}:G{GRID_LAST})=0,\"\",COUNTIFS(B{GRID_FIRST}:G{GRID_LAST},\">=0.5\",B{GRID_FIRST}:G{GRID_LAST},\"<=0.7\")&\" of \"&COUNT(B{GRID_FIRST}:G{GRID_LAST}))",
-    "C6": f"=IF(COUNT(B{GRID_FIRST}:G{GRID_LAST})=0,\"\",COUNTIF(B{GRID_FIRST}:G{GRID_LAST},\"<0.5\"))",
-    "E6": f"=IF(COUNT(B{GRID_FIRST}:G{GRID_LAST})=0,\"\",COUNTIF(B{GRID_FIRST}:G{GRID_LAST},\">0.7\"))",
-    "G6": f"={SEL}",
-    "J6": f"=IF({CMP}=\"\",\"-\",{CMP})",
-    f"A{FLAG_TITLE}": "What is off",
-    f"A{FLAG_HEAD}": "Prog", f"B{FLAG_HEAD}": "Problem",
-    f"A{FLAG_FIRST}": (f"=IFERROR(LET(sel,{SEL},SORT(FILTER(HSTACK('{FLAGS}'!$B$2:$B,'{FLAGS}'!$D$2:$D),'{FLAGS}'!$A$2:$A=sel),1,TRUE)),\"Nothing off\")"),
-    f"A{TEAM_TITLE}": "Teams",
-    f"A{TEAM_FIRST}": (f"=IFERROR(LET(sel,{SEL},SORT(FILTER(HSTACK({col('prog')},{col('team')},{col('win')},"
-                       f"{col('win_marks_off')},{col('win_next_stage')},{col('win_stage_after')},{col('fight_seconds')},"
-                       f"{col('heroes_left')},{col('team_hp_left')},{col('team_dps')}),{col('run_time')}=sel,"
-                       f"{col('row')}=\"team\"),1,TRUE,2,TRUE)),\"\")"),
-    f"A{HERO_TITLE}": "Heroes",
-    f"A{HERO_FIRST}": (f"=IFERROR(LET(sel,{SEL},SORT(FILTER(HSTACK({col('prog')},{col('team')},{col('hero')},{col('role')},"
-                       f"{col('dps')},{col('damage_share')},{col('damage_taken')},{col('survives')},{col('died_at')}),"
-                       f"{col('run_time')}=sel,{col('row')}=\"hero\"),1,TRUE,2,TRUE,6,FALSE)),\"\")"),
+    # the picked prog's rows of the picked run, as in Runs: each team's row, then its heroes by damage share
+    f"A{TABLE_TITLE}": "=\"Runs - \"&$F$3",
+    f"A{TABLE_FIRST}": (f"=IFERROR(LET(sel,{SEL},p,{PROG},SORT(FILTER({R}$A$2:${LAST},{col('run_time')}=sel,{col('prog')}=p),"
+                        f"4,TRUE,2,FALSE,{COLUMNS.index('damage_share') + 1},FALSE)),\"No \"&$F$3&\" in this run\")"),
 }
-TEAM_HEADER = ["Prog", "Team", "Win at milestone", "Win, marks off", "Win, next stage", "Win, stage after",
-               "Fight length (s)", "Heroes left", "Team HP left", "Team DPS"]
-HERO_HEADER = ["Prog", "Team", "Hero", "Role", "DPS", "Damage share", "Damage taken", "Survives", "Died at (s)"]
+
+# Runs' column blocks, repeated over the table: (header colour, tint, first column, last column) - 0-based
+TEAM_BLOCK_FG, HERO_BLOCK_FG = rgb(0.98, 0.8, 0.6), rgb(0.7, 0.8, 0.95)
+BLOCKS = [(HEADER_BG, rgb(1, 1, 1), COLUMNS.index("run_time"), COLUMNS.index("comp")),
+          (TEAM_BLOCK_FG, rgb(1.0, 0.95, 0.9), COLUMNS.index("win"), COLUMNS.index("team_dps")),
+          (HERO_BLOCK_FG, rgb(0.93, 0.95, 1.0), COLUMNS.index("hero"), COLUMNS.index("died_at"))]
+
+
+def first_prog_of_latest(sh):
+    """The prog the Prog dropdown starts on: the lowest prog of the newest run."""
+    rows = sh.worksheet(RUNS).get_all_values()[1:]
+    if not rows: return "prog-1"
+    newest = max(r[0] for r in rows)
+    progs = sorted({int(re.sub(r"\D", "", r[2])) for r in rows if r[0] == newest and re.search(r"\d", r[2])})
+    return f"prog-{progs[0]}" if progs else "prog-1"
 
 
 def build_dashboard(sh):
@@ -245,16 +251,21 @@ def build_dashboard(sh):
         try: sh.del_worksheet(sh.worksheet(title))
         except gspread.exceptions.WorksheetNotFound: pass
 
-    lists = sh.add_worksheet(title=LISTS, rows=60, cols=3)
+    lists = sh.add_worksheet(title=LISTS, rows=60, cols=4)
     runs = f"SORT(UNIQUE(FILTER({col('run_time')},{col('run_time')}<>\"\")),1,FALSE)"
-    lists.update([["Run", "Newest", "Compare with"],
-                  [f"=VSTACK(\"Latest\",{runs})", f"=IFERROR(INDEX({runs},1),\"\")", f"=VSTACK(\"None\",{runs})"]],
+    labels = (f"MAP({runs},LAMBDA(r,r&\" · \"&COUNTUNIQUE(FILTER({col('prog')},{col('run_time')}=r))"
+              f"&IF(COUNTUNIQUE(FILTER({col('prog')},{col('run_time')}=r))=1,\" prog\",\" progs\")))")
+    progs = f"=ARRAYFORMULA(\"prog-\"&SORT(UNIQUE(FILTER({col('prog')},{col('prog')}<>\"\"))))"
+    lists.update([["Run", "Newest", "Compare with", "Prog"],
+                  [f"=VSTACK(\"Latest\",{labels})", f"=IFERROR(INDEX({runs},1),\"\")", f"=VSTACK(\"None\",{labels})", progs]],
                  range_name="A1", value_input_option="USER_ENTERED")
 
-    ws = sh.add_worksheet(title=DASH, rows=HERO_LAST + 5, cols=16, index=0)
+    width = len(COLUMNS)
+    ws = sh.add_worksheet(title=DASH, rows=TABLE_LAST + 5, cols=width, index=0)
     cells = [{"range": a1, "values": [[v]]} for a1, v in FORMULAS.items()]
     cells += [{"range": "B3", "values": [["Latest"]]}, {"range": "D3", "values": [["None"]]},
-              {"range": f"A{TEAM_HEAD}", "values": [TEAM_HEADER]}, {"range": f"A{HERO_HEAD}", "values": [HERO_HEADER]}]
+              {"range": "F3", "values": [[first_prog_of_latest(sh)]]},
+              {"range": f"A{TABLE_HEAD}", "values": [COLUMNS]}]
     ws.batch_update(cells, value_input_option="USER_ENTERED")
 
     sid, lid = ws.id, lists.id
@@ -263,20 +274,20 @@ def build_dashboard(sh):
 
     def fmt(r, f, fields): return {"repeatCell": {"range": r, "cell": {"userEnteredFormat": f}, "fields": fields}}
 
-    def pick(a1_col, source_col):
-        return {"setDataValidation": {"range": rng(3, 3, a1_col, a1_col + 1), "rule": {
+    def number(r, f): return fmt(r, {"numberFormat": f}, "userEnteredFormat.numberFormat")
+
+    def pick(c, source_col):
+        return {"setDataValidation": {"range": rng(3, 3, c, c + 1), "rule": {
             "condition": {"type": "ONE_OF_RANGE", "values": [{"userEnteredValue": f"='{LISTS}'!${source_col}$2:${source_col}$60"}]},
             "showCustomUi": True, "strict": True}}}
 
     def band(ranges):
         lo, hi = prog_report.BAND
-        out = []
-        for kind, vals, bg, fg in (("NUMBER_BETWEEN", [lo, hi], GREEN_BG, GREEN_FG), ("NUMBER_LESS", [lo], RED_BG, RED_FG),
-                                   ("NUMBER_GREATER", [hi], YELLOW_BG, YELLOW_FG)):
-            out.append({"addConditionalFormatRule": {"index": 0, "rule": {"ranges": ranges, "booleanRule": {
-                "condition": {"type": kind, "values": [{"userEnteredValue": str(v)} for v in vals]},
-                "format": {"backgroundColor": bg, "textFormat": {"foregroundColor": fg, "bold": True}}}}}})
-        return out
+        return [{"addConditionalFormatRule": {"index": 0, "rule": {"ranges": ranges, "booleanRule": {
+            "condition": {"type": kind, "values": [{"userEnteredValue": str(v)} for v in vals]},
+            "format": {"backgroundColor": bg, "textFormat": {"foregroundColor": fg, "bold": True}}}}}}
+            for kind, vals, bg, fg in (("NUMBER_BETWEEN", [lo, hi], GREEN_BG, GREEN_FG), ("NUMBER_LESS", [lo], RED_BG, RED_FG),
+                                       ("NUMBER_GREATER", [hi], YELLOW_BG, YELLOW_FG))]
 
     def updown(ranges):
         return [{"addConditionalFormatRule": {"index": 0, "rule": {"ranges": ranges, "booleanRule": {
@@ -286,77 +297,72 @@ def build_dashboard(sh):
 
     # The Team Dashboard's look: Arial 10, a 16pt title over a grey italic help line, bold labels beside pale yellow
     # dropdowns, tiles of a grey label over a big bold value, grey table headers, a line between column groups.
-    def table(head, first, last, groups, width_to):
-        out = [fmt(rng(head, head, 0, width_to), {"backgroundColor": HEADER_BG, "textFormat": {"bold": True},
-                   "horizontalAlignment": "CENTER", "verticalAlignment": "BOTTOM", "wrapStrategy": "WRAP"},
-                   "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment,wrapStrategy)"),
-               fmt(rng(first, last, 0, 1), {"textFormat": {"bold": True}, "horizontalAlignment": "LEFT"},
-                   "userEnteredFormat(textFormat,horizontalAlignment)")]
-        line = {"style": "SOLID_MEDIUM", "color": GROUP_LINE}
-        out += [{"updateBorders": {"range": rng(head, last, c, c + 1), "left": line}} for c in groups]
-        return out
-
-    def number(r, f): return fmt(r, {"numberFormat": f}, "userEnteredFormat.numberFormat")
-
+    header = {"backgroundColor": HEADER_BG, "textFormat": {"bold": True}, "horizontalAlignment": "CENTER",
+              "verticalAlignment": "BOTTOM", "wrapStrategy": "WRAP"}
+    header_fields = "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment,wrapStrategy)"
+    line = {"style": "SOLID_MEDIUM", "color": GROUP_LINE}
     change0 = ord(CHANGE_COL) - ord("A")
     label = {"textFormat": {"bold": True}, "horizontalAlignment": "RIGHT"}
     pick_cell = {"backgroundColor": PICK_BG, "horizontalAlignment": "LEFT"}
     centred_big = {"horizontalAlignment": "CENTER", "textFormat": {"fontSize": 12}}
     one_decimal = {"type": "NUMBER", "pattern": "0.0"}
+    c = COLUMNS.index
     req = [
         {"updateSheetProperties": {"properties": {"sheetId": sid, "gridProperties": {"frozenRowCount": 3, "frozenColumnCount": 1}},
                                    "fields": "gridProperties(frozenRowCount,frozenColumnCount)"}},
-        fmt(rng(1, HERO_LAST, 0, 16), {"textFormat": {"fontFamily": "Arial", "fontSize": 10}}, "userEnteredFormat.textFormat"),
+        fmt(rng(1, TABLE_LAST, 0, width), {"textFormat": {"fontFamily": "Arial", "fontSize": 10}}, "userEnteredFormat.textFormat"),
         fmt(rng(1, 1, 0, 1), {"textFormat": {"bold": True, "fontSize": 16}}, "userEnteredFormat.textFormat"),
         fmt(rng(2, 2, 0, 1), {"textFormat": {"italic": True, "foregroundColor": MUTED_FG}}, "userEnteredFormat.textFormat"),
-        # the dropdowns
-        *[fmt(rng(3, 3, c, c + 1), label, "userEnteredFormat(textFormat,horizontalAlignment)") for c in (0, 2)],
-        *[fmt(rng(3, 3, c, c + 1), pick_cell, "userEnteredFormat(backgroundColor,horizontalAlignment)") for c in (1, 3)],
-        pick(1, "A"), pick(3, "C"),
+        # the dropdowns: Run, Compare with, Prog
+        *[fmt(rng(3, 3, i, i + 1), label, "userEnteredFormat(textFormat,horizontalAlignment)") for i in (0, 2, 4)],
+        *[fmt(rng(3, 3, i, i + 1), pick_cell, "userEnteredFormat(backgroundColor,horizontalAlignment)") for i in (1, 3, 5)],
+        pick(1, "A"), pick(3, "C"), pick(5, "D"),
         # tiles
-        fmt(rng(5, 5, 0, 16), {"textFormat": {"foregroundColor": MUTED_FG}, "horizontalAlignment": "LEFT"},
+        fmt(rng(5, 5, 0, width), {"textFormat": {"foregroundColor": MUTED_FG}, "horizontalAlignment": "LEFT"},
             "userEnteredFormat(textFormat,horizontalAlignment)"),
-        fmt(rng(6, 6, 0, 16), {"textFormat": {"bold": True, "fontSize": 14}, "horizontalAlignment": "LEFT"},
+        fmt(rng(6, 6, 0, width), {"textFormat": {"bold": True, "fontSize": 14}, "horizontalAlignment": "LEFT"},
             "userEnteredFormat(textFormat,horizontalAlignment)"),
         # section titles
-        *[fmt(rng(r, r, c, c + 1), {"textFormat": {"bold": True, "fontSize": 12}}, "userEnteredFormat.textFormat")
-          for r, c in ((GRID_TITLE, 0), (GRID_TITLE, change0), (FLAG_TITLE, 0), (TEAM_TITLE, 0), (HERO_TITLE, 0))],
+        *[fmt(rng(r, r, i, i + 1), {"textFormat": {"bold": True, "fontSize": 12}}, "userEnteredFormat.textFormat")
+          for r, i in ((GRID_TITLE, 0), (GRID_TITLE, change0), (TABLE_TITLE, 0))],
         # the two grids: [prog] | [one column per team]
-        *table(GRID_HEAD, GRID_FIRST, GRID_LAST, (1,), 7),
-        fmt(rng(GRID_HEAD, GRID_HEAD, change0, change0 + 7), {"backgroundColor": HEADER_BG, "textFormat": {"bold": True},
-            "horizontalAlignment": "CENTER"}, "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)"),
-        fmt(rng(GRID_FIRST, GRID_LAST, change0, change0 + 1), {"textFormat": {"bold": True}}, "userEnteredFormat.textFormat"),
-        {"updateBorders": {"range": rng(GRID_HEAD, GRID_LAST, change0 + 1, change0 + 2),
-                           "left": {"style": "SOLID_MEDIUM", "color": GROUP_LINE}}},
-        number(rng(GRID_FIRST, GRID_LAST, 0, 1), PROG_FORMAT),
-        number(rng(GRID_FIRST, GRID_LAST, change0, change0 + 1), PROG_FORMAT),
+        fmt(rng(GRID_HEAD, GRID_HEAD, 0, 7), header, header_fields),
+        fmt(rng(GRID_HEAD, GRID_HEAD, change0, change0 + 7), header, header_fields),
+        fmt(rng(GRID_FIRST, GRID_LAST, 0, 1), {"numberFormat": PROG_FORMAT, "textFormat": {"bold": True}},
+            "userEnteredFormat(numberFormat,textFormat)"),
+        fmt(rng(GRID_FIRST, GRID_LAST, change0, change0 + 1), {"numberFormat": PROG_FORMAT, "textFormat": {"bold": True}},
+            "userEnteredFormat(numberFormat,textFormat)"),
+        {"updateBorders": {"range": rng(GRID_HEAD, GRID_LAST, 1, 2), "left": line}},
+        {"updateBorders": {"range": rng(GRID_HEAD, GRID_LAST, change0 + 1, change0 + 2), "left": line}},
         fmt(rng(GRID_FIRST, GRID_LAST, 1, 7), {"numberFormat": PCT_FORMAT, **centred_big},
             "userEnteredFormat(numberFormat,horizontalAlignment,textFormat)"),
         fmt(rng(GRID_FIRST, GRID_LAST, change0 + 1, change0 + 7), {"numberFormat": SIGNED_PCT, **centred_big},
             "userEnteredFormat(numberFormat,horizontalAlignment,textFormat)"),
-        # what is off: [prog] | [problem]
-        *table(FLAG_HEAD, FLAG_FIRST, FLAG_LAST, (1,), 2),
-        number(rng(FLAG_FIRST, FLAG_LAST, 0, 1), PROG_FORMAT),
-        # teams: [prog, team] | [win rates] | [the fight]
-        *table(TEAM_HEAD, TEAM_FIRST, TEAM_LAST, (2, 6), 10),
-        number(rng(TEAM_FIRST, TEAM_LAST, 0, 1), PROG_FORMAT),
-        number(rng(TEAM_FIRST, TEAM_LAST, 2, 6), PCT_FORMAT),
-        number(rng(TEAM_FIRST, TEAM_LAST, 6, 8), one_decimal),
-        number(rng(TEAM_FIRST, TEAM_LAST, 8, 9), PCT_FORMAT),
-        number(rng(TEAM_FIRST, TEAM_LAST, 9, 10), {"type": "NUMBER", "pattern": "0"}),
-        # heroes: [prog, team, hero, role] | [damage] | [tanking]
-        *table(HERO_HEAD, HERO_FIRST, HERO_LAST, (4, 6), 9),
-        number(rng(HERO_FIRST, HERO_LAST, 0, 1), PROG_FORMAT),
-        number(rng(HERO_FIRST, HERO_LAST, 5, 6), PCT_FORMAT),
-        number(rng(HERO_FIRST, HERO_LAST, 7, 8), PCT_FORMAT),
-        number(rng(HERO_FIRST, HERO_LAST, 8, 9), one_decimal),
-        {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": 0, "endIndex": 16},
+        # the Runs table: the same header, blocks, tints and number formats as the Runs tab
+        fmt(rng(TABLE_HEAD, TABLE_HEAD, 0, width), header, header_fields),
+        number(rng(TABLE_FIRST, TABLE_LAST, c("prog"), c("prog") + 1), PROG_FORMAT),
+        *[number(rng(TABLE_FIRST, TABLE_LAST, c(n), c(n) + 1), PCT_FORMAT)
+          for n in ("win", "win_marks_off", "win_next_stage", "win_stage_after", "team_hp_left", "damage_share", "survives")],
+        *[number(rng(TABLE_FIRST, TABLE_LAST, c(n), c(n) + 1), one_decimal) for n in ("fight_seconds", "heroes_left", "died_at")],
+        {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": 0, "endIndex": width},
                                        "properties": {"pixelSize": 100}, "fields": "pixelSize"}},
         {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": 1, "endIndex": 2},
                                        "properties": {"pixelSize": 150}, "fields": "pixelSize"}},
+        {"updateDimensionProperties": {"range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": c("comp"), "endIndex": c("comp") + 1},
+                                       "properties": {"pixelSize": 170}, "fields": "pixelSize"}},
         {"updateSheetProperties": {"properties": {"sheetId": lid, "hidden": True}, "fields": "hidden"}},
     ]
-    req += band([rng(GRID_FIRST, GRID_LAST, 1, 7), rng(TEAM_FIRST, TEAM_LAST, 2, 3)])
+    for head_bg, tint, c0, c1 in BLOCKS:
+        req.append(fmt(rng(TABLE_HEAD, TABLE_HEAD, c0, c1 + 1), {"backgroundColor": head_bg}, "userEnteredFormat.backgroundColor"))
+        req.append(fmt(rng(TABLE_FIRST, TABLE_LAST, c0, c1 + 1), {"backgroundColor": tint}, "userEnteredFormat.backgroundColor"))
+        if c0 > 0:
+            req.append({"updateBorders": {"range": rng(TABLE_HEAD, TABLE_LAST, c0, c0 + 1),
+                                          "left": {"style": "SOLID_THICK", "color": rgb(0.4, 0.4, 0.4)}}})
+    # team rows bold all the way across, so each team reads as a heading over its heroes
+    req.append({"addConditionalFormatRule": {"index": 0, "rule": {"ranges": [rng(TABLE_FIRST, TABLE_LAST, 0, width)], "booleanRule": {
+        "condition": {"type": "CUSTOM_FORMULA", "values": [{"userEnteredValue": f"=$B{TABLE_FIRST}=\"team\""}]},
+        "format": {"textFormat": {"bold": True}}}}}})
+    req += band([rng(GRID_FIRST, GRID_LAST, 1, 7), rng(TABLE_FIRST, TABLE_LAST, c("win"), c("win") + 1)])
     req += updown([rng(GRID_FIRST, GRID_LAST, change0 + 1, change0 + 7)])
     sh.batch_update({"requests": req})
     return ws

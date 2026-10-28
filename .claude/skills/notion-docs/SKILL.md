@@ -27,7 +27,7 @@ is changing fast). Fetch the home page to find pages added since this list was w
 | Code notes (old flagging) | `4068c134506e8183a51ce2e33ea807ed` | the owner's old `// FLAGGING` code notes; one Low task points here |
 
 **Prog rounds:** after each prog tuning round, add a collapsed `<toggle heading="h3">Round N - <what> (<date>)`
-at the end of Power level's "Prog rounds" section: what changed, the grid (prog x team, 🟢🔴🟡), 2-4 lines of verdict,
+at the end of the **Prog Round** page (`4078c134506e8045b8abfdfbea948460`, linked from Power level's "Prog rounds"): what changed, the grid (prog x team, 🟢🔴🟡), 2-4 lines of verdict,
 the next step, then "The teams": one `<toggle heading="h4">prog-N` per prog with `<columns>` (one column per team), each holding the in-game snapshot (`BalanceLogs/teams/<comp>-game.png`, Team Snapshot menu) above the drawn picture (`<comp>.png`, `team_picture.py`), uploaded as in "Pictures". Numbers stay in the MagicSchool4 Prog sheet; the chat gets the grid and a link, not big tables.
 
 **One topic lives on one page.** When something new is learned, update the page that owns the topic and link to it
