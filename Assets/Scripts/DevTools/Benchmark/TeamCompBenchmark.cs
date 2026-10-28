@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using MagicSchool.Contracts;
 using MagicSchool.Combat.Align;
@@ -45,6 +46,21 @@ namespace MagicSchool.DevTools.Benchmark
         public static float WinLine => Settings.winLine;
 
         public static float TimeLimit => Settings.timeLimit;
+
+        public static bool MilestoneOnly => Settings.milestoneOnly;
+
+        /// <summary>The stage numbers (1-based) a comp fights. With milestoneOnly, a name ending in "-N" fights N and N+1.</summary>
+        public static List<int> StagesFor(string compName, int stageCount, bool milestoneOnly)
+        {
+            List<int> all = Enumerable.Range(1, stageCount).ToList();
+            if (!milestoneOnly) return all;
+
+            Match milestone = Regex.Match(compName ?? string.Empty, @"-(\d+)$");
+            if (!milestone.Success) return all;
+
+            int stage = int.Parse(milestone.Groups[1].Value);
+            return all.Where(s => s == stage || s == stage + 1).ToList();
+        }
 
         private const float TimeStep = 1f / 30f;
         private static int LaneCount => Mathf.Max(1, Settings.teamLanes);
@@ -119,15 +135,15 @@ namespace MagicSchool.DevTools.Benchmark
 
             foreach (BattlePlacementSO comp in comps.Where(c => c != null).Distinct())
             {
-                for (int stage = 0; stage < game.StageCount; stage++)
+                foreach (int stage in StagesFor(comp.name, game.StageCount, MilestoneOnly))
                 {
-                    BattlePlacementSO setup = game.GetStage(stage);
+                    BattlePlacementSO setup = game.GetStage(stage - 1);
 
                     foreach (bool aligning in new[] { true, false })
                     {
                         for (int run = 0; run < RunsOf(aligning); run++)
                         {
-                            var fight = new Fight(comp, setup, stage + 1, aligning);
+                            var fight = new Fight(comp, setup, stage, aligning);
                             if (setup == null) fight.Error = "no stage";
                             else if (comp.BoardLayout != null && setup.BoardLayout != null && comp.BoardLayout != setup.BoardLayout)
                                 fight.Error = "comp saved on another board";

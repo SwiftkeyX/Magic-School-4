@@ -24,5 +24,6 @@ MonoBehaviour:
   runsAligned: 20
   runsNotAligned: 10
   timeLimit: 90
+  milestoneOnly: 1
   winLine: 0.7
   teamLanes: 32

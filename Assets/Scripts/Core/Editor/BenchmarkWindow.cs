@@ -22,7 +22,7 @@ namespace MagicSchool.Editor
         private const float SecondsPerTeamFight = 0.5f;
 
         private static readonly string[] HeroFields = { "alliesSmallTeam", "alliesBigTeam", "flagBand" };
-        private static readonly string[] TeamFields = { "runsAligned", "runsNotAligned", "timeLimit", "winLine" };
+        private static readonly string[] TeamFields = { "runsAligned", "runsNotAligned", "timeLimit", "milestoneOnly", "winLine" };
 
         private static readonly string[] HeroAdvanced =
         {
@@ -134,16 +134,20 @@ namespace MagicSchool.Editor
             foreach (string field in TeamFields) EditorGUILayout.PropertyField(_serialized.FindProperty(field), true);
             _teamAdvancedOpen = Advanced(_teamAdvancedOpen, TeamAdvanced);
 
-            int comps = AssetDatabase.FindAssets("t:BattlePlacementSO", new[] { TeamCompFolder }).Length;
+            string[] compNames = AssetDatabase.FindAssets("t:BattlePlacementSO", new[] { TeamCompFolder })
+                .Select(guid => System.IO.Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(guid))).ToArray();
+            int comps = compNames.Length;
             int selected = Selection.objects.OfType<BattlePlacementSO>().Count();
             int stages = ArraySize("_stages");
+            int compStages = compNames.Sum(n => TeamCompBenchmark.StagesFor(n, stages, _settings.milestoneOnly).Count);
             int perStage = Mathf.Max(1, _settings.runsAligned) + Mathf.Max(0, _settings.runsNotAligned);
-            int fights = comps * stages * perStage;
+            int fights = compStages * perStage;
             float seconds = fights * SecondsPerTeamFight * (32f / Mathf.Clamp(_settings.teamLanes, 1, 32));
             int needed = Mathf.CeilToInt(_settings.winLine * Mathf.Max(1, _settings.runsAligned) - 0.0001f);
             EditorGUILayout.HelpBox(
                 stages > 0
-                    ? $"{comps} comps x {stages} stages x {perStage} fights = {fights} fights - about {Minutes(seconds)} (rough).\n" +
+                    ? $"{comps} comps, {compStages} comp x stage pairs x {perStage} fights = {fights} fights - about " +
+                      $"{Minutes(seconds)} for all (rough; Run Selected plays fewer).\n" +
                       $"A stage is won at {needed} of {Mathf.Max(1, _settings.runsAligned)} aligned fights."
                     : "Open the Board scene to see how many fights a run plays.",
                 MessageType.Info);

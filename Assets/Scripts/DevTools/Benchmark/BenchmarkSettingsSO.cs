@@ -55,6 +55,10 @@ namespace MagicSchool.DevTools.Benchmark
         [Tooltip("A fight still going after this many seconds is a timeout, which is not a win.")]
         [Min(5f)] public float timeLimit = 90f;
 
+        [Tooltip("Fight each comp only at its milestone stage and the one after, read from a name ending in a number " +
+                 "(prog-Skeleton-5 fights stages 5 and 6). A comp without one still fights every stage. For quick prog rounds.")]
+        public bool milestoneOnly;
+
         [Header("Team Comp Benchmark - report")]
         [Tooltip("A stage counts as won at this share of its fights or more (0.7 = 14 of 20). It is written into the report, " +
                  "so the Sheet colours and counts each run by the line it was run with.")]
