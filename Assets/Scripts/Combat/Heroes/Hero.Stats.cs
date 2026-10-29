@@ -6,7 +6,7 @@ namespace MagicSchool.Combat.Heroes
     public partial class Hero
     {
         public bool IsAttackReady => _attackCooldown.IsReady(AttackSpeed);
-        public void SpendAttack() => _attackCooldown.Spend();
+        public void SpendAttack() => _attackCooldown.Spend(AttackSpeed);
 
         public void GainMana(int amount) => Stat.AddMana(amount);
         public bool IsManaCapped() => Stat.IsManaCapped();
