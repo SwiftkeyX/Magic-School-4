@@ -3,8 +3,8 @@
 
     Runs       - every Team Comp Benchmark run, appended: per prog x team a "team" row (win rate at the milestone stage
                  and after, fight length, ...) and per hero a "hero" row
-    Dashboard  - pick a run, one to compare with, and a prog: each prog's win rate per team in colour, the change since
-                 the compared run, then that prog's rows from Runs. Formulas only, read from Runs
+    Dashboard  - pick a run, one to compare with, and a prog (or All): each prog's win rate per team in colour, the
+                 change since the compared run, then that prog's rows from Runs. Formulas only, read from Runs
     Flags      - hidden: each run's problems ("What is off"), one line each
     Lists      - hidden: the dropdowns' choices
 
@@ -176,14 +176,15 @@ def style_runs(sh, ws):
 # ======================================== Dashboard ========================================
 GRID_TITLE, GRID_HEAD, GRID_FIRST, GRID_LAST = 8, 9, 10, 15      # 6 progs
 CHANGE_COL = "I"                                                  # the change grid starts here
-TABLE_TITLE, TABLE_HEAD, TABLE_FIRST, TABLE_LAST = 18, 19, 20, 79 # the picked prog's Runs rows (60)
+TABLE_TITLE, TABLE_HEAD, TABLE_FIRST, TABLE_LAST = 18, 19, 20, 219 # the picked prog's Runs rows, or every prog's (200)
 
 R = f"'{RUNS}'!"
 # The dropdowns show "yyyy-mm-dd hh:mm · N progs", not a bare time: Sheets reads a bare time picked from a list as a
 # date number, which then matches neither the list nor Runs. The formulas take its first 16 characters.
 SEL = f"IF($B$3=\"Latest\",'{LISTS}'!$B$2,LEFT($B$3,16))"
 CMP = "IF($D$3=\"None\",\"\",LEFT($D$3,16))"
-PROG = "VALUE(SUBSTITUTE($F$3,\"prog-\",\"\"))"
+# "All" in the Prog dropdown reads as prog 0: the table then keeps every prog of the run
+PROG = "IF($F$3=\"All\",0,VALUE(SUBSTITUTE($F$3,\"prog-\",\"\")))"
 
 
 def col(name): return f"{R}${COL[name]}$2:${COL[name]}"
@@ -203,7 +204,7 @@ GRID = f"B{GRID_FIRST}:G{GRID_LAST}"
 FORMULAS = {
     "A1": "Prog Dashboard",
     "A2": "Each prog's win rate at its milestone stage, marks on - the target is 50-70% (green); red is below, yellow "
-          "above. Pick a run by date (newest first), a run to compare with, and the prog whose rows you want below.",
+          "above. Pick a run by date (newest first), a run to compare with, and the prog whose rows you want below (All for every prog).",
     "A3": "Run", "C3": "Compare with", "E3": "Prog",
     # tiles: a grey label over a big value
     "A5": "In the band (50-70%)", "C5": "Below 50%", "E5": "Above 70%", "G5": "Run", "J5": "Compared with",
@@ -224,10 +225,12 @@ FORMULAS = {
         f"now,{cell_of('m')},was,{cell_of('w')},"
         "HSTACK(progs,MAKEARRAY(ROWS(progs),COLUMNS(teams),LAMBDA(i,j,LET(a,now(INDEX(progs,i),INDEX(teams,1,j)),"
         "b,was(INDEX(progs,i),INDEX(teams,1,j)),IF(OR(cmp=\"\",a=\"\",b=\"\"),\"\",a-b)))))),\"\")"),
-    # the picked prog's rows of the picked run, as in Runs: each team's row, then its heroes by damage share
-    f"A{TABLE_TITLE}": "=\"Runs - \"&$F$3",
-    f"A{TABLE_FIRST}": (f"=IFERROR(LET(sel,{SEL},p,{PROG},SORT(FILTER({R}$A$2:${LAST},{col('run_time')}=sel,{col('prog')}=p),"
-                        f"4,TRUE,2,FALSE,{COLUMNS.index('damage_share') + 1},FALSE)),\"No \"&$F$3&\" in this run\")"),
+    # the picked prog's rows of the picked run (every prog's for "All"), as in Runs: by prog, each team's row, then its
+    # heroes by damage share
+    f"A{TABLE_TITLE}": "=\"Runs - \"&IF($F$3=\"All\",\"all progs\",$F$3)",
+    f"A{TABLE_FIRST}": (f"=IFERROR(LET(sel,{SEL},p,{PROG},SORT(FILTER({R}$A$2:${LAST},{col('run_time')}=sel,"
+                        f"({col('prog')}=p)+(p=0)),3,TRUE,4,TRUE,2,FALSE,{COLUMNS.index('damage_share') + 1},FALSE)),"
+                        f"IF($F$3=\"All\",\"Nothing in this run\",\"No \"&$F$3&\" in this run\"))"),
 }
 
 # Runs' column blocks, repeated over the table: (header colour, tint, first column, last column) - 0-based
@@ -255,7 +258,7 @@ def build_dashboard(sh):
     runs = f"SORT(UNIQUE(FILTER({col('run_time')},{col('run_time')}<>\"\")),1,FALSE)"
     labels = (f"MAP({runs},LAMBDA(r,r&\" · \"&COUNTUNIQUE(FILTER({col('prog')},{col('run_time')}=r))"
               f"&IF(COUNTUNIQUE(FILTER({col('prog')},{col('run_time')}=r))=1,\" prog\",\" progs\")))")
-    progs = f"=ARRAYFORMULA(\"prog-\"&SORT(UNIQUE(FILTER({col('prog')},{col('prog')}<>\"\"))))"
+    progs = f"=VSTACK(\"All\",ARRAYFORMULA(\"prog-\"&SORT(UNIQUE(FILTER({col('prog')},{col('prog')}<>\"\")))))"
     lists.update([["Run", "Newest", "Compare with", "Prog"],
                   [f"=VSTACK(\"Latest\",{labels})", f"=IFERROR(INDEX({runs},1),\"\")", f"=VSTACK(\"None\",{labels})", progs]],
                  range_name="A1", value_input_option="USER_ENTERED")
