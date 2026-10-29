@@ -30,22 +30,29 @@ MonoBehaviour:
   _forgeTable:
   - role: 1
     itemsByTier:
-    - {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
-    - {fileID: 11400000, guid: a0f139c56b3747eab18098eac9608f1d, type: 2}
-    - {fileID: 11400000, guid: 6fdc0642229e4258aeca923e3b925b4d, type: 2}
-    - {fileID: 11400000, guid: c54c4238000481a40aee8b29054fe61b, type: 2}
+    - {fileID: 11400000, guid: 0b58c4714f399e54293d1f5f9b253bc5, type: 2}
+    - {fileID: 11400000, guid: 09765f6646f9c8c4eb44522bc81152e7, type: 2}
+    - {fileID: 11400000, guid: 83ba0aff83ccc6f48a320fe71991a420, type: 2}
   - role: 2
     itemsByTier:
-    - {fileID: 11400000, guid: 8b49a667d55349aa96b2cb6c337ecd1c, type: 2}
+    - {fileID: 11400000, guid: a22559d819990984fb8b1b14cd65cd25, type: 2}
+    - {fileID: 11400000, guid: 70a131113c9f0aa419438469cdd11740, type: 2}
+    - {fileID: 11400000, guid: 290719c7809a0434ca276c4a52ff4008, type: 2}
   - role: 3
     itemsByTier:
-    - {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
+    - {fileID: 11400000, guid: dd19f63317a8df543ad86e479bb75ed2, type: 2}
+    - {fileID: 11400000, guid: d5a5f9888c0921c439edf29e3d2d793b, type: 2}
+    - {fileID: 11400000, guid: 509ac5fab5d3318499e5dc43a16075e5, type: 2}
   - role: 4
     itemsByTier:
-    - {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
+    - {fileID: 11400000, guid: dd19f63317a8df543ad86e479bb75ed2, type: 2}
+    - {fileID: 11400000, guid: d5a5f9888c0921c439edf29e3d2d793b, type: 2}
+    - {fileID: 11400000, guid: 509ac5fab5d3318499e5dc43a16075e5, type: 2}
   - role: 5
     itemsByTier:
-    - {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
+    - {fileID: 11400000, guid: dd19f63317a8df543ad86e479bb75ed2, type: 2}
+    - {fileID: 11400000, guid: d5a5f9888c0921c439edf29e3d2d793b, type: 2}
+    - {fileID: 11400000, guid: 509ac5fab5d3318499e5dc43a16075e5, type: 2}
   _alignPatterns:
   - marks:
     - kind: 1

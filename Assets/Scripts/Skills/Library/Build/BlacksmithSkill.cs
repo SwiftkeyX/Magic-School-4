@@ -35,9 +35,9 @@ namespace MagicSchool.Skills
         public override string Description
             => $"Every cast, she gains {MaxHP(HPPerSecondPerCast)} HP a second, plus {MaxHP(HPPerSecondPerAnvilAlly)} for every ally on her "
              + $"{AnvilMark} mark, for the rest of the fight (stacks {MaxRegenStacks} times), "
-             + $"and forges an Iron Plate for herself until she wears {MaxWornOnSelf} items - "
-             + $"a better plate for every {(MarksPerTier == 1 ? "ally" : $"{MarksPerTier} allies")} on her {AnvilMark} mark. "
-             + "Once she is full, she forges for the nearest ally wearing nothing instead: a Whetstone for a fighter, "
+             + $"and forges a Common Iron Plate for herself until she wears {MaxWornOnSelf} items - "
+             + $"one rarity higher (Rare, then Epic) for every {(MarksPerTier == 1 ? "ally" : $"{MarksPerTier} allies")} on her {AnvilMark} mark. "
+             + "Once she is full, she forges the same rarity for the nearest ally wearing nothing instead: a Whetstone for a fighter, "
              + "marksman or assassin, an Archmage Tome for a mage, an Iron Plate for a tank. "
              + "Forged items last the fight.";
 

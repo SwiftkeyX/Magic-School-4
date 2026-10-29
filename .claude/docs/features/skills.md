@@ -56,13 +56,14 @@ A skill can name marks it reads (`SkillDefinition.SpecialMarks`), see [aligning.
   (a bought item counts); once full, for the nearest ally wearing nothing (anywhere, not only on the mark) whose
   role her forge table has a row for. The table is `HeroDataSO._forgeTable`, one `ForgeRow` per role, items from tier 0
   up (typed `ScriptableObject`, as Combat cannot name `ItemDataSO`); past the end a row stays on its last item, and a
-  role with no row gets nothing. The tier is allies on her Anvil mark / `MarksPerTier` (1). Default rows: Tank: Iron
-  Plate +20 DF, Tempered +30, Reinforced +40, Forged +50; Mage: Archmage Tome; Fighter / Marksman / Assassin: Whetstone.
+  role with no row gets nothing. The tier is allies on her Anvil mark / `MarksPerTier` (1). Default rows, each Common,
+  Rare, Epic (the simple items, see [items.md](items.md)): Tank: Iron Plate; Mage: Archmage Tome; Fighter / Marksman /
+  Assassin: Whetstone.
   The skill calls
   `ISkillCaster.ReceiveForgedItem(role, tier, forger)` (`ISkillCaster.CanForgeFor` asks the table first), `Hero` raises
   `OnForgedItemRequested`, and `HeroSpawner` spawns `HeroDataSO.ForgedItem(role, tier)` and calls `Hero.WearForged`:
-  worn past `HeroItems.Capacity`, destroyed by `HeroItems.ClearForged` in `Hero.ResetForNewStage`. The forged plates
-  (`ForgedIronPlate` 21, `MasterworkIronPlate` 22, `TemperedIronPlate` 29, `ReinforcedIronPlate` 30) are not in the shop.
+  worn past `HeroItems.Capacity`, destroyed by `HeroItems.ClearForged` in `Hero.ResetForNewStage`. The old forged plates
+  (`ForgedIronPlate` 21, `MasterworkIronPlate` 22, `TemperedIronPlate` 29, `ReinforcedIronPlate` 30) are no longer used.
   She also gains 2% of her max HP as HP/s, plus 0.3% per ally on her Anvil mark, every cast, stacking for 3 casts
   (`MaxRegenStacks`, reset in `OnCombatStart`).
 - **Troll**: grows only from kills by the allies on his Feed mark. A dying unit records who landed the killing hit
