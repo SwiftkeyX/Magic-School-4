@@ -48,6 +48,11 @@ namespace MagicSchool.Items
                 { ItemIdEnum.GiantsBane,      GiantsBane.Build },
             };
 
+        static ItemLibrary()
+        {
+            foreach (var pair in StatItems.Builders) Builders.Add(pair.Key, pair.Value);
+        }
+
         public static ICustomModifier Resolve(ItemIdEnum itemId)
         {
             if (itemId == ItemIdEnum.None) return null;

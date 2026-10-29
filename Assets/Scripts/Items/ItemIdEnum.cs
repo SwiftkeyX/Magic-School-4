@@ -43,5 +43,28 @@ namespace MagicSchool.Items
         SerratedFang = 26,
         PiercingBolt = 27,
         GiantsBane = 28,
+
+        // simple items: one stat each, in three rarities (StatItems)
+        CommonWhetstone = 31,
+        RareWhetstone = 32,
+        EpicWhetstone = 33,
+        CommonArchmageTome = 34,
+        RareArchmageTome = 35,
+        EpicArchmageTome = 36,
+        CommonIronPlate = 37,
+        RareIronPlate = 38,
+        EpicIronPlate = 39,
+        CommonOakenCharm = 40,
+        RareOakenCharm = 41,
+        EpicOakenCharm = 42,
+        CommonHuntersCord = 43,
+        RareHuntersCord = 44,
+        EpicHuntersCord = 45,
+        CommonStarwellOrb = 46,
+        RareStarwellOrb = 47,
+        EpicStarwellOrb = 48,
+        CommonLuckyCoin = 49,
+        RareLuckyCoin = 50,
+        EpicLuckyCoin = 51,
     }
 }

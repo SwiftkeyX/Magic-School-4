@@ -4,6 +4,27 @@
 item's effect is a modifier built in code: `Items/Library/Build/<Item>.cs`, mapped from `ItemIdEnum` by `ItemLibrary`;
 `RegistryTests` checks every id builds. `Data/Items/default.asset` is `BaseItem.prefab`'s placeholder data, not an item.
 
+## Simple items (what the shop sells)
+
+While heroes and marks are being balanced, items are kept plain: each gives one stat, in three rarities, so a win-rate
+change can only come from heroes or marks (Notion: Power level -> Takeaway 10). They are `StatItems`
+(`Library/Build/StatItems.cs`, one table; ItemLibrary adds it), ids 31-51, assets in `Data/Items/Simple/`. Rare is about
+what the old item of that stat gave; Common is 0.5x, Epic 1.75x.
+
+| Item | Common / Rare / Epic | Price |
+|---|---|---|
+| Whetstone | +20 / 40 / 70% of base Atk | 2 / 3 / 5 |
+| Archmage Tome | +20 / 40 / 70 AP | |
+| Iron Plate | +15 / 30 / 50 DF | |
+| Oaken Charm | +150 / 300 / 500 HP | |
+| Hunter's Cord | +0.15 / 0.30 / 0.50 Attack Speed | |
+| Starwell Orb | +1 / 2 / 3.5 Mana per second | |
+| Lucky Coin | +10 / 20 / 35% Crit Chance | |
+
+`GameManager._shopItems` holds only these 21. The older items (ids 1-30) still build and stay in their assets, but are
+not sold; enemy comps and the non-prog team comps still use them. The prog comps wear the Rare versions, and Blacksmith's
+forge table gives Common, Rare, Epic by her Anvil count.
+
 ## Wearing
 
 - Dropping an item on a hero wears it. A hero wears one item (`HeroItems.Capacity`); it gets more by sharing: an ally
