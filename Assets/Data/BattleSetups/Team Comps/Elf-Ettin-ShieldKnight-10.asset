@@ -20,14 +20,14 @@ MonoBehaviour:
       row: 0
     item: {fileID: 0}
     alignPattern: 0
-    level: 1
+    level: -64
     star: 1
   - dataSO: {fileID: 11400000, guid: 76e948a66c5e474439a5a33fcd03137a, type: 2}
     team: 0
     hexPlacement:
       column: 1
       row: 2
-    item: {fileID: 11400000, guid: 8b49a667d55349aa96b2cb6c337ecd1c, type: 2}
+    item: {fileID: 11400000, guid: 70a131113c9f0aa419438469cdd11740, type: 2}
     alignPattern: 0
     level: 1
     star: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
     hexPlacement:
       column: 3
       row: 1
-    item: {fileID: 11400000, guid: 8b49a667d55349aa96b2cb6c337ecd1c, type: 2}
+    item: {fileID: 11400000, guid: 70a131113c9f0aa419438469cdd11740, type: 2}
     alignPattern: 1
     level: 1
     star: 2
@@ -54,7 +54,7 @@ MonoBehaviour:
     hexPlacement:
       column: 5
       row: 2
-    item: {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
+    item: {fileID: 11400000, guid: 09765f6646f9c8c4eb44522bc81152e7, type: 2}
     alignPattern: 0
     level: 1
     star: 2

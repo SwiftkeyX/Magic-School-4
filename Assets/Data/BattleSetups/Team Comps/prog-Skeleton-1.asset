@@ -18,9 +18,9 @@ MonoBehaviour:
     hexPlacement:
       column: 1
       row: 3
-    item: {fileID: 11400000, guid: d4f2690f453f4d9c8e597d1b3035bbcc, type: 2}
+    item: {fileID: 11400000, guid: d5a5f9888c0921c439edf29e3d2d793b, type: 2}
     alignPattern: 3
-    level: 1
+    level: -64
     star: 1
   - dataSO: {fileID: 11400000, guid: 118f557ddedafb84d938ad49509e53fe, type: 2}
     team: 0

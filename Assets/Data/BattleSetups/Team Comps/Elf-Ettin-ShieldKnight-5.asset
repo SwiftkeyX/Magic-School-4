@@ -27,7 +27,7 @@ MonoBehaviour:
     hexPlacement:
       column: 2
       row: 2
-    item: {fileID: 11400000, guid: 8b49a667d55349aa96b2cb6c337ecd1c, type: 2}
+    item: {fileID: 11400000, guid: 70a131113c9f0aa419438469cdd11740, type: 2}
     alignPattern: 1
     level: 1
     star: 2
@@ -36,7 +36,7 @@ MonoBehaviour:
     hexPlacement:
       column: 4
       row: 1
-    item: {fileID: 0}
+    item: {fileID: 11400000, guid: 09765f6646f9c8c4eb44522bc81152e7, type: 2}
     alignPattern: 5
     level: 1
     star: 2
@@ -45,10 +45,14 @@ MonoBehaviour:
     hexPlacement:
       column: 4
       row: 3
-    item: {fileID: 11400000, guid: ff46cc4dd6cab07439700bfd8ee361a2, type: 2}
+    item: {fileID: 11400000, guid: 09765f6646f9c8c4eb44522bc81152e7, type: 2}
     alignPattern: 0
     level: 1
     star: 1
   _deployZone: []
   _boardLayout: {fileID: 2821033882997051323, guid: d07d3d269e6884b42a2b2daced65229a, type: 3}
-  _itemsOnHexes: []
+  _itemsOnHexes:
+  - item: {fileID: 11400000, guid: d5a5f9888c0921c439edf29e3d2d793b, type: 2}
+    hexPlacement:
+      column: 0
+      row: 3
