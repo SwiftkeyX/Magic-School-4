@@ -45,12 +45,12 @@ takes the next fight as soon as its own ends; its heroes start a round of their 
 (`CombatRecorder.BeginRoundFor`). `BenchmarkSpeed` is the fast mode both share; it also sets `Hero.IsDrawn` false, so
 heroes have no world-space bars or floating text. A comp saved on another board than a stage's is reported, not fought.
 "Run Selected" takes the comps selected in the Project window. A full run is about 3,900 fights and 30 minutes.
-**Milestone only** (`milestoneOnly`, `TeamCompBenchmark.StagesFor`) fights a comp whose name ends in `-N` only at stage N
+**Milestone and next stage** (`milestoneOnly`, `TeamCompBenchmark.StagesFor`) fights a comp whose name ends in `-N` only at stage N
 and N+1 (`prog-Skeleton-5`: stages 5 and 6; `-10`: stage 10), and an unnumbered comp at every stage: 4 prog comps take
-about 3 minutes instead of 26. Prog comps are named `<Team>-…-<milestone>` for this (Elf's are
-`Elf-Ettin-ShieldKnight-1/5/9/10`). `.claude/scripts/prog_report.py` judges a run per prog (`analyse()`): milestone
+about 3 minutes instead of 26. **Milestone only** (`milestoneStageOnly`) fights only stage N: half the fights, for tuning; it wins when both are ticked. Prog comps are named `<Team>-…-<milestone>` for this (Elf's are
+`prog-Elf-1/3/5/7/9/10`). `.claude/scripts/prog_report.py` judges a run per prog (`analyse()`): milestone
 win rate (marks on/off), the next stages, fight length, each hero's DPS / damage share / damage taken / survival, and
-flags (outside 50-70%, a hero over 45% of team damage, a carry 20% off the other teams', a tank dying before its carry);
+flags (outside 50-95%, a hero over 45% of team damage, a carry 20% off the other teams', a tank dying before its carry);
 run on a CSV it prints the colour grid and the flags. `prog_sheet.py` keeps the same in its own sheet, **MagicSchool4 Prog** (`magicschool4-prog` in `sheets_config.json`), built like the Benchmark sheet: **Runs** (every run appended: a `team` row per prog x team, a `hero` row per hero), a hidden **Flags** (each run's problems), **Dashboard** (formulas only: Run / Compare with / Prog dropdowns, the colour grid, the change since the compared run, how many cells are in the band, then the picked prog's rows from Runs in Runs' own columns and colours) and a hidden **Lists**. `benchmark_import.py` appends each team run; `prog_sheet.py --rebuild` rebuilds Dashboard and Lists.
 Each tuning round also gets a short entry under "Prog rounds" on the Notion Power level page.
 `team_picture.py` draws a comp straight from its asset (no Unity): the deploy zone with each hero, its tier and item, lines to the allies on its marks, and each hero's marks, solid where an ally stands. The import draws every prog comp of a team run into `BalanceLogs/teams/`.

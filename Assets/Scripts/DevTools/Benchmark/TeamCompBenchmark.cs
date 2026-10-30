@@ -49,17 +49,18 @@ namespace MagicSchool.DevTools.Benchmark
 
         public static bool MilestoneOnly => Settings.milestoneOnly;
 
-        /// <summary>The stage numbers (1-based) a comp fights. With milestoneOnly, a name ending in "-N" fights N and N+1.</summary>
-        public static List<int> StagesFor(string compName, int stageCount, bool milestoneOnly)
+        /// <summary>The stage numbers (1-based) a comp fights. A name ending in "-N" fights N with milestoneStageOnly,
+        /// N and N+1 with milestoneOnly; any other name, or neither ticked, fights every stage.</summary>
+        public static List<int> StagesFor(string compName, int stageCount, bool milestoneOnly, bool milestoneStageOnly = false)
         {
             List<int> all = Enumerable.Range(1, stageCount).ToList();
-            if (!milestoneOnly) return all;
+            if (!milestoneOnly && !milestoneStageOnly) return all;
 
             Match milestone = Regex.Match(compName ?? string.Empty, @"-(\d+)$");
             if (!milestone.Success) return all;
 
             int stage = int.Parse(milestone.Groups[1].Value);
-            return all.Where(s => s == stage || s == stage + 1).ToList();
+            return all.Where(s => s == stage || (!milestoneStageOnly && s == stage + 1)).ToList();
         }
 
         private const float TimeStep = 1f / 30f;
@@ -135,7 +136,7 @@ namespace MagicSchool.DevTools.Benchmark
 
             foreach (BattlePlacementSO comp in comps.Where(c => c != null).Distinct())
             {
-                foreach (int stage in StagesFor(comp.name, game.StageCount, MilestoneOnly))
+                foreach (int stage in StagesFor(comp.name, game.StageCount, MilestoneOnly, Settings.milestoneStageOnly))
                 {
                     BattlePlacementSO setup = game.GetStage(stage - 1);
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -22,7 +23,7 @@ namespace MagicSchool.Editor
         private const float SecondsPerTeamFight = 0.5f;
 
         private static readonly string[] HeroFields = { "alliesSmallTeam", "alliesBigTeam", "flagBand" };
-        private static readonly string[] TeamFields = { "runsAligned", "runsNotAligned", "timeLimit", "milestoneOnly", "winLine" };
+        private static readonly string[] TeamFields = { "runsAligned", "runsNotAligned", "timeLimit", "milestoneOnly", "milestoneStageOnly", "winLine" };
 
         private static readonly string[] HeroAdvanced =
         {
@@ -127,11 +128,27 @@ namespace MagicSchool.Editor
                        "for the role comparison come from the newest full report.", HeroBenchmarkMenu.RunSelected, selected > 0);
         }
 
+        // Fields whose label is not their name. The names stay as they are so saved settings load.
+        private static readonly Dictionary<string, string> Labels = new Dictionary<string, string>
+        {
+            { "milestoneOnly", "Milestone and next stage" },
+            { "milestoneStageOnly", "Milestone only" },
+        };
+
+        private void DrawField(string field)
+        {
+            SerializedProperty property = _serialized.FindProperty(field);
+            if (Labels.TryGetValue(field, out string label))
+                EditorGUILayout.PropertyField(property, new GUIContent(label, property.tooltip), true);
+            else
+                EditorGUILayout.PropertyField(property, true);
+        }
+
         private void DrawTeamCompBenchmark()
         {
             Section("Team Comp Benchmark", "Every saved team comp vs every campaign stage, with aligning and without, " +
                                            "until a side is dead or the time limit.");
-            foreach (string field in TeamFields) EditorGUILayout.PropertyField(_serialized.FindProperty(field), true);
+            foreach (string field in TeamFields) DrawField(field);
             _teamAdvancedOpen = Advanced(_teamAdvancedOpen, TeamAdvanced);
 
             string[] compNames = AssetDatabase.FindAssets("t:BattlePlacementSO", new[] { TeamCompFolder })
@@ -139,7 +156,7 @@ namespace MagicSchool.Editor
             int comps = compNames.Length;
             int selected = Selection.objects.OfType<BattlePlacementSO>().Count();
             int stages = ArraySize("_stages");
-            int compStages = compNames.Sum(n => TeamCompBenchmark.StagesFor(n, stages, _settings.milestoneOnly).Count);
+            int compStages = compNames.Sum(n => TeamCompBenchmark.StagesFor(n, stages, _settings.milestoneOnly, _settings.milestoneStageOnly).Count);
             int perStage = Mathf.Max(1, _settings.runsAligned) + Mathf.Max(0, _settings.runsNotAligned);
             int fights = compStages * perStage;
             float seconds = fights * SecondsPerTeamFight * (32f / Mathf.Clamp(_settings.teamLanes, 1, 32));

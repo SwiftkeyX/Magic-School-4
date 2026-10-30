@@ -99,6 +99,9 @@ namespace MagicSchool.Editor
         private const string ImportScript = ".claude/scripts/benchmark_import.py";
         private const string ImportKey = "MagicSchool.HeroBenchmark.ImportPath";
 
+        // Trial runs (comp variants an agent tries before picking one) set this so their reports stay out of the Sheets.
+        internal const string SkipImportKey = "MagicSchool.Benchmark.SkipImport";
+
         internal static void ImportWhenBackInEditMode(string csvPath) => SessionState.SetString(ImportKey, csvPath);
 
         private static void ImportPendingReport()
@@ -107,6 +110,11 @@ namespace MagicSchool.Editor
             if (string.IsNullOrEmpty(path)) return;
 
             SessionState.EraseString(ImportKey);
+            if (EditorPrefs.GetBool(SkipImportKey, false))
+            {
+                Debug.Log($"[Benchmark] {SkipImportKey} is on - {path} is not imported to the Sheets.");
+                return;
+            }
             ImportToSheet(path);
         }
 

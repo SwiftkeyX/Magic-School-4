@@ -77,7 +77,7 @@ namespace MagicSchool.Editor
 
             BenchmarkSettingsSO settings = BenchmarkSettingsAsset.LoadOrCreate();
             BenchmarkSettingsSO s = settings != null ? settings : BenchmarkSettingsSO.Current;
-            string stages = s.milestoneOnly ? "its milestone stage and the next (every stage if unnumbered)" : "every campaign stage";
+            string stages = s.milestoneStageOnly ? "its milestone stage only (every stage if unnumbered)" : s.milestoneOnly ? "its milestone stage and the next (every stage if unnumbered)" : "every campaign stage";
             Debug.Log($"[TeamCompBenchmark] started - {string.Join(", ", comps.Select(c => c.name))} vs {stages}, " +
                       $"{s.runsAligned} runs aligned and {s.runsNotAligned} without, a stage won at {s.winLine:0%} of them. " +
                       "The screen stays blank until it is done.");
