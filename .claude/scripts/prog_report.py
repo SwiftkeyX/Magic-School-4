@@ -1,13 +1,13 @@
 # Per-prog summary of a Team Comp Benchmark CSV, every team side by side, judged against the prog criteria
 # (Notion: Power level). A prog comp is one whose name ends in "-N" (N = its milestone stage): prog-Skeleton-5,
-# Elf-Ettin-ShieldKnight-5. analyse() is shared with prog_sheet.py, which writes the same numbers to the Sheet.
+# prog-Elf-5. analyse() is shared with prog_sheet.py, which writes the same numbers to the Sheet.
 # Usage: python .claude/scripts/prog_report.py BalanceLogs/teamcomp-<time>.csv
 import csv
 import re
 import sys
 from collections import defaultdict
 
-BAND = (0.50, 0.70)    # win rate at the milestone stage
+BAND = (0.50, 0.95)    # win rate at the milestone stage
 MAX_SHARE = 0.45       # no hero above this share of team damage
 CARRY_SPREAD = 0.20    # a carry's share within +-20% of the other teams' carries at the same prog
 

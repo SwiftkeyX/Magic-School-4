@@ -5,11 +5,16 @@ description: Run one prog balancing round for Magic School 4 - benchmark the pro
 
 # Prog round
 
-**Goal** (Notion: Power level > Prog criteria): every team has a "prog" comp per stage milestone (1, 5, 9, 10; 3 and 7
-later) with the Elf team's hero / star / item budget. Each should win **50-70%** at its milestone stage, marks on, and
-mostly lose with marks off. Elf (`Elf-Ettin-ShieldKnight-N`) is the benchmark; others are `prog-<Team>-N`
+**Goal** (Notion: Power level > Prog criteria): every team has a "prog" comp per stage milestone (1, 3, 5, 7, 9, 10)
+with the Elf team's hero / star / item budget. Each should win **50-95%** at its milestone stage, marks on, and
+mostly lose with marks off. Elf (`prog-Elf-N`) is the benchmark; others are `prog-<Team>-N`
 (`prog-Skeleton-N`), all in `Assets/Data/BattleSetups/Team Comps/`. Stage 5 (Minotaur King boss) being harder than
 stage 6 is intended. Read `.claude/docs/features/benchmarks.md` for how the benchmark works.
+
+**Items** (the simple items, `.claude/docs/features/items.md`): follow the item steps in Prog criteria on the Notion page
+(start with none, add one at a time from the lowest rarity, raise rarity once full). A test comp never has more items
+than heroes - worn items plus items on purple hexes count, Blacksmith's forged items do not. The owner adds more on
+purple hexes by hand when they want to; never do it in a round.
 
 ## 1. See what changed
 
@@ -20,8 +25,9 @@ look at the PNG. Tell the owner in a few lines what changed before testing.
 ## 2. Run the benchmark (Unity must be open, Edit mode)
 
 1. `get_unity_editor_state`: not in Play mode, no compile errors. Never refresh/recompile in Play mode.
-2. **Milestone only** must be on (`Data/Benchmark/BenchmarkSettings.asset` `milestoneOnly: 1`): each prog comp fights
-   only stage N and N+1 - all 8 comps take about 6 minutes, 2 comps about 2.
+2. In the Benchmark window, tick **Milestone and next stage** (`milestoneOnly`) for a round: each prog comp fights stage
+   N and N+1. For tuning tick **Milestone only** (`milestoneStageOnly`) instead: stage N alone, half the fights (it wins
+   when both are ticked). The benchmark runs about 40 fights a minute.
 3. Coplay `execute_script` on `.claude/scripts/RunProgBenchmark.cs` (every prog comp; to run a few, copy it to the
    scratchpad and fill `Only`). It enters Play mode itself.
 4. Wait for the report with a background Bash loop until a new `BalanceLogs/teamcomp-*.csv` appears.
@@ -35,7 +41,7 @@ look at the PNG. Tell the owner in a few lines what changed before testing.
 
 - `python .claude/scripts/prog_report.py BalanceLogs/teamcomp-<time>.csv` prints the colour grid and the flags.
 - Compare with the round before: hero rows in the CSV (`grep "^hero" ... | grep ",<stage>,Stage 0<stage>,on,"`).
-- Report to the owner as the grid first (prog x team, 🟢 50-70%, 🔴 below, 🟡 above), then 2-4 lines of what moved and
+- Report to the owner as the grid first (prog x team, 🟢 50-95%, 🔴 below, 🟡 above), then 2-4 lines of what moved and
   why, then the next step. No big per-hero tables in chat; point to the Prog sheet:
   https://docs.google.com/spreadsheets/d/1Q3M94zgw1iJhUK5AkiXB2MjDOY6tTZXIe-VeBR7UZ_A (Dashboard: Run / Compare with /
   Prog dropdowns).

@@ -10,63 +10,36 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b15591f0aa582343bd08d00a02b4206, type: 3}
-  m_Name: Elf-Ettin-ShieldKnight-10
+  m_Name: prog-Elf-3
   m_EditorClassIdentifier: MagicSchool.Combat::MagicSchool.Combat.Placements.BattlePlacementSO
   _heroesPlacement:
-  - dataSO: {fileID: 11400000, guid: a20eb6d6a41e37344b5edc7d44f81e3b, type: 2}
-    team: 0
-    hexPlacement:
-      column: 1
-      row: 0
-    item: {fileID: 0}
-    alignPattern: 0
-    level: -64
-    star: 1
-  - dataSO: {fileID: 11400000, guid: 76e948a66c5e474439a5a33fcd03137a, type: 2}
-    team: 0
-    hexPlacement:
-      column: 1
-      row: 2
-    item: {fileID: 11400000, guid: 70a131113c9f0aa419438469cdd11740, type: 2}
-    alignPattern: 0
-    level: 1
-    star: 1
   - dataSO: {fileID: 11400000, guid: 9636cb18892805344858c7b35439a83c, type: 2}
     team: 0
     hexPlacement:
-      column: 3
-      row: 1
-    item: {fileID: 11400000, guid: 70a131113c9f0aa419438469cdd11740, type: 2}
+      column: 2
+      row: 2
+    item: {fileID: 11400000, guid: 290719c7809a0434ca276c4a52ff4008, type: 2}
     alignPattern: 1
-    level: 1
+    level: -64
     star: 2
   - dataSO: {fileID: 11400000, guid: 0f207332a3e601b46b3c098900106a8f, type: 2}
     team: 0
     hexPlacement:
-      column: 5
-      row: 0
-    item: {fileID: 0}
+      column: 4
+      row: 1
+    item: {fileID: 11400000, guid: 09765f6646f9c8c4eb44522bc81152e7, type: 2}
     alignPattern: 5
     level: 1
-    star: 3
+    star: 0
   - dataSO: {fileID: 11400000, guid: 0f3d014677dfab3469e35a31cbe4aeab, type: 2}
     team: 0
     hexPlacement:
-      column: 5
-      row: 2
+      column: 4
+      row: 3
     item: {fileID: 11400000, guid: 09765f6646f9c8c4eb44522bc81152e7, type: 2}
     alignPattern: 0
     level: 1
-    star: 2
-  - dataSO: {fileID: 11400000, guid: 6c221077dffe9bf418d6dbf62db3777b, type: 2}
-    team: 0
-    hexPlacement:
-      column: 5
-      row: 4
-    item: {fileID: 0}
-    alignPattern: 2
-    level: 1
-    star: 2
+    star: 0
   _deployZone: []
   _boardLayout: {fileID: 2821033882997051323, guid: d07d3d269e6884b42a2b2daced65229a, type: 3}
   _itemsOnHexes: []

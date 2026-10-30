@@ -115,14 +115,14 @@ def append_run(sh, path):
 
 # Runs looks like the Benchmark sheet's Team Runs, styled by the same code: grey identity columns, an orange block of
 # team numbers, a blue block of hero numbers, team rows bold, every other run shaded, a note on each header. On top,
-# the win rate at the milestone stage is coloured by the 50-70% band.
+# the win rate at the milestone stage is coloured by the 50-95% band.
 NOTES = {
     "run_time": "When the benchmark ran. Every row of one run shares it.",
     "row": "team = one prog comp's numbers at its milestone stage; hero = one of its heroes.",
     "prog": "The milestone stage the comp is built for (prog-5 = stage 5), from the end of its name.",
     "team": "Which team: the comp's name before its milestone, e.g. Elf, Skeleton.",
     "comp": "The team comp asset (Data/BattleSetups/Team Comps).",
-    "win": "Win rate at the milestone stage, marks on. The target is 50-70%.",
+    "win": "Win rate at the milestone stage, marks on. The target is 50-95%.",
     "win_marks_off": "Win rate at the milestone stage with aligning off - what the team is worth without its marks.",
     "win_next_stage": "Win rate at the stage after the milestone.",
     "win_stage_after": "Win rate two stages after the milestone.",
@@ -203,14 +203,14 @@ def cell_of(m):
 GRID = f"B{GRID_FIRST}:G{GRID_LAST}"
 FORMULAS = {
     "A1": "Prog Dashboard",
-    "A2": "Each prog's win rate at its milestone stage, marks on - the target is 50-70% (green); red is below, yellow "
+    "A2": "Each prog's win rate at its milestone stage, marks on - the target is 50-95% (green); red is below, yellow "
           "above. Pick a run by date (newest first), a run to compare with, and the prog whose rows you want below (All for every prog).",
     "A3": "Run", "C3": "Compare with", "E3": "Prog",
     # tiles: a grey label over a big value
-    "A5": "In the band (50-70%)", "C5": "Below 50%", "E5": "Above 70%", "G5": "Run", "J5": "Compared with",
-    "A6": f"=IF(COUNT({GRID})=0,\"\",COUNTIFS({GRID},\">=0.5\",{GRID},\"<=0.7\")&\" of \"&COUNT({GRID}))",
+    "A5": "In the band (50-95%)", "C5": "Below 50%", "E5": "Above 95%", "G5": "Run", "J5": "Compared with",
+    "A6": f"=IF(COUNT({GRID})=0,\"\",COUNTIFS({GRID},\">=0.5\",{GRID},\"<=0.95\")&\" of \"&COUNT({GRID}))",
     "C6": f"=IF(COUNT({GRID})=0,\"\",COUNTIF({GRID},\"<0.5\"))",
-    "E6": f"=IF(COUNT({GRID})=0,\"\",COUNTIF({GRID},\">0.7\"))",
+    "E6": f"=IF(COUNT({GRID})=0,\"\",COUNTIF({GRID},\">0.95\"))",
     "G6": f"={SEL}",
     "J6": f"=IF({CMP}=\"\",\"-\",{CMP})",
     f"A{GRID_TITLE}": "Win rate at the milestone stage",
