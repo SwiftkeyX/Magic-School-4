@@ -18,7 +18,7 @@ MonoBehaviour:
     hexPlacement:
       column: 1
       row: 3
-    item: {fileID: 11400000, guid: d5a5f9888c0921c439edf29e3d2d793b, type: 2}
+    item: {fileID: 0}
     alignPattern: 3
     level: -64
     star: 1

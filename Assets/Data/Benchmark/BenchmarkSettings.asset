@@ -22,9 +22,9 @@ MonoBehaviour:
   flagBand: 0.2
   heroLanes: 8
   runsAligned: 20
-  runsNotAligned: 10
+  runsNotAligned: 0
   timeLimit: 90
   milestoneOnly: 1
-  milestoneStageOnly: 0
+  milestoneStageOnly: 1
   winLine: 0.7
   teamLanes: 32

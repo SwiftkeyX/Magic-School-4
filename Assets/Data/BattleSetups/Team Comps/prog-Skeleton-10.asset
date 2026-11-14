@@ -27,7 +27,7 @@ MonoBehaviour:
     hexPlacement:
       column: 2
       row: 2
-    item: {fileID: 11400000, guid: d5a5f9888c0921c439edf29e3d2d793b, type: 2}
+    item: {fileID: 11400000, guid: dd19f63317a8df543ad86e479bb75ed2, type: 2}
     alignPattern: 3
     level: 1
     star: 2
@@ -36,7 +36,7 @@ MonoBehaviour:
     hexPlacement:
       column: 3
       row: 1
-    item: {fileID: 11400000, guid: 09765f6646f9c8c4eb44522bc81152e7, type: 2}
+    item: {fileID: 0}
     alignPattern: 0
     level: 1
     star: 2
@@ -54,7 +54,7 @@ MonoBehaviour:
     hexPlacement:
       column: 4
       row: 1
-    item: {fileID: 11400000, guid: 4fc5c16744503ec4f9f2e6c43bdcca5a, type: 2}
+    item: {fileID: 11400000, guid: e02e42d59a474e2438aa2e34f8be4636, type: 2}
     alignPattern: 4
     level: 1
     star: 2
@@ -63,7 +63,7 @@ MonoBehaviour:
     hexPlacement:
       column: 5
       row: 0
-    item: {fileID: 0}
+    item: {fileID: 11400000, guid: 0b58c4714f399e54293d1f5f9b253bc5, type: 2}
     alignPattern: 1
     level: 1
     star: 3
